@@ -1,6 +1,4 @@
-#summary One-sentence summary of this page.
 #labels Featured
-
 = Introduction =
 
 The aim of this project to help the *Hi* gh *T* hroughput *S* creening process. The current subgoal is developing nodes to [http://knime.org/ KNIME] helping the data analysis of the results.
