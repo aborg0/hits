@@ -1,0 +1,14 @@
+#summary One-sentence summary of this page.
+#labels Featured
+
+= Introduction =
+
+The aim of this project to help the *Hi* gh *T* hroughput *S* creening process. The current subgoal is developing nodes to [http://knime.org/ KNIME] helping the data analysis of the results.
+
+= Details =
+
+At current stage the plugin is able to import data (the summary by wells data) from IN Cell Analyser 1000 Excel output, analyse it using [http://www.dkfz.de/signaling/cellHTS/ CellHTS2], and use [http://knime.org/ KNIME plugins] to further analyse the results of the output of the CellHTS2 node. Also created a node to visualize the data in a plate-based form, like heatmaps.
+
+= Acknowledgement =
+
+This development was supported by a [http://cordis.europa.eu/improving/fellowships/home.htm Marie Curie Fellowship].
