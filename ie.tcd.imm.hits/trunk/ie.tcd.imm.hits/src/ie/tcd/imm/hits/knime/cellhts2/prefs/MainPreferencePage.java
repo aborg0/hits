@@ -19,6 +19,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  * This page is used to modify preferences only. They are stored in the
  * preference store that belongs to the main plug-in class. That way,
  * preferences can be accessed directly via the preference store.
+ * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 
 public class MainPreferencePage extends FieldEditorPreferencePage implements
@@ -27,7 +29,7 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 	public MainPreferencePage() {
 		super(GRID);
 		setPreferenceStore(ImporterNodePlugin.getDefault().getPreferenceStore());
-		setDescription("A demonstration of a preference page implementation");
+		setDescription("You can adjust the HiTS related node to your needs.");
 	}
 
 	/**
@@ -36,13 +38,6 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 	 * editor knows how to save and restore itself.
 	 */
 	public void createFieldEditors() {
-		addField(new ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics>(
-				PreferenceConstants.RESULT_COL_ORDER,
-				"&Column order:",
-				getFieldEditorParent(),
-				Arrays
-						.<PreferenceConstants.PossibleStatistics> asList(PreferenceConstants.PossibleStatistics
-								.values())));
 		final BooleanFieldEditor useNamesFieldEditor = new BooleanFieldEditor(
 				PreferenceConstants.USE_NAMES_INSTEAD_OF_CHANNELS,
 				"Use &names instead of numbers for channels",
@@ -72,7 +67,6 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 		addField(useTCDExtensionsFieldEditor);
 		addField(useNamesFieldEditor);
 		useTCDExtensionsFieldEditor.load();
-
 		// TODO handle the inconsistencies. (The enabledness of the node is not
 		// always correct.)
 
@@ -80,6 +74,14 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 		// .getPreferenceStore().getBoolean(
 		// useTCDExtensionsFieldEditor.getPreferenceName()),
 		// getFieldEditorParent());
+
+		addField(new ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics>(
+				PreferenceConstants.RESULT_COL_ORDER,
+				"&Column order:",
+				getFieldEditorParent(),
+				Arrays
+						.<PreferenceConstants.PossibleStatistics> asList(PreferenceConstants.PossibleStatistics
+								.values())));
 	}
 
 	/*
