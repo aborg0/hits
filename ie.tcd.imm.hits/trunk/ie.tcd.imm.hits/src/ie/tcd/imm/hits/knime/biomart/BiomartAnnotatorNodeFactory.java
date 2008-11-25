@@ -9,7 +9,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "BiomartAnnotator" Node. Adds some
  * annotations from the BioMart databases using the biomaRt R package.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BiomartAnnotatorNodeFactory extends NodeFactory {
 

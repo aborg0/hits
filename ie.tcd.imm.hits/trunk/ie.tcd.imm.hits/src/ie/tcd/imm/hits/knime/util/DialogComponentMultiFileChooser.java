@@ -61,7 +61,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		super(model);
 		stringHistory = StringHistory.getInstance(historyId);
 		final HashSet<String> extensions = new HashSet<String>(
-				validExtensions.length);
+				validExtensions == null ? 1 : validExtensions.length * 2);
 		if (validExtensions == null) {
 			extensions.add("");
 		} else {

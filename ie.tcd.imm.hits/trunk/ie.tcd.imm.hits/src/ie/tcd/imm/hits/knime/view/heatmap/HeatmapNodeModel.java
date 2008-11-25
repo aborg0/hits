@@ -42,7 +42,7 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 /**
  * This is the model implementation of Heatmap. Shows the heatmap of the plates.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeModel extends NodeModel {
 

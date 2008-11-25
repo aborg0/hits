@@ -9,7 +9,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "Heatmap" Node.
  * Shows the heatmap of the plates.
  *
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeFactory extends NodeFactory {
 

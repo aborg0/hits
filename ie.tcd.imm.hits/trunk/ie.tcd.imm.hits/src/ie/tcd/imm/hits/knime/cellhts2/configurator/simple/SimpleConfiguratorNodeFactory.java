@@ -10,7 +10,7 @@ import org.knime.core.node.NodeView;
  * the specified CellHTS 2 configuration files for using them as input for
  * CellHTS nodes.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class SimpleConfiguratorNodeFactory extends NodeFactory {
 

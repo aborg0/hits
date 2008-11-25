@@ -64,7 +64,7 @@ import org.knime.core.node.property.hilite.KeyEvent;
  * <code>NodeView</code> for the "Heatmap" Node. Shows the heatmap of the
  * plates.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeView extends NodeView {
 	private final LegendPanel legendPanel;

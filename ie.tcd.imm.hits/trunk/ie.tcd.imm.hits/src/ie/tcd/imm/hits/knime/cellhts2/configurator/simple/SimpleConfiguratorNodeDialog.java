@@ -14,7 +14,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class SimpleConfiguratorNodeDialog extends DefaultNodeSettingsPane {
 

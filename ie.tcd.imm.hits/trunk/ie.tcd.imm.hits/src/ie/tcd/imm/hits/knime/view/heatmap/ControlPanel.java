@@ -47,7 +47,7 @@ import javax.swing.plaf.basic.BasicBorders;
  * With this panel you can control the appearance of the heatmap's circles
  * views.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ControlPanel extends JPanel {
 	private static final long serialVersionUID = -96828595837428105L;

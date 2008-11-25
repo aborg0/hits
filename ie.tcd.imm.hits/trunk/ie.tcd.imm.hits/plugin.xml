@@ -21,8 +21,7 @@
    </extension>
    <extension point="org.eclipse.equinox.preferences.preferences"/>
    <extension point="org.eclipse.ui.preferencePages">
-      <page category="org.eclipse.ui.preferencePages" class="ie.tcd.imm.hits.knime.cellhts2.prefs.MainPreferencePage" id="ie.tcd.imm.knime.cellhts2.prefs.MainPreferencePage" name="cellHiTS Preferences">
-      </page>
+      <page category="org.knime.workbench.ui.preferences" class="ie.tcd.imm.hits.knime.cellhts2.prefs.MainPreferencePage" id="ie.tcd.imm.knime.cellhts2.prefs.MainPreferencePage" name="HiTS Preferences"/>
    </extension>
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceInitializer">

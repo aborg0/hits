@@ -41,7 +41,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 /**
  * This is the model implementation of Importer. Reads the data from xls files
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ImporterNodeModel extends NodeModel {
 
@@ -80,9 +80,6 @@ public class ImporterNodeModel extends NodeModel {
 
 	private final SettingsModelStringArray filesModel = new SettingsModelStringArray(
 			CFGKEY_FILES, new String[] {});
-
-	private final SettingsModelString dirModel = new SettingsModelString(
-			CFGKEY_DIR, ImporterNodeDialog.DEFAULT_DIR);
 
 	private final SettingsModelString annotationFileNameModel = new SettingsModelString(
 			CFGKEY_ANNOTATION_FILE, DEFAULT_ANNOTATION_FILE);

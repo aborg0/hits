@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 /**
  * This panel shows the legend of the heatmap's circles/rectangles.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LegendPanel extends JPanel implements ActionListener {
 	public static class ParametersPanel extends JPanel {

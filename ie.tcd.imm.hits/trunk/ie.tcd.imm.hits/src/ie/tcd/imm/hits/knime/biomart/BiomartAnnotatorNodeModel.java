@@ -39,7 +39,7 @@ import org.rosuda.REngine.Rserve.RserveException;
  * This is the model implementation of BiomartAnnotator. Adds some annotations
  * from the BioMart databases using the biomaRt R package.
  * 
- * @author TCD
+ * @author bakosg@tcd.ie
  */
 public class BiomartAnnotatorNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
@@ -204,7 +204,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 				}
 				table.addRowToTable(new DefaultRow(origRow.getKey(), values));
 			}
-		} catch (final Exception e) {
+		} catch (final RuntimeException e) {
 			logger.warn("Unable to use biomaRt.");
 			logger.debug("Unable to use biomaRt.", e);
 			throw e;

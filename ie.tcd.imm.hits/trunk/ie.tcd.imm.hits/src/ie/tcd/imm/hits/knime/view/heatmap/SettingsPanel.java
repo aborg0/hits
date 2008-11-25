@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 /**
  * This panel allows the user to save/load/delete view configurations ({@link ViewModel}s).
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class SettingsPanel extends JPanel {
 	private static final long serialVersionUID = -8855376941992295369L;

@@ -39,7 +39,7 @@ import org.knime.core.node.property.hilite.KeyEvent;
 /**
  * Shows a heatmap of values.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class Heatmap extends JComponent implements HiLiteListener {
 	private static final long serialVersionUID = 7832090816939923780L;

@@ -11,7 +11,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
  * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeDialog extends DefaultNodeSettingsPane {
 

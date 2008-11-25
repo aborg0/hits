@@ -9,7 +9,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "CellHTS2" Node.
  * This node performs the calculations using CellHTS2
  *
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class CellHTS2NodeFactory extends NodeFactory {
 

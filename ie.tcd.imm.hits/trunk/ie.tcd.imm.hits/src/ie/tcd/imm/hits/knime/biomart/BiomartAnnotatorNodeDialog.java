@@ -36,7 +36,7 @@ import org.rosuda.REngine.Rserve.RserveException;
  * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 	private static final NodeLogger logger = NodeLogger

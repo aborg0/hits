@@ -24,7 +24,7 @@ import javax.swing.event.ChangeListener;
 /**
  * This is responsible for the visual representation of the {@link Heatmap}s.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ViewModel implements ActionListener {
 	private final WeakHashMap<ChangeListener, Boolean> changeListeners = new WeakHashMap<ChangeListener, Boolean>();

@@ -29,7 +29,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * specified CellHTS 2 configuration files for using them as input for CellHTS
  * nodes.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class SimpleConfiguratorNodeModel extends NodeModel {
 
@@ -124,14 +124,26 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 			try {
 				int i = 0;
 				String line;
-				final int wellCount = Integer.parseInt(br.readLine().replace(
-						"Wells:", "").trim());
-				assert wellCount == 96 || wellCount == 384;
-				final int plateCount = Integer.parseInt(br.readLine().replace(
-						"Plates:", "").trim());
-				if (!br.readLine().trim().equalsIgnoreCase(
-						"Plate\tWell\tContent")) {
-					throw new IllegalStateException("Missing header!");
+				final int plateCount;
+				try {
+					final int wellCount = Integer.parseInt(br.readLine()
+							.replace("Wells:", "").trim());
+					assert wellCount == 96 || wellCount == 384;
+					plateCount = Integer.parseInt(br.readLine().replace(
+							"Plates:", "").trim());
+				} catch (final Exception e) {
+					throw new IllegalStateException(
+							"Missing, or wrong prolog (like:\nWells: 96\nPlates: 1\n)");
+				}
+				try {
+					if (!br.readLine().trim().equalsIgnoreCase(
+							"Plate\tWell\tContent")) {
+						throw new IllegalStateException(
+								"Missing header!\nPlate\tWell\tContent");
+					}
+				} catch (final NullPointerException e) {
+					throw new IllegalStateException(
+							"Missing header, unexpected end of file:\nPlate\tWell\tContent");
 				}
 				while ((line = br.readLine()) != null) {
 					final String[] parts = line.split("\t");

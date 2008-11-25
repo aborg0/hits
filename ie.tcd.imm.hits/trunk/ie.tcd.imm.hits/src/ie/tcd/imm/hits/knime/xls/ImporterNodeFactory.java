@@ -9,7 +9,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "Importer" Node. Reads the data from xls
  * files
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ImporterNodeFactory extends NodeFactory {
 

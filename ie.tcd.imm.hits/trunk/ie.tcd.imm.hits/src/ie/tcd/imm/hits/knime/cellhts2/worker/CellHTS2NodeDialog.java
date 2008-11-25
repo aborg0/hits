@@ -54,7 +54,7 @@ import org.knime.core.node.util.ColumnFilterPanel;
  * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
- * @author TCD
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
