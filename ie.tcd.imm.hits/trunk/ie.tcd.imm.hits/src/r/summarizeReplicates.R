@@ -164,15 +164,15 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
   {
 	  if (dim(xnorm)[2]==dim(score)[2])
 	  {
-		  xnorm <- Data(xsc) # construct a cellHTS object just with the first sample
+		  xnorm <- Data(object) # construct a cellHTS object just with the first sample
 		  
 		  channelCount <- dim(xnorm)[3]
-		  z <- xsc#[,1]
-		  score <- matrix(nrow=dim(xnorm)[1], ncol=channelCount, dimnames=list(featureNames(xsc), 1:channelCount))
+		  z <- object#[,1]
+		  score <- matrix(nrow=dim(xnorm)[1], ncol=channelCount, dimnames=list(featureNames(object), 1:channelCount))
 #		  assayDatas = c()
 		  for (i in 1:channelCount)
 		  {
-			  xnorm <- Data(xsc)[,,i]
+			  xnorm <- Data(object)[,,i]
 			  score[, i] <- switch("mean",
 					  mean = rowMeans(xnorm, na.rm=TRUE),
 					  median = rowMedians(xnorm, na.rm=TRUE),
@@ -182,8 +182,7 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
 					  closestToZero = apply(xnorm, 1, myClosestToZero),
 					  furthestFromZero = apply(xnorm, 1, myFurthestFromZero),
 					  stop(sprintf("Invalid value '%s' for argument 'summary'", summary)))
-			  name=paste("score_ch", i, sep="")
-#			  assayDatas = c(assayDatas, assayDataNew("score"=matrix(score[,i], dimnames=list(featureNames(xsc[,1]), 1))))
+#			  assayDatas = c(assayDatas, assayDataNew("score"=matrix(score[,i], dimnames=list(featureNames(object), 1))))
 		  }
 #		  assayData(z) <- assayDatas[1]
 #		  for (i in 2: channelCount)
