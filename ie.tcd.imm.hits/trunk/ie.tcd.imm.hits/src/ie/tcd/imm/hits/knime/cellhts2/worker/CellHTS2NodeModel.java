@@ -278,8 +278,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -489,7 +489,8 @@ public class CellHTS2NodeModel extends NodeModel {
 			// topTable.asList().get("finalWellAnno_r");
 			// System.out.println(topTable);
 
-			if (parametersModel.getIncludeList().size() == 1
+			if (true
+					|| parametersModel.getIncludeList().size() == 1
 					|| parametersModel.getIncludeList().size() == replicateCount
 					|| scoreModel.getStringValue().equals("none")) {
 				try {
@@ -521,7 +522,7 @@ public class CellHTS2NodeModel extends NodeModel {
 									+ outDir
 									+ "\""
 									+ additionalParams + ")");
-					conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
+					// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
 				} catch (final Exception e) {
 					logger.fatal("Problem writing the results", e);
 					throw e;

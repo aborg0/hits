@@ -145,8 +145,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		// nodeModel.scoreValues.get(platePos[0]).entrySet().size()
 		final Slider replicateSlider = ArrangementModel.selectNth(
 				mainArrangement, 0, StatTypes.replicate);
-		final int replicateCount = replicateSlider.getParameters().iterator()
-				.next().getColorLegend().size();
+		final int replicateCount = replicateSlider.getValueMapping().size();// getParameters().iterator()
+		// .next().getColorLegend().size();
 		final Color[][] colors = new Color[rows * cols][size/* * replicateCount */];
 		for (final Entry<ParameterModel, Collection<Slider>> mainEntry : mainArrangement
 				.entrySet()) {
