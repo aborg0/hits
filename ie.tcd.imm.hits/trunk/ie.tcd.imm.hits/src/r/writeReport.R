@@ -2,10 +2,7 @@ writehref = function(x, url, con)
   cat(sprintf("<A HREF=\"%s\">%s</A>", url, x), file=con)
 
 writeheader = function(x, level, con)
-    cat(sprintf("<HTML><HEAD><TITLE>%s</TITLE>    <!--[if IE]><script language=\"javascript\" type=\"text/javascript\" src=\"../excanvas.pack.js\"></script><![endif]-->
-    <script language=\"javascript\" type=\"text/javascript\" src=\"../jquery.js\"></script>
-    <script language=\"javascript\" type=\"text/javascript\" src=\"../jquery.flot.js\"></script>
-</HEAD>\n<BODY><CENTER><H%d>%s</H%d></CENTER>\n\n",
+    cat(sprintf("<HTML><HEAD><TITLE>%s</TITLE></HEAD>\n<BODY><CENTER><H%d>%s</H%d></CENTER>\n\n",
                 as.character(x), as.integer(level), as.character(x), as.integer(level)), file=con)
 
 writeExperimentHeader = function(xy, x, y, url, level, con)
@@ -656,7 +653,7 @@ makePlot(outdir, con=con, name="colLeg", w=5, h=2, psz=8, fun=function(){ image(
 
   ##   -------  Step 7)  Screen-wide image plot ---------------
     count = nrow(plotTable)
-  for (ch in 1:nrChannels)
+  for (ch in 1:nrChannel)
   {
     res <- makePlot(outdir, con=con, name=sprintf("imageScreen_ch%d", ch), w=7, h=7, psz=8,
                     fun = function(map=imageScreenArgs$map)

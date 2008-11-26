@@ -14,7 +14,7 @@ imageScreen <- function (object, ar=3/5, zrange, map=FALSE, anno, channel = 1) {
 
   ## Determine the number of columns and rows for the image plot,
   ## given the aspect ratio 'ar' provided by the user
-  sc.true <- sc <- as.vector(Data(object)[, channel, 1])
+  sc.true <- sc <- as.vector(assayData(object)[[paste("score", channel, sep="_ch")]])
   nrPlates = max(plate(object))
   nrCol = ceiling(sqrt(ar*nrPlates))
   nrRow = ceiling(nrPlates/nrCol)

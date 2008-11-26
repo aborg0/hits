@@ -140,15 +140,15 @@ xsc <- cellHTSlist[["scored"]]
 
 	addCol <- function(res, col, r, ch)
 	{
-		print(col)
-		print(ch)
+#		print(col)
+#		print(ch)
 		res <- switch (col,
 			plate={res$plate=plate(xsc); res},
 			position={res["position"]=position(xsc); res},
 			well={res["well"]=well(xsc); res},
 			score={
 				#out["score"]=as.vector(Data(xsc)[, 1, 1])
-				res[sprintf("score_%s", channels[[ch]])] <- round(as.vector(Data(xsc)[, ch, ]), 3)
+				res[sprintf("score_%s", channels[[ch]])] <- round(as.vector(assayData(xsc)[[paste("score", ch, sep="_ch")]]), 3)
 				res
 			},
 			wellAnno={res["wellAnno"] = wAnno; res},
@@ -166,12 +166,10 @@ xsc <- cellHTSlist[["scored"]]
 				res
 			},
 			median={
-#				browser()
 				res[sprintf("median_%s", channels[[ch]])] <- apply(xraw[,,ch], 1, median, na.rm=TRUE)
 				res
 			},
 			diffOrMean={
-#				browser()
 				if(nrReplicate==2) { 
 		          ## Difference between replicates (raw data)
 		          res[sprintf("diff_%s", channels[[ch]])] = apply(xraw[,,ch], 1, diff)
