@@ -278,8 +278,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			 * "127.0.0.1", 1099, 10000
+			 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -416,7 +416,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
 				// + "");
 				conn.voidEval("setwd(\""
-						+ rSourcesDir.getAbsolutePath().replace('\\', '"')
+						+ rSourcesDir.getAbsolutePath().replace('\\', '/')
 						+ "\")");
 				conn.voidEval("source(\"summarizeReplicates.R\")\n"
 						+ "source(\"getTopTable.R\")\n"
