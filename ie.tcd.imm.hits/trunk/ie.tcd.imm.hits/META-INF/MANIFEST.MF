@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Importer-Node extension for KNIME Workbench
-Bundle-SymbolicName: ie.tcd.imm.knime.cellHTS2;singleton:=true
+Bundle-Name: HiTS extensions for KNIME Workbench
+Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-ClassPath: importer.jar,
  lib/commons-logging-1.1.jar,
