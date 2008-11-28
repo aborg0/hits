@@ -399,7 +399,7 @@ xsc <- cellHTSlist[["scored"]]
 	firstCol = sprintf("score_%s", channels[1])
 	if (firstCol %in% names(out))
 	{
-		out = out[order(out[firstCol], decreasing=TRUE), ]
+		out = out[order(out[[firstCol]], decreasing=TRUE), ]
 #		out["score"] = round(out["score"], 2)
 	}
 	if (dim(out)[2] > 1)
