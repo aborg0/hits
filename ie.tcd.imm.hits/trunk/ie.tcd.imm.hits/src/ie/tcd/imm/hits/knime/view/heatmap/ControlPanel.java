@@ -73,11 +73,30 @@ public class ControlPanel extends JPanel {
 
 	private final LegendPanel legendPanel;
 
+	/**
+	 * This is something that represents a {@link ParameterModel} list and
+	 * values.
+	 */
 	static class Slider implements Serializable {
 		private static final long serialVersionUID = 8868671426882187720L;
 
+		/**
+		 * The position of the {@link Slider} in the window.
+		 */
 		static enum Type {
-			Hidden, Splitter, ScrollVertical, ScrollHorisontal, Selector;
+			/**
+			 * The {@link Slider} is not visible, only settable from the control
+			 * screen
+			 */
+			Hidden,
+			/** The {@link Slider} splits the wells */
+			Splitter,
+			/** The {@link Slider} is distributed across the vertical scrollbar */
+			ScrollVertical,
+			/** The {@link Slider} is distributed across the horizontal scrollbar */
+			ScrollHorisontal,
+			/** The {@link Slider} values are on the selector panel. */
+			Selector;
 		}
 
 		public static final int MAX_INDEPENDENT_FACTORS = 3;
