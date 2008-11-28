@@ -16,6 +16,9 @@ import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,6 +36,8 @@ import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.StringHistory;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A {@link DialogComponent} for {@link SettingsModelStringArray} models. It is
  * able to select some files in a directory/folder.
@@ -41,23 +46,37 @@ import org.knime.core.node.util.StringHistory;
  * 
  * @author bakosg@tcd.ie
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class DialogComponentMultiFileChooser extends DialogComponent {
+	/** This selects the folder. */
 	protected final JComboBox dirNameComboBox = new JComboBox();
 	private final StringHistory stringHistory;
 	private final JButton browseButton = new JButton("Browse");
 	private final FilenameFilter possibleExtensions;
 	private final DefaultListModel fileNameModel = new DefaultListModel();
+	/** This is where the filenames are shown. */
 	protected final JList fileNameList = new JList(fileNameModel);
 
 	private final TitledBorder border = new TitledBorder("");
 
 	/**
 	 * @param model
+	 *            The {@link SettingsModelStringArray model} holding the full
+	 *            filenames. (Not {@code null}.)
+	 * @param fileNameLabel
+	 *            This will be shown on the left of {@link #fileNameList}.
+	 * @param historyId
+	 *            This identifies the file history.
+	 * @param visibleRowCount
+	 *            Shows these many lines.
+	 * @param validExtensions
+	 *            Only files with these extensions are shown.
 	 */
 	public DialogComponentMultiFileChooser(
 			final SettingsModelStringArray model, final String fileNameLabel,
-			final String historyId, final int visibleRowCount,
-			final String... validExtensions) {
+			final String historyId, @Nonnegative
+			final int visibleRowCount, final String... validExtensions) {
 		super(model);
 		stringHistory = StringHistory.getInstance(historyId);
 		final HashSet<String> extensions = new HashSet<String>(
@@ -142,6 +161,12 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		getComponentPanel().validate();
 	}
 
+	/**
+	 * Updates the list of the file names.
+	 * 
+	 * @param newDir
+	 *            A folder name. (Not {@code null}.)
+	 */
 	private void updateList(final String newDir) {
 		fileNameModel.clear();
 		if (newDir != null) {
@@ -162,6 +187,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * 
 	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#checkConfigurabilityBeforeLoad(org.knime.core.data.DataTableSpec[])
 	 */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final DataTableSpec[] specs)
 			throws NotConfigurableException {
@@ -172,6 +200,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents(boolean)
+	 */
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
@@ -184,6 +215,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText(java.lang.String)
+	 */
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void setToolTipText(final String text) {
@@ -199,6 +233,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
+	 */
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected void updateComponent() {
@@ -258,6 +295,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * 
 	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#validateSettingsBeforeSave()
 	 */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
 		final Object[] values = fileNameList.getSelectedValues();
@@ -288,6 +328,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		stringHistory.add(getCurrentSelection());
 	}
 
+	/**
+	 * @return The currently selected {@link String} in {@link #dirNameComboBox}.
+	 */
 	protected String getCurrentSelection() {
 		final String select = dirNameComboBox.getEditor().getItem().toString();
 		return select == null || select.length() == 0 ? (String) dirNameComboBox

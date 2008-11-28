@@ -10,6 +10,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -38,44 +41,67 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of Importer. Reads the data from xls files
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class ImporterNodeModel extends NodeModel {
 
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(ImporterNodeModel.class);
 
+	/** The plate column name in the result table. */
 	public static final String PLATE_COL_NAME = "Plate";
+	/** The replicate column name in the result table. */
 	public static final String REPLICATE_COL_NAME = "replicate";
+	/** The well column name in the result table. */
 	public static final String WELL_COL_NAME = "well";
+	/** The gene id column name in the result table. */
 	public static final String GENE_ID_COL_NAME = "GeneID";
+	/** The gene annotation column name in the result table. */
 	public static final String GENE_ANNOTATION_COL_NAME = "GeneSymbol";
+	/** The configuration key for the files. */
 	static final String CFGKEY_FILES = "ie.tcd.imm.hits.knime.xls.files";
-	static final String CFGKEY_DIR = "ie.tcd.imm.hits.knime.xls.files.dir";
 
+	/** The configuration key for the annotation file path. */
 	static final String CFGKEY_ANNOTATION_FILE = "ie.tcd.imm.hits.knime.xls.annot";
+	/** The default annotation file path. */
 	static final String DEFAULT_ANNOTATION_FILE = "";
 
+	/**
+	 * The configuration key for adding the annotations to the first outport or
+	 * not.
+	 */
 	static final String CFGKEY_COMBINE_ANNOTATIONS = "ie.tcd.imm.hits.knime.xls.combine_annot";
+	/** The default value for adding the annotations to the first outport */
 	static final boolean DEFAULT_COMBINE_ANNOTATIONS = true;
 
+	/** The configuration key for the well count per plate parameter. */
 	static final String CFGKEY_WELL_COUNT = "ie.tcd.imm.hits.knime.wells";
-
+	/** The default well count */
 	static final int DEFAULT_WELL_COUNT = 96;
+	/** The maximal value for well count */
 	static final int MAX_WELL_COUNT = 384;
 
+	/**
+	 * The configuration key for the plate count ("real" plate count / replicate
+	 * count).
+	 */
 	static final String CFGKEY_PLATE_COUNT = "ie.tcd.imm.hits.knime.plates";
-
+	/** The default value for the plate count */
 	static final int DEFAULT_PLATE_COUNT = 1;
 
+	/** The configuration key for the replicate count. */
 	static final String CFGKEY_REPLICATE_COUNT = "ie.tcd.imm.hits.knime.replicates";
-
+	/** The default value for the replicate count */
 	static final int DEFAULT_REPLICATE_COUNT = 3;
-
+	/** The maximal value for the replicate count */
 	static final int MAX_REPLICATE_COUNT = 4;
 
 	private final SettingsModelStringArray filesModel = new SettingsModelStringArray(

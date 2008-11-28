@@ -5,9 +5,9 @@ import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics.Multiplicity;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
-import ie.tcd.imm.hits.knime.util.Pair;
 import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
+import ie.tcd.imm.hits.util.Pair;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -61,25 +65,50 @@ import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of CellHTS2. This node performs the
- * calculations using CellHTS2
+ * calculations using CellHTS2.
+ * <p>
+ * Format of the possible patterns:<br>
+ * Every {@code \}, {@code /} will be replaced to the platform specific path
+ * separator.<br>
+ * You can put special values in your result using one of the following
+ * constructs:<br>
+ * <ul>
+ * <li><code>{e}</code> - experiment name</li>
+ * <li><code>{n}</code> - appends the normalisation method</li>
+ * <li><code>{p}</code> - adds the parameters separated by the next character
+ * if it is not a digit or <code>}</code>. If it is followed by digits it
+ * will try to create a reasonable abbreviation from it.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
+ * additive or multiplicative nature of normalisation method.</li>
+ * </ul>
  * 
- * @author bakosg@tcd.ie
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeModel extends NodeModel {
 
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(CellHTS2NodeModel.class);
 
+	/** Configuration key for the experiment name */
 	static final String CFGKEY_EXPERIMENT_NAME = "ie.tcd.imm.hits.knime.cellhts2.experimentname";
+	/** Default value of experiment name */
 	static final String DEFAULT_EXPERIMENT_NAME = "test";
 
+	/** Configuration key for the selected parameters */
 	static final String CFGKEY_PARAMETERS = "ie.tcd.imm.hits.knime.cellhts2.parameters";
+	/** Default value of parameters */
 	static final String DEFAULT_PARAMETERS = "";
 
+	/** Configuration key for the normalisation method */
 	static final String CFGKEY_NORMALISATION_METHOD = "ie.tcd.imm.hits.knime.cellhts2.norm";
+	/** Possible values of the normalisation methods. */
 	static final String[] POSSIBLE_NORMALISATION_METHODS = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
 			"shorth", "locfit", "loess" };
@@ -150,42 +179,64 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ "sample wells\n" + "");
 	}
 
+	/** Configuration key for multiplicative or additive normalisation */
 	static final String CFGKEY_IS_MULTIPLICATIVE_NORMALISATION = "ie.tcd.imm.hits.knime.cellhts2.is_multiplicative";
+	/** Default value of multiplicative or additive normalisation */
 	static final boolean DEFAULT_IS_MULTIPLICATIVE_NORMALISATION = false;
 
+	/** Configuration key for log-transform parameter */
 	static final String CFGKEY_LOG_TRANSFORM = "ie.tcd.imm.hits.knime.cellhts2.log";
+	/** Default value of log-transform parameter */
 	static final boolean DEFAULT_LOG_TRANSFORM = false;
 
+	/** Configuration key for variance adjustment */
 	static final String CFGKEY_SCALE = "ie.tcd.imm.hits.knime.cellhts2.scale";
+	/** Possible values of variance adjustment */
 	static final String[] POSSIBLE_SCALE = new String[] { "no adjustment",
 			"by plate", "by experiment" };
 
+	/** Configuration key for scoring method */
 	static final String CFGKEY_SCORE = "ie.tcd.imm.hits.knime.cellhts2.score";
+	/** Possible values of the scoring methods */
 	static final String[] POSSIBLE_SCORE = new String[] { "none", "zscore",
 			"NPI" };
 
+	/** Configuration key for summarization strategy */
 	static final String CFGKEY_SUMMARIZE = "ie.tcd.imm.hits.knime.cellhts2.summarize";
+	/** Possible values of the summarization strategies */
 	static final String[] POSSIBLE_SUMMARIZE = new String[] { "mean", "median",
 			"max", "min", "rms", "closestToZero", "furthestFromZero" };
 
+	/** Configuration key for the output folder */
 	static final String CFGKEY_OUTPUT_DIR = "ie.tcd.imm.hits.knime.cellhts2.output";
+	/** Default value of the output folder */
 	static final String DEFAULT_OUTPUT_DIR = System.getProperty("user.home")
 			+ "/results";
 
+	/** Configuration key for the range of the heatmaps */
 	static final String CFGKEY_SCORE_RANGE = "ie.tcd.imm.hits.knime.cellhts2.score.range";
+	/** Default value of maximal bound of generated heatmaps. */
 	static final double DEFAULT_SCORE_RANGE_MAX = 3.0;
+	/** Default value of minimal bound of generated heatmaps. */
 	static final double DEFAULT_SCORE_RANGE_MIN = -3.0;
 
+	/** Configuration key for aspect ratio of the images */
 	static final String CFGKEY_ASPECT_RATIO = "ie.tcd.imm.hits.knime.cellhts2.image.aspect_ratio";
+	/** Default value of aspect ratio of images */
 	static final double DEFAULT_ASPECT_RATIO = 1.0;
 
+	/** Configuration key for pattern generating the folder */
 	static final String CFGKEY_FOLDER_PATTERN = "ie.tcd.imm.hits.knime.cellhts2.folder_pattern";
+	/** Possible values of the pattern that generates the folders. */
 	static final String[] POSSIBLE_FOLDER_PATTERNS = new String[] { "", "{e}",
 			"{e}\\{p}", "{e}\\{n}{*}\\{p15}", "{p}", "{n}\\{p}", "{e}_{p}",
 			"{e}_{n}{*}_{p15}", "{p}", "{n}_{p}" };
+	/** Default value of pattern generating the folder */
 	static final String DEFAULT_FOLDER_PATTERN = POSSIBLE_FOLDER_PATTERNS[3];
 
+	/** Configuration key for using TCD cellHTS2 extensions */
 	static final String CFGKEY_USE_TCD_CELLHTS_EXTENSIONS = "ie.tcd.imm.hits.knime.cellhts2.use_extensions";
+	/** Default value of usage of TCD cellHTS2 extensions */
 	static final boolean DEFAULT_USE_TCD_CELLHTS_EXTENSIONS = true;
 
 	private final SettingsModelString normMethodModel = new SettingsModelString(
@@ -655,6 +706,19 @@ public class CellHTS2NodeModel extends NodeModel {
 				configuration.getTable(), outputFolders.getTable() /* out */};
 	}
 
+	/**
+	 * Computes the overall statistics. This will go to the 3<sup>rd</sup>
+	 * outport.
+	 * 
+	 * @param conn
+	 * @param plateCount
+	 * @param replicateCount
+	 * @param aggregate
+	 * @param normalize
+	 * @param parameters
+	 * @throws RserveException
+	 * @throws REXPMismatchException
+	 */
 	private void addOverallStatistics(final RConnection conn,
 			final int plateCount, final int replicateCount,
 			final BufferedDataContainer aggregate, final String normalize,
@@ -721,6 +785,10 @@ public class CellHTS2NodeModel extends NodeModel {
 		}
 	}
 
+	/**
+	 * @return The string to pass to cellHTS2 to influence the column order of
+	 *         the results.
+	 */
 	private String createColOrderString() {
 		final List<PossibleStatistics> statsEnums = ColumnSelectionFieldEditor
 				.<PreferenceConstants.PossibleStatistics> parseString(
@@ -741,6 +809,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		return sb.toString();
 	}
 
+	/**
+	 * Writes the plate list file to {@code dir}.
+	 * 
+	 * @param dir
+	 * @param plateCount
+	 * @param replicateCount
+	 * @param paramCount
+	 */
 	private static void writePlateList(final String dir, final int plateCount,
 			final int replicateCount, final int paramCount) {
 		try {
@@ -780,6 +856,26 @@ public class CellHTS2NodeModel extends NodeModel {
 				params, experiment, isMultiplicative);
 	}
 
+	/**
+	 * Generates the possible output folder names based on the parameters.
+	 * 
+	 * @param normMethods
+	 *            The normalisation methods you are interested in.
+	 * @param pattern
+	 *            The pattern of the folder generation. For further syntax
+	 *            information see {@link CellHTS2NodeModel}.
+	 * @param baseOutDir
+	 *            The prefix of all folder names.
+	 * @param params
+	 *            The selected parameters (like Cell Area, ...)
+	 * @param experiment
+	 *            The name of the experiment.
+	 * @param isMultiplicative
+	 *            The value of the multiplicative or additive normalisation
+	 *            parameter.
+	 * @return A {@link Map} with keys from the {@code normMethods}, and values
+	 *         as folder names (absolute, or relative).
+	 */
 	static Map<String, String> computeOutDirs(final String[] normMethods,
 			final String pattern, final String baseOutDir,
 			final List<String> params, final String experiment,
@@ -812,9 +908,9 @@ public class CellHTS2NodeModel extends NodeModel {
 						if (news.isEmpty()) {
 							final Character sep = i + 1 < pattern.length()
 									&& !Character
-											.isDigit(pattern.charAt(i + 1)) ? Character
-									.valueOf(pattern.charAt(++i))
-									: null;
+											.isDigit(pattern.charAt(i + 1))
+									&& pattern.charAt(i + 1) != '}' ? Character
+									.valueOf(pattern.charAt(++i)) : null;
 							final StringBuilder parameters = new StringBuilder();
 							for (final String param : params) {
 								parameters.append(param);
@@ -826,7 +922,8 @@ public class CellHTS2NodeModel extends NodeModel {
 								parameters.setLength(parameters.length() - 1);
 							}
 							for (final String normMethod : normMethods) {
-								news.put(normMethod, parameters.toString());
+								news.put(normMethod, parameters.toString()
+										.trim());
 							}
 						} else {
 							throw new IllegalStateException("wrong pattern");
@@ -917,6 +1014,12 @@ public class CellHTS2NodeModel extends NodeModel {
 		return computeNormMethods(normMethod);
 	}
 
+	/**
+	 * @param normMethod
+	 *            The selected normalisation method.
+	 * @return For {@code every} it will return all possible normalisation
+	 *         methods, else {@code normMethod}.
+	 */
 	static String[] computeNormMethods(final String normMethod) {
 		final String[] normMethods;
 		if (normMethod.equals(POSSIBLE_NORMALISATION_METHODS[0])) {
@@ -929,6 +1032,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		return normMethods;
 	}
 
+	/**
+	 * Annotates the object {@code xn} using the information from the first
+	 * inport (if it is present).
+	 * 
+	 * @param conn
+	 * @param dataTable
+	 * @throws RserveException
+	 */
 	private void annotate(final RConnection conn,
 			final BufferedDataTable dataTable) throws RserveException {
 		final int lastCol = dataTable.getDataTableSpec().getNumColumns() - 1;
@@ -1018,6 +1129,13 @@ public class CellHTS2NodeModel extends NodeModel {
 		}
 	}
 
+	/**
+	 * Normalise the plates and creates the {@code xn} object from {@code x}.
+	 * 
+	 * @param conn
+	 * @param normalize
+	 * @throws RserveException
+	 */
 	private void normalizePlates(final RConnection conn, final String normalize)
 			throws RserveException {
 		final String varianceAdjust = scaleModel.getStringValue().equals(
@@ -1033,6 +1151,19 @@ public class CellHTS2NodeModel extends NodeModel {
 				+ "    varianceAdjust=\"" + varianceAdjust + "\")");
 	}
 
+	/**
+	 * Creates {@code x} from the raw input values.
+	 * 
+	 * @param experimentName
+	 * @param conn
+	 * @param replicateCount
+	 * @param plateCount
+	 * @param wellRowCount
+	 * @param wellColCount
+	 * @param wellCount
+	 * @param parameters
+	 * @throws RserveException
+	 */
 	private void convertRawInputToCellHTS2(final String experimentName,
 			final RConnection conn, final int replicateCount,
 			final int plateCount, final int wellRowCount,
@@ -1194,6 +1325,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		// System.out.println(xExpr);
 	}
 
+	/**
+	 * Checks {@code objectName} in the R session.
+	 * 
+	 * @param conn
+	 * @param objectName
+	 * @param errorMessage
+	 * @throws RserveException
+	 */
 	private void checkObject(final RConnection conn, final String objectName,
 			final String errorMessage) throws RserveException {
 		if (!((REXPLogical) conn.eval("validObject(" + objectName + ")"))
@@ -1203,6 +1342,13 @@ public class CellHTS2NodeModel extends NodeModel {
 		}
 	}
 
+	/**
+	 * Creates the channel list from {@code parameters} to pass to R.
+	 * 
+	 * @param parameters
+	 * @return The {@link StringBuilder} containing the proper parameters in R
+	 *         syntax.
+	 */
 	private StringBuilder createChannelList(final List<String> parameters) {
 		final StringBuilder channelsSb = new StringBuilder("c(");
 		for (final String param : parameters) {
@@ -1213,6 +1359,19 @@ public class CellHTS2NodeModel extends NodeModel {
 		return channelsSb;
 	}
 
+	/**
+	 * Sets the plate configuration and makes {@code x}'s state to
+	 * {@code configured}.
+	 * 
+	 * @param table
+	 * @param descTable
+	 * @param screenLogTable
+	 * @param conn
+	 * @param wellCount
+	 * @param plateCount
+	 * @param normMethod
+	 * @throws RserveException
+	 */
 	private void plateConfiguration(final BufferedDataTable table,
 			final BufferedDataTable descTable,
 			final BufferedDataTable screenLogTable, final RConnection conn,
@@ -1388,6 +1547,13 @@ public class CellHTS2NodeModel extends NodeModel {
 		checkObject(conn, "x", "The raw object is not valid!!!");
 	}
 
+	/**
+	 * 
+	 * @param table
+	 * @param varName
+	 * @return A {@link String} representing the command to add the data to the
+	 *         R session. It uses R syntax.
+	 */
 	private String readTableTo(final DataTable table, final String varName) {
 		final StringBuilder sb = new StringBuilder(varName)
 				.append("=data.frame(");
@@ -1429,6 +1595,13 @@ public class CellHTS2NodeModel extends NodeModel {
 	// return values.size();
 	// }
 
+	/**
+	 * Adds the MIAME information to the {@code miameInfo} R variable.
+	 * 
+	 * @param inData
+	 * @param conn
+	 * @throws RserveException
+	 */
 	private void addMiame(final BufferedDataTable[] inData,
 			final RConnection conn) throws RserveException {
 		final String[] strings = new String[] { "Lab description",
@@ -1455,6 +1628,16 @@ public class CellHTS2NodeModel extends NodeModel {
 		// TODO notes!
 	}
 
+	/**
+	 * 
+	 * TODO review
+	 * 
+	 * @param table
+	 * @param strings
+	 * @return A {@link Map} keys of {@code strings}. The values are
+	 *         representing the ({@link StringCell}) last values of the 3<sup>rd</sup>
+	 *         column if in the second there is the key.
+	 */
 	private Map<String, String> findValues(final BufferedDataTable table,
 			final String... strings) {
 		final Map<String, String> ret = new HashMap<String, String>();
@@ -1473,7 +1656,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		return ret;
 	}
 
-	private int getWellNumber(final String wellId) {
+	/**
+	 * TODO only 96 well format supported.
+	 * 
+	 * @param wellId
+	 * @return The well position starting from {@code 0}. Ideal for array index
+	 *         computation
+	 */
+	private static int getWellNumber(final String wellId) {
 		assert wellId.length() >= 2 && wellId.length() < 4;
 		return (wellId.charAt(0) - 'A') * 12
 				+ Integer.valueOf(wellId.substring(1)) - 1;
@@ -1566,6 +1756,12 @@ public class CellHTS2NodeModel extends NodeModel {
 				aggregateValuesSpec, configurationSpec, outputFolderSpec };
 	}
 
+	/**
+	 * @param inputSpecs
+	 * @param replicateTable
+	 * @return The {@link DataColumnSpec}s for the first and the second
+	 *         outports.
+	 */
 	private DataColumnSpec[] computeTopTableSpec(
 			final DataTableSpec inputSpecs, final boolean replicateTable) {
 		final List<DataColumnSpec> ret = new ArrayList<DataColumnSpec>();
@@ -1591,6 +1787,11 @@ public class CellHTS2NodeModel extends NodeModel {
 		return ret.toArray(new DataColumnSpec[ret.size()]);
 	}
 
+	/**
+	 * @param inputSpecs
+	 * @return The additional columns that may have interest ({@code well},
+	 *         {@code GeneID}, {@code GeneSymbol}).
+	 */
 	private DataColumnSpec[] selectAdditionalColumns(
 			final DataTableSpec inputSpecs) {
 		final List<DataColumnSpec> ret = new ArrayList<DataColumnSpec>();
@@ -1605,6 +1806,21 @@ public class CellHTS2NodeModel extends NodeModel {
 		return ret.toArray(new DataColumnSpec[ret.size()]);
 	}
 
+	/**
+	 * Computes the outport table values representing from the {@code topTable}
+	 * object based on the parameters. The result is added to {@code rets}.
+	 * 
+	 * @param topTable
+	 * @param row
+	 * @param numReplicates
+	 * @param rets
+	 * @param replicateTable
+	 * @param turnReplicates
+	 * @param stats
+	 * @param ch
+	 * @param selectedParameters
+	 * @param columnSpecs
+	 */
 	private static void computeTableValue(final RList topTable, final int row,
 			final int numReplicates, final List<List<DataCell>> rets,
 			final boolean replicateTable, final boolean turnReplicates,
@@ -1833,9 +2049,21 @@ public class CellHTS2NodeModel extends NodeModel {
 		}
 	}
 
+	/**
+	 * The interesting part of
+	 * {@link #computeTopTableSpec(DataTableSpec, boolean)}.
+	 * 
+	 * @param ret
+	 * @param replicateTable
+	 * @param stats
+	 * @param ch
+	 * @param selectedParameters
+	 * @param columnSpecs
+	 */
 	private static void computeTableSpec(final List<DataColumnSpec> ret,
 			final boolean replicateTable, final List<PossibleStatistics> stats,
-			final String ch, final List<String> selectedParameters,
+			final @Nullable
+			String ch, final List<String> selectedParameters,
 			final DataColumnSpec... columnSpecs) {
 		if (stats.isEmpty()) {
 			return;
@@ -1935,6 +2163,10 @@ public class CellHTS2NodeModel extends NodeModel {
 		}
 	}
 
+	/**
+	 * @param possibleStatistics
+	 * @return The {@link DataType} representing the {@code possibleStatistics}.
+	 */
 	private static DataType getType(final PossibleStatistics possibleStatistics) {
 		switch (possibleStatistics.getType()) {
 		case Int:

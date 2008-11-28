@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.annotation.RegEx;
+
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -20,12 +22,19 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ListDialog;
 
 /**
- * @author bakosg@tcd.ie
+ * This class helps to select the wanted parameters, and influence their order.
+ * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <EnumType>
+ *            The type of possible values.
  */
 public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displayable>
 		extends ListEditor {
 
+	/** This separates the enumeration values. */
 	public static final String STRING_SEPARATOR = "\t";
+	/** This (regular expression) pattern matches the the separator. */
+	@RegEx
 	public static final String STRING_SEPARATOR_PATTERN = STRING_SEPARATOR;
 	private final Collection<EnumType> possibleValues;
 	static {
@@ -35,6 +44,18 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 				+ STRING_SEPARATOR_PATTERN;
 	}
 
+	/**
+	 * Constructs a {@link ColumnSelectionFieldEditor} using the parameters.
+	 * 
+	 * @param name
+	 *            {@inheritDoc}
+	 * @param labelText
+	 *            {@inheritDoc}
+	 * @param parent
+	 *            {@inheritDoc}
+	 * @param possibleValues
+	 *            These are the possible values of the new values.
+	 */
 	public ColumnSelectionFieldEditor(final String name,
 			final String labelText, final Composite parent,
 			final Collection<EnumType> possibleValues) {
@@ -43,6 +64,9 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String createList(final String[] items) {
 		@SuppressWarnings("unchecked")
@@ -67,6 +91,11 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 		return createList(vals);
 	}
 
+	/**
+	 * @param <EnumType>
+	 * @param values
+	 * @return The {@link #STRING_SEPARATOR} separated names of {@code values}.
+	 */
 	public static <EnumType extends Enum<EnumType>> String createList(
 			final EnumType... values) {
 		final StringBuilder sb = new StringBuilder();
@@ -74,11 +103,14 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 			sb.append(value.name()).append(STRING_SEPARATOR);
 		}
 		if (values.length > 0) {
-			sb.setLength(sb.length());
+			sb.setLength(sb.length() - STRING_SEPARATOR.length());
 		}
 		return sb.toString();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String getNewInputObject() {
 		final ListDialog listDialog = new ListDialog(new Shell());
@@ -110,6 +142,9 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String[] parseString(final String stringList) {
 		@SuppressWarnings("unchecked")
@@ -125,6 +160,13 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param <EnumType>
+	 * @param cls
+	 * @param stringList
+	 * @return The {@link List} of parsed enum values.
+	 */
 	public static <EnumType extends Enum<EnumType>> List<EnumType> parseString(
 			final Class<EnumType> cls, final String stringList) {
 		final String[] stringVals = stringList.split(STRING_SEPARATOR_PATTERN);

@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.util.Pair;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
@@ -9,6 +8,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Format;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
+import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

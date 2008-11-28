@@ -3,6 +3,8 @@ package ie.tcd.imm.hits.knime.xls;
 import ie.tcd.imm.hits.knime.util.DialogComponentFileChooserWithListener;
 import ie.tcd.imm.hits.knime.util.DialogComponentMultiFileChooser;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -12,6 +14,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * <code>NodeDialog</code> for the "Importer" Node. Reads the data from xls
@@ -24,8 +28,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 
+	/** Default directory for the xls files. */
 	static final String DEFAULT_DIR = System.getProperty("user.home");
 
 	/**

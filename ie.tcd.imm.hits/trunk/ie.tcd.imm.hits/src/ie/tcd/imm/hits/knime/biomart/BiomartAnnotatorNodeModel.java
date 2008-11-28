@@ -44,12 +44,17 @@ import org.rosuda.REngine.Rserve.RserveException;
 public class BiomartAnnotatorNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(BiomartAnnotatorNodeModel.class);
-
+	/** Configuration key for biomaRt database */
 	static final String CFGKEY_BIOMART_DATABASE = "ie.tcd.imm.hits.knime.biomart.database";
+	/** Default value for biomaRt database */
 	static final String DEFAULT_BIOMART_DATABASE = "ensemble";
+	/** Configuration key for biomaRt dataset */
 	static final String CFGKEY_BIOMART_DATASET = "ie.tcd.imm.hits.knime.biomart.dataset";
+	/** Default value for biomaRt dataset */
 	static final String DEFAULT_BIOMART_DATASET = "hsapiens_gene_ensembl";
+	/** Configuration key for biomaRt attributes */
 	static final String CFGKEY_BIOMART_ATTRIBUTES = "ie.tcd.imm.hits.knime.biomart.attributes";
+	/** Default value for biomaRt attributes */
 	static final String[] DEFAULT_BIOMART_ATTRIBUTES = new String[] { "" };
 	private final SettingsModelString biomartDatabaseModel = new SettingsModelString(
 			CFGKEY_BIOMART_DATABASE, DEFAULT_BIOMART_DATABASE);

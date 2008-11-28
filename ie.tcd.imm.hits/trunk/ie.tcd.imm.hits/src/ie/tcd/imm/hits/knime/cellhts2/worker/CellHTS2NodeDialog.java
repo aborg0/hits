@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ButtonModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -45,6 +47,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilterPanel;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * <code>NodeDialog</code> for the "CellHTS2" Node. This node performs the
  * calculations using CellHTS2
@@ -56,11 +60,12 @@ import org.knime.core.node.util.ColumnFilterPanel;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
 	/**
-	 * New pane for configuring CellHTS2 node dialog. This is just a suggestion
-	 * to demonstrate possible default dialog components.
+	 * New pane for configuring CellHTS2 node dialog.
 	 */
 	protected CellHTS2NodeDialog() {
 		super();

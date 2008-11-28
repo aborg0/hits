@@ -5,11 +5,16 @@ package ie.tcd.imm.hits.knime.util;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * When attached to an {@link ActionEvent} emitter (like a {@link JButton}), it
@@ -18,14 +23,26 @@ import javax.swing.JList;
  * <p>
  * The {@link #list} must has the {@link DefaultListModel}, {@link #model}.
  * 
- * @author bakosg@tcd.ie
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class SelectionMoverActionListener implements ActionListener {
-
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
+public class SelectionMoverActionListener implements ActionListener,
+		Serializable {
+	private static final long serialVersionUID = -2883537212024563886L;
 	private final JList list;
 	private final DefaultListModel model;
 	private final int move;
 
+	/**
+	 * 
+	 * @param list
+	 *            A {@link JList} for which selections we listen to.
+	 * @param model
+	 *            The {@link DefaultListModel} of {@code list}.
+	 * @param move
+	 *            We move the selection by this amount.
+	 */
 	public SelectionMoverActionListener(final JList list,
 			final DefaultListModel model, final int move) {
 		super();
@@ -38,6 +55,11 @@ public class SelectionMoverActionListener implements ActionListener {
 	 * (non-Javadoc)
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
+	/**
+	 * Moves the selection up or down.
+	 * 
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void actionPerformed(final ActionEvent e) {

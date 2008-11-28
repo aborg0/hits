@@ -1,7 +1,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.util.Pair;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.Color;
 import java.io.File;

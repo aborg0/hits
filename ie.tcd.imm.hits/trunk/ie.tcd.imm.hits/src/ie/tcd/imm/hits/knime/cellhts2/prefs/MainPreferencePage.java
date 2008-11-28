@@ -5,6 +5,8 @@ import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 
 import java.util.Arrays;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
@@ -22,10 +24,13 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-
+@NotThreadSafe
 public class MainPreferencePage extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
 
+	/**
+	 * Constructs the {@link MainPreferencePage}
+	 */
 	public MainPreferencePage() {
 		super(GRID);
 		setPreferenceStore(ImporterNodePlugin.getDefault().getPreferenceStore());

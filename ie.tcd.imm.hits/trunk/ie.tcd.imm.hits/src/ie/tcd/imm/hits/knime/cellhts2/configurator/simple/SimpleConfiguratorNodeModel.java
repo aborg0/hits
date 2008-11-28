@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
@@ -24,6 +27,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of SimpleConfigurator. This node reads the
  * specified CellHTS 2 configuration files for using them as input for CellHTS
@@ -31,31 +36,35 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class SimpleConfiguratorNodeModel extends NodeModel {
 
 	// the logger instance
 	// private static final NodeLogger logger = NodeLogger
 	// .getLogger(SimpleConfiguratorNodeModel.class);
 
+	/** Column name of values */
 	public static final String DESC_VALUE_COL_NAME = "Value";
+	/** Column name of keys */
 	public static final String DESC_KEY_COL_NAME = "Key";
+	/** Column name of groups */
 	public static final String DESC_GROUP_COL_NAME = "Group";
+	/** Column name of content */
 	public static final String CONTENT_COL_NAME = "Content";
+	/** Column name of wells */
 	public static final String WELL_COL_NAME = "Well";
+	/** Column name of plates */
 	public static final String PLATE_COL_NAME = "Plate";
-	/**
-	 * the settings key which is used to retrieve and store the settings (from
-	 * the dialog or from a settings file) (package visibility to be usable from
-	 * the dialog).
-	 */
+
+	/** Configuration key for the plate configuration file parameter */
 	static final String CFGKEY_PLATE_CONFIG = "ie.tcd.imm.hits.knime.cellhts2.configurator.simple.plateconfig";
+	/** Default value for the plate configuration file parameter */
 	static final String DEFAULT_PLATE_CONFIG = "";// "Plateconf.txt";
 
-	// static final String CFGKEY_SCREEN_LOG =
-	// "ie.tcd.imm.hits.knime.cellhts2.configurator.simple.screenlog";
-	// static final String DEFAULT_SCREEN_LOG = "";// "Screenlog.txt";
-	//
+	/** Configuration key for the description file parameter */
 	static final String CFGKEY_DESCRIPTION_FILE = "ie.tcd.imm.hits.knime.cellhts2.configurator.simple.description";
+	/** Default value for the description file parameter */
 	static final String DEFAULT_DESCRIPTION = "";// "Description.txt";
 
 	private final DataColumnSpec[] plateColSpecs = new DataColumnSpec[3];
@@ -131,7 +140,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 					assert wellCount == 96 || wellCount == 384;
 					plateCount = Integer.parseInt(br.readLine().replace(
 							"Plates:", "").trim());
-				} catch (final Exception e) {
+				} catch (final RuntimeException e) {
 					throw new IllegalStateException(
 							"Missing, or wrong prolog (like:\nWells: 96\nPlates: 1\n)");
 				}

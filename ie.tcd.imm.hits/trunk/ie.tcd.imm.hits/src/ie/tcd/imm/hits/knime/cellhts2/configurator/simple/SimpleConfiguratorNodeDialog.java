@@ -1,8 +1,13 @@
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * <code>NodeDialog</code> for the "SimpleConfigurator" Node. This node reads
@@ -16,6 +21,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@NotThreadSafe
+@DefaultAnnotation(Nonnull.class)
 public class SimpleConfiguratorNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
