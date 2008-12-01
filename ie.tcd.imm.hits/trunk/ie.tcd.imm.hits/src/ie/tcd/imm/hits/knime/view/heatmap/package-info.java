@@ -9,5 +9,13 @@
  * 	</ul>
  * </li>
  * </ul>
+ * <p>
+ * The most important classes:
+ * <ul>
+ * 	<li>{@link HeatmapNodeModel} is the data model for the values of the wells.</li>
+ * 	<li>{@link ViewModel} is responsible for the visual representation of the {@link Heatmap}s.</li>
+ * 	<li>{@link Heatmap} is a class holding some {@link WellViewPanel wells}.</li>
+ * 	<li></li>
+ * </ul>
  */
 package ie.tcd.imm.hits.knime.view.heatmap;

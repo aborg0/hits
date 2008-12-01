@@ -373,7 +373,6 @@ public class HeatmapNodeModel extends NodeModel {
 					StatTypes.replicate, null, Collections
 							.singletonList("replicate"), Collections
 							.<String> emptyList());
-			replicates.setValueCount(maxReplicate - minReplicate + 1);
 			for (int i = minReplicate; i <= maxReplicate; ++i) {
 				replicates.getColorLegend()
 						.put(Integer.valueOf(i), Color.BLACK);
@@ -384,7 +383,6 @@ public class HeatmapNodeModel extends NodeModel {
 			final ParameterModel plates = new ParameterModel("plate",
 					StatTypes.plate, null, Collections.singletonList("plate"),
 					Collections.<String> emptyList());
-			plates.setValueCount(maxPlate - minPlate + 1);
 			for (int i = minPlate; i <= maxPlate; ++i) {
 				plates.getColorLegend().put(Integer.valueOf(i), Color.BLACK);
 			}
@@ -426,10 +424,9 @@ public class HeatmapNodeModel extends NodeModel {
 		final ParameterModel statsParamModel = new ParameterModel("statistics",
 				StatTypes.metaStatType, null, Collections.<String> emptyList(),
 				statsAsStrings);
-		statsParamModel.setValueCount(statsAsStrings.size());
 		{
 			for (int i = StatTypes.values().length; i-- > 0;) {
-				statsParamModel.getColorLegend().put(Integer.valueOf(i +1),
+				statsParamModel.getColorLegend().put(Integer.valueOf(i + 1),
 						Color.BLACK);
 			}
 		}

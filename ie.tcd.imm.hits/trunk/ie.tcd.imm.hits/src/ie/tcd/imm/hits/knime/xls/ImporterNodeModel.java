@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -299,8 +300,8 @@ public class ImporterNodeModel extends NodeModel {
 		}
 	}
 
-	private static int[] getIndices(final String line, final int rows,
-			final int cols) {
+	private static @Nullable
+	int[] getIndices(final String line, final int rows, final int cols) {
 		if (line == null) {
 			return null;
 		}

@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -71,7 +72,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation(Nonnull.class)
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class HeatmapNodeView extends NodeView {
 	private final LegendPanel legendPanel;
@@ -111,6 +112,9 @@ public class HeatmapNodeView extends NodeView {
 				this.heatmap = heatmap;
 			}
 
+			/**
+			 * {@inheritDoc}
+			 */
 			@Override
 			public void unHiLiteAll() {
 				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
@@ -121,6 +125,9 @@ public class HeatmapNodeView extends NodeView {
 				}
 			}
 
+			/**
+			 * {@inheritDoc}
+			 */
 			@Override
 			public void unHiLite(final KeyEvent event) {
 				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
@@ -131,6 +138,9 @@ public class HeatmapNodeView extends NodeView {
 				}
 			}
 
+			/**
+			 * {@inheritDoc}
+			 */
 			@Override
 			public void hiLite(final KeyEvent event) {
 				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
@@ -174,19 +184,14 @@ public class HeatmapNodeView extends NodeView {
 			removeAll();
 			heatmaps.clear();
 			final OverviewModel overview = model.getOverview();
-			final List<ParameterModel> choiceModel = overview.getChoiceModel();
+			// final List<ParameterModel> choiceModel =
+			// overview.getChoiceModel();
 			// TODO use the proper value assigned to
 			final Map<Type, Collection<Slider>> sliders = model.getMain()
 					.getArrangementModel().getSliders();
-			// final boolean notEmpty = sliders.containsKey(Type.Selector);
 			final int allChoiceCount = volatileModel.count(StatTypes.plate);
-			// notEmpty
-			// && sliders.get(Type.Selector).iterator().hasNext() ?
-			// possibleValueCount(sliders
-			// .get(Type.Selector).iterator().next().getParameters())
-			// : 1;// model.getMain().getArrangementModel()
-			// .getTypeValuesMap().get(StatTypes.plate).size(); //
-			possibleValueCount(choiceModel);
+			final int selectorCount = possibleValueCount(sliders
+					.get(Type.Selector));
 			Container currentContainer = this;
 			final Collection<Slider> possSelectors = model.getMain()
 					.getArrangementModel().getSliders().get(Type.Selector);
@@ -235,26 +240,10 @@ public class HeatmapNodeView extends NodeView {
 					}
 				});
 			}
-			// for (int i = 0; i < allChoiceCount; ++i) {
-			// heatmaps.put(Integer.valueOf(i),
-			// new HashMap<Object, Map<Object, Heatmap>>());
-			// }
-			// for (final ParameterModel parameterModel : choiceModel) {
-			// for (final Object key : parameterModel.getColorLegend()
-			// .keySet()) {
-			// heatmaps.put(Collections.singletonMap(parameterModel,
-			// key),
-			// new HashMap<Object, Map<Object, Heatmap>>());
-			// }
-			// }
-			// } else {
-			// heatmaps.put(null, new HashMap<Object, Map<Object,
-			// Heatmap>>());
-			// }
-			final int rowCount = Math.max(1, possibleValueCount(overview
-					.getRowModel()));
-			final int colCount = Math.max(1, possibleValueCount(overview
-					.getColModel()));
+			final int rowCount = Math.max(1, possibleValueCount(sliders
+					.get(Type.ScrollVertical)));
+			final int colCount = Math.max(1, possibleValueCount(sliders
+					.get(Type.ScrollHorisontal)));
 			if (rowCount > 1 || colCount > 1) {
 				final JPanel panel = new JPanel();
 				panel.setPreferredSize(new Dimension(800, 600));
@@ -302,12 +291,12 @@ public class HeatmapNodeView extends NodeView {
 			}
 		}
 
-		private int possibleValueCount(final List<ParameterModel> model) {
+		private int possibleValueCount(final Collection<Slider> sliders) {
 			int allCount = 0;
-			for (final ParameterModel choice : model) {
-				assert choice.getAggregateType() == null;
-				assert choice.getType().isDiscrete() : choice;
-				allCount += choice.getValueCount();
+			for (final Slider slider : sliders) {
+				// assert choice.getAggregateType() == null;
+				// assert choice.getType().isDiscrete() : choice;
+				allCount += slider.getValueMapping().size();
 			}
 			return allCount;
 		}
@@ -402,9 +391,9 @@ public class HeatmapNodeView extends NodeView {
 		defaultParamModel.setStartColor(Color.RED);
 		defaultParamModel.setMiddleColor(Color.BLACK);
 		// defaultParamModel.setValueCount(3);
-		plateParamModel.setValueCount(8);
-		parameterParamModel.setValueCount(3);
-		replicateParamModel.setValueCount(3);
+		// plateParamModel.setValueCount(8);
+		// parameterParamModel.setValueCount(3);
+		// replicateParamModel.setValueCount(3);
 	}
 
 	private final EnumMap<Format, EnumMap<Shape, ViewModel>> possibleViewModels = new EnumMap<Format, EnumMap<Shape, ViewModel>>(
@@ -413,9 +402,9 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -424,20 +413,20 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-					 * Collections .<ParameterModel>
-					 * emptyList()
-					 */, Arrays.asList(defaultParamModel, defaultParamModel,
+												 * Collections .<ParameterModel>
+												 * emptyList()
+												 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-					 * Collections.<ParameterModel>
-					 * emptyList()
-					 */, true));
+																	 * Collections.<ParameterModel>
+																	 * emptyList()
+																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -647,7 +636,7 @@ public class HeatmapNodeView extends NodeView {
 			for (final Slider slider : sliders) {
 				for (final ParameterModel parameters : slider.getParameters()) {
 					if (parameters.getType() == param) {
-						return parameters.getValueCount();
+						return slider.getValueMapping().size();
 					}
 				}
 			}
@@ -874,31 +863,22 @@ public class HeatmapNodeView extends NodeView {
 						"plate", StatTypes.plate, null, Collections
 								.<String> emptyList(), Collections
 								.<String> emptyList());
-				parameterModel.setValueCount(nodeModel.scoreValues.size());
 				shapeBasedModels.put(entry.getKey(), new ViewModel(entry
 						.getValue(), new OverviewModel(Collections
 						.<ParameterModel> emptyList(), Collections
 						.<ParameterModel> emptyList(), Collections
 						.singletonList(parameterModel))));
-				// model.getOverview().getChoiceModel().set(0, parameterModel);
 			}
 		}
 		controlPanel.setModel(nodeModel);
 		heatmapPanel.setModel(nodeModel);
 		heatmapPanel.addClickListenerToEveryWell(new MouseAdapter() {
-
 			@Override
 			public void mouseClicked(final MouseEvent e) {
 				infoTable.setText(((WellViewPanel) e.getSource())
 						.getToolTipText());
 			}
 		});
-		// final Set<DataCell> hilitKeys = nodeModel.getInHiLiteHandler(0)
-		// .getHiLitKeys();
-		// heatmapPanel.hiliteListener.hiLite(new KeyEvent(this, hilitKeys));
-		// be aware of a possibly not executed nodeModel! The data you retrieve
-		// from your nodemodel could be null, emtpy, or invalid in any kind.
-
 	}
 
 	/**

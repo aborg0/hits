@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -35,7 +36,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation(Nonnull.class)
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class ViewModel implements ActionListener {
 	private final WeakHashMap<ChangeListener, Boolean> changeListeners = new WeakHashMap<ChangeListener, Boolean>();
@@ -505,7 +506,8 @@ public class ViewModel implements ActionListener {
 	 */
 	public static class ParameterModel {
 		private final String shortName;// Maybe from row names
-		private final AggregateType aggregateType;
+		private @Nullable
+		final AggregateType aggregateType;
 		private int valueCount;// The count of different values
 		private final List<String> columns;
 		private final List<String> columnValues;
