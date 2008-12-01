@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.Assert;
+import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -68,11 +69,13 @@ public class HeatmapNodeModel extends NodeModel {
 	private static final StatTypes[] parameterValues = new StatTypes[] {
 			StatTypes.raw, StatTypes.rawPerMedian, StatTypes.normalized };
 
-	Collection<ParameterModel> possibleParameters = new HashSet<ParameterModel>();
+	/** These are the parameters which are present in the model. */
+	private final Collection<ParameterModel> possibleParameters = new HashSet<ParameterModel>();
 
-	List<String> parameters = new ArrayList<String>();
+	private final List<String> parameters = new ArrayList<String>();
 
-	EnumSet<StatTypes> statistics = EnumSet.noneOf(StatTypes.class);
+	private final EnumSet<StatTypes> statistics = EnumSet
+			.noneOf(StatTypes.class);
 
 	/** key, plate, position [0-95] */
 	Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
@@ -81,6 +84,10 @@ public class HeatmapNodeModel extends NodeModel {
 
 	private boolean hasReplicate;
 
+	/**
+	 * This enum lists all supported statistic types. Any other has no special
+	 * handling.
+	 */
 	public static enum StatTypes {
 		/** The score statistic */
 		score(false, true, false),
@@ -90,7 +97,7 @@ public class HeatmapNodeModel extends NodeModel {
 		median(false, true, false),
 		/** The mean or the diff of replicates */
 		meanOrDiff(false, true, false),
-		/** The normalized values (each replicates) */
+		/** The normalised values (each replicates) */
 		normalized(true, true, false),
 		/** The raw value divided by the (plate, replicate) median */
 		rawPerMedian(true, true, false),
@@ -121,14 +128,25 @@ public class HeatmapNodeModel extends NodeModel {
 			this.isDiscrete = isDiscrete;
 		}
 
+		/**
+		 * @return Tells whether if it has different values for the parameters
+		 *         or not.
+		 */
 		public boolean isDependOnParameters() {
 			return isDependOnParameters;
 		}
 
+		/**
+		 * @return The values are discrete, or those are from a continuous real
+		 *         interval.
+		 */
 		public boolean isDiscrete() {
 			return isDiscrete;
 		}
 
+		/**
+		 * @return Does it depend on the replicate parameter?
+		 */
 		public boolean isUseReplicates() {
 			return isUseReplicates;
 		}
@@ -143,7 +161,8 @@ public class HeatmapNodeModel extends NodeModel {
 	/** plate, replicate, parameter, values */
 	final Map<Integer, Map<Integer, Map<String, EnumMap<StatTypes, double[]>>>> replicateValues = new TreeMap<Integer, Map<Integer, Map<String, EnumMap<StatTypes, double[]>>>>();
 
-	final DefaultHiLiteManager hiliteManager = new DefaultHiLiteManager();
+	/** This is the {@link HiliteManager} which updates the HiLites. */
+	private final DefaultHiLiteManager hiliteManager = new DefaultHiLiteManager();
 
 	/**
 	 * Constructor for the node model.
@@ -409,9 +428,8 @@ public class HeatmapNodeModel extends NodeModel {
 				statsAsStrings);
 		statsParamModel.setValueCount(statsAsStrings.size());
 		{
-			int i = 0;
-			for (final StatTypes stat : statistics) {
-				statsParamModel.getColorLegend().put(Integer.valueOf(++i),
+			for (int i = StatTypes.values().length; i-- > 0;) {
+				statsParamModel.getColorLegend().put(Integer.valueOf(i +1),
 						Color.BLACK);
 			}
 		}
@@ -430,6 +448,14 @@ public class HeatmapNodeModel extends NodeModel {
 				* 12
 				+ Integer.parseInt(well.substring(well.length() - 2, well
 						.length())) - 1);
+	}
+
+	/**
+	 * @return The possible {@link ParameterModel}s associated to this
+	 *         {@link HeatmapNodeModel}.
+	 */
+	public Collection<ParameterModel> getPossibleParameters() {
+		return Collections.unmodifiableCollection(possibleParameters);
 	}
 
 	/**

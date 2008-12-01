@@ -306,10 +306,10 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 								.getSelectedItem()), patternCombobox.getModel()
 						.getSelectedItem().toString(),
 				outdir.endsWith("/") ? outdir : outdir + "/", paramList,
-				experimentTextField.getText(),
-				isMultiplicativeDialogModel.isSelected());
+				experimentTextField.getText(), isMultiplicativeDialogModel
+						.isSelected());
 		for (final String dir : dirs.values()) {
-			sb.append(dir.replace('/', File.separatorChar)).append('\n');
+			sb.append(dir.replace('/', File.separatorChar).trim()).append('\n');
 		}
 		if (sb.length() > 0) {
 			sb.setLength(sb.length() - 1);

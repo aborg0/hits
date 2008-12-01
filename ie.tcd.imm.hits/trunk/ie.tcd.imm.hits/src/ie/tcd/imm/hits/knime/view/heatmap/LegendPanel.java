@@ -7,6 +7,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
+import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,6 +34,9 @@ import javax.swing.JPanel;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LegendPanel extends JPanel implements ActionListener {
+	/**
+	 * This panel shows the layout of different parameters.
+	 */
 	public static class ParametersPanel extends JPanel {
 		private static final long serialVersionUID = -2271852289205726654L;
 		private final boolean isSelectable;
@@ -42,6 +46,18 @@ public class LegendPanel extends JPanel implements ActionListener {
 		private final Set<ActionListener> listeners = new HashSet<ActionListener>();
 		private final Places places;
 
+		/**
+		 * Constructs a {@link ParametersPanel}.
+		 * 
+		 * @param isSelectable
+		 *            The value of selectable property
+		 * @param model
+		 *            The model of the parameters
+		 * @param horizontal
+		 *            The {@link ParameterModel} is horizontal or vertical
+		 * @param places
+		 *            This is where it will be placed.
+		 */
 		public ParametersPanel(final boolean isSelectable,
 				final ViewModel model, final boolean horizontal,
 				final Places places) {
@@ -54,6 +70,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 			add(label);
 		}
 
+		/**
+		 * Sets and updates the model.
+		 * 
+		 * @param model
+		 *            The new {@link ViewModel}.
+		 */
 		public void setModel(final ViewModel model) {
 			this.model = model;
 			internalSetModel();
@@ -92,6 +114,13 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 
+		/**
+		 * Adds an {@link ActionListener} if {@link #isSelectable selectable}.
+		 * 
+		 * @param listener
+		 *            An {@link ActionListener}.
+		 * @return If not added {@code true}, else {@code false}.
+		 */
 		public boolean addActionListener(final ActionListener listener) {
 			if (isSelectable) {
 				return listeners.add(listener);
@@ -99,38 +128,60 @@ public class LegendPanel extends JPanel implements ActionListener {
 			return false;
 		}
 
+		/**
+		 * Removes {@code listener} if {@link #isSelectable selectable}.
+		 * 
+		 * @param listener
+		 *            An {@link ActionListener}.
+		 * @return If previously contained {@code true}, else {@code false}.
+		 */
 		public boolean removeActionListener(final ActionListener listener) {
 			if (isSelectable) {
 				return listeners.remove(listener);
 			}
 			return false;
 		}
-
-		private void actionPerformed() {
-			for (final ActionListener listener : listeners) {
-				listener.actionPerformed(new ActionEvent(this, (int) (System
-						.currentTimeMillis() & 0xffffffffL), ""));
-			}
-		}
+		//
+		// private void actionPerformed() {
+		// for (final ActionListener listener : listeners) {
+		// listener.actionPerformed(new ActionEvent(this, (int) (System
+		// .currentTimeMillis() & 0xffffffffL), ""));
+		// }
+		// }
 	}
 
 	private static final long serialVersionUID = 9129522729091802767L;
 	private ViewModel model;
 	private final LayoutLegendPanel layoutLegendPanel;
 
+	/**
+	 * This class shows a legend of a sample well.
+	 */
 	private static class ShapeLegendPanel extends WellViewPanel {
 		private static final long serialVersionUID = -1068470342510750276L;
 
-		boolean showColors = true;
-		boolean showLabels = true;
+		private boolean showColors = true;
+		private boolean showLabels = true;
 
 		private final Color borderColor = Color.BLACK;
 
+		/**
+		 * Constructs a {@link ShapeLegendPanel}.
+		 * 
+		 * @param isSelectable
+		 *            The parts are selectable or not.
+		 * @param model
+		 *            The {@link ViewModel} to influence the view of the sample.
+		 */
 		public ShapeLegendPanel(final boolean isSelectable,
 				final ViewModel model) {
 			super(isSelectable, model, -1);
 		}
 
+		/**
+		 * Draws a sample node, and some additional informations, like labels,
+		 * colour ranges.
+		 */
 		@Override
 		protected void paintComponent(final Graphics g) {
 			super.paintComponent(g);
@@ -150,14 +201,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 					if (primaryCount == 0) {
 						return;
 					}
-					// ((Graphics2D) g).rotate(angle / Math.PI / 2);
-					// for (int i = 0; i < 5; ++i) {
-					// final double a = (0 + i * 360 / 5) / 180.0 * Math.PI;
-					// final int origX = 0, origY = bounds.width / 2;
-					// g.drawLine(origX, origY, origX
-					// + (int) (Math.cos(a) * 10 * (i + 1)), origY
-					// - (int) (Math.sin(a) * 10 * (i + 1)));
-					// }
 					g.setFont(g.getFont().deriveFont(15.0f));
 					angle += 180 / primaryCount;
 					for (final ParameterModel model : getModel().getMain()
@@ -165,7 +208,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final Slider currentSlider = getCurrentSlider(sliders,
 								model);
 						if (currentSlider != null) {
-							for (final Entry<Integer, Map<ParameterModel, Object>> entry : currentSlider
+							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
 									.getValueMapping().entrySet()) {
 								g.setColor(Color.WHITE);
 								final Font origFont = g.getFont();
@@ -187,7 +230,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 																* Math.PI) * 60)/*-bounds.width / 4, bounds.height / 4*/);
 								g
 										.drawString(
-												entry.getValue().get(model)
+												entry.getValue().getRight()
 														.toString(),
 												bounds.width
 														/ 2
@@ -204,63 +247,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 								angle += 360 / primaryCount;
 							}
 						}
-						// for (final Entry<Object, Color> entry : model
-						// .getColorLegend().entrySet()) {
-						// // for (int i = model.getValueCount() + 1; i-- > 1;)
-						// // {
-						// g.setColor(borderColor);
-						// angle += 360 / primaryCount;
-						// g
-						// .drawString(
-						// model.getShortName(),
-						// bounds.width
-						// / 2
-						// - 40
-						// + (int) (Math.cos(angle
-						// / 180.0 * Math.PI) * 60),
-						// bounds.height
-						// / 2
-						// - (int) (Math.sin(angle
-						// / 180.0 * Math.PI) * 60)/*-bounds.width / 4,
-						// bounds.height / 4*/);
-						// g
-						// .drawString(
-						// entry.getKey().toString(),
-						// bounds.width
-						// / 2
-						// - 40
-						// + (int) (Math.cos(angle
-						// / 180.0 * Math.PI) * 60),
-						// bounds.height
-						// / 2
-						// - (int) (Math.sin(angle
-						// / 180.0 * Math.PI) * 60 - 15)/*-bounds.width / 4,
-						// bounds.height / 4*/);
-						// // ((Graphics2D) g).rotate(2 * Math.PI /
-						// // primaryCount);
-						// //
-						// // for (int j = 0; j < 7; ++j) {
-						// // final double a = (0 + j * 360 / 7) / 180.0
-						// // * Math.PI;
-						// // final int origX = 0, origY = bounds.width / 2;
-						// // g.setColor(Color.ORANGE);
-						// // g
-						// // .drawLine(
-						// // origX,
-						// // origY,
-						// // origX
-						// // + (int) (Math.cos(a) * 10 * (j + 1)),
-						// // origY
-						// // - (int) (Math.sin(a) * 10 * (j + 1)));
-						// // }
-						// }
 					}
-					// ((Graphics2D) g).rotate(-Math.PI / 2);
-					// for (final ParameterModel model : getModel().getMain()
-					// .getSecunderParameters()) {
-					// g.drawString(model.getShortName(), -bounds.height / 2,
-					// 15);
-					// }
 					((Graphics2D) g).rotate(-startAngle / 180.0 * Math.PI);
 					g.setFont(getFont().deriveFont(Font.BOLD));
 					final List<ParameterModel> secunderParameters = getModel()
@@ -272,23 +259,20 @@ public class LegendPanel extends JPanel implements ActionListener {
 								(int) (radius * 1.2));
 						final Slider slider = getCurrentSlider(sliders,
 								paramModel);
-						final Map<Integer, Map<ParameterModel, Object>> valueMapping = slider
+						final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 								.getValueMapping();
 						final int[] radiuses = getRadiuses(radius, valueMapping
 								.size());
 						int i = 0;
-						for (final Entry<Integer, Map<ParameterModel, Object>> entry : valueMapping
+						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : valueMapping
 								.entrySet()) {
-							g.drawString(entry.getValue().get(paramModel)
-									.toString(), radius / 2 - 30 + radiuses[i],
+							g.drawString(
+									entry.getValue().getRight().toString(),
+									radius / 2 - 30 + radiuses[i],
 									(int) (radius * 1.35) + (i % 2) * 15);
 							++i;
 						}
 					}
-					// for (int i = primaryCount; i-- > 0;) {
-					// ((Graphics2D) g).rotate(primaryCount / Math.PI / 2);
-					// g.drawString("______" + i, 0, 0);
-					// }
 					((Graphics2D) g).rotate(startAngle / 180.0 * Math.PI);
 				}
 				break;
@@ -302,22 +286,14 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final Slider slider = getCurrentSlider(sliders, model);
 						g.drawString(model.getShortName(), 10, 15);
 						int i = 0;
-						for (final Entry<Integer, Map<ParameterModel, Object>> entry : slider
+						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							g.drawString(
-									entry.getValue().get(model).toString(), i
+									entry.getValue().getRight().toString(), i
 											* bounds.width / primaryCount,
 									30 + (i % 2) * 15);
 							++i;
 						}
-						// final int count = model.getColorLegend().entrySet()
-						// .size();
-						// for (final Entry<Object, Color> entry : model
-						// .getColorLegend().entrySet()) {
-						// g.drawString(entry.getKey().toString(), i
-						// * bounds.width / count, 30 + (i % 2) * 15);
-						// ++i;
-						// }
 					}
 					((Graphics2D) g).rotate(-Math.PI / 2);
 					for (final ParameterModel model : getModel().getMain()
@@ -326,10 +302,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 								15);
 						int i = 0;
 						final Slider slider = getCurrentSlider(sliders, model);
-						for (final Entry<Integer, Map<ParameterModel, Object>> entry : slider
+						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							g
-									.drawString(entry.getValue().get(model)
+									.drawString(entry.getValue().getRight()
 											.toString(), 5 - (i + 1)
 											* bounds.width / secundaryCount,
 											30 + (i % 2) * 15);
@@ -357,17 +333,28 @@ public class LegendPanel extends JPanel implements ActionListener {
 			return currentSlider;
 		}
 
+		/**
+		 * @param showLabels
+		 *            Changes the labels' visibility.
+		 */
 		public void setShowLabels(final boolean showLabels) {
 			this.showLabels = showLabels;
 			repaint();
 		}
 
+		/**
+		 * @param showColors
+		 *            Changes the colourmaps' visibility.
+		 */
 		public void setShowColors(final boolean showColors) {
 			this.showColors = showColors;
 			repaint();
 		}
 	}
 
+	/**
+	 * This panel shows the layout of the {@link Slider}s.
+	 */
 	private static class LayoutLegendPanel extends JPanel {
 		private static final long serialVersionUID = 4132948016212511178L;
 
@@ -378,6 +365,15 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 		private ViewModel model;
 
+		/**
+		 * Constructs a {@link LayoutLegendPanel}.
+		 * 
+		 * @param isSelectable
+		 *            The parameters will be selectable or not depending on the
+		 *            value of this parameter.
+		 * @param model
+		 *            The {@link ViewModel} for the {@link ParameterModel}s.
+		 */
 		LayoutLegendPanel(final boolean isSelectable, final ViewModel model) {
 			super();
 			this.model = model;
@@ -397,6 +393,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 			add(shapeLegendPanel, BorderLayout.CENTER);
 		}
 
+		/**
+		 * Updates the samples.
+		 * 
+		 * @param model
+		 *            The new {@link ViewModel}.
+		 */
 		public void setModel(final ViewModel model) {
 			this.model = model;
 			horizontalParametersPanel.setModel(model);
@@ -406,6 +408,14 @@ public class LegendPanel extends JPanel implements ActionListener {
 		}
 	}
 
+	/**
+	 * Constructs a new {@link LegendPanel}.
+	 * 
+	 * @param isSelectable
+	 *            The {@link LayoutLegendPanel} will be selectable or not.
+	 * @param model
+	 *            The {@link ViewModel} for this sample.
+	 */
 	public LegendPanel(final boolean isSelectable, final ViewModel model) {
 		super();
 		this.model = model;
@@ -424,6 +434,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 		super.paintComponent(g);
 	}
 
+	/**
+	 * Updates the sample using {@code currentViewModel}.
+	 * 
+	 * @param currentViewModel
+	 *            This holds the new parameters to visualize the sample.
+	 */
 	public void setViewModel(final ViewModel currentViewModel) {
 		model.getMain().getArrangementModel().removeListener(this);
 		model = currentViewModel;

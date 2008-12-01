@@ -329,8 +329,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -681,7 +681,6 @@ public class CellHTS2NodeModel extends NodeModel {
 			writePlateList(outDirs.get(normMethod) + File.separatorChar + "in",
 					plateCount, replicateCount, paramCount);
 		}
-		// System.out.println();
 		// conn.shutdown();
 		// conn.close();
 
@@ -882,7 +881,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			final boolean isMultiplicative) {
 		final Map<String, String> outDirs = new HashMap<String, String>();
 		for (final String normMethod : normMethods) {
-			outDirs.put(normMethod, baseOutDir);
+			outDirs.put(normMethod, baseOutDir.trim());
 		}
 		final StringBuilder sb = new StringBuilder();
 		nextChar: for (int i = 0; i < pattern.length(); ++i) {
@@ -934,7 +933,7 @@ public class CellHTS2NodeModel extends NodeModel {
 						if (!news.isEmpty()) {
 							for (final String string : normMethods) {
 								outDirs.put(string, outDirs.get(string) + sb
-										+ news.get(string));
+										+ news.get(string).trim());
 							}
 							sb.setLength(0);
 							news.clear();
@@ -944,7 +943,7 @@ public class CellHTS2NodeModel extends NodeModel {
 						if (!news.isEmpty()) {
 							for (final String string : normMethods) {
 								outDirs.put(string, outDirs.get(string) + sb
-										+ news.get(string));
+										+ news.get(string).trim());
 							}
 							sb.setLength(0);
 							news.clear();
@@ -979,7 +978,7 @@ public class CellHTS2NodeModel extends NodeModel {
 								if (val.length() > num) {
 									val = val.substring(0, num);
 								}
-								news.put(normMethod, val);
+								news.put(normMethod, val.trim());
 							}
 						}
 						break;
@@ -988,12 +987,12 @@ public class CellHTS2NodeModel extends NodeModel {
 				if (news.isEmpty()) {
 					for (final String string : normMethods) {
 						outDirs.put(string, outDirs.get(string).concat(
-								sb.toString()));
+								sb.toString()).trim());
 					}
 				} else {
 					for (final String string : normMethods) {
 						outDirs.put(string, outDirs.get(string).concat(
-								sb.toString()).concat(news.get(string)));
+								sb.toString()).concat(news.get(string)).trim());
 					}
 				}
 			}

@@ -19,6 +19,9 @@ public class SettingsPanel extends JPanel {
 	private final JButton save = new JButton("save");
 	private final JButton delete = new JButton("delete");
 
+	/**
+	 * Constructs a {@link SettingsPanel}.
+	 */
 	public SettingsPanel() {
 		super();
 		final JPanel panel = new JPanel();

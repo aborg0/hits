@@ -37,6 +37,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.StringHistory;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * A {@link DialogComponent} for {@link SettingsModelStringArray} models. It is
@@ -73,6 +74,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * @param validExtensions
 	 *            Only files with these extensions are shown.
 	 */
+	@SuppressWarnings("RCN")
 	public DialogComponentMultiFileChooser(
 			final SettingsModelStringArray model, final String fileNameLabel,
 			final String historyId, @Nonnegative

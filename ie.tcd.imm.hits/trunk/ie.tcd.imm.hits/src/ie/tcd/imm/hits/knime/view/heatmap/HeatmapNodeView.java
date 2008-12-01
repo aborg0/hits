@@ -37,6 +37,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -60,12 +63,16 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * <code>NodeView</code> for the "Heatmap" Node. Shows the heatmap of the
  * plates.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation(Nonnull.class)
+@NotThreadSafe
 public class HeatmapNodeView extends NodeView {
 	private final LegendPanel legendPanel;
 	private final LegendPanel legendPanel2;
@@ -83,52 +90,84 @@ public class HeatmapNodeView extends NodeView {
 	private final JCheckBoxMenuItem testingForSelected;
 	private final HeatmapPanel heatmapPanel;
 
+	/**
+	 * This {@link HiLiteListener} updates the {@link HeatmapPanel} on changes
+	 * of {@link HeatmapPanel}.
+	 */
 	private static class HeatmapPanel extends JPanel implements ActionListener {
+		private static final class HeatmapHiLiteListener implements
+				HiLiteListener, Serializable {
+			private static final long serialVersionUID = -1134588773984128388L;
+			private final HeatmapPanel heatmap;
+
+			/**
+			 * Constructs the {@link HiLiteListener} using the {@code heatmap}.
+			 * 
+			 * @param heatmap
+			 *            The {@link HeatmapPanel} to update on change.
+			 */
+			public HeatmapHiLiteListener(final HeatmapPanel heatmap) {
+				super();
+				this.heatmap = heatmap;
+			}
+
+			@Override
+			public void unHiLiteAll() {
+				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
+						.values()) {
+					for (final Heatmap heatmap : map.values()) {
+						heatmap.unHiLiteAll();
+					}
+				}
+			}
+
+			@Override
+			public void unHiLite(final KeyEvent event) {
+				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
+						.values()) {
+					for (final Heatmap heatmap : map.values()) {
+						heatmap.unHiLite(event);
+					}
+				}
+			}
+
+			@Override
+			public void hiLite(final KeyEvent event) {
+				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
+						.values()) {
+					for (final Heatmap heatmap : map.values()) {
+						heatmap.hiLite(event);
+					}
+				}
+			}
+		}
+
 		private static final long serialVersionUID = 6589091201002870311L;
 		private final Map<Integer, Map<Integer, Heatmap>> heatmaps = new HashMap<Integer, Map<Integer, Heatmap>>();
 		private ViewModel model;
-		private HeatmapNodeModel dataModel;
-		private final HiLiteListener hiliteListener;
+		private @Nullable
+		HeatmapNodeModel dataModel;
+		private final HeatmapHiLiteListener hiliteListener;
 		private final VolatileModel volatileModel;
 
-		public HeatmapPanel(final ViewModel model,
-				final HeatmapNodeModel dataModel,
-				final VolatileModel volatileModel) {
+		/**
+		 * Constructs the {@link HeatmapPanel}.
+		 * 
+		 * @param model
+		 *            The layout model of the {@link Heatmap}.
+		 * @param dataModel
+		 *            The data to show.
+		 * @param volatileModel
+		 *            The actual values of the visualisation parameters.
+		 */
+		public HeatmapPanel(final ViewModel model, @Nullable
+		final HeatmapNodeModel dataModel, final VolatileModel volatileModel) {
 			super();
 			this.model = model;
 			this.dataModel = dataModel;
 			this.volatileModel = volatileModel;
 			internalSetModel();
-			hiliteListener = new HiLiteListener() {
-
-				@Override
-				public void unHiLiteAll() {
-					for (final Map<Integer, Heatmap> map : heatmaps.values()) {
-						for (final Heatmap heatmap : map.values()) {
-							heatmap.unHiLiteAll();
-						}
-					}
-				}
-
-				@Override
-				public void unHiLite(final KeyEvent event) {
-					for (final Map<Integer, Heatmap> map : heatmaps.values()) {
-						for (final Heatmap heatmap : map.values()) {
-							heatmap.unHiLite(event);
-						}
-					}
-				}
-
-				@Override
-				public void hiLite(final KeyEvent event) {
-					for (final Map<Integer, Heatmap> map : heatmaps.values()) {
-						for (final Heatmap heatmap : map.values()) {
-							heatmap.hiLite(event);
-						}
-					}
-				}
-
-			};
+			hiliteListener = new HeatmapHiLiteListener(this);
 		}
 
 		private void internalSetModel() {
@@ -168,12 +207,11 @@ public class HeatmapNodeView extends NodeView {
 				slider.setPaintLabels(true);
 				final Dictionary<Integer, JComponent> labels = new Hashtable<Integer, JComponent>();
 				final Set<ParameterModel> paramSet = new HashSet<ParameterModel>();
-				for (final Entry<Integer, Map<ParameterModel, Object>> entry : selector
+				for (final Entry<Integer, Pair<ParameterModel, Object>> entry : selector
 						.getValueMapping().entrySet()) {
-					final JLabel label = new JLabel(entry.getValue().values()
-							.iterator().next().toString());
-					final ParameterModel key = entry.getValue().entrySet()
-							.iterator().next().getKey();
+					final JLabel label = new JLabel(entry.getValue().getRight()
+							.toString());
+					final ParameterModel key = entry.getValue().getLeft();
 					paramSet.add(key);
 					label.setBackground(possColors[paramSet.size()
 							% possColors.length]);
@@ -274,6 +312,12 @@ public class HeatmapNodeView extends NodeView {
 			return allCount;
 		}
 
+		/**
+		 * Updates the {@link HeatmapPanel} using the new {@link ViewModel}.
+		 * 
+		 * @param model
+		 *            The new layout model.
+		 */
 		public void setViewModel(final ViewModel model) {
 			model.getMain().getArrangementModel().removeListener(this);
 			this.model = model;
@@ -298,12 +342,22 @@ public class HeatmapNodeView extends NodeView {
 			}
 		}
 
+		/**
+		 * Sets the new data model. Updates the actual values of the
+		 * visualisation parameters.
+		 * 
+		 * @param nodeModel
+		 *            The new {@link HeatmapNodeModel}.
+		 */
 		public void setModel(final HeatmapNodeModel nodeModel) {
 			volatileModel
 					.setKeyToPlateAndPosition(nodeModel.keyToPlateAndPosition);
 			setModel(nodeModel, volatileModel);
 		}
 
+		/**
+		 * @return The current {@link HiLiteListener}.
+		 */
 		public HiLiteListener getHiLiteListener() {
 			return hiliteListener;
 		}
@@ -314,6 +368,12 @@ public class HeatmapNodeView extends NodeView {
 			setModel(dataModel);
 		}
 
+		/**
+		 * Adds a {@link MouseListener} to every {@link Heatmap}'s every well.
+		 * 
+		 * @param listener
+		 *            A {@link MouseListener}.
+		 */
 		void addClickListenerToEveryWell(final MouseListener listener) {
 			for (final Map<Integer, Heatmap> outer : heatmaps.values()) {
 				for (final Heatmap heatmap : outer.values()) {
@@ -353,9 +413,9 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -364,20 +424,20 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
+					 * Collections .<ParameterModel>
+					 * emptyList()
+					 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
+					 * Collections.<ParameterModel>
+					 * emptyList()
+					 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -396,47 +456,109 @@ public class HeatmapNodeView extends NodeView {
 	static class VolatileModel implements Serializable, ActionListener {
 		private static final long serialVersionUID = 6675568415910804477L;
 
+		/**
+		 * This enum describes the possible strategies to layout the
+		 * {@link Heatmap}s.
+		 */
 		static enum MagnificationStrategy {
-			autoHorisontalAll, autoHorisontalOne, autoVerticalAll, autoVerticalOne, manual;
+			/**
+			 * The {@link Heatmap}s are all shown horizontally, till they fill
+			 * the horizontal space.
+			 */
+			autoHorizontalAll,
+			/** Only one {@link Heatmap} is shown horizontally. */
+			autoHorizontalOne,
+			/**
+			 * All {@link Heatmap}s are shown vertivally, till they fill the
+			 * vertical space
+			 */
+			autoVerticalAll,
+			/** Only one {@link Heatmap} is shown vertically. */
+			autoVerticalOne,
+			/** The size is set with some buttons. */
+			manual;
 		};
 
+		/** The magnification factor for the {@link Heatmap}s. */
 		private double magnification;
 
+		/** The strategy to find the {@link #magnification} value. */
 		private MagnificationStrategy magStrategy;
 
-		private double leftX, upperY;
-		private boolean[][] hilites;// plate/position???
-		private boolean[][] selections; // plate/position???
+		/** The plate's row and column positions at the upper left corner. */
+		private int leftX, upperY;
+		/** Plate/position hilite. (indices start from 0.) */
+		private boolean[][] hilites;
+		/** Plate/position selections. (indices start from 0.) */
+		private boolean[][] selections;
+		/** The current {@link Slider} positions. */
 		private final Map<Slider, Integer> sliderPositions = new HashMap<Slider, Integer>();
 
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
+		/** The actual {@link ArrangementModel} */
 		private ArrangementModel arrangementModel;
 
+		/**
+		 * This {@link Map} tells that which {@link DataCell} represents which
+		 * row's ids (rowId &Rarr; (plate, position)). The plate and position
+		 * values are {@code 0}-based.
+		 */
 		private Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition;
 
+		/** The {@link HiLiteHandler} used. */
 		private HiLiteHandler hiliteHandler;
 
+		/**
+		 * Constructs a {@link VolatileModel}.
+		 */
 		public VolatileModel() {
 			super();
-			// TODO Auto-generated constructor stub
 		}
 
+		/**
+		 * Sets the new row key &Rarr; (plate, position) {@link Map}. Every
+		 * change will have effect on the {@link VolatileModel}, so please
+		 * <b>do not</b> modify.
+		 * 
+		 * @param keyToPlateAndPosition
+		 *            The new key &Rarr; (plate, position) {@link Map}.
+		 */
 		public void setKeyToPlateAndPosition(
 				final Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition) {
 			this.keyToPlateAndPosition = keyToPlateAndPosition;
 		}
 
+		/**
+		 * @return An unmodifiable {@link Map} of {@link Slider} positions.
+		 */
 		public Map<Slider, Integer> getSliderPositions() {
 			return Collections.unmodifiableMap(sliderPositions);
 		}
 
+		/**
+		 * Updates the {@code slider} to the new {@code value}.
+		 * 
+		 * @param slider
+		 *            A {@link Slider}
+		 * @param value
+		 *            The new value of it.
+		 */
 		public void setSliderPosition(final Slider slider, final Integer value) {
 			sliderPositions.put(slider, value);
 			actionPerformed(new ActionEvent(slider, (int) (System
 					.currentTimeMillis() & 0xffffffff), "slider value changed"));
 		}
 
+		/**
+		 * Changes the actual values according to the new
+		 * {@link ArrangementModel} and {@link HeatmapNodeModel data model}.
+		 * 
+		 * @param arrangementModel
+		 *            The new {@link ArrangementModel}.
+		 * @param nodeModel
+		 *            The new {@link HeatmapNodeModel}.
+		 */
 		public void mutateValues(final ArrangementModel arrangementModel,
 				final HeatmapNodeModel nodeModel) {
 			// TODO Auto-generated method stub
@@ -456,19 +578,54 @@ public class HeatmapNodeView extends NodeView {
 			selections = new boolean[plateCount][384];
 		}
 
+		/**
+		 * HiLites or deHiLites a well on {@code plate} ({@code 0}-based) at
+		 * {@code position} ({@code 0}-based).
+		 * <p>
+		 * This call <b>does not </b> repaint the well!
+		 * 
+		 * @param plate
+		 *            A ({@code 0}-based) plate number.
+		 * @param position
+		 *            A ({@code 0}-based) position number.
+		 * @param value
+		 *            The new HiLite value for that well.
+		 */
 		void setHilite(final int plate, final int position, final boolean value) {
 			hilites[plate][position] = value;
 		}
 
+		/**
+		 * @param plate
+		 *            A ({@code 0}-based) plate number.
+		 * @return The HiLite values for that plate. This is modifiable, but
+		 *         please <b>do not</b> modify it.
+		 */
 		boolean[] getHiliteValues(final int plate) {
 			return hilites[plate];
 		}
 
+		/**
+		 * Selects, or deselects a well on {@code plate} ({@code 0}-based) at
+		 * {@code position} ({@code 0}-based).
+		 * <p>
+		 * This call <b>does not </b> repaint the well!
+		 * 
+		 * @param plate
+		 *            A ({@code 0}-based) plate number.
+		 * @param position
+		 *            A ({@code 0}-based) position number.
+		 * @param value
+		 *            The new selection value for that well.
+		 */
 		void setSelection(final int plate, final int position,
 				final boolean value) {
 			selections[plate][position] = value;
 		}
 
+		/**
+		 * UnHiLites every well. (Clears all HiLite.)
+		 */
 		public void unHiliteAll() {
 			final int plateCount = count(StatTypes.plate);
 			hilites = new boolean[plateCount][384];
@@ -477,6 +634,12 @@ public class HeatmapNodeView extends NodeView {
 			}
 		}
 
+		/**
+		 * @param param
+		 *            A {@link StatTypes}.
+		 * @return The number of possible values for the {@code param}
+		 *         {@link StatTypes} .
+		 */
 		private int count(final StatTypes param) {
 			final Collection<Slider> sliders = arrangementModel
 					.getMainArrangement().entrySet().iterator().next()
@@ -535,32 +698,68 @@ public class HeatmapNodeView extends NodeView {
 			}
 		}
 
+		/**
+		 * Adds a new {@link ActionListener} (if not yet contained).
+		 * 
+		 * @param listener
+		 *            An {@link ActionListener}.
+		 */
 		public void addActionListener(final ActionListener listener) {
 			if (!listeners.contains(listener)) {
 				listeners.add(listener);
 			}
 		}
 
+		/**
+		 * Removes the {@link ActionListener}.
+		 * 
+		 * @param listener
+		 *            An {@link ActionListener}.
+		 */
 		public void removeActionListener(final ActionListener listener) {
 			listeners.remove(listener);
 		}
 
+		/**
+		 * Clears all selections. (No repaint.)
+		 */
 		public void clearSelection() {
 			selections = new boolean[selections.length][selections[0].length];
 		}
 
+		/**
+		 * @param plate
+		 *            A ({@code 0}-based) plate number.
+		 * @return The selection values for that plate. This is modifiable, but
+		 *         please <b>do not</b> modify it.
+		 */
 		public boolean[] getSelectionValues(final int plate) {
 			return selections[plate];
 		}
 
+		/**
+		 * @return The {@link HiLiteHandler}.
+		 */
 		public HiLiteHandler getHiliteHandler() {
 			return hiliteHandler;
 		}
 
+		/**
+		 * Sets the new {@link HiLiteHandler}.
+		 * 
+		 * @param hiliteHandler
+		 *            A {@link HiLiteHandler}.
+		 */
 		public void setHiliteHandler(final HiLiteHandler hiliteHandler) {
 			this.hiliteHandler = hiliteHandler;
 		}
 
+		/**
+		 * HiLites the wells with {@code hiLitKeys} keys.
+		 * 
+		 * @param hiLitKeys
+		 *            A {@link Set} of row ids.
+		 */
 		public void setHilites(final Set<DataCell> hiLitKeys) {
 			for (final DataCell dataCell : hiLitKeys) {
 				final Pair<Integer, Integer> pair = keyToPlateAndPosition
@@ -616,7 +815,7 @@ public class HeatmapNodeView extends NodeView {
 
 		// /Init the defaults.
 		currentViewModel.getMain().getArrangementModel().mutate(
-				((HeatmapNodeModel) nodeModel).possibleParameters);
+				((HeatmapNodeModel) nodeModel).getPossibleParameters());
 		volatileModel.mutateValues(currentViewModel.getMain()
 				.getArrangementModel(), (HeatmapNodeModel) nodeModel);
 		controlPanel.updateControl(currentViewModel);
@@ -723,10 +922,19 @@ public class HeatmapNodeView extends NodeView {
 
 	}
 
+	/**
+	 * @return The actual {@link ViewModel}.
+	 */
 	public ViewModel getCurrentViewModel() {
 		return currentViewModel;
 	}
 
+	/**
+	 * Updates the current {@link ViewModel}.
+	 * 
+	 * @param currentViewModel
+	 *            The new {@link ViewModel}.
+	 */
 	public void setCurrentViewModel(final ViewModel currentViewModel) {
 		this.currentViewModel = currentViewModel;
 		controlPanel.setViewModel(currentViewModel);
@@ -735,14 +943,28 @@ public class HeatmapNodeView extends NodeView {
 		legendPanel2.setViewModel(currentViewModel);
 	}
 
+	/**
+	 * Changes the actual {@link ViewModel} according to the parameters.
+	 * 
+	 * @param format
+	 *            The plate format.
+	 * @param shape
+	 *            The shape of wells.
+	 */
 	public void changeView(final Format format, final Shape shape) {
 		setCurrentViewModel(possibleViewModels.get(format).get(shape));
 	}
 
+	/**
+	 * @return The current model for frequently changing parameters.
+	 */
 	public VolatileModel getVolatileModel() {
 		return volatileModel;
 	}
 
+	/**
+	 * @return The actual data model.
+	 */
 	@Override
 	public HeatmapNodeModel getNodeModel() {
 		return (HeatmapNodeModel) super.getNodeModel();

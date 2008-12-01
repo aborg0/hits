@@ -28,6 +28,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * This is the model implementation of SimpleConfigurator. This node reads the
@@ -124,6 +125,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 				descConfContainer.getTable() };
 	}
 
+	@SuppressWarnings("NP")
 	private void readPlateConf(final BufferedDataContainer plateConfContainer)
 			throws FileNotFoundException, IOException {
 		final File plateConfFile = new File(plateConfModel.getStringValue());

@@ -4,11 +4,14 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,20 +21,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.TableModel;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * This is responsible for the visual representation of the {@link Heatmap}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation(Nonnull.class)
+@NotThreadSafe
 public class ViewModel implements ActionListener {
 	private final WeakHashMap<ChangeListener, Boolean> changeListeners = new WeakHashMap<ChangeListener, Boolean>();
 	private final WeakHashMap<ActionListener, Boolean> actionListeners = new WeakHashMap<ActionListener, Boolean>();
 
+	/**
+	 * Plate format. Only {@code 96}, or {@code 384} are supported.
+	 */
 	public static enum Format {
-		_96(8, 12), _384(16, 24);
+		/** 96 plate format */
+		_96(8, 12),
+		/** 384 plate format */
+		_384(16, 24);
 
 		private final int row;
 		private final int col;
@@ -41,17 +58,29 @@ public class ViewModel implements ActionListener {
 			this.col = col;
 		}
 
+		/**
+		 * @return The row count for the {@link Format plate format}.
+		 */
 		public int getRow() {
 			return row;
 		}
 
+		/**
+		 * @return The column count for the {@link Format plate format}.
+		 */
 		public int getCol() {
 			return col;
 		}
 	}
 
+	/**
+	 * The shape of the well representation.
+	 */
 	public static enum Shape {
-		Circle(4, true, true), Rectangle(0, true, true);
+		/** Circle based representation. */
+		Circle(4, true, true),
+		/** Rectangular representation. */
+		Rectangle(0, true, true);
 		private final int additionalInformationSlotsCount;
 		private final boolean supportThickness;
 		private final boolean supportSize;
@@ -63,28 +92,55 @@ public class ViewModel implements ActionListener {
 			this.supportSize = supportSize;
 		}
 
+		/**
+		 * @return At most this many additional informations can be shown.
+		 */
 		public int getAdditionalInformationSlotsCount() {
 			return additionalInformationSlotsCount;
 		}
 
+		/**
+		 * @return Does it supports the different thickness of the border?
+		 */
 		public boolean isSupportThickness() {
 			return supportThickness;
 		}
 
+		/**
+		 * @return Does it support showing a parameter affecting the size of the
+		 *         result?
+		 */
 		public boolean isSupportSize() {
 			return supportSize;
 		}
 	}
 
+	/**
+	 * The possible values of a parameter.
+	 */
 	public static enum ValueType {
-		Discrete, Continuous;
+		/** The values are distinct */
+		Discrete,
+		/** The values are from a real interval. */
+		Continuous;
 	}
 
-	public static class WellViewModel {
+	/**
+	 * This class represents the layout of wells.
+	 */
+	public static class WellViewModel implements Serializable {
+		private static final long serialVersionUID = 7800658256156783902L;
+
+		/**
+		 * This shows the possible places of the well splits.
+		 */
 		public static enum Places implements CompatibleValues {
-			Primer(EnumSet.of(ValueType.Discrete, ValueType.Continuous)), Secunder(
-					EnumSet.of(ValueType.Discrete, ValueType.Continuous)), Additional(
-					EnumSet.of(ValueType.Discrete, ValueType.Continuous));
+			/** Split by the primary splitting position. */
+			Primer(EnumSet.of(ValueType.Discrete, ValueType.Continuous)),
+			/** Split by the secundary splitting position. */
+			Secunder(EnumSet.of(ValueType.Discrete, ValueType.Continuous)),
+			/** Additional positions for results. */
+			Additional(EnumSet.of(ValueType.Discrete, ValueType.Continuous));
 			private final EnumSet<ValueType> compatibleValues;
 
 			private Places(final EnumSet<ValueType> compatibleValues) {
@@ -98,11 +154,25 @@ public class ViewModel implements ActionListener {
 		}
 	}
 
+	/**
+	 * States what kind of values are accepted.
+	 */
 	public static interface CompatibleValues {
+		/**
+		 * @return The compatible values.
+		 */
 		public EnumSet<ValueType> getCompatibleValues();
 	}
 
-	public static class OverviewModel {
+	/**
+	 * This class is for the {@link Slider}s outside of the wells.
+	 */
+	public static class OverviewModel implements Serializable {
+		private static final long serialVersionUID = -4371472124531160973L;
+
+		/**
+		 * The possible places of {@link Slider}s outside of the wells.
+		 */
 		public static enum Places implements CompatibleValues {
 			/** These are for the rows. */
 			Rows(EnumSet.of(ValueType.Discrete)),
@@ -128,6 +198,18 @@ public class ViewModel implements ActionListener {
 		private final List<ParameterModel> colModel = new ArrayList<ParameterModel>();
 		private final List<ParameterModel> choiceModel = new ArrayList<ParameterModel>();
 
+		/**
+		 * Constructs an {@link OverviewModel} based on the given
+		 * {@link ParameterModel}s.
+		 * 
+		 * @param rowModel
+		 *            This describes the distribution of the result by row.
+		 * @param colModel
+		 *            This describes the distribution of the result by column.
+		 * @param choiceModel
+		 *            This describes the distribution of the result by selection
+		 *            slider.
+		 */
 		public OverviewModel(final List<ParameterModel> rowModel,
 				final List<ParameterModel> colModel,
 				final List<ParameterModel> choiceModel) {
@@ -137,20 +219,33 @@ public class ViewModel implements ActionListener {
 			this.choiceModel.addAll(choiceModel);
 		}
 
+		/**
+		 * @return The selection slider's {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getChoiceModel() {
 			return Collections.unmodifiableList(choiceModel);
 		}
 
+		/**
+		 * @return The column's {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getColModel() {
 			return Collections.unmodifiableList(colModel);
 		}
 
+		/**
+		 * @return The row's {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getRowModel() {
 			return Collections.unmodifiableList(rowModel);
 		}
 	}
 
-	public static class ShapeModel {
+	/**
+	 * Describes the layout of a well.
+	 */
+	public static class ShapeModel implements Serializable {
+		private static final long serialVersionUID = 7291082607986486046L;
 		private final ArrangementModel arrangementModel;
 		private final List<ParameterModel> primerParameters = new ArrayList<ParameterModel>();
 		private final List<ParameterModel> secunderParameters = new ArrayList<ParameterModel>();
@@ -163,6 +258,26 @@ public class ViewModel implements ActionListener {
 
 		private final int startAngle = 30;
 
+		/**
+		 * Constructs a {@link ShapeModel} using the parameters.
+		 * 
+		 * @param arrangementModel
+		 *            This describes the actual {@link Slider}s.
+		 * @param primerParameters
+		 *            This describes the primary split {@link ParameterModel}s.
+		 * @param secunderParameters
+		 *            This describes the secondary split {@link ParameterModel}s.
+		 * @param additionalParameters
+		 *            This describes the additional data {@link ParameterModel}s.
+		 * @param drawBorder
+		 *            If set draws a (rectangular) border around the well.
+		 * @param drawPrimaryBorders
+		 *            If set draws borders for the primary selections.
+		 * @param drawSecundaryBorders
+		 *            If set draws borders for the secondary selections.
+		 * @param drawAdditionalBorders
+		 *            If set draws borders for the additional data.
+		 */
 		public ShapeModel(final ArrangementModel arrangementModel,
 				final List<ParameterModel> primerParameters,
 				final List<ParameterModel> secunderParameters,
@@ -181,6 +296,21 @@ public class ViewModel implements ActionListener {
 			this.drawAdditionalBorders = drawAdditionalBorders;
 		}
 
+		/**
+		 * Constructs a {@link ShapeModel} using the parameters.
+		 * 
+		 * @param arrangementModel
+		 *            This describes the actual {@link Slider}s.
+		 * @param primerParameters
+		 *            This describes the primary split {@link ParameterModel}s.
+		 * @param secunderParameters
+		 *            This describes the secondary split {@link ParameterModel}s.
+		 * @param additionalParameters
+		 *            This describes the additional data {@link ParameterModel}s.
+		 * @param drawBorders
+		 *            If set draws every possible separator line, else it draws
+		 *            none.
+		 */
 		public ShapeModel(final ArrangementModel arrangementModel,
 				final List<ParameterModel> primerParameters,
 				final List<ParameterModel> secunderParameters,
@@ -191,6 +321,19 @@ public class ViewModel implements ActionListener {
 					drawBorders, drawBorders);
 		}
 
+		/**
+		 * Constructs a {@link ShapeModel} using the parameters.
+		 * 
+		 * @param arrangementModel
+		 *            This describes the actual {@link Slider}s.
+		 * @param model
+		 *            The model to copy.
+		 * @param place
+		 *            A {@link Places} in the well.
+		 * @param drawBorder
+		 *            Sets the value of the border to at {@code place} to this
+		 *            value.
+		 */
 		public ShapeModel(final ArrangementModel arrangementModel,
 				final ShapeModel model, final WellViewModel.Places place,
 				final boolean drawBorder) {
@@ -231,42 +374,78 @@ public class ViewModel implements ActionListener {
 			}
 		}
 
+		/**
+		 * @return The primary split {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getPrimerParameters() {
 			return Collections.unmodifiableList(primerParameters);
 		}
 
+		/**
+		 * @return The secondary split {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getSecunderParameters() {
 			return Collections.unmodifiableList(secunderParameters);
 		}
 
+		/**
+		 * @return The additional data {@link ParameterModel}s.
+		 */
 		public List<ParameterModel> getAdditionalParameters() {
 			return Collections.unmodifiableList(additionalParameters);
 		}
 
+		/**
+		 * @return Draw outside (rectangular) border?
+		 */
 		public boolean isDrawBorder() {
 			return drawBorder;
 		}
 
+		/**
+		 * @return Draw lines between primary separators?
+		 */
 		public boolean isDrawPrimaryBorders() {
 			return drawPrimaryBorders;
 		}
 
+		/**
+		 * @return Draw lines between secondary separators?
+		 */
 		public boolean isDrawSecundaryBorders() {
 			return drawSecundaryBorders;
 		}
 
+		/**
+		 * @return Draw lines around additional data?
+		 */
 		public boolean isDrawAdditionalBorders() {
 			return drawAdditionalBorders;
 		}
 
+		/**
+		 * @return Starting angle of the primary separator (only used in the
+		 *         {@link Shape#Circle} case).
+		 */
 		public int getStartAngle() {
 			return startAngle;
 		}
 
+		/**
+		 * @return The {@link ArrangementModel} associated to this
+		 *         {@link ShapeModel}.
+		 */
 		public ArrangementModel getArrangementModel() {
 			return arrangementModel;
 		}
 
+		/**
+		 * Updates the parameters.
+		 * 
+		 * @param possibleParameters
+		 *            This contains the possible values.
+		 * @see HeatmapNodeModel#getPossibleParameters()
+		 */
 		public void updateParameters(
 				final Collection<ParameterModel> possibleParameters) {
 			update(primerParameters, possibleParameters);
@@ -306,10 +485,24 @@ public class ViewModel implements ActionListener {
 		}
 	}
 
+	/**
+	 * This enum lists all possible statistics which can be shown/computed for
+	 * the values.
+	 */
 	public static enum AggregateType {
-		Median, Mean, StandardDeviation;
+		/** The median of the values based on the free parameters. */
+		Median,
+		/** The mean of the values based on the free parameters. */
+		Mean,
+		/** The standard deviation of the values based on the free parameters. */
+		StandardDeviation;
 	}
 
+	/**
+	 * This is an important concept in the view description. This describes the
+	 * parameters' properties, like name, possible values, aggregations,
+	 * colours, ranges, ...
+	 */
 	public static class ParameterModel {
 		private final String shortName;// Maybe from row names
 		private final AggregateType aggregateType;
@@ -321,7 +514,24 @@ public class ViewModel implements ActionListener {
 		private final Map<Object, Color> colorLegend = new HashMap<Object, Color>();
 		private final StatTypes type;
 
+		/**
+		 * Constructs a {@link ParameterModel} using the given parameters.
+		 * 
+		 * @param shortName
+		 *            A short name for the {@link ParameterModel}.
+		 * @param type
+		 *            The {@link StatTypes} it is belonging to.
+		 * @param aggregateType
+		 *            The aggregation, may be {@code null}. This shows if there
+		 *            will be an aggregation by this parameter.
+		 * @param columns
+		 *            These columns are represented in the original
+		 *            {@link TableModel}s. (Maybe not necessary to have.)
+		 * @param columnValues
+		 *            These values are used, may be empty, meaning all.
+		 */
 		public ParameterModel(final String shortName, final StatTypes type,
+				@Nullable
 				final AggregateType aggregateType, final List<String> columns,
 				final List<String> columnValues) {
 			super();
@@ -332,81 +542,155 @@ public class ViewModel implements ActionListener {
 			this.columnValues = columnValues;
 		}
 
+		/**
+		 * @return How many different values are used.
+		 */
+		@Deprecated
 		public int getValueCount() {
 			return valueCount;
 		}
 
+		/**
+		 * Sets the number of possible different values.
+		 * 
+		 * @param valueCount
+		 *            The number of possible different values.
+		 */
+		@Deprecated
 		public void setValueCount(final int valueCount) {
 			assert type.isDiscrete() : type;
 			this.valueCount = valueCount;
 		}
 
+		/**
+		 * @return The lower bound for the values.
+		 */
 		public double getRangeMin() {
 			return rangeMin;
 		}
 
+		/**
+		 * Sets the lower bound for the values.
+		 * 
+		 * @param rangeMin
+		 *            The new lower bound for the values.
+		 */
 		public void setRangeMin(final double rangeMin) {
 			assert !type.isDiscrete() : type;
 			this.rangeMin = rangeMin;
 		}
 
+		/**
+		 * @return The upper bound for the values.
+		 */
 		public double getRangeMax() {
 			return rangeMax;
 		}
 
+		/**
+		 * Sets the upper bound for the values.
+		 * 
+		 * @param rangeMax
+		 *            The new upper bound for the values.
+		 */
 		public void setRangeMax(final double rangeMax) {
 			assert !type.isDiscrete();
 			this.rangeMax = rangeMax;
 		}
 
+		/**
+		 * @return The {@link Color} for the lower bound.
+		 */
 		public Color getStartColor() {
 			return startColor;
 		}
 
+		/**
+		 * Sets the colour for the lower values.
+		 * 
+		 * @param startColor
+		 *            The colour for the lower values.
+		 */
 		public void setStartColor(final Color startColor) {
 			assert !type.isDiscrete() : type;
 			this.startColor = startColor;
 		}
 
+		/**
+		 * @return The {@link Color} for the neutral value.
+		 */
 		public Color getMiddleColor() {
 			return middleColor;
 		}
 
+		/**
+		 * Sets the colour for the neutral values.
+		 * 
+		 * @param middleColor
+		 *            The colour for the neutral values.
+		 */
 		public void setMiddleColor(final Color middleColor) {
 			assert !type.isDiscrete() : type;
 			this.middleColor = middleColor;
 		}
 
+		/**
+		 * @return The {@link Color} for the upper bound.
+		 */
 		public Color getEndColor() {
 			return endColor;
 		}
 
+		/**
+		 * Sets the colour for the upper values.
+		 * 
+		 * @param endColor
+		 *            The colour for the upper values.
+		 */
 		public void setEndColor(final Color endColor) {
 			assert !type.isDiscrete() : type;
 			this.endColor = endColor;
 		}
 
+		/**
+		 * @return The name of this {@link ParameterModel}.
+		 */
 		public String getShortName() {
 			return shortName;
 		}
 
+		/**
+		 * @return The {@link AggregateType} for this {@link ParameterModel}.
+		 */
 		public AggregateType getAggregateType() {
 			return aggregateType;
 		}
 
+		/**
+		 * @return The columns from the {@link HeatmapNodeModel}.
+		 */
 		public List<String> getColumns() {
 			return columns;
 		}
 
+		/**
+		 * @return The values used from the columns.
+		 */
 		public List<String> getColumnValues() {
 			return columnValues;
 		}
 
+		/**
+		 * @return The color legend for different values.
+		 */
 		public Map<Object, Color> getColorLegend() {
 			assert type.isDiscrete() : type;
 			return colorLegend;
 		}
 
+		/**
+		 * @return The {@link StatTypes} represented.
+		 */
 		public StatTypes getType() {
 			return type;
 		}
@@ -542,6 +826,14 @@ public class ViewModel implements ActionListener {
 
 	}
 
+	/**
+	 * Constructs a {@link ViewModel} with a different {@link Format}.
+	 * 
+	 * @param model
+	 *            The prototype {@link ViewModel}.
+	 * @param format
+	 *            The new {@link Format}.
+	 */
 	public ViewModel(final ViewModel model, final Format format) {
 		super();
 		this.format = format;
@@ -550,6 +842,14 @@ public class ViewModel implements ActionListener {
 		this.main = model.main;
 	}
 
+	/**
+	 * Constructs a {@link ViewModel} with a different {@link Shape}.
+	 * 
+	 * @param model
+	 *            The prototype {@link ViewModel}.
+	 * @param shape
+	 *            The new {@link Shape}.
+	 */
 	public ViewModel(final ViewModel model, final Shape shape) {
 		super();
 		this.format = model.format;
@@ -558,6 +858,14 @@ public class ViewModel implements ActionListener {
 		this.main = model.main;
 	}
 
+	/**
+	 * Constructs a {@link ViewModel} with a different {@link OverviewModel}.
+	 * 
+	 * @param model
+	 *            The prototype {@link ViewModel}.
+	 * @param overview
+	 *            The new {@link OverviewModel}.
+	 */
 	public ViewModel(final ViewModel model, final OverviewModel overview) {
 		super();
 		this.format = model.format;
@@ -566,6 +874,14 @@ public class ViewModel implements ActionListener {
 		this.main = model.main;
 	}
 
+	/**
+	 * Constructs a {@link ViewModel} with a different {@link ShapeModel}.
+	 * 
+	 * @param model
+	 *            The prototype {@link ViewModel}.
+	 * @param shapeModel
+	 *            The new {@link ShapeModel}.
+	 */
 	public ViewModel(final ViewModel model, final ShapeModel shapeModel) {
 		super();
 		this.format = model.format;
@@ -574,6 +890,18 @@ public class ViewModel implements ActionListener {
 		this.main = shapeModel;
 	}
 
+	/**
+	 * Constructs a {@link ViewModel} with the basic parameters.
+	 * 
+	 * @param format
+	 *            The format of the plate.
+	 * @param shape
+	 *            The shape of the wells.
+	 * @param overview
+	 *            The {@link OverviewModel}.
+	 * @param shapeModel
+	 *            The {@link ShapeModel}.
+	 */
 	public ViewModel(final Format format, final Shape shape,
 			final OverviewModel overview, final ShapeModel shapeModel) {
 		super();
@@ -599,34 +927,74 @@ public class ViewModel implements ActionListener {
 		}
 	}
 
+	/**
+	 * Adds a {@link ChangeListener} to {@link ViewModel}.
+	 * 
+	 * @param listener
+	 *            A {@link ChangeListener}.
+	 * @return It is {@code true} if it was newly added.
+	 */
 	public boolean addChangeListener(final ChangeListener listener) {
 		return changeListeners.put(listener, Boolean.TRUE) == null;
 	}
 
+	/**
+	 * Removes the {@link ChangeListener} from {@link ViewModel}.
+	 * 
+	 * @param listener
+	 *            A {@link ChangeListener} to remove.
+	 * @return It is {@code true} if it was previously contained.
+	 */
 	public boolean removeChangeListener(final ChangeListener listener) {
 		return changeListeners.remove(listener) != null;
 	}
 
+	/**
+	 * Adds an {@link ActionListener} to {@link ViewModel}.
+	 * 
+	 * @param listener
+	 *            An {@link ActionListener}.
+	 * @return It is {@code true} if it was newly added.
+	 */
 	public boolean addActionListener(final ActionListener listener) {
 		return actionListeners.put(listener, Boolean.TRUE) == null;
 	}
 
+	/**
+	 * Removes the {@link ActionListener} from {@link ViewModel}.
+	 * 
+	 * @param listener
+	 *            A {@link ActionListener} to remove.
+	 * @return It is {@code true} if it was previously contained.
+	 */
 	public boolean removeActionListener(final ActionListener listener) {
 		return actionListeners.remove(listener) != null;
 	}
 
+	/**
+	 * @return The current {@link Format}.
+	 */
 	public Format getFormat() {
 		return format;
 	}
 
+	/**
+	 * @return The current {@link Shape}.
+	 */
 	public Shape getShape() {
 		return shape;
 	}
 
+	/**
+	 * @return The current {@link OverviewModel}.
+	 */
 	public OverviewModel getOverview() {
 		return overview;
 	}
 
+	/**
+	 * @return The current {@link ShapeModel}.
+	 */
 	public ShapeModel getMain() {
 		return main;
 	}

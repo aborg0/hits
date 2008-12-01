@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
@@ -16,11 +13,17 @@ import java.awt.event.MouseMotionListener;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.swing.JPanel;
 
 import org.knime.base.node.mine.sota.view.interaction.Hiliteable;
 import org.knime.core.data.property.ColorAttr;
 
+/**
+ * This panel shows the values as colour codes.
+ * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ */
 public class WellViewPanel extends JPanel implements Hiliteable,
 		MouseMotionListener {
 	private static final String[] NO_LABELS = new String[0];
@@ -37,6 +40,18 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	private boolean isSelected;
 	private final int positionOnPlate;
 
+	/**
+	 * Constructs a {@link WellViewPanel} object.
+	 * 
+	 * @param isSelectable
+	 *            If {@code true}, it will be selectable.
+	 * @param model
+	 *            The model for the layout of the well.
+	 * @param positionOnPlate
+	 *            A {@code 0}-based position on the plate. It is
+	 *            {@code row*12+column}. If may be less then {@code 0}
+	 *            indicating that it is not belonging to a plate.
+	 */
 	public WellViewPanel(final boolean isSelectable, final ViewModel model,
 			final int positionOnPlate) {
 		super();
@@ -47,22 +62,6 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		this.labels = NO_LABELS;
 		hilitedAll = false;
 		isSelected = false;
-		// if (this.isSelectable) {
-		// addMouseListener(new MouseAdapter() {
-		// @Override
-		// public void mouseClicked(final MouseEvent e) {
-		// super.mouseClicked(e);
-		// // if ((e.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0)
-		// // {
-		// // isSelected = !isSelected;
-		// // } else {
-		// // // clearSelections();
-		// // isSelected = true;
-		// // }
-		// repaint();
-		// }
-		// });
-		// }
 		addMouseMotionListener(this);
 	}
 
@@ -271,19 +270,50 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		// + 1, 2 * (radius - 1), 2 * (radius - 1));
 	}
 
+	/**
+	 * @return The actual {@link ViewModel}.
+	 */
 	protected ViewModel getModel() {
 		return model;
 	}
 
+	/**
+	 * Sets the current colours to show. This call will repaint the well. Any
+	 * change to the {@code colors} array will take affect on next
+	 * {@link #repaint()}.
+	 * 
+	 * @param colors
+	 *            Some colours. It should be as many as primary times secondary
+	 *            parameter values are.
+	 */
 	public void setColors(final Color... colors) {
 		this.colors = colors == null ? sampleColors : colors;
 		repaint();
 	}
 
-	public void setLabels(final String... labels) {
+	/**
+	 * Sets the labels for the different parts of well representation.
+	 * (Currently only the first is used if set.)
+	 * 
+	 * @param labels
+	 *            The new labels. Any change on these has affect later.
+	 */
+	public void setLabels(@Nullable
+	final String... labels) {
 		this.labels = labels == null ? NO_LABELS : labels;
 	}
 
+	/**
+	 * This method computes the radiuses of the circles with approximately the
+	 * same areas for the rings.
+	 * 
+	 * @param radius
+	 *            The radius of outermost circle.
+	 * @param count
+	 *            This many circles will be. This must be strictly larger than
+	 *            {@code 0}.
+	 * @return The radiuses for the well circles. ({@code count} length)
+	 */
 	protected static int[] getRadiuses(final int radius, final int count) {
 		final int[] ret = new int[count];
 		double prev = radius / Math.sqrt(count);
@@ -296,6 +326,16 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		return ret;
 	}
 
+	/**
+	 * Computes how many different values have to be represented in a single
+	 * well by the primary or the secondary parameters.
+	 * 
+	 * @param parameters
+	 *            The parameters of the splits.
+	 * @param sliders
+	 *            The {@link Slider}s splitting the wells.
+	 * @return The number of different values to represent.
+	 */
 	protected static int selectValueCount(
 			final List<ParameterModel> parameters,
 			final Collection<Slider> sliders) {
@@ -317,6 +357,11 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		return ret;
 	}
 
+	/**
+	 * Sets a new {@link ViewModel}, {@code model}.
+	 * 
+	 * @param model
+	 */
 	public void setModel(final ViewModel model) {
 		this.model = model;
 		repaint();
@@ -349,15 +394,33 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		final Point point = e.getPoint();
 	}
 
+	/**
+	 * If {@link #isSelectable} selects or deselects the well, and
+	 * {@link #repaint()}s it.
+	 * 
+	 * @param select
+	 *            If the well is {@link #isSelectable} and this value is
+	 *            {@code true} and , than it will be selected, else if still
+	 *            {@link #isSelectable}, but the value is {@code false} if will
+	 *            be deselected.
+	 */
 	public void setSelected(final boolean select) {
-		isSelected = select;
-		repaint();
+		if (isSelectable) {
+			isSelected = select;
+			repaint();
+		}
 	}
 
+	/**
+	 * @return If and only if {@code true} this well is selected.
+	 */
 	public boolean isSelected() {
 		return isSelected;
 	}
 
+	/**
+	 * @return The position on plate.
+	 */
 	public int getPositionOnPlate() {
 		return positionOnPlate;
 	}
