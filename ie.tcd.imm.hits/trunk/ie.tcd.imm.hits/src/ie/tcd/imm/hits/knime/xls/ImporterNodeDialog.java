@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.xls;
 
-import ie.tcd.imm.hits.knime.util.DialogComponentFileChooserWithListener;
 import ie.tcd.imm.hits.knime.util.DialogComponentMultiFileChooser;
 
 import javax.annotation.Nonnull;
@@ -9,6 +8,7 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
@@ -84,7 +84,7 @@ public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(replicatesDialog);
 		closeCurrentGroup();
 		createNewGroup("Gene annotations");
-		final DialogComponentFileChooserWithListener annotFileChooser = new DialogComponentFileChooserWithListener(
+		final DialogComponentFileChooser annotFileChooser = new DialogComponentFileChooser(
 				new SettingsModelString(
 						ImporterNodeModel.CFGKEY_ANNOTATION_FILE,
 						ImporterNodeModel.DEFAULT_ANNOTATION_FILE),

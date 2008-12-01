@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
-import ie.tcd.imm.hits.knime.util.DialogComponentFileChooserWithListener;
 import ie.tcd.imm.hits.knime.util.SelectionMoverActionListener;
 import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 
@@ -36,6 +35,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentDoubleRange;
+import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
@@ -72,12 +72,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentMultiLineString sample = new DialogComponentMultiLineString(
 				new SettingsModelString("sample", ""), "Samples:");
 
-		// addDialogComponent(new DialogComponentNumber(
-		// new SettingsModelIntegerBounded(
-		// CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
-		// CellHTS2NodeModel.DEFAULT_COUNT, Integer.MIN_VALUE,
-		// Integer.MAX_VALUE), "Counter:", /* step */1, /* componentwidth */
-		// 5));
 		final DialogComponentString experimentDialog = new DialogComponentString(
 				new SettingsModelString(
 						CellHTS2NodeModel.CFGKEY_EXPERIMENT_NAME,
@@ -144,7 +138,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(summarizeReplicatesDialog);
 		closeCurrentGroup();
 		createNewGroup("Result directory");
-		final DialogComponentFileChooserWithListener fileChooser = new DialogComponentFileChooserWithListener(
+		final DialogComponentFileChooser fileChooser = new DialogComponentFileChooser(
 				new SettingsModelString(CellHTS2NodeModel.CFGKEY_OUTPUT_DIR,
 						CellHTS2NodeModel.DEFAULT_OUTPUT_DIR),
 				CellHTS2NodeModel.CFGKEY_OUTPUT_DIR, JFileChooser.OPEN_DIALOG,
@@ -152,9 +146,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		fileChooser.setBorderTitle("Results: ");
 		fileChooser
 				.setToolTipText("The directory of the results. (Previous results will be overwritten.)");
-		// final JComboBox fileChooserCombobox = (JComboBox) ((JPanel)
-		// fileChooser
-		// .getComponentPanel().getComponent(0)).getComponent(0);
 		setHorizontalPlacement(true);
 		addDialogComponent(fileChooser);
 		final DialogComponentStringSelection patternDialog = new DialogComponentStringSelection(
@@ -207,10 +198,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		parametersDialog.setIncludeTitle("Selected parameters for analysis");
 		parametersDialog
 				.setToolTipText("You may select the parameters to analyse.");
-		// final ListModel includeListModel = includeList.getModel();
-		// ((JList) ((JScrollPane) ((JComponent) ((JComponent) (parametersDialog
-		// .getComponentPanel()).getComponent(0)).getComponent(1))
-		// .getComponent(1)).getViewport().getComponent(0)).getModel();
 		addDialogComponent(parametersDialog);
 		createNewTab("Advanced");
 		final DialogComponentDoubleRange scoreRangeDialog = new DialogComponentDoubleRange(
@@ -225,17 +212,8 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_ASPECT_RATIO,
 						CellHTS2NodeModel.DEFAULT_ASPECT_RATIO, 0.1, 200),
 				"Aspect ratio of images", .1);
+		aspectRationDialog.getModel().setEnabled(false);
 		addDialogComponent(aspectRationDialog);
-		// final DialogComponentBoolean useTCDCellHTS2ExtensionsDialog = new
-		// DialogComponentBoolean(
-		// new SettingsModelBoolean(
-		// CellHTS2NodeModel.CFGKEY_USE_TCD_CELLHTS_EXTENSIONS,
-		// CellHTS2NodeModel.DEFAULT_USE_TCD_CELLHTS_EXTENSIONS),
-		// "Use TCD cellHTS2 extensions?");
-		// addDialogComponent(useTCDCellHTS2ExtensionsDialog);
-		// ((JList) ((JScrollPane) ((JComponent) ((JComponent) (parametersDialog
-		// .getComponentPanel()).getComponent(0)).getComponent(1))
-		// .getComponent(1)).getViewport().getComponent(0)).getModel()
 		includeListModel.addListDataListener(new ListDataListener() {
 
 			@Override
@@ -259,32 +237,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
 		});
 		{
-			// final StringBuilder sb = new StringBuilder();
-			// final String outdir = ((SettingsModelString)
-			// fileChooser.getModel())
-			// .getStringValue().replace('\\', '/');
-			// final Map<String, String> dirs = CellHTS2NodeModel
-			// .computeOutDirs(
-			// CellHTS2NodeModel
-			// .computeNormMethods(((SettingsModelString) normalizationDialog
-			// .getModel()).getStringValue()),
-			// ((SettingsModelString) patternDialog.getModel())
-			// .getStringValue(),
-			// outdir.endsWith("/") ? outdir : outdir + "/",
-			// ((SettingsModelFilterString) parametersDialog
-			// .getModel()).getIncludeList(),
-			// ((SettingsModelString) experimentDialog.getModel())
-			// .getStringValue(),
-			// ((SettingsModelBoolean) isMultiplicativeDialog
-			// .getModel()).getBooleanValue());
-			// for (final String dir : dirs.values()) {
-			// sb.append(dir.replace('/', File.separatorChar)).append('\n');
-			// }
-			// if (sb.length() > 0) {
-			// sb.setLength(sb.length() - 1);
-			// }
-			// ((SettingsModelString) sample.getModel()).setStringValue(sb
-			// .toString());
 			updateSample(sample, experimentTextField, normalizationCombobox,
 					isMultiplicativeDialogModel, fileChooser, patternCombobox,
 					includeListModel);
@@ -322,9 +274,9 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						fileChooser, patternCombobox, includeListModel);
 			}
 		});
-		fileChooser.addActionListener(new ActionListener() {
+		fileChooser.getModel().addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentTextField,
 						normalizationCombobox, isMultiplicativeDialogModel,
 						fileChooser, patternCombobox, includeListModel);
@@ -336,14 +288,12 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 			final JTextField experimentTextField,
 			final JComboBox normalizationCombobox,
 			final ButtonModel isMultiplicativeDialogModel,
-			final DialogComponentFileChooserWithListener fileChooser,
+			final DialogComponentFileChooser fileChooser,
 			final JComboBox patternCombobox, final ListModel includeList) {
 		final StringBuilder sb = new StringBuilder();
-		final String outdirSelected = fileChooser.getCurrentSelection();
+		final String outdirSelected = ((SettingsModelString) fileChooser
+				.getModel()).getStringValue();
 		final String outdir = outdirSelected == null ? "" : outdirSelected;
-		// ((SettingsModelString) fileChooser
-		// .getModel()).getStringValue()
-		// .replace('\\', '/');
 		final List<String> paramList = new ArrayList<String>(includeList
 				.getSize());
 		for (int i = 0; i < includeList.getSize(); ++i) {
@@ -356,13 +306,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 								.getSelectedItem()), patternCombobox.getModel()
 						.getSelectedItem().toString(),
 				outdir.endsWith("/") ? outdir : outdir + "/", paramList,
-				// ((SettingsModelString)
-				// experimentDialog
-				// .getModel()).getStringValue(),
 				experimentTextField.getText(),
-				// ((SettingsModelBoolean)
-				// isMultiplicativeDialog
-				// .getModel()).getBooleanValue()
 				isMultiplicativeDialogModel.isSelected());
 		for (final String dir : dirs.values()) {
 			sb.append(dir.replace('/', File.separatorChar)).append('\n');
