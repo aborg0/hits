@@ -3,15 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: HiTS extensions for KNIME Workbench
 Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-ClassPath: importer.jar,
- lib/commons-logging-1.1.jar,
- lib/log4j-1.2.13.jar,
- lib/poi-3.1-FINAL-20080629.jar,
- lib/poi-contrib-3.1-FINAL-20080629.jar,
- lib/poi-scratchpad-3.1-FINAL-20080629.jar,
- lib/JRI.jar,
- lib/REngine_2.5.2.jar,
- lib/Rserve_2.5.2.jar
+Bundle-ClassPath: importer.jar
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Bundle-Vendor: TCD
 Bundle-Localization: plugin
@@ -19,7 +11,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base,
- org.eclipse.ui
+ org.eclipse.ui,
+ ie.tcd.imm.hits.3rdparty
 Eclipse-LazyStart: true
 Export-Package: ie.tcd.imm.hits.knime.cellhts2.worker,
  ie.tcd.imm.hits.knime.xls
