@@ -341,42 +341,51 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			wells[i].setColors(colors[i]);
 		}
 		for (int i = rows * cols; i-- > 0;) {
-			final String[] pantherMolFunction = nodeModel.texts
-					.get(platePos[0]).get("PantherMolecularFunction");
-			final String molFunc = pantherMolFunction == null ? ""
-					: pantherMolFunction[i];
-			final String[] geneSymbols = nodeModel.texts.get(platePos[0]).get(
-					"gene symbol");
-			final String[] pathway = nodeModel.texts.get(platePos[0]).get(
-					"Pathway");
-			final StringBuilder label = new StringBuilder("<html>").append(
-					geneSymbols == null ? "" : geneSymbols[i]).append(" - ")
-					.append(
-							molFunc == null ? "" : molFunc.replaceAll("\\;",
-									"<br>").replaceAll("\\n", "<br>")).append(
-							"<br/>").append(pathway == null ? "" : pathway[i])
-					.append("<br>");
-			final Map<String, EnumMap<StatTypes, double[]>> map = nodeModel.scoreValues
-					.get(platePos[0]);
-			label.append("<br><table><tr><td>Plate</td><td>").append(
-					platePos[0]).append("</td></tr><tr><td>Well</td><td>")
-					.append((char) ((i / 12) + 'A')).append(1 + (i % 12))
-					.append("</td></tr><tr><td><b>Scores</b></td></tr>");
-			for (final Entry<String, EnumMap<StatTypes, double[]>> entry : map
-					.entrySet()) {
-				label
-						.append("<tr><td>")
-						.append(entry.getKey())
-						.append("</td><td>")
-						.append(
-								Math.round(entry.getValue()
-										.get(StatTypes.score)[i] * 100.0) / 100.0)
-						.append("</td></tr>");
-			}
-			label.append("</table>");
-			label.append("</html>");
-			wells[i].setLabels(label.toString());
+			final StringBuilder label = createLabelOld(nodeModel, platePos, i);
+			final String l = InfoParser.parse(viewModel.getLabelPattern(),
+					plate + 1, i / 12, i % 12, nodeModel);
+			wells[i].setLabels(l);
 		}
+	}
+
+	private StringBuilder createLabelOld(final HeatmapNodeModel nodeModel,
+			final int[] platePos, final int i) {
+		final String[] pantherMolFunction = nodeModel.texts.get(platePos[0])
+				.get("PantherMolecularFunction");
+		final String molFunc = pantherMolFunction == null ? ""
+				: pantherMolFunction[i];
+		final String[] geneSymbols = nodeModel.texts.get(platePos[0]).get(
+				"gene symbol");
+		final String[] pathway = nodeModel.texts.get(platePos[0])
+				.get("Pathway");
+		final StringBuilder label = new StringBuilder("<html>").append(
+				geneSymbols == null ? "" : geneSymbols[i]).append(" - ")
+				.append(
+						molFunc == null ? "" : molFunc
+								.replaceAll("\\;", "<br>").replaceAll("\\n",
+										"<br>")).append("<br/>").append(
+						pathway == null ? "" : pathway[i]).append("<br>");
+		final Map<String, EnumMap<StatTypes, double[]>> map = nodeModel.scoreValues
+				.get(platePos[0]);
+		label.append("<br><table><tr><td>Plate</td><td>").append(platePos[0])
+				.append("</td></tr><tr><td>Well</td><td>").append(
+						(char) ((i / 12) + 'A')).append(1 + (i % 12)).append(
+						"</td></tr><tr><td><b>Scores</b></td></tr>");
+		for (final Entry<String, EnumMap<StatTypes, double[]>> entry : map
+				.entrySet()) {
+			label
+					.append("<tr><td>")
+					.append(entry.getKey())
+					.append("</td><td>")
+					.append(
+							Math
+									.round(entry.getValue()
+											.get(StatTypes.score)[i] * 100.0) / 100.0)
+					.append("</td></tr>");
+		}
+		label.append("</table>");
+		label.append("</html>");
+		return label;
 	}
 
 	private int computeSplitterCount(final Collection<Slider> sliders) {
@@ -487,7 +496,6 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	@Override
 	public void hiLite(final KeyEvent event) {
 		hilite(event, true);
-		System.out.println(event.keys());
 	}
 
 	private void hilite(final KeyEvent event, final boolean hilite) {

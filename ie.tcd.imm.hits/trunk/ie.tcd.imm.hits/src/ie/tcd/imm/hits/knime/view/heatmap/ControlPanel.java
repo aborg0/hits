@@ -623,8 +623,9 @@ public class ControlPanel extends JPanel {
 		final GridBagConstraints formatConstraints = new GridBagConstraints();
 		final GridBagConstraints paramSelectConstraints = formatConstraints;
 		paramaterSelection = new ParamaterSelection();
-		gbLayout.addLayoutComponent(paramaterSelection, paramSelectConstraints);
-		add(paramaterSelection, paramSelectConstraints);
+		// gbLayout.addLayoutComponent(paramaterSelection,
+		// paramSelectConstraints);
+		// add(paramaterSelection, paramSelectConstraints);
 		final JPanel heatmapFormatPanel = new JPanel();
 		final BasicBorders.RadioButtonBorder hmBorder = new BasicBorders.RadioButtonBorder(
 				Color.LIGHT_GRAY, Color.DARK_GRAY, Color.YELLOW, Color.ORANGE);

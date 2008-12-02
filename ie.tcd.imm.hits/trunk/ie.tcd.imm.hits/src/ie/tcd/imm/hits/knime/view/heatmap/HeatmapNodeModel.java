@@ -164,6 +164,8 @@ public class HeatmapNodeModel extends NodeModel {
 	/** This is the {@link HiliteManager} which updates the HiLites. */
 	private final DefaultHiLiteManager hiliteManager = new DefaultHiLiteManager();
 
+	private BufferedDataTable table;
+
 	/**
 	 * Constructor for the node model.
 	 */
@@ -180,7 +182,7 @@ public class HeatmapNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		keyToPlateAndPosition.clear();
-		final BufferedDataTable table = inData[0];
+		table = inData[0];
 		hasPlate = false;
 		hasReplicate = false;
 		int plateIndex = -1;
@@ -432,7 +434,14 @@ public class HeatmapNodeModel extends NodeModel {
 		}
 		possibleParameters.add(statsParamModel);
 		setInHiLiteHandler(0, hiliteManager);
-		return new BufferedDataTable[] { inData[0] };
+		return new BufferedDataTable[] { table };
+	}
+
+	/**
+	 * @return The actual table used.
+	 */
+	public BufferedDataTable getTable() {
+		return table;
 	}
 
 	private Integer getInt(final DataRow dataRow, final int plateIndex) {

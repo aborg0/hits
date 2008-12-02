@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFileChooser;
 
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
@@ -89,7 +90,20 @@ public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 						ImporterNodeModel.CFGKEY_ANNOTATION_FILE,
 						ImporterNodeModel.DEFAULT_ANNOTATION_FILE),
 				ImporterNodeModel.CFGKEY_ANNOTATION_FILE,
-				JFileChooser.OPEN_DIALOG, false, ".txt", ".TXT");
+				JFileChooser.OPEN_DIALOG, false, ".txt", ".TXT") {
+			@Override
+			protected void validateSettingsBeforeSave()
+					throws InvalidSettingsException {
+				try {
+					super.validateSettingsBeforeSave();
+				} catch (InvalidSettingsException e) {
+					if (!"Please specify a filename.".equals(e.getMessage())) {
+						throw e;
+					}
+					// else OK, we allow empty file names.
+				}
+			}
+		};
 		annotFileChooser.setBorderTitle("Annotation file");
 		annotFileChooser.setToolTipText("The file containing the annotations.");
 		addDialogComponent(annotFileChooser);

@@ -917,6 +917,7 @@ public class ViewModel implements ActionListener {
 	private final Shape shape;
 	private final OverviewModel overview;
 	private final ShapeModel main;
+	private String labelPattern;
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
@@ -999,5 +1000,24 @@ public class ViewModel implements ActionListener {
 	 */
 	public ShapeModel getMain() {
 		return main;
+	}
+
+	/**
+	 * Updates the pattern for the labels.
+	 * 
+	 * @param labelPattern
+	 *            The new pattern.
+	 */
+	public void setLabelPattern(final String labelPattern) {
+		this.labelPattern = labelPattern;
+		actionPerformed(new ActionEvent(this,
+				(int) (System.currentTimeMillis() & 0xffffffff), "newLabels"));
+	}
+
+	/**
+	 * @return The pattern for the information panel and for the tooltips.
+	 */
+	public String getLabelPattern() {
+		return labelPattern;
 	}
 }

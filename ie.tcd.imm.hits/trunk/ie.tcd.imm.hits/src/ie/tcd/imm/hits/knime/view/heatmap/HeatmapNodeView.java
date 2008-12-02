@@ -12,6 +12,7 @@ import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -47,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
@@ -63,6 +65,7 @@ import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
+import org.knime.core.node.tableview.TableView;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -79,8 +82,9 @@ public class HeatmapNodeView extends NodeView {
 	private final LegendPanel legendPanel2;
 	// private final JTable infoTable = new JTable(1, 1);
 	private final JLabel infoTable = new JLabel("Click on a well.");
+	private final TableView table = new TableView();
 	private final SettingsPanel settingsPanel;
-	private final InfoControl infoControl = new InfoControl();
+	private final InfoControl infoControl;
 	private final JCheckBoxMenuItem showHilite;
 	private final JCheckBoxMenuItem showOnlyHilited;
 	private final JMenuItem unHiliteSelected;
@@ -782,6 +786,31 @@ public class HeatmapNodeView extends NodeView {
 		unHiliteAll = new JMenuItem(HiLiteHandler.CLEAR_HILITE);
 		hiliteMenu.add(unHiliteAll);
 		getJMenuBar().add(hiliteMenu);
+		table.getContentTable().addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				handle(e);
+			}
+
+			private void handle(final MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					final JPopupMenu popupMenu = new JPopupMenu(
+							HiLiteHandler.HILITE);
+					final JMenu hiLiteMenu2 = table.createHiLiteMenu();
+					for (final Component comp : hiLiteMenu2.getMenuComponents()) {
+						popupMenu.add((JMenuItem) comp);
+					}
+					popupMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				handle(e);
+			}
+
+		});
 
 		final JMenu legendMenu = new JMenu("Legend");
 		showColorsLegend = new JCheckBoxMenuItem("Show colors legend", true);
@@ -823,9 +852,26 @@ public class HeatmapNodeView extends NodeView {
 		mainSplit.setBottomComponent(bottomTabs);
 		settingsPanel = new SettingsPanel();
 		bottomTabs.setPreferredSize(new Dimension(600, 200));
-		bottomTabs.add("Controls", controlPanel);
+		bottomTabs.add("Controls", new JScrollPane(controlPanel));
+		final ViewModel[] models = new ViewModel[Shape.values().length
+				* Format.values().length];
+		{
+			int i = 0;
+			for (final EnumMap<Shape, ViewModel> shapeModels : possibleViewModels
+					.values()) {
+				for (final ViewModel model : shapeModels.values()) {
+					models[i++] = model;
+				}
+			}
+		}
+		infoControl = new InfoControl();
+		infoControl.setViewModel(currentViewModel);
 		bottomTabs.add("Info controls", infoControl);
-		bottomTabs.add("Info", new JScrollPane(infoTable));
+		final JScrollPane infoScrollPane = new JScrollPane(infoTable);
+		final JSplitPane infoSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				infoScrollPane, table);
+		infoSplit.setOneTouchExpandable(true);
+		bottomTabs.add("Info", infoSplit);
 		bottomTabs.add("Settings", settingsPanel);
 		legendPanel2 = new LegendPanel(false, getCurrentViewModel());
 		legendPanel2.setPreferredSize(new Dimension(200, 200));
@@ -842,6 +888,9 @@ public class HeatmapNodeView extends NodeView {
 		unHiliteSelected.addActionListener(volatileModel);
 		unHiliteAll.addActionListener(heatmapPanel);
 		unHiliteAll.addActionListener(volatileModel);
+		volatileModel.addActionListener(legendPanel);
+		volatileModel.addActionListener(legendPanel2);
+		setCurrentViewModel(currentViewModel);
 	}
 
 	/**
@@ -872,13 +921,8 @@ public class HeatmapNodeView extends NodeView {
 		}
 		controlPanel.setModel(nodeModel);
 		heatmapPanel.setModel(nodeModel);
-		heatmapPanel.addClickListenerToEveryWell(new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				infoTable.setText(((WellViewPanel) e.getSource())
-						.getToolTipText());
-			}
-		});
+		table.setDataTable(nodeModel.getTable());
+		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
 	}
 
 	/**
@@ -899,7 +943,7 @@ public class HeatmapNodeView extends NodeView {
 		// final Set<DataCell> hilitKeys = heatmapPanel.dataModel
 		// .getInHiLiteHandler(0).getHiLitKeys();
 		// heatmapPanel.hiliteListener.hiLite(new KeyEvent(this, hilitKeys));
-
+		modelChanged();
 	}
 
 	/**
@@ -917,8 +961,17 @@ public class HeatmapNodeView extends NodeView {
 	 */
 	public void setCurrentViewModel(final ViewModel currentViewModel) {
 		this.currentViewModel = currentViewModel;
+		infoControl.setViewModel(currentViewModel);
 		controlPanel.setViewModel(currentViewModel);
 		heatmapPanel.setViewModel(currentViewModel);
+		heatmapPanel.addClickListenerToEveryWell(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				infoTable.setText(((WellViewPanel) e.getSource())
+						.getToolTipText());
+			}
+		});
+		currentViewModel.addActionListener(heatmapPanel);
 		legendPanel.setViewModel(currentViewModel);
 		legendPanel2.setViewModel(currentViewModel);
 	}
