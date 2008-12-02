@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: 3rdparty dependencies for the HiTS project Plug-in
+Bundle-SymbolicName: ie.tcd.imm.hits.3rdparty
+Bundle-Version: 0.0.1
+Bundle-Vendor: TCD
