@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ie.tcd.imm.hits.feature"
+      label="Feature Feature"
+      version="0.0.1"
+      provider-name="TCD">
+
+   <description url="http://code.google.com/p/hits/">
+      HiTS - High Throughput Screening
+KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It depends on Rserve.
+   </description>
+
+   <copyright>
+      Gabor Bakos, Trinity College Dublin, Institute of Molecular Medicine; bakosg@tcd.ie
+   </copyright>
+
+   <license url="http://www.apache.org/licenses/LICENSE-2.0.html">
+      Apache Licence, Version 2.0
+   </license>
+
+   <url>
+      <discovery label="HiTS" url="http://code.google.com/p/hits/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.knime.workbench.core"/>
+      <import plugin="org.knime.workbench.repository"/>
+      <import plugin="org.knime.base"/>
+      <import plugin="org.eclipse.ui"/>
+   </requires>
+
+   <plugin
+         id="ie.tcd.imm.hits"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="ie.tcd.imm.hits.3rdparty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+</feature>
