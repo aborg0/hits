@@ -5,6 +5,7 @@ import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics.Multiplicity;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 import ie.tcd.imm.hits.util.Pair;
@@ -527,7 +528,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					throw e;
 				}
 				try {
-					normalizePlates(conn, normalize);
+					normalisePlates(conn, normalize);
 				} catch (final Exception e) {
 					logger.fatal("Problem with normalization step", e);
 					throw e;
@@ -1176,15 +1177,15 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Normalise the plates and creates the {@code xn} object from {@code x}.
 	 * 
 	 * @param conn
-	 * @param normalize
+	 * @param normalise
 	 * @throws RserveException
 	 */
-	private void normalizePlates(final RConnection conn, final String normalize)
+	private void normalisePlates(final RConnection conn, final String normalise)
 			throws RserveException {
 		final String varianceAdjust = scaleModel.getStringValue().equals(
 				POSSIBLE_SCALE[1]) ? "byPlate" : scaleModel.getStringValue()
 				.equals(POSSIBLE_SCALE[2]) ? "byExperiment" : "none";
-		final String normMethod = normalize;
+		final String normMethod = normalise;
 		final String scaleMethod = isMultiplicativeModel.getBooleanValue() ? "multiplicative"
 				: "additive";
 		conn.voidEval("  xn = normalizePlates(x,\n" + "    scale=\""
@@ -1706,6 +1707,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @return The well position starting from {@code 0}. Ideal for array index
 	 *         computation
 	 */
+	@Deprecated
 	private static int getWellNumber(final String wellId) {
 		assert wellId.length() >= 2 && wellId.length() < 4;
 		return (wellId.charAt(0) - 'A') * 12
@@ -2012,7 +2014,7 @@ public class CellHTS2NodeModel extends NodeModel {
 								.get("raw/PlateMedian_r" + repl + "_" + ch))
 								.asDoubles()[row]));
 						break;
-					case NORMALIZED:
+					case NORMALISED:
 						ret.add(new DoubleCell(((REXPDouble) topTable
 								.get("normalized_r" + repl + "_" + ch))
 								.asDoubles()[row]));
@@ -2158,9 +2160,9 @@ public class CellHTS2NodeModel extends NodeModel {
 					columnSpecs);
 			break;
 		case CHANNELS:
-			ret.add(new DataColumnSpecCreator(possibleStatistics
-					.getDisplayText()
-					+ "_" + ch, getType(possibleStatistics)).createSpec());
+			ret.add(new DataColumnSpecCreator(ModelBuilder
+					.createPrefix(possibleStatistics)
+					+ ch, getType(possibleStatistics)).createSpec());
 			computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
@@ -2176,9 +2178,9 @@ public class CellHTS2NodeModel extends NodeModel {
 					columnSpecs);
 			break;
 		case CHANNELS_AND_REPLICATES:
-			ret.add(new DataColumnSpecCreator(possibleStatistics
-					.getDisplayText()
-					+ "_" + ch, getType(possibleStatistics)).createSpec());
+			ret.add(new DataColumnSpecCreator(ModelBuilder
+					.createPrefix(possibleStatistics)
+					+ ch, getType(possibleStatistics)).createSpec());
 			computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);

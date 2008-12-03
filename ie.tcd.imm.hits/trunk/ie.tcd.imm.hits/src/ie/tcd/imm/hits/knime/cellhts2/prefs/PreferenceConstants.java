@@ -40,7 +40,7 @@ public class PreferenceConstants {
 		/** The gene annotations */
 		GENE_ANNOTATION("gene annotation", "geneAnnotation"),
 		/** The normalised values */
-		NORMALIZED("normalized", "norm", Multiplicity.CHANNELS_AND_REPLICATES,
+		NORMALISED("normalized", "norm", Multiplicity.CHANNELS_AND_REPLICATES,
 				Type.Real),
 		/** The raw values divided by the plate and replicate means */
 		RAW_PER_PLATE_REPLICATE_MEAN("raw/(plate, replicate mean)",

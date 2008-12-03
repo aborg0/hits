@@ -51,7 +51,7 @@ public class HeatmapNodeModel extends NodeModel {
 
 	private static final String MEAN_OR_DIFF_START = "mean or diff_";
 
-	private static final String NORMALIZED_START = "normalized_";
+	private static final String NORMALISED_START = "normalized_";
 
 	private static final String MEDIAN_START = "median_";
 
@@ -61,12 +61,12 @@ public class HeatmapNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(HeatmapNodeModel.class);
 
-	private static final String scoreStart = "score_";
+	private static final String SCORE_START = "score_";
 
-	private static final StatTypes[] scoreTypes = new StatTypes[] {
+	public static final StatTypes[] scoreTypes = new StatTypes[] {
 			StatTypes.score, StatTypes.median, StatTypes.meanOrDiff };
 
-	private static final StatTypes[] parameterValues = new StatTypes[] {
+	public static final StatTypes[] replicateTypes = new StatTypes[] {
 			StatTypes.raw, StatTypes.rawPerMedian, StatTypes.normalized };
 
 	/** These are the parameters which are present in the model. */
@@ -101,6 +101,10 @@ public class HeatmapNodeModel extends NodeModel {
 		normalized(true, true, false),
 		/** The raw value divided by the (plate, replicate) median */
 		rawPerMedian(true, true, false),
+		/** Ranking using the replicate value */
+		rankReplicates(true, true, true),
+		/** Ranking <em>not</em> using the replicate value */
+		rankNonReplicates(false, true, true),
 		/** Any other numeric value from the table (non replicate specific) */
 		otherNumeric(false, false, false),
 		/** Any other enumerated value from the table (non replicate specific) */
@@ -198,11 +202,11 @@ public class HeatmapNodeModel extends NodeModel {
 		int idx = -1;
 		for (final DataColumnSpec spec : table.getDataTableSpec()) {
 			++idx;
-			if (spec.getName().startsWith(scoreStart)) {
-				parameters.add(spec.getName().substring(scoreStart.length()));
+			if (spec.getName().startsWith(SCORE_START)) {
+				parameters.add(spec.getName().substring(SCORE_START.length()));
 				statistics.add(StatTypes.score);
 				indices.get(StatTypes.score).put(
-						spec.getName().substring(scoreStart.length()),
+						spec.getName().substring(SCORE_START.length()),
 						Integer.valueOf(idx));
 				continue;
 			}
@@ -220,10 +224,10 @@ public class HeatmapNodeModel extends NodeModel {
 						Integer.valueOf(idx));
 				continue;
 			}
-			if (spec.getName().startsWith(NORMALIZED_START)) {
+			if (spec.getName().startsWith(NORMALISED_START)) {
 				statistics.add(StatTypes.normalized);
 				indices.get(StatTypes.normalized).put(
-						spec.getName().substring(NORMALIZED_START.length()),
+						spec.getName().substring(NORMALISED_START.length()),
 						Integer.valueOf(idx));
 				continue;
 			}
@@ -314,7 +318,7 @@ public class HeatmapNodeModel extends NodeModel {
 					}
 					final EnumMap<StatTypes, double[]> enumMap = paramMap
 							.get(param);
-					for (final StatTypes stat : parameterValues) {
+					for (final StatTypes stat : replicateTypes) {
 						if (!enumMap.containsKey(stat)) {
 							enumMap.put(stat, new double[96]);
 						}
@@ -449,6 +453,7 @@ public class HeatmapNodeModel extends NodeModel {
 				.getIntValue());
 	}
 
+	@Deprecated
 	private int convertWellToPosition(final String well) {
 		return ((Character.toLowerCase(well.charAt(0)) - 'a')
 				* 12

@@ -53,7 +53,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END,
 										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_START,
 										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.NORMALIZED,
+										PreferenceConstants.PossibleStatistics.NORMALISED,
 										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
 										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END));
 		store.setDefault(PreferenceConstants.USE_TCD_EXTENSIONS, true);
