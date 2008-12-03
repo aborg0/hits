@@ -140,8 +140,6 @@ xsc <- cellHTSlist[["scored"]]
 
 	addCol <- function(res, col, r, ch)
 	{
-#		print(col)
-#		print(ch)
 		res <- switch (col,
 			plate={res$plate=plate(xsc); res},
 			position={res["position"]=position(xsc); res},
@@ -153,14 +151,14 @@ xsc <- cellHTSlist[["scored"]]
 			},
 			wellAnno={res["wellAnno"] = wAnno; res},
 			finalWellAnno={
-				if (is.nan(r))
+				if (is.na(ch))
 				{
 					res["finalWellAnno"] = as.vector(scoresWellAnno[, 1, 1])   ## include also the final well annotation (after the screen log file)
 					res
 				}
 				else
 				{
-					res[sprintf("finalWellAnno_r%d", r)] = as.vector(scoresWellAnno[, r, 1])   ## include also the final well annotation (after the screen log file)
+					res[sprintf("finalWellAnno_%s", channels[[ch]])] = as.vector(scoresWellAnno[, 1, ch])   ## include also the final well annotation (after the screen log file)
 					res
 				}
 				res

@@ -259,7 +259,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 								 * paramMap.get( "Nuc Displacement")
 								 */entry.getValue().get(selected)[i],
 										Color.GREEN, Color.YELLOW, Color.RED,
-										-1, 0, 1);
+										-2, 0, 2);
 								switch (viewModel.getFormat()) {
 								case _96:
 									colors[i][replicateValue * paramCount
@@ -267,10 +267,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 									break;
 								case _384:
 									colors[i / 12 * cols + i % 12][/*
-									 * (replicateEntry
-									 * .getKey().intValue() -
-									 * 1)
-									 */replicateValue * paramCount + param] = colorI;
+																	 * (replicateEntry
+																	 * .getKey().intValue() -
+																	 * 1)
+																	 */replicateValue * paramCount + param] = colorI;
 								default:
 									break;
 								}
@@ -294,8 +294,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 								platePosition).get(paramName).get(selected);
 						for (int i = values.length; i-- > 0;) {
 							final Color colorI = colorOf(values[i],
-									Color.GREEN, Color.YELLOW, Color.RED, -1,
-									0, 1);
+									Color.GREEN, Color.YELLOW, Color.RED, -2,
+									0, 2);
 							for (int replicate = replicateCount; replicate-- > 0;) {
 								switch (viewModel.getFormat()) {
 								case _96:
@@ -318,7 +318,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 							selectedParameter).get(selected);
 					for (int i = values.length; i-- > 0;) {
 						final Color colorI = colorOf(values[i], Color.GREEN,
-								Color.YELLOW, Color.RED, -1, 0, 1);
+								Color.YELLOW, Color.RED, -2, 0, 2);
 						for (int replicate = replicateCount; replicate-- > 0;) {
 							for (int param = paramCount; param-- > 0;) {
 								switch (viewModel.getFormat()) {
@@ -348,6 +348,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		}
 	}
 
+	@Deprecated
 	private StringBuilder createLabelOld(final HeatmapNodeModel nodeModel,
 			final int[] platePos, final int i) {
 		final String[] pantherMolFunction = nodeModel.texts.get(platePos[0])

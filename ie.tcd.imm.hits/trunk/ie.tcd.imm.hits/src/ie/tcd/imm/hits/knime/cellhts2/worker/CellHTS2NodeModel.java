@@ -329,8 +329,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			 * "127.0.0.1", 1099, 10000
+			 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -342,367 +342,402 @@ public class CellHTS2NodeModel extends NodeModel {
 		// throw new IllegalStateException("Wrong R version.");
 		// }
 		// final Rengine conn = new Rengine();
-		if (!conn.isConnected()) {
-			logger
-					.fatal("Not connected to the Rserve, please restart it if possible.");
-			throw new IllegalStateException("No connection to R.");
-		}
-		int replicateCount = 0;
-		int plateCount = 0;
-		int wellRowCount = 0;
-		int wellColCount = 0;
-		for (final DataRow dataRow : inData[0]) {
-			final Iterator<DataCell> it = dataRow.iterator();
-			final int plate = ((IntCell) it.next()).getIntValue();
-			final int replicate = ((IntCell) it.next()).getIntValue();
-			final String wellId = ((StringCell) it.next()).getStringValue();
-			replicateCount = Math.max(replicateCount, replicate);
-			plateCount = Math.max(plateCount, plate);
-			wellRowCount = Math.max(wellRowCount, wellId.charAt(0) - 'A' + 1);
-			wellColCount = Math.max(wellColCount, Integer.parseInt(wellId
-					.substring(1)));
-		}
-		final int wellCount = wellRowCount * wellColCount;
-		// final DataTableSpec dataTableSpec = inData[0].getDataTableSpec();
-		// final int paramCount = dataTableSpec.getNumColumns()
-		// - 3
-		// - (dataTableSpec.getColumnSpec(
-		// dataTableSpec.getNumColumns() - 1).getType() == StringCell.TYPE ? 1
-		// : 0);
-		final int paramCount = parametersModel.getIncludeList().size();
-		logger.debug(wellRowCount + "x" + wellColCount + "  " + plateCount
-				+ " plate, " + replicateCount + " replicates, " + paramCount
-				+ " channels");
-		if (wellCount * replicateCount * plateCount != inData[0].getRowCount()) {
-			final String errorMessage = "There are wrong number of input rows, please check them:\nfound: "
-					+ inData[0].getRowCount()
-					+ ", while expected: "
-					+ plateCount
-					+ "*"
-					+ replicateCount
-					+ "*"
-					+ wellRowCount
-					+ "*"
-					+ wellColCount
-					+ "="
-					+ (wellCount * replicateCount * plateCount);
-			logger.fatal(errorMessage);
-			throw new IllegalStateException(errorMessage);
-		}
-		// final RList list = new RList();
-		// for (int i = inData[0].getDataTableSpec().getNumColumns(); i-- > 0;)
-		// {
-		// list.put(inData[0].getDataTableSpec().getColumnSpec(i).getName(),
-		// /* new REXPGenericVector(new RList()) */new REXPDouble(
-		// new double[inData[0].getRowCount()]));
-		// }
-		final double[] rawValues = new double[inData[0].getRowCount()
-				* paramCount];
-		// final int i = 0;
-		final HashSet<String> paramSet = new HashSet<String>(parametersModel
-				.getIncludeList());
-		for (final DataRow dataRow : inData[0]) {
-			// final Iterator<DataCell> it = dataRow.iterator();
-			final Iterator<DataColumnSpec> it = inData[0].getDataTableSpec()
-					.iterator();
-			it.next();
-			it.next();
-			it.next();
-			final int plate = ((IntCell) /* it.next() */dataRow.getCell(0))
-					.getIntValue() - 1;
-			final int replicate = ((IntCell) /* it.next() */dataRow.getCell(1))
-					.getIntValue() - 1;
-			final String wellId = ((StringCell) /* it.next() */dataRow
-					.getCell(2)).getStringValue();
-			final int well = getWellNumber(wellId);
-			for (int j = 3, k = 0; it.hasNext(); ++j) {
-				final DataCell nextCell = dataRow.getCell(j);// it.next();
-				final String colName = it.next().getName();
-				if (/* nextCell.getType().equals(StringCell.TYPE) */!paramSet
-						.contains(colName)) {
-					// break;
-					continue;
-				}
-
-				rawValues[plate * (replicateCount * paramCount * wellCount)
-						+ replicate * (paramCount * wellCount) + k++
-						* wellCount + well] = ((DoubleCell) nextCell)
-						.getDoubleValue();
-			}
-		}
-		// conn.assign("input", new REXPGenericVector(list));
 		try {
-			conn.assign("rawInput", rawValues);
-		} catch (final REngineException e) {
-			logger.fatal("Failed to send the raw values to R.", e);
-		}
-		exec.setProgress(.001, "Data read.");
-		convertRawInputToCellHTS2(experimentName, conn, replicateCount,
-				plateCount, wellRowCount, wellColCount, wellCount,
-				/* getParams(inData[0].getDataTableSpec()) */parametersModel
-						.getIncludeList());
-		exec.setProgress(.005, "Initial object created.");
-		// conn
-		// .voidEval("out <- writeReport(list(\"raw\"=x), outdir=\"/tmp/test\",
-		// force=TRUE)");
-
-		try {
-			addMiame(inData, conn);
-			exec.setProgress(.006, "MIAME information added.");
-		} catch (final Exception e) {
-			logger.warn("Failed to add MIAME information.\n" + e.getMessage(),
-					e);
-		}
-		boolean newVersion = false;
-		if (ImporterNodePlugin.getDefault().getPreferenceStore().getBoolean(
-				PreferenceConstants.USE_TCD_EXTENSIONS)) {
-			try {
-				// System.out.println(ImporterNodePlugin.getDefault().getBundle().getBundleContext().
-				// .getEntry("/bin/r").getFile());
-				final File rSourcesDir = new File(
-						((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImporterNodePlugin
-								.getDefault().getBundle()).getBundleData())
-								.getBundleFile().getBaseFile(), "bin/r");
-				// conn
-				// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
-				// + "");
-				conn.voidEval("setwd(\""
-						+ rSourcesDir.getAbsolutePath().replace('\\', '/')
-						+ "\")");
-				conn.voidEval("source(\"summarizeReplicates.R\")\n"
-						+ "source(\"getTopTable.R\")\n"
-						+ "source(\"getDynamicRange.R\")\n"
-						+ "source(\"getZfactor.R\")\n"
-						+ "source(\"checkControls.R\")\n"
-						+ "source(\"makePlot.R\")\n"
-						+ "source(\"QMbyPlate.R\")\n"
-						+ "source(\"QMexperiment.R\")\n"
-						+ "source(\"imageScreen.R\")\n"
-						+ "source(\"writeReport.R\")\n" + "");
-				newVersion = true;
-				logger.info("Using the improved version of cellHTS2.");
-			} catch (final RserveException e) {
-				logger.warn(
-						"Using the original version of cellHTS2, because a problem has occured: "
-								+ e.getMessage(), e);
-			}
-		}
-		final String[] normMethods = computeNormMethods();
-		final Map<String, String> outDirs = computeOutDirs(normMethods);
-		double completed = 0.01;
-		// logger.debug(conn.eval("table(wellAnno(x))"));
-		logger.debug(conn.eval("state(x)"));
-		final String additionalParams = newVersion ? ", channels="
-				+ createChannelList(parametersModel.getIncludeList())
-				+ ", colOrder=c(" + createColOrderString() + ")" : "";
-		final BufferedDataContainer scores = exec
-				.createDataContainer(new DataTableSpec(computeTopTableSpec(
-						inData[0].getDataTableSpec(), false)));
-		final BufferedDataContainer replicates = exec
-				.createDataContainer(new DataTableSpec(computeTopTableSpec(
-						inData[0].getDataTableSpec(), true)));
-		final BufferedDataContainer aggregate = exec
-				.createDataContainer(aggregateValuesSpec);
-		for (final String normalize : normMethods) {
-			exec.setProgress(completed, normalize);
-			try {
-				plateConfiguration(inData[1], inData[2], inData[3], conn,
-						wellCount, plateCount, normalize);
-			} catch (final Exception e) {
+			if (!conn.isConnected()) {
 				logger
-						.fatal("Unable to set the configuration of the plates",
-								e);
-				throw e;
+						.fatal("Not connected to the Rserve, please restart it if possible.");
+				throw new IllegalStateException("No connection to R.");
 			}
-			try {
-				normalizePlates(conn, normalize);
-			} catch (final Exception e) {
-				logger.fatal("Problem with normalization step", e);
-				throw e;
+			int replicateCount = 0;
+			int plateCount = 0;
+			int wellRowCount = 0;
+			int wellColCount = 0;
+			for (final DataRow dataRow : inData[0]) {
+				final Iterator<DataCell> it = dataRow.iterator();
+				final int plate = ((IntCell) it.next()).getIntValue();
+				final int replicate = ((IntCell) it.next()).getIntValue();
+				final String wellId = ((StringCell) it.next()).getStringValue();
+				replicateCount = Math.max(replicateCount, replicate);
+				plateCount = Math.max(plateCount, plate);
+				wellRowCount = Math.max(wellRowCount,
+						wellId.charAt(0) - 'A' + 1);
+				wellColCount = Math.max(wellColCount, Integer.parseInt(wellId
+						.substring(1)));
 			}
-			try {
-				annotate(conn, inData[0]);
-			} catch (final Exception e) {
-				logger.warn("Annotation failed.", e);
+			final int wellCount = wellRowCount * wellColCount;
+			// final DataTableSpec dataTableSpec = inData[0].getDataTableSpec();
+			// final int paramCount = dataTableSpec.getNumColumns()
+			// - 3
+			// - (dataTableSpec.getColumnSpec(
+			// dataTableSpec.getNumColumns() - 1).getType() == StringCell.TYPE ?
+			// 1
+			// : 0);
+			final int paramCount = parametersModel.getIncludeList().size();
+			logger.debug(wellRowCount + "x" + wellColCount + "  " + plateCount
+					+ " plate, " + replicateCount + " replicates, "
+					+ paramCount + " channels");
+			if (wellCount * replicateCount * plateCount != inData[0]
+					.getRowCount()) {
+				final String errorMessage = "There are wrong number of input rows, please check them:\nfound: "
+						+ inData[0].getRowCount()
+						+ ", while expected: "
+						+ plateCount
+						+ "*"
+						+ replicateCount
+						+ "*"
+						+ wellRowCount
+						+ "*"
+						+ wellColCount
+						+ "="
+						+ (wellCount * replicateCount * plateCount);
+				logger.fatal(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
+			// final RList list = new RList();
+			// for (int i = inData[0].getDataTableSpec().getNumColumns(); i-- >
+			// 0;)
+			// {
+			// list.put(inData[0].getDataTableSpec().getColumnSpec(i).getName(),
+			// /* new REXPGenericVector(new RList()) */new REXPDouble(
+			// new double[inData[0].getRowCount()]));
+			// }
+			final double[] rawValues = new double[inData[0].getRowCount()
+					* paramCount];
+			// final int i = 0;
+			final HashSet<String> paramSet = new HashSet<String>(
+					parametersModel.getIncludeList());
+			for (final DataRow dataRow : inData[0]) {
+				// final Iterator<DataCell> it = dataRow.iterator();
+				final Iterator<DataColumnSpec> it = inData[0]
+						.getDataTableSpec().iterator();
+				it.next();
+				it.next();
+				it.next();
+				final int plate = ((IntCell) /* it.next() */dataRow.getCell(0))
+						.getIntValue() - 1;
+				final int replicate = ((IntCell) /* it.next() */dataRow
+						.getCell(1)).getIntValue() - 1;
+				final String wellId = ((StringCell) /* it.next() */dataRow
+						.getCell(2)).getStringValue();
+				final int well = getWellNumber(wellId);
+				for (int j = 3, k = 0; it.hasNext(); ++j) {
+					final DataCell nextCell = dataRow.getCell(j);// it.next();
+					final String colName = it.next().getName();
+					if (/* nextCell.getType().equals(StringCell.TYPE) */!paramSet
+							.contains(colName)) {
+						// break;
+						continue;
+					}
+
+					rawValues[plate * (replicateCount * paramCount * wellCount)
+							+ replicate * (paramCount * wellCount) + k++
+							* wellCount + well] = ((DoubleCell) nextCell)
+							.getDoubleValue();
+				}
+			}
+			// conn.assign("input", new REXPGenericVector(list));
 			try {
-				addOverallStatistics(conn, plateCount, replicateCount,
-						aggregate, normalize, parametersModel.getIncludeList());
+				conn.assign("rawInput", rawValues);
+			} catch (final REngineException e) {
+				logger.fatal("Failed to send the raw values to R.", e);
+			}
+			exec.setProgress(.001, "Data read.");
+			convertRawInputToCellHTS2(
+					experimentName,
+					conn,
+					replicateCount,
+					plateCount,
+					wellRowCount,
+					wellColCount,
+					wellCount,
+					/* getParams(inData[0].getDataTableSpec()) */parametersModel
+							.getIncludeList());
+			exec.setProgress(.005, "Initial object created.");
+			// conn
+			// .voidEval("out <- writeReport(list(\"raw\"=x),
+			// outdir=\"/tmp/test\",
+			// force=TRUE)");
+
+			try {
+				addMiame(inData, conn);
+				exec.setProgress(.006, "MIAME information added.");
 			} catch (final Exception e) {
-				logger.warn("Problem querying overall statistics. "
+				logger.warn("Failed to add MIAME information.\n"
 						+ e.getMessage(), e);
 			}
-
-			final String outDir = outDirs.get(normalize);
-			final String zRange = scoreRange.getMinRange() + ", "
-					+ scoreRange.getMaxRange();
-
-			// topTable.asList().get("finalWellAnno_r");
-			// System.out.println(topTable);
-
-			if (true
-					|| parametersModel.getIncludeList().size() == 1
-					|| parametersModel.getIncludeList().size() == replicateCount
-					|| scoreModel.getStringValue().equals("none")) {
+			boolean newVersion = false;
+			if (ImporterNodePlugin.getDefault().getPreferenceStore()
+					.getBoolean(PreferenceConstants.USE_TCD_EXTENSIONS)) {
 				try {
-					conn
-							.voidEval("xsc <- scoreReplicates(xn, sign=\"+\", method=\""
-									+ scoreModel.getStringValue() + "\")");
+					// System.out.println(ImporterNodePlugin.getDefault().getBundle().getBundleContext().
+					// .getEntry("/bin/r").getFile());
+					final File rSourcesDir = new File(
+							((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImporterNodePlugin
+									.getDefault().getBundle()).getBundleData())
+									.getBundleFile().getBaseFile(), "bin/r");
+					// conn
+					// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
+					// + "");
+					conn.voidEval("setwd(\""
+							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
+							+ "\")");
+					conn.voidEval("source(\"summarizeReplicates.R\")\n"
+							+ "source(\"getTopTable.R\")\n"
+							+ "source(\"getDynamicRange.R\")\n"
+							+ "source(\"getZfactor.R\")\n"
+							+ "source(\"checkControls.R\")\n"
+							+ "source(\"makePlot.R\")\n"
+							+ "source(\"QMbyPlate.R\")\n"
+							+ "source(\"QMexperiment.R\")\n"
+							+ "source(\"imageScreen.R\")\n"
+							+ "source(\"writeReport.R\")\n" + "");
+					newVersion = true;
+					logger.info("Using the improved version of cellHTS2.");
+				} catch (final RserveException e) {
+					logger.warn(
+							"Using the original version of cellHTS2, because a problem has occured: "
+									+ e.getMessage(), e);
+				}
+			}
+			final String[] normMethods = computeNormMethods();
+			final Map<String, String> outDirs = computeOutDirs(normMethods);
+			double completed = 0.01;
+			// logger.debug(conn.eval("table(wellAnno(x))"));
+			logger.debug(conn.eval("state(x)"));
+			final String additionalParams = newVersion ? ", channels="
+					+ createChannelList(parametersModel.getIncludeList())
+					+ ", colOrder=c(" + createColOrderString() + ")" : "";
+			final BufferedDataContainer scores = exec
+					.createDataContainer(new DataTableSpec(computeTopTableSpec(
+							inData[0].getDataTableSpec(), false)));
+			final BufferedDataContainer replicates = exec
+					.createDataContainer(new DataTableSpec(computeTopTableSpec(
+							inData[0].getDataTableSpec(), true)));
+			final BufferedDataContainer aggregate = exec
+					.createDataContainer(aggregateValuesSpec);
+			int rowStart = 1;
+			for (final String normalize : normMethods) {
+				exec.setProgress(completed, normalize);
+				try {
+					plateConfiguration(inData[1], inData[2], inData[3], conn,
+							wellCount, plateCount, normalize);
 				} catch (final Exception e) {
-					logger.fatal("scoring the replicates failed", e);
+					logger.fatal(
+							"Unable to set the configuration of the plates", e);
 					throw e;
 				}
 				try {
-					conn.voidEval("xsc <- summarizeReplicates(xsc, summary=\""
-							+ summarizeModel.getStringValue() + "\""
-							+ (newVersion ? ", method=\"per-channel\"" : "")
-							+ ")");
+					normalizePlates(conn, normalize);
 				} catch (final Exception e) {
-					logger.fatal("Summarizing the replicates failed.", e);
+					logger.fatal("Problem with normalization step", e);
 					throw e;
 				}
 				try {
-					conn
-							.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
-									+ "   force=TRUE, plotPlateArgs = TRUE,\n"
-									+ "   imageScreenArgs = list(zrange=c("
-									+ zRange
-									+ "), ar="
-									+ scoreResolutionModel.getDoubleValue()
-									+ "), map=TRUE, outdir=\""
-									+ outDir
+					annotate(conn, inData[0]);
+				} catch (final Exception e) {
+					logger.warn("Annotation failed.", e);
+				}
+				try {
+					addOverallStatistics(conn, plateCount, replicateCount,
+							aggregate, normalize, parametersModel
+									.getIncludeList());
+				} catch (final Exception e) {
+					logger.warn("Problem querying overall statistics. "
+							+ e.getMessage(), e);
+				}
+
+				final String outDir = outDirs.get(normalize);
+				final String zRange = scoreRange.getMinRange() + ", "
+						+ scoreRange.getMaxRange();
+
+				// topTable.asList().get("finalWellAnno_r");
+				// System.out.println(topTable);
+
+				if (true
+						|| parametersModel.getIncludeList().size() == 1
+						|| parametersModel.getIncludeList().size() == replicateCount
+						|| scoreModel.getStringValue().equals("none")) {
+					try {
+						conn
+								.voidEval("xsc <- scoreReplicates(xn, sign=\"+\", method=\""
+										+ scoreModel.getStringValue() + "\")");
+					} catch (final Exception e) {
+						logger.fatal("scoring the replicates failed", e);
+						throw e;
+					}
+					try {
+						conn
+								.voidEval("xsc <- summarizeReplicates(xsc, summary=\""
+										+ summarizeModel.getStringValue()
+										+ "\""
+										+ (newVersion ? ", method=\"per-channel\""
+												: "") + ")");
+					} catch (final Exception e) {
+						logger.fatal("Summarizing the replicates failed.", e);
+						throw e;
+					}
+					try {
+						conn
+								.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
+										+ "   force=TRUE, plotPlateArgs = TRUE,\n"
+										+ "   imageScreenArgs = list(zrange=c("
+										+ zRange
+										+ "), ar="
+										+ scoreResolutionModel.getDoubleValue()
+										+ "), map=TRUE, outdir=\""
+										+ outDir
+										+ "\"" + additionalParams + ")");
+						// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
+					} catch (final Exception e) {
+						logger.fatal("Problem writing the results", e);
+						throw e;
+					}
+					final File tempFile = File.createTempFile("topTable",
+							".txt");
+					final REXP topTable = conn
+							.eval("getTopTable(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc), file=\""
+									+ tempFile.getAbsolutePath().replace('\\',
+											'/')
 									+ "\""
-									+ additionalParams + ")");
-					// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
-				} catch (final Exception e) {
-					logger.fatal("Problem writing the results", e);
-					throw e;
-				}
-				final File tempFile = File.createTempFile("topTable", ".txt");
-				final REXP topTable = conn
-						.eval("getTopTable(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc), file=\""
-								+ tempFile.getAbsolutePath().replace('\\', '/')
-								+ "\"" + additionalParams + ")");
-				if (!tempFile.delete()) {
-					tempFile.deleteOnExit();
-				}
-				final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
-						.parseString(
-								PreferenceConstants.PossibleStatistics.class,
-								ImporterNodePlugin
-										.getDefault()
-										.getPreferenceStore()
-										.getString(
-												PreferenceConstants.RESULT_COL_ORDER));
-				final DataColumnSpec[] additionalColumns = selectAdditionalColumns(inData[0]
-						.getDataTableSpec());
-				final StringCell logTransformCell = new StringCell(
-						logTransformModel.getBooleanValue() ? "log" : "");
-				final StringCell multCell = new StringCell(
-						isMultiplicativeModel.getBooleanValue() ? "multiplicative"
-								: "additive");
-				final StringCell scoreCell = new StringCell(scoreModel
-						.getStringValue());
-				final StringCell normCell = new StringCell(normalize);
+									+ additionalParams
+									+ ")");
+					final int tableLength = ((REXP) topTable.asList().get(0))
+							.length();
+					if (!tempFile.delete()) {
+						tempFile.deleteOnExit();
+					}
+					final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
+							.parseString(
+									PreferenceConstants.PossibleStatistics.class,
+									ImporterNodePlugin
+											.getDefault()
+											.getPreferenceStore()
+											.getString(
+													PreferenceConstants.RESULT_COL_ORDER));
+					final DataColumnSpec[] additionalColumns = selectAdditionalColumns(inData[0]
+							.getDataTableSpec());
+					final StringCell logTransformCell = new StringCell(
+							logTransformModel.getBooleanValue() ? "log" : "");
+					final StringCell multCell = new StringCell(
+							isMultiplicativeModel.getBooleanValue() ? "multiplicative"
+									: "additive");
+					final StringCell scoreCell = new StringCell(scoreModel
+							.getStringValue());
+					final StringCell normCell = new StringCell(normalize);
 
-				for (int row = 0; row < ((REXP) topTable.asList().get(0))
-						.length(); ++row) {
-					final List<DataCell> values = new ArrayList<DataCell>();
-					values.add(normCell);
-					values.add(multCell);
-					values.add(logTransformCell);
-					values.add(scoreCell);
-					computeTableValue(topTable.asList(), row, replicateCount,
-							Collections.singletonList(values), false, false,
-							stats, null, parametersModel.getIncludeList(),
-							additionalColumns);
-					scores.addRowToTable(new DefaultRow(new IntCell(row + 1),
-							values));
-				}
-				for (int row = 0; row < ((REXP) topTable.asList().get(0))
-						.length(); ++row) {
-					final List<List<DataCell>> rows = new ArrayList<List<DataCell>>(
-							replicateCount);
-					for (int i = replicateCount; i-- > 0;) {
+					for (int row = 0; row < tableLength; ++row) {
 						final List<DataCell> values = new ArrayList<DataCell>();
 						values.add(normCell);
 						values.add(multCell);
 						values.add(logTransformCell);
 						values.add(scoreCell);
-						rows.add(values);
+						computeTableValue(topTable.asList(), row,
+								replicateCount, Collections
+										.singletonList(values), false, false,
+								stats, null, parametersModel.getIncludeList(),
+								additionalColumns);
+						scores.addRowToTable(new DefaultRow(new IntCell(
+								rowStart + row), values));
 					}
-					computeTableValue(topTable.asList(), row, replicateCount,
-							rows, true, true, stats, null, parametersModel
-									.getIncludeList(), additionalColumns);
-					for (int repl = 0; repl < replicateCount; ++repl) {
-						replicates.addRowToTable(new DefaultRow(new StringCell(
-								(row + 1) + "_" + (repl + 1)), rows.get(repl)));
+					for (int row = 0; row < tableLength; ++row) {
+						final List<List<DataCell>> rows = new ArrayList<List<DataCell>>(
+								replicateCount);
+						for (int i = replicateCount; i-- > 0;) {
+							final List<DataCell> values = new ArrayList<DataCell>();
+							values.add(normCell);
+							values.add(multCell);
+							values.add(logTransformCell);
+							values.add(scoreCell);
+							rows.add(values);
+						}
+						computeTableValue(topTable.asList(), row,
+								replicateCount, rows, true, true, stats, null,
+								parametersModel.getIncludeList(),
+								additionalColumns);
+						for (int repl = 0; repl < replicateCount; ++repl) {
+							replicates
+									.addRowToTable(new DefaultRow(
+											new StringCell((row + 1) + "_"
+													+ (repl + 1)), rows
+													.get(repl)));
+						}
+					}
+					rowStart += tableLength;
+				} else {
+					try {
+						conn
+								.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
+										+ "   force=TRUE, plotPlateArgs = TRUE,\n"
+										+ "   imageScreenArgs = list(zrange=c("
+										+ zRange
+										+ "), ar=1), map=TRUE, outdir=\""
+										+ outDir
+										+ "\""
+										+ additionalParams
+										+ ")");
+					} catch (final Exception e) {
+						logger.fatal("Problem writing the results", e);
+						throw e;
 					}
 				}
-			} else {
+				completed += (1.0 - .01) / normMethods.length;
+			}
+			if (normMethods.length > 1) {
+				final FileWriter writer = new FileWriter(new File(
+						outputDirModel.getStringValue(), "index.html"));
 				try {
-					conn
-							.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
-									+ "   force=TRUE, plotPlateArgs = TRUE,\n"
-									+ "   imageScreenArgs = list(zrange=c("
-									+ zRange
-									+ "), ar=1), map=TRUE, outdir=\""
-									+ outDir + "\"" + additionalParams + ")");
-				} catch (final Exception e) {
-					logger.fatal("Problem writing the results", e);
-					throw e;
+					writer
+							.append("<HTML><HEAD><TITLE>Experiment report for \""
+									+ experimentName
+									+ "\"</TITLE></HEAD>\n"
+									+ "<BODY><CENTER><H1>Experiment report for \""
+									+ experimentName
+									+ "\"</H1></CENTER>\n"
+									+ "\n" + "");
+					writer.append("<table><th><td>method</td></th>");
+					for (final String normMethod : normMethods) {
+						writer.append("<tr><td><abbr title=\"").append(
+								explanationOfNormalisationMethods
+										.get(normMethod)).append("\">").append(
+								normMethod)
+								.append("</abbr></td><td><a href=\"").append(
+										normMethod).append("/index.html\">")
+								.append(normMethod).append("</a></td></tr>");
+					}
+					writer.append("</table></BODY></HTML>");
+				} finally {
+					writer.close();
 				}
 			}
-			completed += (1.0 - .01) / normMethods.length;
-		}
-		if (normMethods.length > 1) {
-			final FileWriter writer = new FileWriter(new File(outputDirModel
-					.getStringValue(), "index.html"));
-			try {
-				writer.append("<HTML><HEAD><TITLE>Experiment report for \""
-						+ experimentName + "\"</TITLE></HEAD>\n"
-						+ "<BODY><CENTER><H1>Experiment report for \""
-						+ experimentName + "\"</H1></CENTER>\n" + "\n" + "");
-				writer.append("<table><th><td>method</td></th>");
-				for (final String normMethod : normMethods) {
-					writer.append("<tr><td><abbr title=\"").append(
-							explanationOfNormalisationMethods.get(normMethod))
-							.append("\">").append(normMethod).append(
-									"</abbr></td><td><a href=\"").append(
-									normMethod).append("/index.html\">")
-							.append(normMethod).append("</a></td></tr>");
-				}
-				writer.append("</table></BODY></HTML>");
-			} finally {
-				writer.close();
+			for (final String normMethod : normMethods) {
+				writePlateList(outDirs.get(normMethod) + File.separatorChar
+						+ "in", plateCount, replicateCount, paramCount);
 			}
-		}
-		for (final String normMethod : normMethods) {
-			writePlateList(outDirs.get(normMethod) + File.separatorChar + "in",
-					plateCount, replicateCount, paramCount);
-		}
-		// conn.shutdown();
-		// conn.close();
+			// conn.shutdown();
+			// conn.close();
 
-		scores.close();
-		replicates.close();
-		aggregate.close();
-		final BufferedDataContainer configuration = exec
-				.createDataContainer(configurationSpec);
-		configuration.close();
-		final BufferedDataContainer outputFolders = exec
-				.createDataContainer(outputFolderSpec);
-		{
-			int i = 0;
-			for (final String outFolder : outDirs.values()) {
-				outputFolders.addRowToTable(new DefaultRow(new RowKey(
-						new IntCell(++i)), new StringCell(outFolder)));
+			scores.close();
+			replicates.close();
+			aggregate.close();
+			final BufferedDataContainer configuration = exec
+					.createDataContainer(configurationSpec);
+			configuration.close();
+			final BufferedDataContainer outputFolders = exec
+					.createDataContainer(outputFolderSpec);
+			{
+				int i = 0;
+				for (final String outFolder : outDirs.values()) {
+					outputFolders.addRowToTable(new DefaultRow(new RowKey(
+							new IntCell(++i)), new StringCell(outFolder)));
+				}
 			}
+			outputFolders.close();
+			return new BufferedDataTable[] { scores.getTable(),
+					replicates.getTable(), aggregate.getTable(),
+					configuration.getTable(), outputFolders.getTable() /* out */};
+		} finally {
+			conn.close();
 		}
-		outputFolders.close();
-		return new BufferedDataTable[] { scores.getTable(),
-				replicates.getTable(), aggregate.getTable(),
-				configuration.getTable(), outputFolders.getTable() /* out */};
 	}
 
 	/**
@@ -710,13 +745,22 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * outport.
 	 * 
 	 * @param conn
+	 *            The {@link RConnection} for Rserve. It must contain the scored
+	 *            CellHTS object in the {@code xsc} variable.
 	 * @param plateCount
+	 *            The number of plates.
 	 * @param replicateCount
+	 *            The number of replicates.
 	 * @param aggregate
+	 *            The aggregated values container. This is where the results go.
 	 * @param normalize
+	 *            The normalisation method.
 	 * @param parameters
+	 *            The parameters used.
 	 * @throws RserveException
+	 *             There was a problem with the execution on Rserve.
 	 * @throws REXPMismatchException
+	 *             We had a problem parsing the results.
 	 */
 	private void addOverallStatistics(final RConnection conn,
 			final int plateCount, final int replicateCount,
@@ -929,7 +973,7 @@ public class CellHTS2NodeModel extends NodeModel {
 						}
 						break;
 					case '*':
-						sb.append(isMultiplicative ? '*' : '+');
+						sb.append(isMultiplicative ? "" : "+");
 						if (!news.isEmpty()) {
 							for (final String string : normMethods) {
 								outDirs.put(string, outDirs.get(string) + sb
@@ -1910,6 +1954,15 @@ public class CellHTS2NodeModel extends NodeModel {
 					ret.add(new DoubleCell(((REXPDouble) topTable.get("median_"
 							+ ch)).asDoubles()[row]));
 					break;
+				case FINAL_WELL_ANNOTATION:
+					if (ch == null) {
+						ret.add(new StringCell(((REXPString) topTable
+								.get("finalWellAnno")).asStrings()[row]));
+					} else {
+						ret.add(new StringCell(((REXPString) topTable
+								.get("finalWellAnno_" + ch)).asStrings()[row]));
+					}
+					break;
 				default:
 					assert possibleStatistics.getMultiplicity() != Multiplicity.CHANNELS : possibleStatistics;
 					break;
@@ -1924,27 +1977,11 @@ public class CellHTS2NodeModel extends NodeModel {
 				int repl = 1;
 				for (final List<DataCell> ret : rets) {
 					switch (possibleStatistics) {
-					case FINAL_WELL_ANNOTATION:
-						if (turnReplicates) {
-							ret.add(new StringCell(
-									((REXPString) topTable
-											.get("finalWellAnno_r" + repl))
-											.asStrings()[row]));
-
-						} else {
-							for (; repl <= numReplicates; ++repl) {
-								ret.add(new StringCell(((REXPString) topTable
-										.get("finalWellAnno_r" + repl))
-										.asStrings()[row]));
-							}
-						}
-						break;
 					case REPLICATE:
 						if (turnReplicates) {
 							ret.add(new IntCell(repl));
 						}
 						break;
-
 					default:
 						assert possibleStatistics.getMultiplicity() != Multiplicity.REPLICATES : possibleStatistics;
 						break;
@@ -2029,7 +2066,7 @@ public class CellHTS2NodeModel extends NodeModel {
 							.asStrings()[row]));
 					break;
 				case WELL_ANNOTATION:
-					ret.add(new StringCell(((REXPString) topTable
+					ret.add(new StringCell(((REXPFactor) topTable
 							.get("wellAnno")).asStrings()[row]));
 					break;
 				default:
@@ -2187,6 +2224,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		experimentNameModel.saveSettingsTo(settings);
+		folderPatternModel.saveSettingsTo(settings);
 		parametersModel.saveSettingsTo(settings);
 		normMethodModel.saveSettingsTo(settings);
 		isMultiplicativeModel.saveSettingsTo(settings);
@@ -2207,6 +2245,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		experimentNameModel.loadSettingsFrom(settings);
+		folderPatternModel.loadSettingsFrom(settings);
 		parametersModel.loadSettingsFrom(settings);
 		normMethodModel.loadSettingsFrom(settings);
 		isMultiplicativeModel.loadSettingsFrom(settings);
@@ -2227,6 +2266,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		experimentNameModel.validateSettings(settings);
+		folderPatternModel.validateSettings(settings);
 		parametersModel.validateSettings(settings);
 		normMethodModel.validateSettings(settings);
 		isMultiplicativeModel.validateSettings(settings);

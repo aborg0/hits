@@ -31,7 +31,7 @@ public class PreferenceConstants {
 				Type.Strings),
 		/** The final well annotations */
 		FINAL_WELL_ANNOTATION("final well annotation", "finalWellAnno",
-				Multiplicity.REPLICATES, Type.Strings),
+				Multiplicity.CHANNELS, Type.Strings),
 		/** The gene id */
 		GENE_ID("gene id", "geneID", Multiplicity.SINGLE, Type.Int),
 		/** The gene symbols */
