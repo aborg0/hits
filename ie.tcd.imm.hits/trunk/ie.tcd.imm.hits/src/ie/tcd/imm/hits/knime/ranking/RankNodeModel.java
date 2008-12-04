@@ -1,12 +1,29 @@
 package ie.tcd.imm.hits.knime.ranking;
 
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -17,6 +34,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 /**
  * This is the model implementation of Rank. This node ranks the results for
@@ -86,13 +104,14 @@ public class RankNodeModel extends NodeModel {
 	static final String CFGKEY_RANK_PREFIX = "ie.tcd.imm.hits.knime.ranking.prefix";
 
 	/** initial default rank prefix. */
-	static final String DEFAULT_RANK_PREFIX = "rank";
+	static final String DEFAULT_RANK_PREFIX = "rank_";
 
 	/** Configuration key for the ranking groups. */
 	static final String CFGKEY_RANKING_GROUPS = "ie.tcd.imm.hits.knime.ranking.groups";
 
 	/** initial default ranking groups. */
-	static final String DEFAULT_RANKING_GROUPS = "experiment";
+	static final String DEFAULT_RANKING_GROUPS = RankingGroups.experiment
+			.name();
 
 	/** Configuration key for the statistics. */
 	static final String CFGKEY_STATISTICS = "ie.tcd.imm.hits.knime.ranking.statistics";
@@ -100,6 +119,12 @@ public class RankNodeModel extends NodeModel {
 	/** initial default statistics. */
 	static final String[] DEFAULT_STATISTICS = new String[] { StatTypes.score
 			.name() };
+
+	/** Configuration key for the parameters. */
+	static final String CFGKEY_PARAMETERS = "ie.tcd.imm.hits.knime.ranking.parameters";
+
+	/** initial default parameters. */
+	static final String[] DEFAULT_PARAMETERS = new String[] { "" };
 
 	/** Configuration key for the regulation. */
 	static final String CFGKEY_REGULATION = "ie.tcd.imm.hits.knime.ranking.regulation";
@@ -122,11 +147,21 @@ public class RankNodeModel extends NodeModel {
 	private final SettingsModelString groupingModel = new SettingsModelString(
 			CFGKEY_RANKING_GROUPS, DEFAULT_RANKING_GROUPS);
 
+	private final SettingsModelStringArray statisticsModel = new SettingsModelStringArray(
+			CFGKEY_STATISTICS, DEFAULT_STATISTICS);
+
+	private final SettingsModelStringArray parametersModel = new SettingsModelStringArray(
+			CFGKEY_PARAMETERS, DEFAULT_PARAMETERS);
+
 	private final SettingsModelString regulationModel = new SettingsModelString(
 			CFGKEY_REGULATION, DEFAULT_REGULATION);
 
 	private final SettingsModelString tieHandlingModel = new SettingsModelString(
 			CFGKEY_TIE, DEFAULT_TIE);
+	/** experiment, norm, plate, replicate, stat, rank */
+	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> ranks = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>();
+
+	private static final Integer noReplicates = Integer.valueOf(-1);
 
 	/**
 	 * Constructor for the node model.
@@ -142,48 +177,196 @@ public class RankNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		final ModelBuilder modelBuilder = new ModelBuilder(inData[0]);
+		final SpecAnalyser specAnalyser = modelBuilder.getSpecAnalyser();
 		logger.debug("Ranking the following parameters, and statistics: "
-				+ modelBuilder.getParameters() + "; "
-				+ modelBuilder.getStatistics());
-		// the data table spec of the single output table,
-		// the table will have three columns:
-		// final DataColumnSpec[] allColSpecs = new DataColumnSpec[3];
-		// allColSpecs[0] = new DataColumnSpecCreator("Column 0",
-		// StringCell.TYPE)
-		// .createSpec();
-		// allColSpecs[1] = new DataColumnSpecCreator("Column 1",
-		// DoubleCell.TYPE)
-		// .createSpec();
-		// allColSpecs[2] = new DataColumnSpecCreator("Column 2", IntCell.TYPE)
-		// .createSpec();
-		// final DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
-		// the execution context will provide us with storage capacity, in this
-		// case a data container to which we will add rows sequentially
-		// Note, this container can also handle arbitrary big data tables, it
-		// will buffer to disc if necessary.
-		// final BufferedDataContainer container = exec
-		// .createDataContainer(outputSpec);
-		// let's add m_count rows to it
-		// for (int i = 0; i < m_count.getIntValue(); i++) {
-		// final RowKey key = new RowKey("Row " + i);
-		// the cells of the current row, the types of the cells must match
-		// the column spec (see above)
-		// final DataCell[] cells = new DataCell[3];
-		// cells[0] = new StringCell("String_" + i);
-		// cells[1] = new DoubleCell(0.5 * i);
-		// cells[2] = new IntCell(i);
-		// final DataRow row = new DefaultRow(key, cells);
-		// container.addRowToTable(row);
+				+ specAnalyser.getParameters() + "; "
+				+ specAnalyser.getStatistics());
+		exec.checkCanceled();
+		final DataColumnSpec[] allColSpecs = createColSpecs(inData[0]
+				.getDataTableSpec());
+		final DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
+		final int experimentIdx = specAnalyser.getExperimentIndex();
+		final int normMethodIdx = specAnalyser.getNormMethodIndex();
+		final int logTransformIdx = specAnalyser.getLogTransformIndex();
+		final int normKindIdx = specAnalyser.getNormKindIndex();
+		final int varianceAdjustmentIdx = specAnalyser
+				.getVarianceAdjustmentIndex();
+		final int scoreMethodIdx = specAnalyser.getScoreMethodIndex();
+		final int sumMethodIdx = specAnalyser.getSumMethodIndex();
+		final int plateIdx = specAnalyser.getPlateIndex();
+		final int replicateIdx = specAnalyser.getReplicateIndex();
+		final int wellIdx = specAnalyser.getWellIndex();
+		final RankingGroups grouping = RankingGroups.valueOf(groupingModel
+				.getStringValue());
+		final StatTypes[] statTypes = getStatTypes();
+		final String wellAnnotCol = wellAnnotationColumn.getStringValue();
+		final String[] parameters = parametersModel.getStringArrayValue();
+		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scoresEntry : modelBuilder
+				.getScores().entrySet()) {
+			final String experiment = scoresEntry.getKey();
+			ranks
+					.put(
+							experiment,
+							new TreeMap<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>());
+			final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map0 = ranks
+					.get(experiment);
+			for (final Entry<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> normEntry : scoresEntry
+					.getValue().entrySet()) {
+				final String normKey = normEntry.getKey();
+				map0
+						.put(
+								normKey,
+								new HashMap<Integer, Map<Integer, Map<StatTypes, double[]>>>());
+				final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> plateMap = map0
+						.get(normKey);
+				switch (grouping) {
+				case experiment:
+				case replicate: {
+					final Map<String, Map<StatTypes, double[]>> sampleValues = new TreeMap<String, Map<StatTypes, double[]>>();
+					final Map<String, Map<StatTypes, double[]>> otherValues = new TreeMap<String, Map<StatTypes, double[]>>();
+					for (final String parameter : parameters) {
+						sampleValues.put(parameter,
+								new EnumMap<StatTypes, double[]>(
+										StatTypes.class));
+						otherValues.put(parameter,
+								new EnumMap<StatTypes, double[]>(
+										StatTypes.class));
+						fillEmpty(modelBuilder, statTypes, sampleValues
+								.get(parameter));
+						fillEmpty(modelBuilder, statTypes, otherValues
+								.get(parameter));
+					}
+					for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
+							.getValue().entrySet()) {
+						final Integer plate = plateEntry.getKey();
+						final String[] wellTypes = modelBuilder.getTexts().get(
+								experiment).get(normKey).get(plate).get(
+								wellAnnotCol);
+						if (!plateMap.containsKey(plate)) {
+							plateMap
+									.put(
+											plate,
+											new HashMap<Integer, Map<StatTypes, double[]>>());
+							final Map<Integer, Map<StatTypes, double[]>> replicateMap = plateMap
+									.get(plate);
+							replicateMap.put(noReplicates,
+									new EnumMap<StatTypes, double[]>(
+											StatTypes.class));
+						}
+						for (final String parameter : parameters) {
+							final Map<StatTypes, double[]> sampleMap = sampleValues
+									.get(parameter);
+							final Map<StatTypes, double[]> otherMap = otherValues
+									.get(parameter);
+							final Map<StatTypes, double[]> statValues = plateEntry
+									.getValue().get(parameter);
+							for (final StatTypes stat : statTypes) {
+								final double[] samples = sampleMap.get(stat);
+								final double[] others = otherMap.get(stat);
+								final double[] ds = statValues.get(stat);
+								for (int i = ds.length; i-- > 0;) {
+									((wellTypes[i].equalsIgnoreCase("sample")) ? samples
+											: others)[96
+											* (plate.intValue() - modelBuilder
+													.getMinPlate()) + i] = ds[i];
 
-		// check if the execution monitor was canceled
-		// exec.checkCanceled();
-		// exec.setProgress(i / (double) m_count.getIntValue(), "Adding row "
-		// + i);
-		// }
-		// once we are done, we close the container and return its table
-		// container.close();
-		// final BufferedDataTable out = container.getTable();
-		return new BufferedDataTable[] { /* out */null };
+								}
+							}
+						}
+						final Map<StatTypes, double[]> rankStatMap = plateMap
+								.get(plate).get(noReplicates);
+					}
+					break;
+				}
+				case plate:
+				case plateAndReplicate:
+					break;
+				default:
+					throw new IllegalStateException("Unknown grouping: "
+							+ grouping);
+				}
+			}
+		}
+		final BufferedDataContainer container = exec
+				.createDataContainer(outputSpec);
+		for (final DataRow origRow : inData[0]) {
+			final List<DataCell> values = new ArrayList<DataCell>(
+					allColSpecs.length);
+			for (final DataCell dataCell : origRow) {
+				values.add(dataCell);
+			}
+			for (final StatTypes stat : getStatTypes()) {
+				values.add(new DoubleCell(getRank(origRow, experimentIdx,
+						normMethodIdx, logTransformIdx, normKindIdx,
+						varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx,
+						plateIdx, replicateIdx, wellIdx, stat)));
+			}
+			final DataRow newRow = new DefaultRow(origRow.getKey(), values);
+			container.addRowToTable(newRow);
+			exec.checkCanceled();
+		}
+		container.close();
+		final BufferedDataTable out = container.getTable();
+		return new BufferedDataTable[] { out };
+	}
+
+	private void fillEmpty(final ModelBuilder modelBuilder,
+			final StatTypes[] statTypes, final Map<StatTypes, double[]> map) {
+		for (final StatTypes stat : statTypes) {
+			final double[] ds = new double[96 * (modelBuilder.getMaxPlate() - modelBuilder
+					.getMinPlate())];
+			for (int i = ds.length; i-- > 0;) {
+				ds[i] = Double.NaN;
+			}
+			map.put(stat, ds);
+		}
+	}
+
+	private double getRank(final DataRow origRow, final int experimentIdx,
+			final int normMethodIdx, final int logTransformIdx,
+			final int normKindIdx, final int varianceAdjustmentIdx,
+			final int scoreMethodIdx, final int sumMethodIdx,
+			final int plateIdx, final int replicateIdx, final int wellIdx,
+			final StatTypes stat) {
+		return getRank(((StringCell) origRow.getCell(experimentIdx))
+				.getStringValue(), ModelBuilder.getNormKey(origRow,
+				normMethodIdx, logTransformIdx, normKindIdx,
+				varianceAdjustmentIdx, scoreMethodIdx, scoreMethodIdx),
+				((IntCell) origRow.getCell(plateIdx)).getIntValue(),
+				replicateIdx >= 0 ? ((IntCell) origRow.getCell(replicateIdx))
+						.getIntValue() : -1, ModelBuilder
+						.convertWellToPosition(((StringCell) origRow
+								.getCell(normKindIdx)).getStringValue()), stat);
+	}
+
+	private double getRank(final String experiment, final String normKey,
+			final int plate, final int replicate, final int well,
+			final StatTypes stat) {
+		final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map0 = ranks
+				.get(experiment);
+		if (map0 == null) {
+			return 0.0;
+		}
+		final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> map1 = map0
+				.get(normKey);
+		if (map1 == null) {
+			return 0.0;
+		}
+		final Map<Integer, Map<StatTypes, double[]>> map2 = map1.get(Integer
+				.valueOf(plate));
+		if (map2 == null) {
+			return 0.0;
+		}
+		final Map<StatTypes, double[]> map3 = map2.get(Integer
+				.valueOf(replicate));
+		if (map3 == null) {
+			return 0.0;
+		}
+		final double[] ds = map3.get(stat);
+		if (ds == null) {
+			return 0.0;
+		}
+		return ds[well];
 	}
 
 	/**
@@ -203,13 +386,36 @@ public class RankNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
+		return new DataTableSpec[] { new DataTableSpec(
+				createColSpecs(inSpecs[0])) };
+	}
 
-		return new DataTableSpec[] { null };
+	private DataColumnSpec[] createColSpecs(final DataTableSpec dataTableSpec) {
+		final StatTypes[] stats = getStatTypes();
+		final DataColumnSpec[] newCols = new DataColumnSpec[stats.length];
+		for (int i = stats.length; i-- > 0;) {
+			newCols[i] = new DataColumnSpecCreator(rankPrefix.getStringValue()
+					+ StatTypes.mapToPossStats.get(stats[i]).getDisplayText(),
+					DoubleCell.TYPE).createSpec();
+		}
+		final DataColumnSpec[] colSpecs = new DataColumnSpec[dataTableSpec
+				.getNumColumns()
+				+ newCols.length];
+		for (int i = dataTableSpec.getNumColumns(); i-- > 0;) {
+			colSpecs[i] = dataTableSpec.getColumnSpec(i);
+		}
+		System.arraycopy(newCols, 0, colSpecs, dataTableSpec.getNumColumns(),
+				newCols.length);
+		return colSpecs;
+	}
+
+	private StatTypes[] getStatTypes() {
+		final String[] statsAsStrings = statisticsModel.getStringArrayValue();
+		final StatTypes[] stats = new StatTypes[statsAsStrings.length];
+		for (int i = statsAsStrings.length; i-- > 0;) {
+			stats[i] = StatTypes.valueOf(statsAsStrings[i]);
+		}
+		return stats;
 	}
 
 	/**
@@ -220,6 +426,8 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.saveSettingsTo(settings);
 		rankPrefix.saveSettingsTo(settings);
 		groupingModel.saveSettingsTo(settings);
+		statisticsModel.saveSettingsTo(settings);
+		parametersModel.saveSettingsTo(settings);
 		regulationModel.saveSettingsTo(settings);
 		tieHandlingModel.saveSettingsTo(settings);
 	}
@@ -233,6 +441,8 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.loadSettingsFrom(settings);
 		rankPrefix.loadSettingsFrom(settings);
 		groupingModel.loadSettingsFrom(settings);
+		statisticsModel.loadSettingsFrom(settings);
+		parametersModel.loadSettingsFrom(settings);
 		regulationModel.loadSettingsFrom(settings);
 		tieHandlingModel.loadSettingsFrom(settings);
 	}
@@ -246,6 +456,8 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.validateSettings(settings);
 		rankPrefix.validateSettings(settings);
 		groupingModel.validateSettings(settings);
+		statisticsModel.validateSettings(settings);
+		parametersModel.validateSettings(settings);
 		regulationModel.validateSettings(settings);
 		tieHandlingModel.validateSettings(settings);
 	}

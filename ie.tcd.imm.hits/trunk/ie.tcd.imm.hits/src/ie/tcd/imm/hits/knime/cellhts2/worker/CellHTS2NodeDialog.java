@@ -86,7 +86,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentStringSelection normalizationDialog = new DialogComponentStringSelection(
 				new SettingsModelString(
 						CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
-						CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[0]),
+						CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]),
 				"Normalisation method: ",
 				CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
 		final JComboBox normalizationCombobox = (JComboBox) normalizationDialog
@@ -129,10 +129,10 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		scoreDialog.setToolTipText("Scoring of replicates.");
 		addDialogComponent(scoreDialog);
 		final DialogComponentStringSelection summarizeReplicatesDialog = new DialogComponentStringSelection(
-				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SUMMARIZE,
-						CellHTS2NodeModel.POSSIBLE_SUMMARIZE[0]),
-				"Summarize replicates with: ",
-				CellHTS2NodeModel.POSSIBLE_SUMMARIZE);
+				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SUMMARISE,
+						CellHTS2NodeModel.POSSIBLE_SUMMARISE[0]),
+				"Summarise replicates with: ",
+				CellHTS2NodeModel.POSSIBLE_SUMMARISE);
 		summarizeReplicatesDialog
 				.setToolTipText("Summarize the replicates with this method.");
 		addDialogComponent(summarizeReplicatesDialog);

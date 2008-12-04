@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.ranking;
 
+import ie.tcd.imm.hits.knime.ranking.RankNodeModel.RankingGroups;
 import ie.tcd.imm.hits.knime.ranking.RankNodeModel.TieHandling;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
@@ -50,12 +51,15 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(rankPrefix);
 		final DialogComponentStringSelection rankingGroups = new DialogComponentStringSelection(
 				new SettingsModelString(RankNodeModel.CFGKEY_RANKING_GROUPS,
-						RankNodeModel.DEFAULT_RANKING_GROUPS), "Ranking groups");
+						RankNodeModel.DEFAULT_RANKING_GROUPS),
+				"Ranking groups", RankingGroups.experiment.name(),
+				RankingGroups.plate.name(), RankingGroups.replicate.name(),
+				RankingGroups.plateAndReplicate.name());
 		addDialogComponent(rankingGroups);
 		final ArrayList<String> possStats = new ArrayList<String>(6);
 		for (final StatTypes statTypes : new StatTypes[] { StatTypes.score,
-				StatTypes.normalized, StatTypes.median, StatTypes.raw,
-				StatTypes.rawPerMedian }) {
+				StatTypes.normalized, StatTypes.median, StatTypes.meanOrDiff,
+				StatTypes.raw, StatTypes.rawPerMedian }) {
 			possStats.add(statTypes.name());
 		}
 		final DialogComponentStringListSelection statistics = new DialogComponentStringListSelection(

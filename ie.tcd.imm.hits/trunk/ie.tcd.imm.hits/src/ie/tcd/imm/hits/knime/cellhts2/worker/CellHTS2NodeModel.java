@@ -202,10 +202,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	static final String[] POSSIBLE_SCORE = new String[] { "none", "zscore",
 			"NPI" };
 
-	/** Configuration key for summarization strategy */
-	static final String CFGKEY_SUMMARIZE = "ie.tcd.imm.hits.knime.cellhts2.summarize";
-	/** Possible values of the summarization strategies */
-	static final String[] POSSIBLE_SUMMARIZE = new String[] { "mean", "median",
+	/** Configuration key for summarisation strategy */
+	static final String CFGKEY_SUMMARISE = "ie.tcd.imm.hits.knime.cellhts2.summarize";
+	/** Possible values of the summarisation strategies */
+	static final String[] POSSIBLE_SUMMARISE = new String[] { "mean", "median",
 			"max", "min", "rms", "closestToZero", "furthestFromZero" };
 
 	/** Configuration key for the output folder */
@@ -235,14 +235,9 @@ public class CellHTS2NodeModel extends NodeModel {
 	/** Default value of pattern generating the folder */
 	static final String DEFAULT_FOLDER_PATTERN = POSSIBLE_FOLDER_PATTERNS[3];
 
-	/** Configuration key for using TCD cellHTS2 extensions */
-	static final String CFGKEY_USE_TCD_CELLHTS_EXTENSIONS = "ie.tcd.imm.hits.knime.cellhts2.use_extensions";
-	/** Default value of usage of TCD cellHTS2 extensions */
-	static final boolean DEFAULT_USE_TCD_CELLHTS_EXTENSIONS = true;
-
 	private final SettingsModelString normMethodModel = new SettingsModelString(
 			CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
-			CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[0]);
+			CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]);
 
 	private final SettingsModelBoolean isMultiplicativeModel = new SettingsModelBoolean(
 			CFGKEY_IS_MULTIPLICATIVE_NORMALISATION,
@@ -254,8 +249,8 @@ public class CellHTS2NodeModel extends NodeModel {
 			CFGKEY_SCALE, POSSIBLE_SCALE[0]);
 	private final SettingsModelString scoreModel = new SettingsModelString(
 			CFGKEY_SCORE, POSSIBLE_SCORE[1]);
-	private final SettingsModelString summarizeModel = new SettingsModelString(
-			CFGKEY_SUMMARIZE, POSSIBLE_SUMMARIZE[0]);
+	private final SettingsModelString summariseModel = new SettingsModelString(
+			CFGKEY_SUMMARISE, POSSIBLE_SUMMARISE[0]);
 	private final SettingsModelString outputDirModel = new SettingsModelString(
 			CFGKEY_OUTPUT_DIR, DEFAULT_OUTPUT_DIR);
 	private final SettingsModelString folderPatternModel = new SettingsModelString(
@@ -283,14 +278,19 @@ public class CellHTS2NodeModel extends NodeModel {
 			new DataColumnSpecCreator("Value", StringCell.TYPE).createSpec());
 
 	private static final DataTableSpec aggregateValuesSpec = new DataTableSpec(
-			new DataColumnSpecCreator("Normalization method", StringCell.TYPE)
+			new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN, StringCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
-					"Normalization kind", StringCell.TYPE).createSpec(),
-			new DataColumnSpecCreator("log transform", StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator("Scoring method",
+					ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
 					StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
-					"Plate", IntCell.TYPE).createSpec(),
-			new DataColumnSpecCreator("Replicate", IntCell.TYPE).createSpec(),
+					ModelBuilder.SCORING_METHOD_COLUMN, StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(ModelBuilder.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(ModelBuilder.PLATE_COLUMN,
+					IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.REPLICATE_COLUMN, IntCell.TYPE).createSpec(),
 			new DataColumnSpecCreator("Parameter", StringCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
 					"Replicate dynamic range", DoubleCell.TYPE).createSpec(),
@@ -330,8 +330,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -365,6 +365,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				wellColCount = Math.max(wellColCount, Integer.parseInt(wellId
 						.substring(1)));
 			}
+			exec.checkCanceled();
 			final int wellCount = wellRowCount * wellColCount;
 			// final DataTableSpec dataTableSpec = inData[0].getDataTableSpec();
 			// final int paramCount = dataTableSpec.getNumColumns()
@@ -436,6 +437,7 @@ public class CellHTS2NodeModel extends NodeModel {
 							.getDoubleValue();
 				}
 			}
+			exec.checkCanceled();
 			// conn.assign("input", new REXPGenericVector(list));
 			try {
 				conn.assign("rawInput", rawValues);
@@ -453,6 +455,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					wellCount,
 					/* getParams(inData[0].getDataTableSpec()) */parametersModel
 							.getIncludeList());
+			exec.checkCanceled();
 			exec.setProgress(.005, "Initial object created.");
 			// conn
 			// .voidEval("out <- writeReport(list(\"raw\"=x),
@@ -466,6 +469,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				logger.warn("Failed to add MIAME information.\n"
 						+ e.getMessage(), e);
 			}
+			exec.checkCanceled();
 			boolean newVersion = false;
 			if (ImporterNodePlugin.getDefault().getPreferenceStore()
 					.getBoolean(PreferenceConstants.USE_TCD_EXTENSIONS)) {
@@ -505,6 +509,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			double completed = 0.01;
 			// logger.debug(conn.eval("table(wellAnno(x))"));
 			logger.debug(conn.eval("state(x)"));
+			exec.checkCanceled();
 			final String additionalParams = newVersion ? ", channels="
 					+ createChannelList(parametersModel.getIncludeList())
 					+ ", colOrder=c(" + createColOrderString() + ")" : "";
@@ -518,6 +523,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					.createDataContainer(aggregateValuesSpec);
 			int rowStart = 1;
 			for (final String normalize : normMethods) {
+				exec.checkCanceled();
 				exec.setProgress(completed, normalize);
 				try {
 					plateConfiguration(inData[1], inData[2], inData[3], conn,
@@ -533,11 +539,13 @@ public class CellHTS2NodeModel extends NodeModel {
 					logger.fatal("Problem with normalization step", e);
 					throw e;
 				}
+				exec.checkCanceled();
 				try {
 					annotate(conn, inData[0]);
 				} catch (final Exception e) {
 					logger.warn("Annotation failed.", e);
 				}
+				exec.checkCanceled();
 				try {
 					addOverallStatistics(conn, plateCount, replicateCount,
 							aggregate, normalize, parametersModel
@@ -546,17 +554,12 @@ public class CellHTS2NodeModel extends NodeModel {
 					logger.warn("Problem querying overall statistics. "
 							+ e.getMessage(), e);
 				}
-
+				exec.checkCanceled();
 				final String outDir = outDirs.get(normalize);
 				final String zRange = scoreRange.getMinRange() + ", "
 						+ scoreRange.getMaxRange();
 
-				// topTable.asList().get("finalWellAnno_r");
-				// System.out.println(topTable);
-
-				if (true
-						|| parametersModel.getIncludeList().size() == 1
-						|| parametersModel.getIncludeList().size() == replicateCount
+				if (parametersModel.getIncludeList().size() == 1 || newVersion
 						|| scoreModel.getStringValue().equals("none")) {
 					try {
 						conn
@@ -566,10 +569,11 @@ public class CellHTS2NodeModel extends NodeModel {
 						logger.fatal("scoring the replicates failed", e);
 						throw e;
 					}
+					exec.checkCanceled();
 					try {
 						conn
 								.voidEval("xsc <- summarizeReplicates(xsc, summary=\""
-										+ summarizeModel.getStringValue()
+										+ summariseModel.getStringValue()
 										+ "\""
 										+ (newVersion ? ", method=\"per-channel\""
 												: "") + ")");
@@ -589,6 +593,7 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ outDir
 										+ "\"" + additionalParams + ")");
 						// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
+						exec.checkCanceled();
 					} catch (final Exception e) {
 						logger.fatal("Problem writing the results", e);
 						throw e;
@@ -607,6 +612,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					if (!tempFile.delete()) {
 						tempFile.deleteOnExit();
 					}
+					exec.checkCanceled();
 					final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
 							.parseString(
 									PreferenceConstants.PossibleStatistics.class,
@@ -622,16 +628,25 @@ public class CellHTS2NodeModel extends NodeModel {
 					final StringCell multCell = new StringCell(
 							isMultiplicativeModel.getBooleanValue() ? "multiplicative"
 									: "additive");
+					final StringCell varianceAdjustmentCell = new StringCell(
+							scaleModel.getStringValue());
 					final StringCell scoreCell = new StringCell(scoreModel
 							.getStringValue());
 					final StringCell normCell = new StringCell(normalize);
+					final StringCell summariseCell = new StringCell(
+							summariseModel.getStringValue());
+					final StringCell experimentCell = new StringCell(
+							experimentName);
 
 					for (int row = 0; row < tableLength; ++row) {
 						final List<DataCell> values = new ArrayList<DataCell>();
+						values.add(experimentCell);
 						values.add(normCell);
-						values.add(multCell);
 						values.add(logTransformCell);
+						values.add(multCell);
+						values.add(varianceAdjustmentCell);
 						values.add(scoreCell);
+						values.add(summariseCell);
 						computeTableValue(topTable.asList(), row,
 								replicateCount, Collections
 										.singletonList(values), false, false,
@@ -639,16 +654,22 @@ public class CellHTS2NodeModel extends NodeModel {
 								additionalColumns);
 						scores.addRowToTable(new DefaultRow(new IntCell(
 								rowStart + row), values));
+						if (row % 50 == 0) {
+							exec.checkCanceled();
+						}
 					}
 					for (int row = 0; row < tableLength; ++row) {
 						final List<List<DataCell>> rows = new ArrayList<List<DataCell>>(
 								replicateCount);
 						for (int i = replicateCount; i-- > 0;) {
 							final List<DataCell> values = new ArrayList<DataCell>();
+							values.add(experimentCell);
 							values.add(normCell);
-							values.add(multCell);
 							values.add(logTransformCell);
+							values.add(multCell);
+							values.add(varianceAdjustmentCell);
 							values.add(scoreCell);
+							values.add(summariseCell);
 							rows.add(values);
 						}
 						computeTableValue(topTable.asList(), row,
@@ -661,6 +682,9 @@ public class CellHTS2NodeModel extends NodeModel {
 											new StringCell((row + 1) + "_"
 													+ (repl + 1)), rows
 													.get(repl)));
+						}
+						if (row % 50 == 0) {
+							exec.checkCanceled();
 						}
 					}
 					rowStart += tableLength;
@@ -754,7 +778,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 *            The number of replicates.
 	 * @param aggregate
 	 *            The aggregated values container. This is where the results go.
-	 * @param normalize
+	 * @param normalise
 	 *            The normalisation method.
 	 * @param parameters
 	 *            The parameters used.
@@ -765,7 +789,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	private void addOverallStatistics(final RConnection conn,
 			final int plateCount, final int replicateCount,
-			final BufferedDataContainer aggregate, final String normalize,
+			final BufferedDataContainer aggregate, final String normalise,
 			final List<String> parameters) throws RserveException,
 			REXPMismatchException {
 		final REXP dynRanges = conn
@@ -786,18 +810,30 @@ public class CellHTS2NodeModel extends NodeModel {
 		final double[] corrCoeffMax = ((REXPDouble) repMeasures.asList().get(
 				repMeasures.asList().names.contains("corrCoef") ? "corrCoef"
 						: "corrCoef.max")).asDoubles();
+		final StringCell experimentCell = new StringCell(experimentNameModel
+				.getStringValue());
+		final StringCell normaliseCell = new StringCell(normalise);
+		final StringCell multiplicativeCell = new StringCell(
+				isMultiplicativeModel.getBooleanValue() ? "multiplicative"
+						: "additive");
+		final StringCell logTransformCell = new StringCell(logTransformModel
+				.getBooleanValue() ? "log" : "");
+		final StringCell varianceAdjustmentCell = new StringCell(scaleModel
+				.getStringValue());
+		final StringCell scoreCell = new StringCell(scoreModel.getStringValue());
+		final StringCell summariseCell = new StringCell(summariseModel
+				.getStringValue());
 		for (int plate = 0; plate < plateCount; ++plate) {
 			for (int repl = 0; repl < replicateCount; ++repl) {
 				for (int param = 0; param < parameters.size(); ++param) {
 					final List<DataCell> values = new ArrayList<DataCell>();
-					values.add(new StringCell(normalize));
-					values
-							.add(new StringCell(isMultiplicativeModel
-									.getBooleanValue() ? "multiplicative"
-									: "additive"));
-					values.add(new StringCell(logTransformModel
-							.getBooleanValue() ? "log" : ""));
-					values.add(new StringCell(scoreModel.getStringValue()));
+					values.add(experimentCell);
+					values.add(normaliseCell);
+					values.add(logTransformCell);
+					values.add(multiplicativeCell);
+					values.add(varianceAdjustmentCell);
+					values.add(scoreCell);
+					values.add(summariseCell);
 					values.add(new IntCell(plate + 1));
 					values.add(new IntCell(repl + 1));
 					values.add(new StringCell(parameters.get(param)));
@@ -822,7 +858,7 @@ public class CellHTS2NodeModel extends NodeModel {
 											.asDoubles()[replicateCount * param
 											+ repl]));
 					aggregate.addRowToTable(new DefaultRow(new StringCell(
-							normalize + "_" + (plate + 1) + "_" + (repl + 1)
+							normalise + "_" + (plate + 1) + "_" + (repl + 1)
 									+ "_" + param), values));
 				}
 			}
@@ -1536,7 +1572,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					scaleModel));
 			pairs.add(new Pair<String, SettingsModel>("Scoring", scoreModel));
 			pairs.add(new Pair<String, SettingsModel>("Summarize replicates",
-					summarizeModel));
+					summariseModel));
 			conn.voidEval("descript = vector(mode=\"character\", length="
 					+ (descTable.getRowCount() + pairs.size()) + ")");
 			int row = 1;
@@ -1701,7 +1737,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
-	 * TODO only 96 well format supported.
+	 * TODO only 96 well format supported. Use
+	 * {@link ModelBuilder#convertWellToPosition(String)} instead this.
 	 * 
 	 * @param wellId
 	 * @return The well position starting from {@code 0}. Ideal for array index
@@ -1810,15 +1847,21 @@ public class CellHTS2NodeModel extends NodeModel {
 	private DataColumnSpec[] computeTopTableSpec(
 			final DataTableSpec inputSpecs, final boolean replicateTable) {
 		final List<DataColumnSpec> ret = new ArrayList<DataColumnSpec>();
-		ret.add(new DataColumnSpecCreator("normalization method",
+		ret.add(new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN, StringCell.TYPE)
+				.createSpec());
+		ret.add(new DataColumnSpecCreator(ModelBuilder.NORMALISATION_METHOD_COLUMN,
+				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(ModelBuilder.NORMALISATION_KIND_COLUMN,
 				StringCell.TYPE).createSpec());
 		ret
-				.add(new DataColumnSpecCreator("normalization kind",
+				.add(new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN,
 						StringCell.TYPE).createSpec());
-		ret.add(new DataColumnSpecCreator("log transform", StringCell.TYPE)
-				.createSpec());
-		ret.add(new DataColumnSpecCreator("scoring method", StringCell.TYPE)
-				.createSpec());
+		ret.add(new DataColumnSpecCreator(ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
+				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(ModelBuilder.SCORING_METHOD_COLUMN,
+				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(ModelBuilder.SUMMARISE_METHOD_COLUMN,
+				StringCell.TYPE).createSpec());
 		final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
 				.parseString(
 						PreferenceConstants.PossibleStatistics.class,
@@ -2233,7 +2276,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		logTransformModel.saveSettingsTo(settings);
 		scaleModel.saveSettingsTo(settings);
 		scoreModel.saveSettingsTo(settings);
-		summarizeModel.saveSettingsTo(settings);
+		summariseModel.saveSettingsTo(settings);
 		outputDirModel.saveSettingsTo(settings);
 		scoreRange.saveSettingsTo(settings);
 		scoreResolutionModel.saveSettingsTo(settings);
@@ -2254,7 +2297,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		logTransformModel.loadSettingsFrom(settings);
 		scaleModel.loadSettingsFrom(settings);
 		scoreModel.loadSettingsFrom(settings);
-		summarizeModel.loadSettingsFrom(settings);
+		summariseModel.loadSettingsFrom(settings);
 		outputDirModel.loadSettingsFrom(settings);
 		scoreRange.loadSettingsFrom(settings);
 		scoreResolutionModel.loadSettingsFrom(settings);
@@ -2275,7 +2318,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		logTransformModel.validateSettings(settings);
 		scaleModel.validateSettings(settings);
 		scoreModel.validateSettings(settings);
-		summarizeModel.validateSettings(settings);
+		summariseModel.validateSettings(settings);
 		outputDirModel.validateSettings(settings);
 		scoreRange.validateSettings(settings);
 		scoreResolutionModel.validateSettings(settings);

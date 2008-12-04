@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 
@@ -153,6 +154,25 @@ public class HeatmapNodeModel extends NodeModel {
 		 */
 		public boolean isUseReplicates() {
 			return isUseReplicates;
+		}
+
+		/**
+		 * A mapping from some {@link StatTypes} &Rarr;
+		 * {@link PossibleStatistics}.
+		 */
+		public static final Map<StatTypes, PossibleStatistics> mapToPossStats;
+		static {
+			final EnumMap<StatTypes, PossibleStatistics> map = new EnumMap<StatTypes, PossibleStatistics>(
+					StatTypes.class);
+			map.put(StatTypes.score, PossibleStatistics.SCORE);
+			map.put(StatTypes.normalized, PossibleStatistics.NORMALISED);
+			map.put(StatTypes.median, PossibleStatistics.MEDIAN);
+			map.put(StatTypes.meanOrDiff, PossibleStatistics.MEAN_OR_DIFF);
+			map.put(StatTypes.raw, PossibleStatistics.RAW);
+			map.put(StatTypes.rawPerMedian,
+					PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
+
+			mapToPossStats = Collections.unmodifiableMap(map);
 		}
 	}
 

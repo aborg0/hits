@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.IntCell;
@@ -40,10 +41,17 @@ public class ModelBuilder implements Serializable {
 
 	private final DataTable table;
 
+	private final SpecAnalyser specAnalyser;
+
 	public ModelBuilder(final DataTable table) {
+		this(table, new SpecAnalyser(table.getDataTableSpec()));
+	}
+
+	public ModelBuilder(final DataTable table, final SpecAnalyser specAnalyser) {
 		super();
 		this.table = table;
-		generate();
+		this.specAnalyser = specAnalyser;
+		generate(specAnalyser);
 	}
 
 	/**
@@ -77,113 +85,320 @@ public class ModelBuilder implements Serializable {
 	/** The prefix for {@link PossibleStatistics#SCORE}. */
 	public static final String SCORE_START = createPrefix(PossibleStatistics.SCORE);
 
-	private Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates;
-	private Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores;
+	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>>();
+	private final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = new TreeMap<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>();
+	private final Map<String, Map<String, Map<Integer, Map<String, String[]>>>> texts = new TreeMap<String, Map<String, Map<Integer, Map<String, String[]>>>>();
 
-	private EnumSet<StatTypes> statistics;
+	public static final String REPLICATE_COLUMN = "Replicate";
 
-	private List<String> parameters;
+	public static final String PLATE_COLUMN = "Plate";
 
-	public Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> createReplicatesMap() {
-		return replicates;
+	public static final String EXPERIMENT_COLUMN = "Experiment";
+
+	public static final String NORMALISATION_METHOD_COLUMN = "Normalisation method";
+
+	public static final String LOG_TRANSFORM_COLUMN = "log transform";
+
+	public static final String NORMALISATION_KIND_COLUMN = "Normalisation kind";
+
+	public static final String VARIANCE_ADJUSTMENT_COLUMN = "Variance adjustment";
+
+	public static final String SCORING_METHOD_COLUMN = "Scoring method";
+
+	public static final String SUMMARISE_METHOD_COLUMN = "Summarise method";
+
+	private int minReplicate;
+
+	private int maxReplicate;
+
+	private int minPlate;
+
+	private int maxPlate;
+
+	public static class SpecAnalyser implements Serializable {
+		private static final long serialVersionUID = -8068918974431507830L;
+		private int plateIndex;
+		private int replicateIndex;
+		private int wellIndex;
+		private int experimentIndex;
+		private int normMethodIndex;
+		private int logTransformIndex;
+		private int normKindIndex;
+		private int varianceAdjustmentIndex;
+		private int scoreMethodIndex;
+		private int sumMethodIndex;
+		private final EnumSet<StatTypes> statistics;
+		private final List<String> parameters;
+		private boolean hasReplicate;
+		private boolean hasPlate;
+		private final EnumMap<StatTypes, Map<String, Integer>> indices;
+		private final Map<String, Integer> stringIndices;
+		private final Map<String, Integer> valueIndices;
+
+		public SpecAnalyser(final DataTableSpec tableSpec) {
+			super();
+			hasPlate = false;
+			hasReplicate = false;
+			parameters = new ArrayList<String>();
+			statistics = EnumSet.noneOf(StatTypes.class);
+			plateIndex = -1;
+			replicateIndex = -1;
+			wellIndex = -1;
+			experimentIndex = -1;
+			normMethodIndex = -1;
+			logTransformIndex = -1;
+			normKindIndex = -1;
+			varianceAdjustmentIndex = -1;
+			scoreMethodIndex = -1;
+			sumMethodIndex = -1;
+			indices = new EnumMap<StatTypes, Map<String, Integer>>(
+					StatTypes.class);
+			for (final StatTypes stat : StatTypes.values()) {
+				indices.put(stat, new TreeMap<String, Integer>());
+			}
+			stringIndices = new TreeMap<String, Integer>();
+			valueIndices = new TreeMap<String, Integer>();
+			int idx = -1;
+			for (final DataColumnSpec spec : tableSpec) {
+				++idx;
+				final String specName = spec.getName();
+				if (specName.startsWith(SCORE_START)) {
+					parameters.add(specName.substring(SCORE_START.length()));
+					statistics.add(StatTypes.score);
+					indices.get(StatTypes.score).put(
+							specName.substring(SCORE_START.length()),
+							Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.startsWith(RAW_START)) {
+					statistics.add(StatTypes.raw);
+					indices.get(StatTypes.raw).put(
+							specName.substring(RAW_START.length()),
+							Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.startsWith(MEDIAN_START)) {
+					statistics.add(StatTypes.median);
+					indices.get(StatTypes.median).put(
+							specName.substring(MEDIAN_START.length()),
+							Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.startsWith(NORMALISED_START)) {
+					statistics.add(StatTypes.normalized);
+					indices.get(StatTypes.normalized).put(
+							specName.substring(NORMALISED_START.length()),
+							Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.startsWith(MEAN_OR_DIFF_START)) {
+					statistics.add(StatTypes.meanOrDiff);
+					indices.get(StatTypes.meanOrDiff).put(
+							specName.substring(MEAN_OR_DIFF_START.length()),
+							Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.startsWith(RAW_PLATE_REPLICATE_MEDIAN_START)) {
+					statistics.add(StatTypes.rawPerMedian);
+					indices.get(StatTypes.rawPerMedian).put(
+							specName.substring(RAW_PLATE_REPLICATE_MEDIAN_START
+									.length()), Integer.valueOf(idx));
+					continue;
+				}
+				if (specName.equalsIgnoreCase(ModelBuilder.PLATE_COLUMN)) {
+					hasPlate = true;
+					plateIndex = Integer.valueOf(idx);
+					continue;
+				}
+				if (specName.equalsIgnoreCase(ModelBuilder.REPLICATE_COLUMN)) {
+					hasReplicate = true;
+					replicateIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase("well")) {
+					wellIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(ModelBuilder.EXPERIMENT_COLUMN)) {
+					experimentIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(NORMALISATION_METHOD_COLUMN)) {
+					normMethodIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(LOG_TRANSFORM_COLUMN)) {
+					logTransformIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(NORMALISATION_KIND_COLUMN)) {
+					normKindIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(VARIANCE_ADJUSTMENT_COLUMN)) {
+					varianceAdjustmentIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(SCORING_METHOD_COLUMN)) {
+					scoreMethodIndex = idx;
+					continue;
+				}
+				if (specName.equalsIgnoreCase(SUMMARISE_METHOD_COLUMN)) {
+					sumMethodIndex = idx;
+					continue;
+				}
+				if (spec.getType().isCompatible(StringValue.class)) {
+					stringIndices.put(specName, Integer.valueOf(idx));
+					continue;
+				}
+				if (spec.getType().isCompatible(DoubleValue.class)) {
+					valueIndices.put(specName, Integer.valueOf(idx));
+				}
+			}
+			if (!hasPlate) {
+				throw new IllegalStateException("No plate information found");
+			}
+		}
+
+		public List<String> getParameters() {
+			return Collections.unmodifiableList(parameters);
+		}
+
+		public EnumSet<StatTypes> getStatistics() {
+			return statistics;
+		}
+
+		/**
+		 * @return the plateIndex
+		 */
+		public int getPlateIndex() {
+			return plateIndex;
+		}
+
+		/**
+		 * @return the replicateIndex
+		 */
+		public int getReplicateIndex() {
+			return replicateIndex;
+		}
+
+		/**
+		 * @return the wellIndex
+		 */
+		public int getWellIndex() {
+			return wellIndex;
+		}
+
+		/**
+		 * @return the experimentIndex
+		 */
+		public int getExperimentIndex() {
+			return experimentIndex;
+		}
+
+		/**
+		 * @return the normMethodIndex
+		 */
+		public int getNormMethodIndex() {
+			return normMethodIndex;
+		}
+
+		/**
+		 * @return the logTransformIndex
+		 */
+		public int getLogTransformIndex() {
+			return logTransformIndex;
+		}
+
+		/**
+		 * @return the normKindIndex
+		 */
+		public int getNormKindIndex() {
+			return normKindIndex;
+		}
+
+		/**
+		 * @return the varianceAdjustmentIndex
+		 */
+		public int getVarianceAdjustmentIndex() {
+			return varianceAdjustmentIndex;
+		}
+
+		/**
+		 * @return the scoreMethodIndex
+		 */
+		public int getScoreMethodIndex() {
+			return scoreMethodIndex;
+		}
+
+		/**
+		 * @return the sumMethodIndex
+		 */
+		public int getSumMethodIndex() {
+			return sumMethodIndex;
+		}
+
+		/**
+		 * @return the hasReplicate
+		 */
+		public boolean isHasReplicate() {
+			return hasReplicate;
+		}
+
+		/**
+		 * @return the hasPlate
+		 */
+		public boolean isHasPlate() {
+			return hasPlate;
+		}
+
+		/**
+		 * @return the indices
+		 */
+		public EnumMap<StatTypes, Map<String, Integer>> getIndices() {
+			return indices;
+		}
+
+		/**
+		 * @return the stringIndices
+		 */
+		public Map<String, Integer> getStringIndices() {
+			return stringIndices;
+		}
+
+		/**
+		 * @return the valueIndices
+		 */
+		public Map<String, Integer> getValueIndices() {
+			return valueIndices;
+		}
 	}
 
-	private void generate() {
-		replicates = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>>();
-		boolean hasPlate = false;
-		boolean hasReplicate = false;
-		parameters = new ArrayList<String>();
-		statistics = EnumSet.noneOf(StatTypes.class);
-		int plateIndex = -1;
-		int replicateIndex = -1;
-		int wellIndex = -1;
-		int experimentIndex = -1;
-		final EnumMap<StatTypes, Map<String, Integer>> indices = new EnumMap<StatTypes, Map<String, Integer>>(
-				StatTypes.class);
-		for (final StatTypes stat : StatTypes.values()) {
-			indices.put(stat, new TreeMap<String, Integer>());
-		}
-		final Map<String, Integer> stringIndices = new TreeMap<String, Integer>();
-		final Map<String, Integer> valueIndices = new TreeMap<String, Integer>();
-		int idx = -1;
-		for (final DataColumnSpec spec : table.getDataTableSpec()) {
-			++idx;
-			if (spec.getName().startsWith(SCORE_START)) {
-				parameters.add(spec.getName().substring(SCORE_START.length()));
-				statistics.add(StatTypes.score);
-				indices.get(StatTypes.score).put(
-						spec.getName().substring(SCORE_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(RAW_START)) {
-				statistics.add(StatTypes.raw);
-				indices.get(StatTypes.raw).put(
-						spec.getName().substring(RAW_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(MEDIAN_START)) {
-				statistics.add(StatTypes.median);
-				indices.get(StatTypes.median).put(
-						spec.getName().substring(MEDIAN_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(NORMALISED_START)) {
-				statistics.add(StatTypes.normalized);
-				indices.get(StatTypes.normalized).put(
-						spec.getName().substring(NORMALISED_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(MEAN_OR_DIFF_START)) {
-				statistics.add(StatTypes.meanOrDiff);
-				indices.get(StatTypes.meanOrDiff).put(
-						spec.getName().substring(MEAN_OR_DIFF_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(RAW_PLATE_REPLICATE_MEDIAN_START)) {
-				statistics.add(StatTypes.rawPerMedian);
-				indices.get(StatTypes.rawPerMedian).put(
-						spec.getName().substring(
-								RAW_PLATE_REPLICATE_MEDIAN_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("plate")) {
-				hasPlate = true;
-				plateIndex = Integer.valueOf(idx);
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("replicate")) {
-				hasReplicate = true;
-				replicateIndex = idx;
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("well")) {
-				wellIndex = idx;
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("experiment")) {
-				experimentIndex = idx;
-				continue;
-			}
-			if (spec.getType().isCompatible(StringValue.class)) {
-				stringIndices.put(spec.getName(), Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getType().isCompatible(DoubleValue.class)) {
-				valueIndices.put(spec.getName(), Integer.valueOf(idx));
-			}
-		}
-		if (!hasPlate) {
-			throw new IllegalStateException("No plate information found");
-		}
-		int minReplicate = Integer.MAX_VALUE;
-		int maxReplicate = Integer.MIN_VALUE;
-		// final int minPlate = Integer.MAX_VALUE, maxPlate = Integer.MIN_VALUE;
+	private void generate(final SpecAnalyser specAnalyser) {
+		minReplicate = Integer.MAX_VALUE;
+		maxReplicate = Integer.MIN_VALUE;
+		final int experimentIndex = specAnalyser.getExperimentIndex();
+		final int normMethodIndex = specAnalyser.getNormMethodIndex();
+		final int logTransformIndex = specAnalyser.getLogTransformIndex();
+		final int normKindIndex = specAnalyser.getNormKindIndex();
+		final int varianceAdjustmentIndex = specAnalyser
+				.getVarianceAdjustmentIndex();
+		final int scoreMethodIndex = specAnalyser.getScoreMethodIndex();
+		final int sumMethodIndex = specAnalyser.getSumMethodIndex();
+		final int plateIndex = specAnalyser.getPlateIndex();
+		final int replicateIndex = specAnalyser.getReplicateIndex();
+		final int wellIndex = specAnalyser.getWellIndex();
+		final EnumMap<StatTypes, Map<String, Integer>> indices = specAnalyser
+				.getIndices();
+		final Map<String, Integer> stringIndices = specAnalyser
+				.getStringIndices();
+		final Map<String, Integer> valueIndices = specAnalyser
+				.getValueIndices();
+		final List<String> parameters = specAnalyser.getParameters();
+		final EnumSet<StatTypes> statistics = specAnalyser.getStatistics();
+		final boolean hasReplicate = specAnalyser.isHasReplicate();
+		minPlate = Integer.MAX_VALUE;
+		maxPlate = Integer.MIN_VALUE;
 		for (final DataRow dataRow : table) {
 			final String experiment = ((StringCell) dataRow
 					.getCell(experimentIndex)).getStringValue();
@@ -199,11 +414,21 @@ public class ModelBuilder implements Serializable {
 								experiment,
 								new TreeMap<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>());
 			}
+			if (!texts.containsKey(experiment)) {
+				texts
+						.put(
+								experiment,
+								new TreeMap<String, Map<Integer, Map<String, String[]>>>());
+			}
 			final Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> normMethodValues = replicates
 					.get(experiment);
 			final Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> scoreNormMethodValues = scores
 					.get(experiment);
-			final String normKey = getNormKey(dataRow /* TODO add norm indices */);
+			final Map<String, Map<Integer, Map<String, String[]>>> textsNormMethodValues = texts
+					.get(experiment);
+			final String normKey = getNormKey(dataRow, normMethodIndex,
+					logTransformIndex, normKindIndex, varianceAdjustmentIndex,
+					scoreMethodIndex, sumMethodIndex);
 			if (!normMethodValues.containsKey(normKey)) {
 				normMethodValues
 						.put(
@@ -216,9 +441,15 @@ public class ModelBuilder implements Serializable {
 								normKey,
 								new HashMap<Integer, Map<String, Map<StatTypes, double[]>>>());
 			}
+			if (!textsNormMethodValues.containsKey(normKey)) {
+				textsNormMethodValues.put(normKey,
+						new HashMap<Integer, Map<String, String[]>>());
+			}
 			final Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> replicateValues = normMethodValues
 					.get(normKey);
 			final Map<Integer, Map<String, Map<StatTypes, double[]>>> scoreValues = scoreNormMethodValues
+					.get(normKey);
+			final Map<Integer, Map<String, String[]>> textValues = textsNormMethodValues
 					.get(normKey);
 			final Integer plate = getInt(dataRow, plateIndex);
 			if (!replicateValues.containsKey(plate)) {
@@ -231,14 +462,13 @@ public class ModelBuilder implements Serializable {
 				scoreValues.put(plate,
 						new HashMap<String, Map<StatTypes, double[]>>());
 			}
-			// if (!texts.containsKey(plate)) {
-			// final HashMap<String, String[]> map = new HashMap<String,
-			// String[]>();
-			// texts.put(plate, map);
-			// for (final String colName : stringIndices.keySet()) {
-			// map.put(colName, new String[96]);
-			// }
-			// }
+			if (!textValues.containsKey(plate)) {
+				final HashMap<String, String[]> map = new HashMap<String, String[]>();
+				textValues.put(plate, map);
+				for (final String colName : stringIndices.keySet()) {
+					map.put(colName, new String[96]);
+				}
+			}
 			final int well = convertWellToPosition(((StringCell) dataRow
 					.getCell(wellIndex)).getStringValue());
 			// keyToPlateAndPosition.put(dataRow.getKey().getId(),
@@ -264,7 +494,7 @@ public class ModelBuilder implements Serializable {
 							.get(param);
 					for (final StatTypes stat : HeatmapNodeModel.replicateTypes) {
 						if (!enumMap.containsKey(stat)) {
-							enumMap.put(stat, new double[96]);
+							enumMap.put(stat, createPlateValues(96));
 						}
 						enumMap.get(stat)[well] = ((DoubleValue) dataRow
 								.getCell(indices.get(stat).get(param)
@@ -282,7 +512,7 @@ public class ModelBuilder implements Serializable {
 						map.put(param, new EnumMap<StatTypes, double[]>(
 								StatTypes.class));
 						for (final StatTypes type : HeatmapNodeModel.scoreTypes) {
-							map.get(param).put(type, new double[96]);
+							map.get(param).put(type, createPlateValues(96));
 						}
 					}
 					final Map<StatTypes, double[]> values = map.get(param);
@@ -306,10 +536,24 @@ public class ModelBuilder implements Serializable {
 		}
 	}
 
-	private static String getNormKey(final DataRow dataRow) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO implement!");
-		// return null;
+	public static double[] createPlateValues(final int count) {
+		final double[] ds = new double[count];
+		for (int i = ds.length; i-- > 0;) {
+			ds[i] = Double.NaN;
+		}
+		return ds;
+	}
+
+	public static String getNormKey(final DataRow dataRow,
+			final int normMethodIdx, final int logTransformIdx,
+			final int normKindIdx, final int varianceAdjustmentIdx,
+			final int scoreMethodIdx, final int summariseMethodIdx) {
+		return dataRow.getCell(normMethodIdx) + "_"
+				+ dataRow.getCell(logTransformIdx) + "_"
+				+ dataRow.getCell(normKindIdx) + "_"
+				+ dataRow.getCell(varianceAdjustmentIdx) + "_"
+				+ dataRow.getCell(scoreMethodIdx) + "_"
+				+ dataRow.getCell(summariseMethodIdx);
 	}
 
 	public static int convertWellToPosition(final String well) {
@@ -324,11 +568,66 @@ public class ModelBuilder implements Serializable {
 				.getIntValue());
 	}
 
-	public List<String> getParameters() {
-		return Collections.unmodifiableList(parameters);
+	/**
+	 * @return the table
+	 */
+	public DataTable getTable() {
+		return table;
 	}
 
-	public EnumSet<StatTypes> getStatistics() {
-		return statistics;
+	/**
+	 * @return the replicates
+	 */
+	public Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> getReplicates() {
+		return replicates;
+	}
+
+	/**
+	 * @return the scores
+	 */
+	public Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> getScores() {
+		return scores;
+	}
+
+	/**
+	 * @return the texts
+	 */
+	public Map<String, Map<String, Map<Integer, Map<String, String[]>>>> getTexts() {
+		return texts;
+	}
+
+	/**
+	 * @return the specAnalyser
+	 */
+	public SpecAnalyser getSpecAnalyser() {
+		return specAnalyser;
+	}
+
+	/**
+	 * @return the maxReplicate
+	 */
+	public int getMaxReplicate() {
+		return maxReplicate;
+	}
+
+	/**
+	 * @return the minPlate
+	 */
+	public int getMinPlate() {
+		return minPlate;
+	}
+
+	/**
+	 * @return the maxPlate
+	 */
+	public int getMaxPlate() {
+		return maxPlate;
+	}
+
+	/**
+	 * @return the minReplicate
+	 */
+	public int getMinReplicate() {
+		return minReplicate;
 	}
 }
