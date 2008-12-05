@@ -320,6 +320,8 @@ public class ControlPanel extends JPanel {
 			ParameterModel plateModel = null;
 			ParameterModel replicateModel = null;
 			ParameterModel stats = null;
+			ParameterModel experiments = null;
+			ParameterModel normalisation = null;
 			final Set<ParameterModel> knownStats = new HashSet<ParameterModel>();
 			for (final ParameterModel parameterModel : possibleParameters) {
 				typeValues.get(parameterModel.getType()).add(
@@ -345,6 +347,11 @@ public class ControlPanel extends JPanel {
 				case metaStatType:
 					stats = parameterModel;
 					break;
+				case experimentName:
+					experiments = parameterModel;
+					break;
+				case normalisation:
+					normalisation = parameterModel;
 				default:
 					break;
 				}
@@ -416,7 +423,7 @@ public class ControlPanel extends JPanel {
 				sliders.get(Type.Splitter).add(
 						replicateSlider = replicateSet.iterator().next());
 			}
-			Slider statSlider;
+			final Slider statSlider;
 			{
 				int i = 1;
 				final Map<Integer, Pair<ParameterModel, Object>> statMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
@@ -430,7 +437,42 @@ public class ControlPanel extends JPanel {
 				sliders.get(Type.Hidden).add(
 						statSlider = statSet.iterator().next());
 			}
+			final Slider experimentSlider;
+			{
+				int i = 1;
+				final Map<Integer, Pair<ParameterModel, Object>> experimentMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
+				for (final String experimentName : experiments
+						.getColumnValues()) {
+					experimentMapping.put(i++,
+							new Pair<ParameterModel, Object>(experiments,
+									experimentName));
+				}
+				final Set<Slider> experimentSet = factory.get(Type.Hidden,
+						Collections.singletonList(experiments),
+						experimentMapping);
+				assert !experimentSet.isEmpty();
+				sliders.get(Type.Hidden).add(
+						experimentSlider = experimentSet.iterator().next());
+			}
+			final Slider normaliseSlider;
+			{
+				int i = 1;
+				final Map<Integer, Pair<ParameterModel, Object>> normaliseMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
+				for (final String normalisationName : normalisation
+						.getColumnValues()) {
+					normaliseMapping.put(i++, new Pair<ParameterModel, Object>(
+							normalisation, normalisationName));
+				}
+				final Set<Slider> normalisationSet = factory.get(Type.Hidden,
+						Collections.singletonList(normalisation),
+						normaliseMapping);
+				assert !normalisationSet.isEmpty();
+				sliders.get(Type.Hidden).add(
+						normaliseSlider = normalisationSet.iterator().next());
+			}
 			final ArrayList<Slider> mainSliders = new ArrayList<Slider>();
+			mainSliders.add(experimentSlider);
+			mainSliders.add(normaliseSlider);
 			mainSliders.add(statSlider);
 			mainSliders.add(plateSlider);
 			mainSliders.add(replicateSlider);

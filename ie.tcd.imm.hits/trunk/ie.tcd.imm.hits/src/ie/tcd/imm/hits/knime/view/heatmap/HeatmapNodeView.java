@@ -343,8 +343,8 @@ public class HeatmapNodeView extends NodeView {
 		 *            The new {@link HeatmapNodeModel}.
 		 */
 		public void setModel(final HeatmapNodeModel nodeModel) {
-			volatileModel
-					.setKeyToPlateAndPosition(nodeModel.keyToPlateAndPosition);
+			volatileModel.setKeyToPlateAndPosition(nodeModel.getModelBuilder()
+					.getKeyToPlateAndPosition());
 			setModel(nodeModel, volatileModel);
 		}
 
@@ -566,7 +566,8 @@ public class HeatmapNodeView extends NodeView {
 			hilites = new boolean[plateCount][384];
 			final Set<DataCell> hilitKeys = nodeModel.getInHiLiteHandler(0)
 					.getHiLitKeys();
-			keyToPlateAndPosition = nodeModel.keyToPlateAndPosition;
+			keyToPlateAndPosition = nodeModel.getModelBuilder()
+					.getKeyToPlateAndPosition();
 			setHilites(hilitKeys);
 			selections = new boolean[plateCount][384];
 		}

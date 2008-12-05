@@ -3,6 +3,7 @@ package ie.tcd.imm.hits.knime.util;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.util.Pair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Map.Entry;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -43,6 +45,9 @@ public class ModelBuilder implements Serializable {
 	private final DataTable table;
 
 	private final SpecAnalyser specAnalyser;
+
+	/** key, plate, position [0-95] */
+	Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
 
 	public ModelBuilder(final DataTable table) {
 		this(table, new SpecAnalyser(table.getDataTableSpec()));
@@ -479,8 +484,8 @@ public class ModelBuilder implements Serializable {
 				textColumns.get(entry.getKey())[well] = ((StringValue) dataRow
 						.getCell(entry.getValue().intValue())).getStringValue();
 			}
-			// keyToPlateAndPosition.put(dataRow.getKey().getId(),
-			// new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
+			keyToPlateAndPosition.put(dataRow.getKey().getId(),
+					new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
 			if (hasReplicate) {
 				final Integer replicate = getInt(dataRow, replicateIndex);
 				minReplicate = Math.min(replicate.intValue(), minReplicate);
@@ -637,5 +642,9 @@ public class ModelBuilder implements Serializable {
 	 */
 	public int getMinReplicate() {
 		return minReplicate;
+	}
+
+	public Map<DataCell, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
+		return Collections.unmodifiableMap(keyToPlateAndPosition);
 	}
 }

@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +38,8 @@ public class InfoParser {
 	 *            The {@link HeatmapNodeModel}.
 	 * @return The formatted text.
 	 */
-	public static String parse(final String format, final int plate,
+	public static String parse(final String experiment,
+			final String normalisation, final String format, final int plate,
 			final int row, final int col, final HeatmapNodeModel model) {
 		final StringBuilder sb = new StringBuilder();
 		if (model == null || model.getTable() == null) {
@@ -64,13 +64,15 @@ public class InfoParser {
 					final StatTypes statTypes = StatTypes.valueOf(code);
 					final List<String> parameters = new ArrayList<String>();
 					if (statTypes.isUseReplicates()) {
-						final Map<Integer, Map<String, EnumMap<StatTypes, double[]>>> replicates = model.replicateValues
-								.get(Integer.valueOf(plate));
+						final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicates = model
+								.getModelBuilder().getReplicates().get(
+										experiment).get(normalisation).get(
+										Integer.valueOf(plate));
 						if (replicates != null) {
-							for (final Entry<Integer, Map<String, EnumMap<StatTypes, double[]>>> replEntry : replicates
+							for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> replEntry : replicates
 									.entrySet()) {
 								final Integer replicate = replEntry.getKey();
-								final Map<String, EnumMap<StatTypes, double[]>> paramMap = replEntry
+								final Map<String, Map<StatTypes, double[]>> paramMap = replEntry
 										.getValue();
 								if (paramMap != null) {
 									if (parameters.isEmpty()) {
@@ -92,7 +94,7 @@ public class InfoParser {
 									// TODO else
 									for (final String parameter : parameters) {
 
-										final EnumMap<StatTypes, double[]> stats = paramMap
+										final Map<StatTypes, double[]> stats = paramMap
 												.get(parameter);
 										if (stats != null) {
 											final double[] ds = stats
@@ -115,8 +117,9 @@ public class InfoParser {
 						}
 					} else// Does not depend on replicates
 					{
-						final Map<String, EnumMap<StatTypes, double[]>> map = model.scoreValues
-								.get(Integer.valueOf(plate));
+						final Map<String, Map<StatTypes, double[]>> map = model
+								.getModelBuilder().getScores().get(experiment)
+								.get(normalisation).get(Integer.valueOf(plate));
 						if (map != null) {
 							if (parameters.isEmpty()) {
 								parameters.addAll(map.keySet());
@@ -134,7 +137,7 @@ public class InfoParser {
 								sb.append("<tr><td></td>");
 							}
 							for (final String param : parameters) {
-								final EnumMap<StatTypes, double[]> stats = map
+								final Map<StatTypes, double[]> stats = map
 										.get(param);
 								if (stats != null) {
 									final double[] values = stats
@@ -159,8 +162,9 @@ public class InfoParser {
 					// No problem
 				}
 			}
-			final Map<String, String[]> map = model.texts.get(Integer
-					.valueOf(plate));
+			final Map<String, String[]> map = model.getModelBuilder()
+					.getTexts().get(experiment).get(normalisation).get(
+							Integer.valueOf(plate));
 			if (map != null) {
 				final String[] values = map.get(code);
 				if (values != null) {

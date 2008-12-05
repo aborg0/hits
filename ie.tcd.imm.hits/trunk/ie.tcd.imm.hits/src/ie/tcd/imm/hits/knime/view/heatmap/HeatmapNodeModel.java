@@ -1,34 +1,30 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DoubleValue;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -73,18 +69,6 @@ public class HeatmapNodeModel extends NodeModel {
 	/** These are the parameters which are present in the model. */
 	private final Collection<ParameterModel> possibleParameters = new HashSet<ParameterModel>();
 
-	private final List<String> parameters = new ArrayList<String>();
-
-	private final EnumSet<StatTypes> statistics = EnumSet
-			.noneOf(StatTypes.class);
-
-	/** key, plate, position [0-95] */
-	Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
-
-	private boolean hasPlate;
-
-	private boolean hasReplicate;
-
 	/**
 	 * This enum lists all supported statistic types. Any other has no special
 	 * handling.
@@ -105,7 +89,8 @@ public class HeatmapNodeModel extends NodeModel {
 		/** Ranking using the replicate value */
 		rankReplicates(true, true, true),
 		/** Ranking <em>not</em> using the replicate value */
-		rankNonReplicates(false, true, true),
+		rankNonReplicates(false, true, true), experimentName(false, false, true), normalisation(
+				false, false, true),
 		/** Any other numeric value from the table (non replicate specific) */
 		otherNumeric(false, false, false),
 		/** Any other enumerated value from the table (non replicate specific) */
@@ -176,19 +161,10 @@ public class HeatmapNodeModel extends NodeModel {
 		}
 	}
 
-	/** Plate, column, values */
-	final Map<Integer, Map<String, String[]>> texts = new TreeMap<Integer, Map<String, String[]>>();
-
-	/** Plate, parameter, statistics type, values */
-	final Map<Integer, Map<String, EnumMap<StatTypes, double[]>>> scoreValues = new TreeMap<Integer, Map<String, EnumMap<StatTypes, double[]>>>();
-
-	/** plate, replicate, parameter, values */
-	final Map<Integer, Map<Integer, Map<String, EnumMap<StatTypes, double[]>>>> replicateValues = new TreeMap<Integer, Map<Integer, Map<String, EnumMap<StatTypes, double[]>>>>();
-
 	/** This is the {@link HiliteManager} which updates the HiLites. */
 	private final DefaultHiLiteManager hiliteManager = new DefaultHiLiteManager();
 
-	private BufferedDataTable table;
+	private ModelBuilder modelBuilder;
 
 	/**
 	 * Constructor for the node model.
@@ -205,219 +181,34 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		keyToPlateAndPosition.clear();
-		table = inData[0];
-		hasPlate = false;
-		hasReplicate = false;
-		int plateIndex = -1;
-		int replicateIndex = -1;
-		int wellIndex = -1;
-		final EnumMap<StatTypes, Map<String, Integer>> indices = new EnumMap<StatTypes, Map<String, Integer>>(
-				StatTypes.class);
-		for (final StatTypes stat : StatTypes.values()) {
-			indices.put(stat, new TreeMap<String, Integer>());
-		}
-		final Map<String, Integer> stringIndices = new TreeMap<String, Integer>();
-		final Map<String, Integer> valueIndices = new TreeMap<String, Integer>();
-		int idx = -1;
-		for (final DataColumnSpec spec : table.getDataTableSpec()) {
-			++idx;
-			if (spec.getName().startsWith(SCORE_START)) {
-				parameters.add(spec.getName().substring(SCORE_START.length()));
-				statistics.add(StatTypes.score);
-				indices.get(StatTypes.score).put(
-						spec.getName().substring(SCORE_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(RAW_START)) {
-				statistics.add(StatTypes.raw);
-				indices.get(StatTypes.raw).put(
-						spec.getName().substring(RAW_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(MEDIAN_START)) {
-				statistics.add(StatTypes.median);
-				indices.get(StatTypes.median).put(
-						spec.getName().substring(MEDIAN_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(NORMALISED_START)) {
-				statistics.add(StatTypes.normalized);
-				indices.get(StatTypes.normalized).put(
-						spec.getName().substring(NORMALISED_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(MEAN_OR_DIFF_START)) {
-				statistics.add(StatTypes.meanOrDiff);
-				indices.get(StatTypes.meanOrDiff).put(
-						spec.getName().substring(MEAN_OR_DIFF_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().startsWith(RAW_PLATE_REPLICATE_MEDIAN_START)) {
-				statistics.add(StatTypes.rawPerMedian);
-				indices.get(StatTypes.rawPerMedian).put(
-						spec.getName().substring(
-								RAW_PLATE_REPLICATE_MEDIAN_START.length()),
-						Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("plate")) {
-				hasPlate = true;
-				plateIndex = Integer.valueOf(idx);
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("replicate")) {
-				hasReplicate = true;
-				replicateIndex = idx;
-				continue;
-			}
-			if (spec.getName().equalsIgnoreCase("well")) {
-				wellIndex = idx;
-				continue;
-			}
-			if (spec.getType().isCompatible(StringValue.class)) {
-				stringIndices.put(spec.getName(), Integer.valueOf(idx));
-				continue;
-			}
-			if (spec.getType().isCompatible(DoubleValue.class)) {
-				valueIndices.put(spec.getName(), Integer.valueOf(idx));
-			}
-		}
-		logger.debug("Statistics: " + statistics);
-		if (!hasPlate) {
-			throw new IllegalStateException("No plate information found");
-		}
-		int minReplicate = Integer.MAX_VALUE;
-		int maxReplicate = Integer.MIN_VALUE, minPlate = Integer.MAX_VALUE, maxPlate = Integer.MIN_VALUE;
-		for (final DataRow dataRow : table) {
-			final Integer plate = getInt(dataRow, plateIndex);
-			if (!replicateValues.containsKey(plate)) {
-				replicateValues
-						.put(
-								plate,
-								new HashMap<Integer, Map<String, EnumMap<StatTypes, double[]>>>());
-			}
-			if (!scoreValues.containsKey(plate)) {
-				scoreValues.put(plate,
-						new HashMap<String, EnumMap<StatTypes, double[]>>());
-			}
-			if (!texts.containsKey(plate)) {
-				final HashMap<String, String[]> map = new HashMap<String, String[]>();
-				texts.put(plate, map);
-				for (final String colName : stringIndices.keySet()) {
-					map.put(colName, new String[96]);
-				}
-			}
-			final int well = convertWellToPosition(((StringCell) dataRow
-					.getCell(wellIndex)).getStringValue());
-			keyToPlateAndPosition.put(dataRow.getKey().getId(),
-					new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
-			if (hasReplicate) {
-				final Integer replicate = getInt(dataRow, replicateIndex);
-				minReplicate = Math.min(replicate.intValue(), minReplicate);
-				maxReplicate = Math.max(replicate.intValue(), maxReplicate);
-				final Map<Integer, Map<String, EnumMap<StatTypes, double[]>>> outerMap = replicateValues
-						.get(plate);
-				if (!outerMap.containsKey(replicate)) {
-					outerMap
-							.put(
-									replicate,
-									new HashMap<String, EnumMap<StatTypes, double[]>>());
-				}
-				final Map<String, EnumMap<StatTypes, double[]>> paramMap = outerMap
-						.get(replicate);
-				for (final String param : parameters) {
-					if (!paramMap.containsKey(param)) {
-						paramMap.put(param, new EnumMap<StatTypes, double[]>(
-								StatTypes.class));
-					}
-					final EnumMap<StatTypes, double[]> enumMap = paramMap
-							.get(param);
-					for (final StatTypes stat : replicateTypes) {
-						if (!enumMap.containsKey(stat)) {
-							enumMap.put(stat, new double[96]);
-						}
-						enumMap.get(stat)[well] = ((DoubleValue) dataRow
-								.getCell(indices.get(stat).get(param)
-										.intValue())).getDoubleValue();
-					}
-				}
-			}
-			if (statistics.contains(StatTypes.score)
-					|| statistics.contains(StatTypes.meanOrDiff)
-					|| statistics.contains(StatTypes.median)) {
-				final Map<String, EnumMap<StatTypes, double[]>> map = scoreValues
-						.get(plate);
-				for (final String param : parameters) {
-					if (!map.containsKey(param)) {
-						map.put(param, new EnumMap<StatTypes, double[]>(
-								StatTypes.class));
-						for (final StatTypes type : scoreTypes) {
-							map.get(param).put(type, new double[96]);
-						}
-					}
-					final EnumMap<StatTypes, double[]> values = map.get(param);
-					for (final StatTypes type : new StatTypes[] {
-							StatTypes.score, StatTypes.median,
-							StatTypes.meanOrDiff }) {
-
-						final double[] vals = values.get(type);
-						if (false) {
-							vals[well] = param.equals("Cell Count") ? 0.0
-									: (param.equals("Nuc Displacement")) ? 1
-											: -1;
-						} else {
-							vals[well] = ((DoubleValue) dataRow.getCell(indices
-									.get(type).get(param).intValue()))
-									.getDoubleValue();
-						}
-					}
-				}
-			}
-			if (hasPlate) {
-				final int val = ((IntCell) dataRow.getCell(plateIndex))
-						.getIntValue();
-				minPlate = Math.min(val, minPlate);
-				maxPlate = Math.max(val, maxPlate);
-				for (final Entry<String, Integer> entry : stringIndices
-						.entrySet()) {
-					final DataCell cell = dataRow.getCell(entry.getValue()
-							.intValue());
-					texts.get(plate).get(entry.getKey())[well] = cell
-							.isMissing() ? "" : ((StringValue) cell)
-							.getStringValue().intern();
-				}
-			}
-		}
-		if (hasReplicate) {
+		modelBuilder = new ModelBuilder(inData[0]);
+		final SpecAnalyser sa = modelBuilder.getSpecAnalyser();
+		if (sa.isHasReplicate()) {
 			final ParameterModel replicates = new ParameterModel("replicate",
 					StatTypes.replicate, null, Collections
 							.singletonList("replicate"), Collections
 							.<String> emptyList());
-			for (int i = minReplicate; i <= maxReplicate; ++i) {
+			for (int i = modelBuilder.getMinReplicate(); i <= modelBuilder
+					.getMaxReplicate(); ++i) {
 				replicates.getColorLegend()
 						.put(Integer.valueOf(i), Color.BLACK);
 			}
 			possibleParameters.add(replicates);
 		}
-		if (hasPlate) {
+		if (sa.isHasPlate()) {
 			final ParameterModel plates = new ParameterModel("plate",
 					StatTypes.plate, null, Collections.singletonList("plate"),
 					Collections.<String> emptyList());
-			for (int i = minPlate; i <= maxPlate; ++i) {
+			for (int i = modelBuilder.getMinPlate(); i <= modelBuilder
+					.getMaxPlate(); ++i) {
 				plates.getColorLegend().put(Integer.valueOf(i), Color.BLACK);
 			}
 			possibleParameters.add(plates);
 		}
 		final ParameterModel params = new ParameterModel("parameters",
-				StatTypes.parameter, null, Collections.<String> emptyList(),
-				parameters);
-		for (final String parameter : parameters) {
+				StatTypes.parameter, null, Collections.<String> emptyList(), sa
+						.getParameters());
+		for (final String parameter : sa.getParameters()) {
 			params.getColorLegend().put(parameter, Color.BLACK);
 		}
 		possibleParameters.add(params);
@@ -442,9 +233,9 @@ public class HeatmapNodeModel extends NodeModel {
 				"raw/(median plate, replicate)", StatTypes.rawPerMedian, null,
 				Collections.singletonList("raw/(median plate, replicate)"),
 				Collections.<String> emptyList()));
-		final List<String> statsAsStrings = new ArrayList<String>(statistics
-				.size());
-		for (final StatTypes type : statistics) {
+		final List<String> statsAsStrings = new ArrayList<String>(sa
+				.getStatistics().size());
+		for (final StatTypes type : sa.getStatistics()) {
 			statsAsStrings.add(type.name());
 		}
 		final ParameterModel statsParamModel = new ParameterModel("statistics",
@@ -457,15 +248,41 @@ public class HeatmapNodeModel extends NodeModel {
 			}
 		}
 		possibleParameters.add(statsParamModel);
+		final Set<String> experiments = new TreeSet<String>(modelBuilder
+				.getReplicates().keySet());
+		experiments.addAll(modelBuilder.getScores().keySet());
+		possibleParameters.add(new ParameterModel("experiment",
+				StatTypes.experimentName, null, Collections
+						.singletonList(ModelBuilder.EXPERIMENT_COLUMN),
+				new ArrayList<String>(experiments)));
+		final Set<String> normalisations = new TreeSet<String>();
+		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> entry : modelBuilder
+				.getScores().entrySet()) {
+			normalisations.addAll(entry.getValue().keySet());
+		}
+		for (final Entry<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> entry : modelBuilder
+				.getReplicates().entrySet()) {
+			normalisations.addAll(entry.getValue().keySet());
+		}
+		possibleParameters.add(new ParameterModel("normalisation",
+				StatTypes.normalisation, null, Arrays.asList(new String[] {
+						ModelBuilder.NORMALISATION_METHOD_COLUMN,
+						ModelBuilder.LOG_TRANSFORM_COLUMN,
+						ModelBuilder.NORMALISATION_KIND_COLUMN,
+						ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
+						ModelBuilder.SCORING_METHOD_COLUMN,
+						ModelBuilder.SUMMARISE_METHOD_COLUMN }),
+				new ArrayList<String>(normalisations)));
 		setInHiLiteHandler(0, hiliteManager);
-		return new BufferedDataTable[] { table };
+		return new BufferedDataTable[] { (BufferedDataTable) modelBuilder
+				.getTable() };
 	}
 
 	/**
 	 * @return The actual table used.
 	 */
 	public BufferedDataTable getTable() {
-		return table;
+		return (BufferedDataTable) modelBuilder.getTable();
 	}
 
 	private Integer getInt(final DataRow dataRow, final int plateIndex) {
@@ -496,11 +313,13 @@ public class HeatmapNodeModel extends NodeModel {
 	protected void reset() {
 		// TODO Code executed on reset.
 		possibleParameters.clear();
-		parameters.clear();
-		statistics.clear();
-		hasPlate = hasReplicate = false;
+		modelBuilder = null;
 		// Models build during execute are cleared here.
 		// Also data handled in load/saveInternals will be erased here.
+	}
+
+	public ModelBuilder getModelBuilder() {
+		return modelBuilder;
 	}
 
 	/**
