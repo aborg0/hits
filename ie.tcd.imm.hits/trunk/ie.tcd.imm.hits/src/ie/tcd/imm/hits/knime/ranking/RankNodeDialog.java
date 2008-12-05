@@ -2,9 +2,12 @@ package ie.tcd.imm.hits.knime.ranking;
 
 import ie.tcd.imm.hits.knime.ranking.RankNodeModel.RankingGroups;
 import ie.tcd.imm.hits.knime.ranking.RankNodeModel.TieHandling;
+import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -14,6 +17,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelectio
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+import org.knime.core.node.defaultnodesettings.UpdatableComponent;
 
 /**
  * <code>NodeDialog</code> for the "Rank" Node. This node ranks the results
@@ -67,6 +71,10 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 						RankNodeModel.DEFAULT_STATISTICS), "Statistics: ",
 				possStats, true, 5);
 		addDialogComponent(statistics);
+		final DialogComponentStringListSelection parameters = new DialogComponentStringListSelection(
+				new SettingsModelStringArray(RankNodeModel.CFGKEY_PARAMETERS,
+						RankNodeModel.DEFAULT_PARAMETERS), "Parameters: ", "");
+		addDialogComponent(parameters);
 		// FIXME Here should go an editor for the regulations, in the meantime
 		// it is a simple String component.
 		// TODO connect to the possStats and statistics components
@@ -74,9 +82,35 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(RankNodeModel.CFGKEY_REGULATION,
 						RankNodeModel.DEFAULT_REGULATION), "Regulation: ");
 		addDialogComponent(regulation);
-		addDialogComponent(new DialogComponentStringSelection(
+		final DialogComponentStringSelection tieHandling = new DialogComponentStringSelection(
 				new SettingsModelString(RankNodeModel.CFGKEY_TIE,
 						RankNodeModel.DEFAULT_TIE), "Tie handling: ",
-				TieHandling.increase.name(), TieHandling.continuous.name()));
+				TieHandling.increase.name(), TieHandling.continuous.name());
+		addDialogComponent(tieHandling);
+		addDialogComponent(new UpdatableComponent() {
+			@Override
+			protected void updateComponent() {
+				super.updateComponent();
+				final SpecAnalyser specAnalyser = new SpecAnalyser(
+						getLastTableSpec(0));
+				final List<String> params = specAnalyser.getParameters();
+				parameters.replaceListItems(params, params.isEmpty() ? ""
+						: params.get(0));
+				final ArrayList<String> possStats = new ArrayList<String>(6);
+				final EnumSet<StatTypes> stats = specAnalyser.getStatistics();
+				for (final StatTypes statTypes : new StatTypes[] {
+						StatTypes.score, // StatTypes.normalized,
+						StatTypes.median, StatTypes.meanOrDiff, // StatTypes.raw,
+				// StatTypes.rawPerMedian //TODO Currently only non-replicates
+				// are supported
+				}) {
+					if (stats.contains(statTypes)) {
+						possStats.add(statTypes.name());
+					}
+				}
+				statistics.replaceListItems(possStats, possStats.isEmpty() ? ""
+						: possStats.get(0));
+			}
+		});
 	}
 }

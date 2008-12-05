@@ -7,12 +7,16 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -36,6 +40,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of Rank. This node ranks the results for
  * each parameter and for each normalisation methods with selectable neutral
@@ -47,6 +53,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class RankNodeModel extends NodeModel {
 
 	// the logger instance
@@ -158,8 +165,8 @@ public class RankNodeModel extends NodeModel {
 
 	private final SettingsModelString tieHandlingModel = new SettingsModelString(
 			CFGKEY_TIE, DEFAULT_TIE);
-	/** experiment, norm, plate, replicate, stat, rank */
-	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> ranks = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>();
+	/** experiment, parameter, norm, plate, replicate, stat, rank */
+	private final Map<String, Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>> ranks = new TreeMap<String, Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>>();
 
 	private static final Integer noReplicates = Integer.valueOf(-1);
 
@@ -201,30 +208,40 @@ public class RankNodeModel extends NodeModel {
 		final StatTypes[] statTypes = getStatTypes();
 		final String wellAnnotCol = wellAnnotationColumn.getStringValue();
 		final String[] parameters = parametersModel.getStringArrayValue();
+		final TieHandling tieHandling = TieHandling.valueOf(tieHandlingModel
+				.getStringValue());
 		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scoresEntry : modelBuilder
 				.getScores().entrySet()) {
 			final String experiment = scoresEntry.getKey();
 			ranks
 					.put(
 							experiment,
-							new TreeMap<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>());
-			final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map0 = ranks
+							new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>());
+			final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> map0 = ranks
 					.get(experiment);
-			for (final Entry<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> normEntry : scoresEntry
-					.getValue().entrySet()) {
-				final String normKey = normEntry.getKey();
+			for (final String parameter : parameters) {
 				map0
 						.put(
-								normKey,
-								new HashMap<Integer, Map<Integer, Map<StatTypes, double[]>>>());
-				final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> plateMap = map0
-						.get(normKey);
-				switch (grouping) {
-				case experiment:
-				case replicate: {
-					final Map<String, Map<StatTypes, double[]>> sampleValues = new TreeMap<String, Map<StatTypes, double[]>>();
-					final Map<String, Map<StatTypes, double[]>> otherValues = new TreeMap<String, Map<StatTypes, double[]>>();
-					for (final String parameter : parameters) {
+								parameter,
+								new TreeMap<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>());
+				final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map1 = map0
+						.get(parameter);
+				for (final Entry<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> normEntry : scoresEntry
+						.getValue().entrySet()) {
+					final String normKey = normEntry.getKey();
+					map1
+							.put(
+									normKey,
+									new HashMap<Integer, Map<Integer, Map<StatTypes, double[]>>>());
+					final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> plateMap = map1
+							.get(normKey);
+					switch (grouping) {
+					case experiment:
+					case replicate: {
+						// parameter, stat, value
+						final Map<String, Map<StatTypes, double[]>> sampleValues = new TreeMap<String, Map<StatTypes, double[]>>();
+						// parameter, stat, value
+						final Map<String, Map<StatTypes, double[]>> otherValues = new TreeMap<String, Map<StatTypes, double[]>>();
 						sampleValues.put(parameter,
 								new EnumMap<StatTypes, double[]>(
 										StatTypes.class));
@@ -235,25 +252,23 @@ public class RankNodeModel extends NodeModel {
 								.get(parameter));
 						fillEmpty(modelBuilder, statTypes, otherValues
 								.get(parameter));
-					}
-					for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
-							.getValue().entrySet()) {
-						final Integer plate = plateEntry.getKey();
-						final String[] wellTypes = modelBuilder.getTexts().get(
-								experiment).get(normKey).get(plate).get(
-								wellAnnotCol);
-						if (!plateMap.containsKey(plate)) {
-							plateMap
-									.put(
-											plate,
-											new HashMap<Integer, Map<StatTypes, double[]>>());
-							final Map<Integer, Map<StatTypes, double[]>> replicateMap = plateMap
-									.get(plate);
-							replicateMap.put(noReplicates,
-									new EnumMap<StatTypes, double[]>(
-											StatTypes.class));
-						}
-						for (final String parameter : parameters) {
+						for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
+								.getValue().entrySet()) {
+							final Integer plate = plateEntry.getKey();
+							final String[] wellTypes = modelBuilder.getTexts()
+									.get(experiment).get(normKey).get(plate)
+									.get(wellAnnotCol);
+							if (!plateMap.containsKey(plate)) {
+								plateMap
+										.put(
+												plate,
+												new HashMap<Integer, Map<StatTypes, double[]>>());
+								final Map<Integer, Map<StatTypes, double[]>> replicateMap = plateMap
+										.get(plate);
+								replicateMap.put(noReplicates,
+										new EnumMap<StatTypes, double[]>(
+												StatTypes.class));
+							}
 							final Map<StatTypes, double[]> sampleMap = sampleValues
 									.get(parameter);
 							final Map<StatTypes, double[]> otherMap = otherValues
@@ -272,18 +287,113 @@ public class RankNodeModel extends NodeModel {
 
 								}
 							}
+							final Map<StatTypes, double[]> rankStatMap = plateMap
+									.get(plate).get(noReplicates);
+							for (final StatTypes stat : statTypes) {
+								if (!rankStatMap.containsKey(stat)) {
+									rankStatMap
+											.put(
+													stat,
+													new double[96 * (modelBuilder
+															.getMaxPlate()
+															- modelBuilder
+																	.getMinPlate() + 1)]);
+								}
+								final double neutralValue = getNeutralValue(
+										regulationModel.getStringValue(), stat,
+										parameter);
+								final boolean upRegulation = getUpRegulation(
+										regulationModel.getStringValue(), stat,
+										parameter);
+								final double[] rank = rankStatMap.get(stat);
+								final double[] samples = sampleValues.get(
+										parameter).get(stat);
+								final double[] others = otherValues.get(
+										parameter).get(stat);
+								computeRanking(tieHandling, neutralValue,
+										upRegulation, rank, samples, others);
+							}
 						}
-						final Map<StatTypes, double[]> rankStatMap = plateMap
-								.get(plate).get(noReplicates);
+						break;
 					}
-					break;
-				}
-				case plate:
-				case plateAndReplicate:
-					break;
-				default:
-					throw new IllegalStateException("Unknown grouping: "
-							+ grouping);
+					case plate:
+					case plateAndReplicate:
+						// parameter, stat, plate, value
+						final Map<String, Map<StatTypes, Map<Integer, double[]>>> sampleValues = new TreeMap<String, Map<StatTypes, Map<Integer, double[]>>>();
+						// parameter, stat, plate, value
+						final Map<String, Map<StatTypes, Map<Integer, double[]>>> otherValues = new TreeMap<String, Map<StatTypes, Map<Integer, double[]>>>();
+						sampleValues.put(parameter,
+								new EnumMap<StatTypes, Map<Integer, double[]>>(
+										StatTypes.class));
+						otherValues.put(parameter,
+								new EnumMap<StatTypes, Map<Integer, double[]>>(
+										StatTypes.class));
+						fillEmptyEachPlate(modelBuilder, statTypes,
+								sampleValues.get(parameter));
+						fillEmptyEachPlate(modelBuilder, statTypes, otherValues
+								.get(parameter));
+						for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
+								.getValue().entrySet()) {
+							final Integer plate = plateEntry.getKey();
+							final String[] wellTypes = modelBuilder.getTexts()
+									.get(experiment).get(normKey).get(plate)
+									.get(wellAnnotCol);
+							if (!plateMap.containsKey(plate)) {
+								plateMap
+										.put(
+												plate,
+												new HashMap<Integer, Map<StatTypes, double[]>>());
+								final Map<Integer, Map<StatTypes, double[]>> replicateMap = plateMap
+										.get(plate);
+								replicateMap.put(noReplicates,
+										new EnumMap<StatTypes, double[]>(
+												StatTypes.class));
+							}
+							final Map<StatTypes, Map<Integer, double[]>> samplePlateMap = sampleValues
+									.get(parameter);
+							final Map<StatTypes, Map<Integer, double[]>> otherPlateMap = otherValues
+									.get(parameter);
+							final Map<StatTypes, double[]> statValues = plateEntry
+									.getValue().get(parameter);
+							for (final StatTypes stat : statTypes) {
+								final Map<Integer, double[]> sampleMap = samplePlateMap
+										.get(stat);
+								final Map<Integer, double[]> otherMap = otherPlateMap
+										.get(stat);
+								final double[] samples = sampleMap.get(plate);
+								final double[] others = otherMap.get(plate);
+								final double[] ds = statValues.get(stat);
+								for (int i = ds.length; i-- > 0;) {
+									((wellTypes[i].equalsIgnoreCase("sample")) ? samples
+											: others)[i] = ds[i];
+								}
+							}
+							final Map<StatTypes, double[]> rankStatMap = plateMap
+									.get(plate).get(noReplicates);
+							for (final StatTypes stat : statTypes) {
+								if (!rankStatMap.containsKey(stat)) {
+									rankStatMap.put(stat, new double[96]);
+								}
+								final double neutralValue = getNeutralValue(
+										regulationModel.getStringValue(), stat,
+										parameter);
+								final boolean upRegulation = getUpRegulation(
+										regulationModel.getStringValue(), stat,
+										parameter);
+								final double[] rank = rankStatMap.get(stat);
+								final double[] samples = sampleValues.get(
+										parameter).get(stat).get(plate);
+								final double[] others = otherValues.get(
+										parameter).get(stat).get(plate);
+								computeRanking(tieHandling, neutralValue,
+										upRegulation, rank, samples, others);
+							}
+						}
+						break;
+					default:
+						throw new IllegalStateException("Unknown grouping: "
+								+ grouping);
+					}
 				}
 			}
 		}
@@ -296,10 +406,15 @@ public class RankNodeModel extends NodeModel {
 				values.add(dataCell);
 			}
 			for (final StatTypes stat : getStatTypes()) {
-				values.add(new DoubleCell(getRank(origRow, experimentIdx,
-						normMethodIdx, logTransformIdx, normKindIdx,
-						varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx,
-						plateIdx, replicateIdx, wellIdx, stat)));
+				for (final String parameter : parameters) {
+
+					values.add(new DoubleCell(
+							getRank(origRow, experimentIdx, parameter,
+									normMethodIdx, logTransformIdx,
+									normKindIdx, varianceAdjustmentIdx,
+									scoreMethodIdx, sumMethodIdx, plateIdx,
+									replicateIdx, wellIdx, stat)));
+				}
 			}
 			final DataRow newRow = new DefaultRow(origRow.getKey(), values);
 			container.addRowToTable(newRow);
@@ -310,11 +425,80 @@ public class RankNodeModel extends NodeModel {
 		return new BufferedDataTable[] { out };
 	}
 
+	private void computeRanking(final TieHandling tieHandling,
+			final double neutralValue, final boolean upRegulation,
+			final double[] rank, final double[] samples, final double[] others) {
+		final double[] sampleCopy = Arrays.copyOf(samples, samples.length);
+		Arrays.sort(sampleCopy);
+		final double[] otherCopy = Arrays.copyOf(others, others.length);
+		Arrays.sort(otherCopy);
+		final int neutralPos = getPos(neutralValue, sampleCopy);
+		handleTies(tieHandling, sampleCopy);
+		int sampleCount = 0;
+		for (int i = sampleCopy.length; i-- > 0;) {
+			if (!Double.isNaN(sampleCopy[i])) {
+				sampleCount = i + 1;
+				break;
+			}
+		}
+		for (int i = samples.length; i-- > 0;) {
+			rank[i] = Double.isNaN(samples[i]) ? getRank(others[i], sampleCopy,
+					neutralPos, sampleCount, upRegulation) + .5 : getRank(
+					samples[i], sampleCopy, neutralPos, sampleCount,
+					upRegulation);
+		}
+	}
+
+	private void handleTies(final TieHandling tieHandling,
+			final double[] sampleCopy) {
+		if (tieHandling == TieHandling.continuous) {
+			double last = sampleCopy[0];
+			int cursor = 1;
+			for (int i = 1; i < sampleCopy.length
+					&& !Double.isNaN(sampleCopy[i]); ++i) {
+				if (sampleCopy[i] != last) {
+					sampleCopy[cursor++] = sampleCopy[i];
+				}
+				last = sampleCopy[i];
+			}
+			while (cursor < sampleCopy.length) {
+				sampleCopy[cursor++] = Double.NaN;
+			}
+		}
+	}
+
+	private double getRank(final double d, final double[] sampleCopy,
+			final int neutralPos, final int sampleCount,
+			final boolean upregulation) {
+		final int pos = getPos(d, sampleCopy);
+		return (upregulation ? 1 : -1)
+				* (pos >= neutralPos ? sampleCount - pos : -pos - 1);
+	}
+
+	private int getPos(final double value, final double[] values) {
+		final int binSearch = Arrays.binarySearch(values, value);
+		final int pos = binSearch < 0 ? -(binSearch + 1) : binSearch;
+		return pos;
+	}
+
+	private boolean getUpRegulation(final String regulationPattern,
+			final StatTypes stat, final String parameter) {
+		// TODO Auto-generated method stub
+		return regulationPattern.charAt(regulationPattern.length() - 1) != '-';
+	}
+
+	private static double getNeutralValue(final String regulationPattern,
+			final StatTypes stat, final String parameter) {
+		// TODO Auto-generated method stub
+		return Double.parseDouble(regulationPattern.substring(0,
+				regulationPattern.length() - 1));
+	}
+
 	private void fillEmpty(final ModelBuilder modelBuilder,
 			final StatTypes[] statTypes, final Map<StatTypes, double[]> map) {
 		for (final StatTypes stat : statTypes) {
-			final double[] ds = new double[96 * (modelBuilder.getMaxPlate() - modelBuilder
-					.getMinPlate())];
+			final double[] ds = new double[96 * (modelBuilder.getMaxPlate()
+					- modelBuilder.getMinPlate() + 1)];
 			for (int i = ds.length; i-- > 0;) {
 				ds[i] = Double.NaN;
 			}
@@ -322,47 +506,70 @@ public class RankNodeModel extends NodeModel {
 		}
 	}
 
+	private void fillEmptyEachPlate(final ModelBuilder modelBuilder,
+			final StatTypes[] statTypes,
+			final Map<StatTypes, Map<Integer, double[]>> map) {
+		for (final StatTypes stat : statTypes) {
+			final Map<Integer, double[]> subMap = new HashMap<Integer, double[]>();
+			for (int plate = modelBuilder.getMinPlate(); plate <= modelBuilder
+					.getMaxPlate(); ++plate) {
+				final double[] ds = new double[96];
+				for (int i = ds.length; i-- > 0;) {
+					ds[i] = Double.NaN;
+				}
+				subMap.put(Integer.valueOf(plate), ds);
+			}
+
+			map.put(stat, subMap);
+		}
+	}
+
 	private double getRank(final DataRow origRow, final int experimentIdx,
-			final int normMethodIdx, final int logTransformIdx,
-			final int normKindIdx, final int varianceAdjustmentIdx,
-			final int scoreMethodIdx, final int sumMethodIdx,
-			final int plateIdx, final int replicateIdx, final int wellIdx,
-			final StatTypes stat) {
+			final String parameter, final int normMethodIdx,
+			final int logTransformIdx, final int normKindIdx,
+			final int varianceAdjustmentIdx, final int scoreMethodIdx,
+			final int sumMethodIdx, final int plateIdx, final int replicateIdx,
+			final int wellIdx, final StatTypes stat) {
 		return getRank(((StringCell) origRow.getCell(experimentIdx))
-				.getStringValue(), ModelBuilder.getNormKey(origRow,
+				.getStringValue(), parameter, ModelBuilder.getNormKey(origRow,
 				normMethodIdx, logTransformIdx, normKindIdx,
-				varianceAdjustmentIdx, scoreMethodIdx, scoreMethodIdx),
+				varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx),
 				((IntCell) origRow.getCell(plateIdx)).getIntValue(),
 				replicateIdx >= 0 ? ((IntCell) origRow.getCell(replicateIdx))
 						.getIntValue() : -1, ModelBuilder
 						.convertWellToPosition(((StringCell) origRow
-								.getCell(normKindIdx)).getStringValue()), stat);
+								.getCell(wellIdx)).getStringValue()), stat);
 	}
 
-	private double getRank(final String experiment, final String normKey,
-			final int plate, final int replicate, final int well,
-			final StatTypes stat) {
-		final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map0 = ranks
+	private double getRank(final String experiment, final String parameter,
+			final String normKey, final int plate, final int replicate,
+			final int well, final StatTypes stat) {
+		final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> map0 = ranks
 				.get(experiment);
 		if (map0 == null) {
 			return 0.0;
 		}
-		final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> map1 = map0
-				.get(normKey);
+		final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map1 = map0
+				.get(parameter);
 		if (map1 == null) {
 			return 0.0;
 		}
-		final Map<Integer, Map<StatTypes, double[]>> map2 = map1.get(Integer
-				.valueOf(plate));
+		final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> map2 = map1
+				.get(normKey);
 		if (map2 == null) {
 			return 0.0;
 		}
-		final Map<StatTypes, double[]> map3 = map2.get(Integer
-				.valueOf(replicate));
+		final Map<Integer, Map<StatTypes, double[]>> map3 = map2.get(Integer
+				.valueOf(plate));
 		if (map3 == null) {
 			return 0.0;
 		}
-		final double[] ds = map3.get(stat);
+		final Map<StatTypes, double[]> map4 = map3.get(Integer
+				.valueOf(replicate));
+		if (map4 == null) {
+			return 0.0;
+		}
+		final double[] ds = map4.get(stat);
 		if (ds == null) {
 			return 0.0;
 		}
@@ -392,11 +599,17 @@ public class RankNodeModel extends NodeModel {
 
 	private DataColumnSpec[] createColSpecs(final DataTableSpec dataTableSpec) {
 		final StatTypes[] stats = getStatTypes();
-		final DataColumnSpec[] newCols = new DataColumnSpec[stats.length];
+		final String[] parameters = parametersModel.getStringArrayValue();
+		final DataColumnSpec[] newCols = new DataColumnSpec[stats.length
+				* parameters.length];
 		for (int i = stats.length; i-- > 0;) {
-			newCols[i] = new DataColumnSpecCreator(rankPrefix.getStringValue()
-					+ StatTypes.mapToPossStats.get(stats[i]).getDisplayText(),
-					DoubleCell.TYPE).createSpec();
+			for (int j = parameters.length; j-- > 0;) {
+				newCols[i * parameters.length + j] = new DataColumnSpecCreator(
+						rankPrefix.getStringValue()
+								+ StatTypes.mapToPossStats.get(stats[i])
+										.getDisplayText() + "_" + parameters[j],
+						DoubleCell.TYPE).createSpec();
+			}
 		}
 		final DataColumnSpec[] colSpecs = new DataColumnSpec[dataTableSpec
 				.getNumColumns()

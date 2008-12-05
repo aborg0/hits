@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -452,6 +453,8 @@ public class ModelBuilder implements Serializable {
 			final Map<Integer, Map<String, String[]>> textValues = textsNormMethodValues
 					.get(normKey);
 			final Integer plate = getInt(dataRow, plateIndex);
+			minPlate = Math.min(minPlate, plate.intValue());
+			maxPlate = Math.max(maxPlate, plate.intValue());
 			if (!replicateValues.containsKey(plate)) {
 				replicateValues
 						.put(
@@ -469,8 +472,13 @@ public class ModelBuilder implements Serializable {
 					map.put(colName, new String[96]);
 				}
 			}
+			final Map<String, String[]> textColumns = textValues.get(plate);
 			final int well = convertWellToPosition(((StringCell) dataRow
 					.getCell(wellIndex)).getStringValue());
+			for (final Entry<String, Integer> entry : stringIndices.entrySet()) {
+				textColumns.get(entry.getKey())[well] = ((StringValue) dataRow
+						.getCell(entry.getValue().intValue())).getStringValue();
+			}
 			// keyToPlateAndPosition.put(dataRow.getKey().getId(),
 			// new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
 			if (hasReplicate) {
