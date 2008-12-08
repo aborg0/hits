@@ -200,7 +200,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	static final String CFGKEY_SCORE = "ie.tcd.imm.hits.knime.cellhts2.score";
 	/** Possible values of the scoring methods */
 	static final String[] POSSIBLE_SCORE = new String[] { "none", "zscore",
-			"NPI" };
+			"NPI", "zscoreByPlate", "zscoreNonRobust", "zscoreNonRobustByPlate" };
 
 	/** Configuration key for summarisation strategy */
 	static final String CFGKEY_SUMMARISE = "ie.tcd.imm.hits.knime.cellhts2.summarize";

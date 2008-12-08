@@ -53,6 +53,78 @@ scoreReplicatesByzscore <- function(object){
 ## ======================================================================
 
 
+##=======================================================================
+scoreReplicatesByzscoreByPlate <- function(object){
+	xnorm <- Data(object)
+	objDim <- dim(xnorm)
+	wellCount <- prod(pdim(object))
+	plateCount <- objDim[1] / wellCount
+	replicateCount <- objDim[2]
+	channelCount <- objDim[3]
+	
+	for (plate in 1:plateCount){
+		idx <- (1:wellCount)+wellCount*(plate - 1)
+		samps <- (wellAnno(object)=="sample")
+#		xnorm[idx, , ] <- apply(xnorm[idx, , ], 2:3, function(v) (v-median(v[idx[samps]], na.rm=TRUE)/mad(v[idx[samps]], na.rm=TRUE)))
+		for (replicate in 1:replicateCount)
+			for (ch in 1:channelCount)
+				xnorm[idx, replicate, ch] <- ((xnorm[idx, replicate, ch]-median(xnorm[idx[samps], replicate, ch], na.rm=TRUE))/mad(xnorm[idx[samps], replicate, ch], na.rm=TRUE))
+	}
+	return(xnorm)
+}
+## ======================================================================
+
+
+##=======================================================================
+scoreReplicatesByzscoreNonRobust <- function(object){
+	xnorm <- Data(object)
+	samps <- (wellAnno(object)=="sample")
+	xnorm[] <- apply(xnorm, 2:3, function(v) (v-mean(v[samps], na.rm=TRUE))/sd(v[samps], na.rm=TRUE))
+	return(xnorm)
+}
+## ======================================================================
+
+#scoreReplicatesByPlateAbstract <- function(object){
+#	xnorm <- Data(object)
+#	objDim <- dim(xnorm)
+#	wellCount <- prod(pdim(object))
+#	plateCount <- objDim[1] / wellCount
+#	sampleCount <- objDim[2]
+#	channelCount <- objDim[3]
+#	
+#	for (plate in 1:plateCount){
+#		idx <- (1:wellCount)+wellCount*(plate - 1)
+#		samps <- (wellAnno(object)=="sample")[idx]
+#		#print(samps)
+#		#print(dim(xnorm[idx,,]))
+#		xnorm[idx, , ] <- apply(xnorm[idx, , ], 2:3, function(v) (v-mean(v[samples], na.rm=TRUE))/sd(v[samples], na.rm=TRUE))
+#	}
+#	return(xnorm)
+#}
+
+
+##=======================================================================
+scoreReplicatesByzscoreNonRobustByPlate <- function(object){
+	xnorm <- Data(object)
+	objDim <- dim(xnorm)
+	wellCount <- prod(pdim(object))
+	plateCount <- objDim[1] / wellCount
+	replicateCount <- objDim[2]
+	channelCount <- objDim[3]
+	
+	for (plate in 1:plateCount){
+		idx <- (1:wellCount)+wellCount*(plate - 1)
+		samps <- (wellAnno(object)=="sample")
+#		xnorm[idx] <- apply(xnorm[idx, , ], 2:3, function(v) (v-mean(v[samps])/sd[v[samps]]))
+		for (replicate in 1:replicateCount)
+			for (ch in 1:channelCount)
+				xnorm[idx, replicate, ch] <- ((xnorm[idx, replicate, ch]-mean(xnorm[idx[samps], replicate, ch], na.rm=TRUE))/sd(xnorm[idx[samps], replicate, ch], na.rm=TRUE))
+	}
+	return(xnorm)
+}
+## ======================================================================
+
+
 
 scoreReplicatesByNPI <- function(object, posControls, negControls){
   xnorm <- Data(object)
