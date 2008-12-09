@@ -169,6 +169,7 @@ public class RankNodeModel extends NodeModel {
 	private final Map<String, Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>> ranks = new TreeMap<String, Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>>>();
 
 	private static final Integer noReplicates = Integer.valueOf(-1);
+	private static final Integer noPlates = Integer.valueOf(-1);
 
 	/**
 	 * Constructor for the node model.
@@ -210,6 +211,7 @@ public class RankNodeModel extends NodeModel {
 		final String[] parameters = parametersModel.getStringArrayValue();
 		final TieHandling tieHandling = TieHandling.valueOf(tieHandlingModel
 				.getStringValue());
+		final int plateShift = modelBuilder.getMinPlate();
 		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scoresEntry : modelBuilder
 				.getScores().entrySet()) {
 			final String experiment = scoresEntry.getKey();
@@ -233,6 +235,7 @@ public class RankNodeModel extends NodeModel {
 							.put(
 									normKey,
 									new HashMap<Integer, Map<Integer, Map<StatTypes, double[]>>>());
+					// original values
 					final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> plateMap = map1
 							.get(normKey);
 					switch (grouping) {
@@ -258,13 +261,13 @@ public class RankNodeModel extends NodeModel {
 							final String[] wellTypes = modelBuilder.getTexts()
 									.get(experiment).get(normKey).get(plate)
 									.get(wellAnnotCol);
-							if (!plateMap.containsKey(plate)) {
+							if (!plateMap.containsKey(noPlates)) {
 								plateMap
 										.put(
-												plate,
+												noPlates,
 												new HashMap<Integer, Map<StatTypes, double[]>>());
 								final Map<Integer, Map<StatTypes, double[]>> replicateMap = plateMap
-										.get(plate);
+										.get(noPlates);
 								replicateMap.put(noReplicates,
 										new EnumMap<StatTypes, double[]>(
 												StatTypes.class));
@@ -282,13 +285,12 @@ public class RankNodeModel extends NodeModel {
 								for (int i = ds.length; i-- > 0;) {
 									((wellTypes[i].equalsIgnoreCase("sample")) ? samples
 											: others)[96
-											* (plate.intValue() - modelBuilder
-													.getMinPlate()) + i] = ds[i];
+											* (plate.intValue() - plateShift) + i] = ds[i];
 
 								}
 							}
 							final Map<StatTypes, double[]> rankStatMap = plateMap
-									.get(plate).get(noReplicates);
+									.get(noPlates).get(noReplicates);
 							for (final StatTypes stat : statTypes) {
 								if (!rankStatMap.containsKey(stat)) {
 									rankStatMap
@@ -296,23 +298,25 @@ public class RankNodeModel extends NodeModel {
 													stat,
 													new double[96 * (modelBuilder
 															.getMaxPlate()
-															- modelBuilder
-																	.getMinPlate() + 1)]);
+															- plateShift + 1)]);
 								}
-								final double neutralValue = getNeutralValue(
-										regulationModel.getStringValue(), stat,
-										parameter);
-								final boolean upRegulation = getUpRegulation(
-										regulationModel.getStringValue(), stat,
-										parameter);
-								final double[] rank = rankStatMap.get(stat);
-								final double[] samples = sampleValues.get(
-										parameter).get(stat);
-								final double[] others = otherValues.get(
-										parameter).get(stat);
-								computeRanking(tieHandling, neutralValue,
-										upRegulation, rank, samples, others);
 							}
+						}
+						for (StatTypes stat : statTypes) {
+							final double neutralValue = getNeutralValue(
+									regulationModel.getStringValue(), stat,
+									parameter);
+							final boolean upRegulation = getUpRegulation(
+									regulationModel.getStringValue(), stat,
+									parameter);
+							final double[] rank = plateMap.get(noPlates).get(
+									noReplicates).get(stat);
+							final double[] samples = sampleValues
+									.get(parameter).get(stat);
+							final double[] others = otherValues.get(parameter)
+									.get(stat);
+							computeRanking(tieHandling, neutralValue,
+									upRegulation, rank, samples, others);
 						}
 						break;
 					}
@@ -407,13 +411,11 @@ public class RankNodeModel extends NodeModel {
 			}
 			for (final StatTypes stat : getStatTypes()) {
 				for (final String parameter : parameters) {
-
-					values.add(new DoubleCell(
-							getRank(origRow, experimentIdx, parameter,
-									normMethodIdx, logTransformIdx,
-									normKindIdx, varianceAdjustmentIdx,
-									scoreMethodIdx, sumMethodIdx, plateIdx,
-									replicateIdx, wellIdx, stat)));
+					values.add(new DoubleCell(getRank(origRow, experimentIdx,
+							parameter, normMethodIdx, logTransformIdx,
+							normKindIdx, varianceAdjustmentIdx, scoreMethodIdx,
+							sumMethodIdx, plateIdx, replicateIdx, wellIdx,
+							stat, grouping, plateShift)));
 				}
 			}
 			final DataRow newRow = new DefaultRow(origRow.getKey(), values);
@@ -529,21 +531,23 @@ public class RankNodeModel extends NodeModel {
 			final int logTransformIdx, final int normKindIdx,
 			final int varianceAdjustmentIdx, final int scoreMethodIdx,
 			final int sumMethodIdx, final int plateIdx, final int replicateIdx,
-			final int wellIdx, final StatTypes stat) {
+			final int wellIdx, final StatTypes stat, RankingGroups grouping, int plateShift) {
+		int plate = ((IntCell) origRow.getCell(plateIdx)).getIntValue();
 		return getRank(((StringCell) origRow.getCell(experimentIdx))
 				.getStringValue(), parameter, ModelBuilder.getNormKey(origRow,
 				normMethodIdx, logTransformIdx, normKindIdx,
-				varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx),
-				((IntCell) origRow.getCell(plateIdx)).getIntValue(),
+				varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx), plate,
 				replicateIdx >= 0 ? ((IntCell) origRow.getCell(replicateIdx))
-						.getIntValue() : -1, ModelBuilder
+						.getIntValue() : noReplicates.intValue(), ModelBuilder
 						.convertWellToPosition(((StringCell) origRow
-								.getCell(wellIdx)).getStringValue()), stat);
+								.getCell(wellIdx)).getStringValue()), stat,
+				grouping, plateShift);
 	}
 
 	private double getRank(final String experiment, final String parameter,
 			final String normKey, final int plate, final int replicate,
-			final int well, final StatTypes stat) {
+			final int well, final StatTypes stat, RankingGroups grouping,
+			int plateShift) {
 		final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> map0 = ranks
 				.get(experiment);
 		if (map0 == null) {
@@ -559,8 +563,20 @@ public class RankNodeModel extends NodeModel {
 		if (map2 == null) {
 			return 0.0;
 		}
-		final Map<Integer, Map<StatTypes, double[]>> map3 = map2.get(Integer
-				.valueOf(plate));
+		Integer plateKey;
+		switch (grouping) {
+		case experiment:
+		case replicate:
+			plateKey = noPlates;
+			break;
+		case plate:
+		case plateAndReplicate:
+			plateKey = Integer.valueOf(plate);
+			break;
+		default:
+			throw new IllegalStateException("Unsupported grouping: " + grouping);
+		}
+		final Map<Integer, Map<StatTypes, double[]>> map3 = map2.get(plateKey);
 		if (map3 == null) {
 			return 0.0;
 		}
@@ -573,7 +589,21 @@ public class RankNodeModel extends NodeModel {
 		if (ds == null) {
 			return 0.0;
 		}
-		return ds[well];
+		int wellPos;
+		switch (grouping) {
+		case experiment:
+		case replicate:
+			wellPos = well + (plate - plateShift) * 96;
+			break;
+		case plate:
+		case plateAndReplicate:
+			wellPos = well;
+			break;
+		default:
+			throw new UnsupportedOperationException("Not supported: "
+					+ grouping);
+		}
+		return ds[wellPos];
 	}
 
 	/**
