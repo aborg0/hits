@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./heatmap.png" type="Visualizer">
+    <name>Heatmap</name>
+    
+    <shortDescription>
+        Shows the heatmap of the plates
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Shows the heatmap of the plates. It has many options to customize of the view.</intro>
+        
+        
+        <!--option name="short name of first option (like in the dialog)">description of first option</option>
+        <option name="short name of second option (like in the dialog)">description of second option</option-->
+    </fullDescription>
+    
+    <ports>
+        <dataIn index="0" name="Data">An output of CellHTS2 node.</dataIn>
+        <!-- possibly more ports here-->
+        <dataOut index="0" name="Data">The same as the input.</dataOut>
+        <!--modelIn index="0">Description of first model input port...</modelIn-->
+        <!--modelOut index="0">Description of first model output port...</modelOut-->
+    </ports>    
+    <views>
+        <view index="0" name="heatmap">Shows the heatmap in many ways.</view>
+        <!--view index="1" name="name of second view">Description of second view...</view-->
+    </views>
+</knimeNode>
