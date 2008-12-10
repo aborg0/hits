@@ -7,6 +7,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -22,21 +23,32 @@ import javax.swing.JTextArea;
 public class InfoControl extends JPanel {
 	private static final long serialVersionUID = -6252559407229787836L;
 
-	private static final String DEFAULT_PATTERN = "<html>Plate: <b>${plate}</b> Well: <b>${well}</b> Normalization: ${normalization method} - ${normalization kind}<table>${"
+	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b>"
+			+ " Normalisation: ${Normalisation method} - ${Normalisation kind}<table>\n"
+			+ "${"
 			+ StatTypes.score.name()
-			+ "}</table><table>${"
-			+ StatTypes.normalized.name() + "}</table></html>";
+			+ "}</table>\n<table>${"
+			+ StatTypes.normalized.name() + "}</table>\n</html>";
 
 	private final JButton updateButton = new JButton("update");
 	private final JTextArea text = new JTextArea(DEFAULT_PATTERN, 20, 100);
 
 	private ViewModel viewModel;
-	private final ActionListener actionListener = new ActionListener() {
+	private final LabelPatternUpdater actionListener = new LabelPatternUpdater();
+
+	private final class LabelPatternUpdater implements ActionListener,
+			Serializable {
+		private static final long serialVersionUID = -2841593296782424832L;
+
+		/**
+		 * Updates the {@link InfoControl#viewModel}'s label pattern.
+		 * {@inheritDoc}
+		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			viewModel.setLabelPattern(text.getText());
 		}
-	};
+	}
 
 	/**
 	 * Constructs an {@link InfoControl} object to be able to influence the

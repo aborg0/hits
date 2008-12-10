@@ -22,9 +22,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
-import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -43,28 +41,9 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeModel extends NodeModel {
-
-	private static final String RAW_PLATE_REPLICATE_MEDIAN_START = "raw/(plate, replicate mean)_";
-
-	private static final String MEAN_OR_DIFF_START = "mean or diff_";
-
-	private static final String NORMALISED_START = "normalized_";
-
-	private static final String MEDIAN_START = "median_";
-
-	private static final String RAW_START = "raw_";
-
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(HeatmapNodeModel.class);
-
-	private static final String SCORE_START = "score_";
-
-	public static final StatTypes[] scoreTypes = new StatTypes[] {
-			StatTypes.score, StatTypes.median, StatTypes.meanOrDiff };
-
-	public static final StatTypes[] replicateTypes = new StatTypes[] {
-			StatTypes.raw, StatTypes.rawPerMedian, StatTypes.normalized };
 
 	/** These are the parameters which are present in the model. */
 	private final Collection<ParameterModel> possibleParameters = new HashSet<ParameterModel>();
@@ -89,8 +68,11 @@ public class HeatmapNodeModel extends NodeModel {
 		/** Ranking using the replicate value */
 		rankReplicates(true, true, true),
 		/** Ranking <em>not</em> using the replicate value */
-		rankNonReplicates(false, true, true), experimentName(false, false, true), normalisation(
-				false, false, true),
+		rankNonReplicates(false, true, true),
+		/** The experiment name. */
+		experimentName(false, false, true),
+		/** The normalisation, scoring parameters. */
+		normalisation(false, false, true),
 		/** Any other numeric value from the table (non replicate specific) */
 		otherNumeric(false, false, false),
 		/** Any other enumerated value from the table (non replicate specific) */
@@ -146,6 +128,22 @@ public class HeatmapNodeModel extends NodeModel {
 		 * {@link PossibleStatistics}.
 		 */
 		public static final Map<StatTypes, PossibleStatistics> mapToPossStats;
+		/**
+		 * The {@link StatTypes} with {@link StatTypes#isUseReplicates()}
+		 * {@code false}.
+		 */
+		public static final List<StatTypes> scoreTypes = Collections
+				.unmodifiableList(Arrays.asList(new StatTypes[] {
+						StatTypes.score, StatTypes.median,
+						StatTypes.meanOrDiff, StatTypes.rankNonReplicates }));
+		/**
+		 * The {@link StatTypes} with {@link StatTypes#isUseReplicates()}
+		 * {@code true}.
+		 */
+		public static final List<StatTypes> replicateTypes = Collections
+				.unmodifiableList(Arrays.asList(new StatTypes[] {
+						StatTypes.raw, StatTypes.rawPerMedian,
+						StatTypes.normalized, StatTypes.rankReplicates }));
 		static {
 			final EnumMap<StatTypes, PossibleStatistics> map = new EnumMap<StatTypes, PossibleStatistics>(
 					StatTypes.class);
@@ -182,6 +180,7 @@ public class HeatmapNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		modelBuilder = new ModelBuilder(inData[0]);
+		exec.checkCanceled();
 		final SpecAnalyser sa = modelBuilder.getSpecAnalyser();
 		if (sa.isHasReplicate()) {
 			final ParameterModel replicates = new ParameterModel("replicate",
@@ -251,6 +250,7 @@ public class HeatmapNodeModel extends NodeModel {
 		final Set<String> experiments = new TreeSet<String>(modelBuilder
 				.getReplicates().keySet());
 		experiments.addAll(modelBuilder.getScores().keySet());
+		logger.debug(experiments);
 		possibleParameters.add(new ParameterModel("experiment",
 				StatTypes.experimentName, null, Collections
 						.singletonList(ModelBuilder.EXPERIMENT_COLUMN),
@@ -264,6 +264,7 @@ public class HeatmapNodeModel extends NodeModel {
 				.getReplicates().entrySet()) {
 			normalisations.addAll(entry.getValue().keySet());
 		}
+		logger.debug(normalisations);
 		possibleParameters.add(new ParameterModel("normalisation",
 				StatTypes.normalisation, null, Arrays.asList(new String[] {
 						ModelBuilder.NORMALISATION_METHOD_COLUMN,
@@ -283,19 +284,6 @@ public class HeatmapNodeModel extends NodeModel {
 	 */
 	public BufferedDataTable getTable() {
 		return (BufferedDataTable) modelBuilder.getTable();
-	}
-
-	private Integer getInt(final DataRow dataRow, final int plateIndex) {
-		return Integer.valueOf(((IntCell) dataRow.getCell(plateIndex))
-				.getIntValue());
-	}
-
-	@Deprecated
-	private int convertWellToPosition(final String well) {
-		return ((Character.toLowerCase(well.charAt(0)) - 'a')
-				* 12
-				+ Integer.parseInt(well.substring(well.length() - 2, well
-						.length())) - 1);
 	}
 
 	/**
@@ -318,6 +306,10 @@ public class HeatmapNodeModel extends NodeModel {
 		// Also data handled in load/saveInternals will be erased here.
 	}
 
+	/**
+	 * @return The {@link ModelBuilder} belonging to the current
+	 *         {@link #getTable() table}.
+	 */
 	public ModelBuilder getModelBuilder() {
 		return modelBuilder;
 	}
@@ -328,13 +320,11 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
 		// TODO: check if user settings are available, fit to the incoming
 		// table structure, and the incoming types are feasible for the node
 		// to execute. If the node can execute in its current state return
 		// the spec of its output data table(s) (if you can, otherwise an array
 		// with null elements), or throw an exception with a useful user message
-
 		return new DataTableSpec[] { inSpecs[0] };
 	}
 
@@ -343,9 +333,7 @@ public class HeatmapNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-
 		// TODO save user settings to the config object.
-
 	}
 
 	/**
@@ -367,12 +355,10 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
 		// TODO check if the settings could be applied to our model
 		// e.g. if the count is in a certain range (which is ensured by the
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
-
 	}
 
 	/**
@@ -382,14 +368,12 @@ public class HeatmapNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-
 		// TODO load internal data.
 		// Everything handed to output ports is loaded automatically (data
 		// returned by the execute method, models loaded in loadModelContent,
 		// and user settings set through loadSettingsFrom - is all taken care
 		// of). Load here only the other internals that need to be restored
 		// (e.g. data used by the views).
-
 	}
 
 	/**
@@ -399,14 +383,12 @@ public class HeatmapNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-
 		// TODO save internal models.
 		// Everything written to output ports is saved automatically (data
 		// returned by the execute method, models saved in the saveModelContent,
 		// and user settings saved through saveSettingsTo - is all taken care
 		// of). Save here only the other internals that need to be preserved
 		// (e.g. data used by the views).
-
 	}
 
 	@Override

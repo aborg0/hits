@@ -278,26 +278,29 @@ public class CellHTS2NodeModel extends NodeModel {
 			new DataColumnSpecCreator("Value", StringCell.TYPE).createSpec());
 
 	private static final DataTableSpec aggregateValuesSpec = new DataTableSpec(
-			new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE).createSpec(),
-			new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE).createSpec(),
-			new DataColumnSpecCreator(ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
+			new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN,
 					StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.SCORING_METHOD_COLUMN, StringCell.TYPE).createSpec(),
-			new DataColumnSpecCreator(ModelBuilder.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(ModelBuilder.PLATE_COLUMN,
+					ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.LOG_TRANSFORM_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.SCORING_METHOD_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
+					.createSpec(), new DataColumnSpecCreator(
+					ModelBuilder.PLATE_COLUMN, IntCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(ModelBuilder.REPLICATE_COLUMN,
 					IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.REPLICATE_COLUMN, IntCell.TYPE).createSpec(),
-			new DataColumnSpecCreator("Parameter", StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					"Replicate dynamic range", DoubleCell.TYPE).createSpec(),
-			new DataColumnSpecCreator("Average dynamic range", DoubleCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					"Repeatability standard deviation", DoubleCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
+					"Parameter", StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator("Replicate dynamic range",
+					DoubleCell.TYPE).createSpec(), new DataColumnSpecCreator(
+					"Average dynamic range", DoubleCell.TYPE).createSpec(),
+			new DataColumnSpecCreator("Repeatability standard deviation",
+					DoubleCell.TYPE).createSpec(), new DataColumnSpecCreator(
 					"Spearman rank correlation min", DoubleCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
 					"Spearman rank correlation max", DoubleCell.TYPE)
@@ -330,8 +333,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			 * "127.0.0.1", 1099, 10000
+			 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -1847,17 +1850,19 @@ public class CellHTS2NodeModel extends NodeModel {
 	private DataColumnSpec[] computeTopTableSpec(
 			final DataTableSpec inputSpecs, final boolean replicateTable) {
 		final List<DataColumnSpec> ret = new ArrayList<DataColumnSpec>();
-		ret.add(new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN, StringCell.TYPE)
+		ret.add(new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN,
+				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(
+				ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE)
 				.createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.NORMALISATION_METHOD_COLUMN,
+		ret.add(new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN,
 				StringCell.TYPE).createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.NORMALISATION_KIND_COLUMN,
-				StringCell.TYPE).createSpec());
-		ret
-				.add(new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN,
-						StringCell.TYPE).createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
-				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(
+				ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
+				.createSpec());
+		ret.add(new DataColumnSpecCreator(
+				ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
+				.createSpec());
 		ret.add(new DataColumnSpecCreator(ModelBuilder.SCORING_METHOD_COLUMN,
 				StringCell.TYPE).createSpec());
 		ret.add(new DataColumnSpecCreator(ModelBuilder.SUMMARISE_METHOD_COLUMN,

@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.util.ArrayList;
@@ -25,6 +26,11 @@ public class InfoParser {
 	 * Parses {@code format} and with the other parameters it creates a label
 	 * for the wells.
 	 * 
+	 * @param experiment
+	 *            The name of the selected experiment.
+	 * @param normalisation
+	 *            The normalisations/scorings done for the experiment. (See
+	 *            {@link ModelBuilder#getNormKey(org.knime.core.data.DataRow, int, int, int, int, int, int)})
 	 * @param format
 	 *            A formatting {@link String}. The special parts should start
 	 *            with {@code $}, HTML tags are accepted.

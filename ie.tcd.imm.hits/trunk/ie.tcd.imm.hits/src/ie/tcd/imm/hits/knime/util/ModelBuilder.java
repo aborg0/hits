@@ -1,12 +1,12 @@
 package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import org.knime.core.data.DataCell;
@@ -38,21 +39,35 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class ModelBuilder implements Serializable {
-	private static final long serialVersionUID = -5713668438238539234L;
-
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class, Nonnegative.class })
+public class ModelBuilder {
 	private final DataTable table;
 
 	private final SpecAnalyser specAnalyser;
 
 	/** key, plate, position [0-95] */
-	Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
+	private final Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
 
+	/**
+	 * Constructs a {@link ModelBuilder} with creating a {@link SpecAnalyser}
+	 * for that {@code table}.
+	 * 
+	 * @param table
+	 *            A {@link DataTable}.
+	 */
 	public ModelBuilder(final DataTable table) {
 		this(table, new SpecAnalyser(table.getDataTableSpec()));
 	}
 
+	/**
+	 * Constructs a {@link ModelBuilder} with a compatible {@code specAnalyser}
+	 * for that {@code table}.
+	 * 
+	 * @param table
+	 *            A {@link DataTable}.
+	 * @param specAnalyser
+	 *            A {@link SpecAnalyser} compatible with {@code table}.
+	 */
 	public ModelBuilder(final DataTable table, final SpecAnalyser specAnalyser) {
 		super();
 		this.table = table;
@@ -95,22 +110,31 @@ public class ModelBuilder implements Serializable {
 	private final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = new TreeMap<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, String[]>>>> texts = new TreeMap<String, Map<String, Map<Integer, Map<String, String[]>>>>();
 
+	/** The name of the replicate column. */
 	public static final String REPLICATE_COLUMN = "Replicate";
 
+	/** The name of the plate column. */
 	public static final String PLATE_COLUMN = "Plate";
 
+	/** The name of the experiment column. */
 	public static final String EXPERIMENT_COLUMN = "Experiment";
 
+	/** The name of the normalisation method column. */
 	public static final String NORMALISATION_METHOD_COLUMN = "Normalisation method";
 
+	/** The name of the log transform column. */
 	public static final String LOG_TRANSFORM_COLUMN = "log transform";
 
+	/** The name of the normalisation kind (additive/multiplicative) column. */
 	public static final String NORMALISATION_KIND_COLUMN = "Normalisation kind";
 
+	/** The name of the variance adjustment column. */
 	public static final String VARIANCE_ADJUSTMENT_COLUMN = "Variance adjustment";
 
+	/** The name of the scoring method column. */
 	public static final String SCORING_METHOD_COLUMN = "Scoring method";
 
+	/** The name of the summarise method column. */
 	public static final String SUMMARISE_METHOD_COLUMN = "Summarise method";
 
 	private int minReplicate;
@@ -121,6 +145,12 @@ public class ModelBuilder implements Serializable {
 
 	private int maxPlate;
 
+	/**
+	 * This class is to analyse the structure of the table only by the columns.
+	 * It will try to find the proper indices of the most important columns, and
+	 * the present {@link SpecAnalyser#getStatistics() statistics},
+	 * {@link SpecAnalyser#getParameters() parameters} (union of them).
+	 */
 	public static class SpecAnalyser implements Serializable {
 		private static final long serialVersionUID = -8068918974431507830L;
 		private int plateIndex;
@@ -141,6 +171,12 @@ public class ModelBuilder implements Serializable {
 		private final Map<String, Integer> stringIndices;
 		private final Map<String, Integer> valueIndices;
 
+		/**
+		 * Constructs a {@link SpecAnalyser} using {@code tableSpec}.
+		 * 
+		 * @param tableSpec
+		 *            A {@link DataTableSpec}.
+		 */
 		public SpecAnalyser(final DataTableSpec tableSpec) {
 			super();
 			hasPlate = false;
@@ -227,31 +263,24 @@ public class ModelBuilder implements Serializable {
 				}
 				if (specName.equalsIgnoreCase(ModelBuilder.EXPERIMENT_COLUMN)) {
 					experimentIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(NORMALISATION_METHOD_COLUMN)) {
 					normMethodIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(LOG_TRANSFORM_COLUMN)) {
 					logTransformIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(NORMALISATION_KIND_COLUMN)) {
 					normKindIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(VARIANCE_ADJUSTMENT_COLUMN)) {
 					varianceAdjustmentIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(SCORING_METHOD_COLUMN)) {
 					scoreMethodIndex = idx;
-					continue;
 				}
 				if (specName.equalsIgnoreCase(SUMMARISE_METHOD_COLUMN)) {
 					sumMethodIndex = idx;
-					continue;
 				}
 				if (spec.getType().isCompatible(StringValue.class)) {
 					stringIndices.put(specName, Integer.valueOf(idx));
@@ -266,10 +295,17 @@ public class ModelBuilder implements Serializable {
 			}
 		}
 
+		/**
+		 * @return The parameters (like Cell 1/Form factor, ...) present in the
+		 *         table.
+		 */
 		public List<String> getParameters() {
 			return Collections.unmodifiableList(parameters);
 		}
 
+		/**
+		 * @return The {@link StatTypes} present in the table.
+		 */
 		public EnumSet<StatTypes> getStatistics() {
 			return statistics;
 		}
@@ -398,8 +434,6 @@ public class ModelBuilder implements Serializable {
 				.getIndices();
 		final Map<String, Integer> stringIndices = specAnalyser
 				.getStringIndices();
-		final Map<String, Integer> valueIndices = specAnalyser
-				.getValueIndices();
 		final List<String> parameters = specAnalyser.getParameters();
 		final EnumSet<StatTypes> statistics = specAnalyser.getStatistics();
 		final boolean hasReplicate = specAnalyser.isHasReplicate();
@@ -505,7 +539,7 @@ public class ModelBuilder implements Serializable {
 					}
 					final Map<StatTypes, double[]> enumMap = paramMap
 							.get(param);
-					for (final StatTypes stat : HeatmapNodeModel.replicateTypes) {
+					for (final StatTypes stat : StatTypes.replicateTypes) {
 						if (!enumMap.containsKey(stat)) {
 							enumMap.put(stat, createPlateValues(96));
 						}
@@ -524,7 +558,7 @@ public class ModelBuilder implements Serializable {
 					if (!map.containsKey(param)) {
 						map.put(param, new EnumMap<StatTypes, double[]>(
 								StatTypes.class));
-						for (final StatTypes type : HeatmapNodeModel.scoreTypes) {
+						for (final StatTypes type : StatTypes.scoreTypes) {
 							map.get(param).put(type, createPlateValues(96));
 						}
 					}
@@ -549,14 +583,42 @@ public class ModelBuilder implements Serializable {
 		}
 	}
 
+	/**
+	 * Creates a {@code double} array with length {@code count} and fills with
+	 * {@link Double#NaN}.
+	 * 
+	 * @param count
+	 *            The length of the returned {@code double} array.
+	 * @return An array with {@link Double#NaN}s.
+	 */
 	public static double[] createPlateValues(final int count) {
 		final double[] ds = new double[count];
-		for (int i = ds.length; i-- > 0;) {
-			ds[i] = Double.NaN;
-		}
+		Arrays.fill(ds, Double.NaN);
 		return ds;
 	}
 
+	/**
+	 * Creates a {@link String} for the normalisation/scoring parameters.
+	 * 
+	 * @param dataRow
+	 *            A {@link DataRow}.
+	 * @param normMethodIdx
+	 *            A {@code 0} based index for normalisation method.
+	 * @param logTransformIdx
+	 *            A {@code 0} based index for log transform.
+	 * @param normKindIdx
+	 *            A {@code 0} based index for multiplicative/additive
+	 *            normalisation.
+	 * @param varianceAdjustmentIdx
+	 *            A {@code 0} based index for variance adjustment.
+	 * @param scoreMethodIdx
+	 *            A {@code 0} based index for scoring method.
+	 * @param summariseMethodIdx
+	 *            A {@code 0} based index for summarisation method of
+	 *            replicates.
+	 * @return A {@link String} created by the values from {@link DataRow}
+	 *         separated by {@code _}.
+	 */
 	public static String getNormKey(final DataRow dataRow,
 			final int normMethodIdx, final int logTransformIdx,
 			final int normKindIdx, final int varianceAdjustmentIdx,
@@ -569,6 +631,17 @@ public class ModelBuilder implements Serializable {
 				+ dataRow.getCell(summariseMethodIdx);
 	}
 
+	/**
+	 * Converts a {@code [a-hA-H](0)?[0-9]} like {@code well} value to a
+	 * {@code 96} plate position. The position is {@code 0}-based, and goes
+	 * from {@code A1} &Rarr; {@code A12} &Rarr; {@code B1}, ..., {@code H12}.
+	 * 
+	 * @param well
+	 *            A {@link String} matching the pattern:
+	 *            {@code [a-hA-H](0)?[0-9]}.
+	 * @return The {@code 0} based position on the 96 well plate. (Horizontal
+	 *         first, then vertical.)
+	 */
 	public static int convertWellToPosition(final String well) {
 		return ((Character.toLowerCase(well.charAt(0)) - 'a')
 				* 12
@@ -576,9 +649,23 @@ public class ModelBuilder implements Serializable {
 						.length())) - 1);
 	}
 
-	public static Integer getInt(final DataRow dataRow, final int plateIndex) {
-		return Integer.valueOf(((IntCell) dataRow.getCell(plateIndex))
-				.getIntValue());
+	/**
+	 * Selects the {@code index + 1}<sup>th</sup> cell value from
+	 * {@code dataRow}.
+	 * 
+	 * @param dataRow
+	 *            A {@link DataRow}.
+	 * @param index
+	 *            A {@code 0}-based index to select a cell in {@code dataRow}.
+	 * @return The value at {@code index} position in {@code dataRow}.
+	 * @throws ClassCastException
+	 *             if the cell is not an {@link IntCell}.
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the {@code index} is not valid.
+	 */
+	public static Integer getInt(final DataRow dataRow, final int index) {
+		return Integer
+				.valueOf(((IntCell) dataRow.getCell(index)).getIntValue());
 	}
 
 	/**
@@ -589,61 +676,97 @@ public class ModelBuilder implements Serializable {
 	}
 
 	/**
-	 * @return the replicates
+	 * @return the replicate dependent {@link StatTypes statistics} of
+	 *         {@link #getTable() table}, the dimensions are these:
+	 *         <ul>
+	 *         <li>experiment</li>
+	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>plate</li>
+	 *         <li>replicate</li>
+	 *         <li>parameter</li>
+	 *         <li>statistics type</li>
+	 *         <li>{@double double}s to for each position on plate. (May
+	 *         contain {@link Double#NaN} values)</li>
+	 *         </ul>
+	 * @see StatTypes#isUseReplicates() {@code true}.
 	 */
 	public Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> getReplicates() {
 		return replicates;
 	}
 
 	/**
-	 * @return the scores
+	 * @return the replicate independent {@link StatTypes statistics} of
+	 *         {@link #getTable() table}, the dimensions are these:
+	 *         <ul>
+	 *         <li>experiment</li>
+	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>plate</li>
+	 *         <li>parameter</li>
+	 *         <li>statistics type</li>
+	 *         <li>{@double double}s to for each position on plate. (May
+	 *         contain {@link Double#NaN} values)</li>
+	 *         </ul>
+	 * @see StatTypes#isUseReplicates() {@code false}.
 	 */
 	public Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> getScores() {
 		return scores;
 	}
 
 	/**
-	 * @return the texts
+	 * @return the texts of {@link #getTable() table}, the dimensions are
+	 *         these:
+	 *         <ul>
+	 *         <li>experiment</li>
+	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>plate</li>
+	 *         <li>column name</li>
+	 *         <li>{@link String}s to for each position on plate. (May contain
+	 *         {@code null} values)</li>
+	 *         </ul>
 	 */
 	public Map<String, Map<String, Map<Integer, Map<String, String[]>>>> getTexts() {
 		return texts;
 	}
 
 	/**
-	 * @return the specAnalyser
+	 * @return the {@link SpecAnalyser} associated to {@link #getTable() table}.
 	 */
 	public SpecAnalyser getSpecAnalyser() {
 		return specAnalyser;
 	}
 
 	/**
-	 * @return the maxReplicate
-	 */
-	public int getMaxReplicate() {
-		return maxReplicate;
-	}
-
-	/**
-	 * @return the minPlate
+	 * @return the smallest plate value
 	 */
 	public int getMinPlate() {
 		return minPlate;
 	}
 
 	/**
-	 * @return the maxPlate
+	 * @return the largest plate value
 	 */
 	public int getMaxPlate() {
 		return maxPlate;
 	}
 
 	/**
-	 * @return the minReplicate
+	 * @return the smallest replicate value
 	 */
 	public int getMinReplicate() {
 		return minReplicate;
 	}
 
+	/**
+	 * @return the largest replicate value
+	 */
+	public int getMaxReplicate() {
+		return maxReplicate;
+	}
+
+	/**
+	 * @return An unmodifiable {@link Map} from the row ids to a {@link Pair} of
+	 *         plate, position ({@code 0-95}) values.
+	 */
 	public Map<DataCell, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
 		return Collections.unmodifiableMap(keyToPlateAndPosition);
 	}
