@@ -23,7 +23,7 @@ import javax.swing.JTextArea;
 public class InfoControl extends JPanel {
 	private static final long serialVersionUID = -6252559407229787836L;
 
-	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b>"
+	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b> Gene: ${gene id} <b>${gene symbol}</b>"
 			+ " Normalisation: ${Normalisation method} - ${Normalisation kind}<table>\n"
 			+ "${"
 			+ StatTypes.score.name()
