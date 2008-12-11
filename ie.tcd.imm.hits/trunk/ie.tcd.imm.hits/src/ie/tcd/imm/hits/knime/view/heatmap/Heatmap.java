@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.util.VisualUtils;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
@@ -157,9 +158,6 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		}
 		final String experiment;
 		final String normalisation;
-		final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicateMap = nodeModel
-				.getModelBuilder().getReplicates().get(experimentPos[0]).get(
-						normalisationPos[0]).get(platePos[0]);
 		final LinkedHashMap<ParameterModel, Collection<Slider>> mainArrangement = viewModel
 				.getMain().getArrangementModel().getMainArrangement();
 		final Slider aPlateSlider = ArrangementModel.selectNth(mainArrangement,
@@ -259,6 +257,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				currentReplicates.add((Integer) m.getRight());
 			}
 			if (selected.isUseReplicates()) {
+				final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicateMap = nodeModel
+						.getModelBuilder().getReplicates()
+						.get(experimentPos[0]).get(normalisationPos[0]).get(
+								platePos[0]);
 				int replicateValue = 0;
 				for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> replicateEntry : replicateMap
 						.entrySet()) {
@@ -272,7 +274,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 							.entrySet()) {
 						if (currentParameters.contains(entry.getKey())) {
 							for (int i = entry.getValue().get(selected).length; i-- > 0;) {
-								final Color colorI = colorOf(
+								final Color colorI = VisualUtils.colourOf(
 								/*
 								 * paramMap.get( "Nuc Displacement")
 								 */entry.getValue().get(selected)[i],
@@ -313,9 +315,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 										normalisationPos[0]).get(platePosition)
 								.get(paramName).get(selected);
 						for (int i = values.length; i-- > 0;) {
-							final Color colorI = colorOf(values[i],
-									Color.GREEN, Color.YELLOW, Color.RED, -2,
-									0, 2);
+							final Color colorI = VisualUtils.colourOf(
+									values[i], Color.GREEN, Color.YELLOW,
+									Color.RED, -2, 0, 2);
 							for (int replicate = replicateCount; replicate-- > 0;) {
 								switch (viewModel.getFormat()) {
 								case _96:
@@ -339,8 +341,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 									Integer.valueOf(platePosition)).get(
 									selectedParameter).get(selected);
 					for (int i = values.length; i-- > 0;) {
-						final Color colorI = colorOf(values[i], Color.GREEN,
-								Color.YELLOW, Color.RED, -2, 0, 2);
+						final Color colorI = VisualUtils.colourOf(values[i],
+								Color.GREEN, Color.YELLOW, Color.RED, -2, 0, 2);
 						for (int replicate = replicateCount; replicate-- > 0;) {
 							for (int param = paramCount; param-- > 0;) {
 								switch (viewModel.getFormat()) {
@@ -384,41 +386,6 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	private int computeContributedValuesCount(final Collection<Slider> value) {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	private Color colorOf(final double d, final Color blue, final Color black,
-			final Color red, final double low, final double mid,
-			final double high) {
-		if (d < low) {
-			return blue;
-		}
-		if (d > high) {
-			return red;
-		}
-		if (black == null) {
-			return new Color((float) (blue.getRed() / 256.0f + (d - low)
-					/ (high - low) * (blue.getRed() - red.getRed()) / 256.0f),
-					(float) (blue.getGreen() / 256.0f + (d - low)
-							/ (high - low) * (blue.getGreen() - red.getGreen())
-							/ 256.0f),
-					(float) (blue.getBlue() / 256.0f + (d - low) / (high - low)
-							* (blue.getBlue() - red.getBlue()) / 256.0f));
-		}
-		if (d < mid) {
-			return new Color((float) (black.getRed() / 256.0f + (mid - d)
-					/ (mid - low) * (blue.getRed() - black.getRed()) / 256.0f),
-					(float) (black.getGreen() / 256.0f + (mid - d)
-							/ (mid - low)
-							* (blue.getGreen() - black.getGreen()) / 256.0f),
-					(float) (black.getBlue() / 256.0f + (mid - d) / (mid - low)
-							* (blue.getBlue() - black.getBlue()) / 256.0f));
-		}
-		return new Color((float) (black.getRed() / 256.0f + (d - mid)
-				/ (high - mid) * (red.getRed() - black.getRed()) / 256.0f),
-				(float) (black.getGreen() / 256.0f + (d - mid) / (high - mid)
-						* (red.getGreen() - black.getGreen()) / 256.0f),
-				(float) (black.getBlue() / 256.0f + (d - mid) / (high - mid)
-						* (red.getBlue() - black.getBlue()) / 256.0f));
 	}
 
 	/**
