@@ -540,6 +540,9 @@ public class ModelBuilder {
 					final Map<StatTypes, double[]> enumMap = paramMap
 							.get(param);
 					for (final StatTypes stat : StatTypes.replicateTypes) {
+						if (!statistics.contains(stat)) {
+							continue;
+						}
 						if (!enumMap.containsKey(stat)) {
 							enumMap.put(stat, createPlateValues(96));
 						}
@@ -563,10 +566,10 @@ public class ModelBuilder {
 						}
 					}
 					final Map<StatTypes, double[]> values = map.get(param);
-					for (final StatTypes type : new StatTypes[] {
-							StatTypes.score, StatTypes.median,
-							StatTypes.meanOrDiff }) {
-
+					for (final StatTypes type : StatTypes.scoreTypes) {
+						if (!statistics.contains(type)) {
+							continue;
+						}
 						final double[] vals = values.get(type);
 						if (false) {
 							vals[well] = param.equals("Cell Count") ? 0.0
