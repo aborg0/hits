@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
@@ -94,6 +95,9 @@ public class HeatmapNodeView extends NodeView {
 	private final JCheckBoxMenuItem showTooltipsLegend;
 	private final JCheckBoxMenuItem testingForSelected;
 	private final HeatmapPanel heatmapPanel;
+	private final ColourSelector colourSelector = new ColourSelector(
+			Collections.<String> emptyList(), Collections
+					.<StatTypes> emptyList());
 
 	/**
 	 * This {@link HiLiteListener} updates the {@link HeatmapPanel} on changes
@@ -406,9 +410,9 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -417,20 +421,20 @@ public class HeatmapNodeView extends NodeView {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
+					 * Collections .<ParameterModel>
+					 * emptyList()
+					 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
+					 * Collections.<ParameterModel>
+					 * emptyList()
+					 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -491,6 +495,8 @@ public class HeatmapNodeView extends NodeView {
 
 		/** The actual {@link ArrangementModel} */
 		private ArrangementModel arrangementModel;
+
+		private ColourModel colourModel;
 
 		/**
 		 * This {@link Map} tells that which {@link DataCell} represents which
@@ -761,6 +767,14 @@ public class HeatmapNodeView extends NodeView {
 				hilites[pair.getLeft().intValue() - 1][pair.getRight()] = true;
 			}
 		}
+
+		public ColourModel getColourModel() {
+			return colourModel;
+		}
+
+		public void setColourModel(final ColourModel colourModel) {
+			this.colourModel = colourModel;
+		}
 	}
 
 	private final VolatileModel volatileModel = new VolatileModel();
@@ -879,6 +893,7 @@ public class HeatmapNodeView extends NodeView {
 		showColorsLegend.addActionListener(legendPanel2);
 		showTooltipsLegend.addActionListener(legendPanel2);
 		bottomTabs.add("Legend", legendPanel2);
+		bottomTabs.add("Colours", new JScrollPane(colourSelector));
 		setComponent(mainSplit);
 		nodeModel.getInHiLiteHandler(0).addHiLiteListener(
 				heatmapPanel.getHiLiteListener());
@@ -889,6 +904,8 @@ public class HeatmapNodeView extends NodeView {
 		unHiliteSelected.addActionListener(volatileModel);
 		unHiliteAll.addActionListener(heatmapPanel);
 		unHiliteAll.addActionListener(volatileModel);
+		colourSelector.getModel().addActionListener(heatmapPanel);
+		volatileModel.setColourModel(colourSelector.getModel());
 		volatileModel.addActionListener(legendPanel);
 		volatileModel.addActionListener(legendPanel2);
 		setCurrentViewModel(currentViewModel);
@@ -922,6 +939,9 @@ public class HeatmapNodeView extends NodeView {
 		}
 		controlPanel.setModel(nodeModel);
 		heatmapPanel.setModel(nodeModel);
+		colourSelector.update(nodeModel.getModelBuilder().getSpecAnalyser()
+				.getParameters(), nodeModel.getModelBuilder().getSpecAnalyser()
+				.getStatistics());
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
 	}

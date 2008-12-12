@@ -4,6 +4,8 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.util.VisualUtils;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
@@ -256,6 +258,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					.getValueMapping().values()) {
 				currentReplicates.add((Integer) m.getRight());
 			}
+			final ColourModel colourModel = volatileModel.getColourModel();
 			if (selected.isUseReplicates()) {
 				final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicateMap = nodeModel
 						.getModelBuilder().getReplicates()
@@ -272,14 +275,27 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					int param = 0;
 					for (final Map.Entry<String, Map<StatTypes, double[]>> entry : paramMap
 							.entrySet()) {
-						if (currentParameters.contains(entry.getKey())) {
+						final String parameter = entry.getKey();
+						if (currentParameters.contains(parameter)) {
+							Model model = null;
+							if (colourModel != null) {
+								model = colourModel.getModel(parameter,
+										selected);
+							}
+							if (model == null) {
+								model = ColourSelector.DEFAULT_MODEL;
+							}
 							for (int i = entry.getValue().get(selected).length; i-- > 0;) {
-								final Color colorI = VisualUtils.colourOf(
-								/*
-								 * paramMap.get( "Nuc Displacement")
-								 */entry.getValue().get(selected)[i],
-										Color.GREEN, Color.YELLOW, Color.RED,
-										-2, 0, 2);
+								final Color colorI = VisualUtils.colourOf(entry
+										.getValue().get(selected)[i], model
+										.getDown(),
+										model.getMiddleVal() == null ? null
+												: model.getMiddle(), model
+												.getUp(), model.getDownVal(),
+										model.getMiddleVal() == null ? 0.0
+												: model.getMiddleVal()
+														.doubleValue(), model
+												.getUpVal());
 								switch (viewModel.getFormat()) {
 								case _96:
 									colors[i][replicateValue * paramCount
@@ -308,6 +324,13 @@ public class Heatmap extends JComponent implements HiLiteListener {
 						// final int param = entry.getKey().intValue() - 1;
 						final String paramName = (String) entry.getValue()
 								.getRight();
+						Model model = null;
+						if (colourModel != null) {
+							model = colourModel.getModel(paramName, selected);
+						}
+						if (model == null) {
+							model = ColourSelector.DEFAULT_MODEL;
+						}
 						// TODO handle selected == null.
 						// TODO handle plateposition == null
 						final double[] values = nodeModel.getModelBuilder()
@@ -316,8 +339,16 @@ public class Heatmap extends JComponent implements HiLiteListener {
 								.get(paramName).get(selected);
 						for (int i = values.length; i-- > 0;) {
 							final Color colorI = VisualUtils.colourOf(
-									values[i], Color.GREEN, Color.YELLOW,
-									Color.RED, -2, 0, 2);
+									values[i], model.getDown(), model
+											.getMiddleVal() == null ? null
+											: model.getMiddle(), model.getUp(),
+									model.getDownVal(),
+									model.getMiddleVal() == null ? 0.0 : model
+											.getMiddleVal().doubleValue(),
+									model.getUpVal());
+							// final Color colorI = VisualUtils.colourOf(
+							// values[i], Color.GREEN, Color.YELLOW,
+							// Color.RED, -2, 0, 2);
 							for (int replicate = replicateCount; replicate-- > 0;) {
 								switch (viewModel.getFormat()) {
 								case _96:
