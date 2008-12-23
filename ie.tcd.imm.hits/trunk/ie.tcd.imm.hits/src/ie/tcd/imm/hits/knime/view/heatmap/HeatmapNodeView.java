@@ -61,6 +61,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;
@@ -124,11 +125,11 @@ public class HeatmapNodeView extends NodeView {
 			 * {@inheritDoc}
 			 */
 			@Override
-			public void unHiLiteAll() {
+			public void unHiLiteAll(KeyEvent event) {
 				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
 						.values()) {
 					for (final Heatmap heatmap : map.values()) {
-						heatmap.unHiLiteAll();
+						heatmap.unHiLiteAll(event);
 					}
 				}
 			}
@@ -503,7 +504,7 @@ public class HeatmapNodeView extends NodeView {
 		 * row's ids (rowId &Rarr; (plate, position)). The plate and position
 		 * values are {@code 0}-based.
 		 */
-		private Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition;
+		private Map<String, Pair<Integer, Integer>> keyToPlateAndPosition;
 
 		/** The {@link HiLiteHandler} used. */
 		private HiLiteHandler hiliteHandler;
@@ -524,7 +525,7 @@ public class HeatmapNodeView extends NodeView {
 		 *            The new key &Rarr; (plate, position) {@link Map}.
 		 */
 		public void setKeyToPlateAndPosition(
-				final Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition) {
+				final Map<String, Pair<Integer, Integer>> keyToPlateAndPosition) {
 			this.keyToPlateAndPosition = keyToPlateAndPosition;
 		}
 
@@ -570,7 +571,7 @@ public class HeatmapNodeView extends NodeView {
 			}
 			final int plateCount = count(StatTypes.plate);
 			hilites = new boolean[plateCount][384];
-			final Set<DataCell> hilitKeys = nodeModel.getInHiLiteHandler(0)
+			final Set<RowKey> hilitKeys = nodeModel.getInHiLiteHandler(0)
 					.getHiLitKeys();
 			keyToPlateAndPosition = nodeModel.getModelBuilder()
 					.getKeyToPlateAndPosition();
@@ -679,11 +680,11 @@ public class HeatmapNodeView extends NodeView {
 					}
 				}
 				if (hiliteHandler != null) {
-					final Set<DataCell> change = new HashSet<DataCell>();
-					for (final Entry<DataCell, Pair<Integer, Integer>> entry : keyToPlateAndPosition
+					final Set<RowKey> change = new HashSet<RowKey>();
+					for (final Entry<String, Pair<Integer, Integer>> entry : keyToPlateAndPosition
 							.entrySet()) {
 						if (hilitesChange.contains(entry.getValue())) {
-							change.add(entry.getKey());
+							change.add(new RowKey(entry.getKey()));
 						}
 					}
 					if (hilite) {
@@ -760,10 +761,10 @@ public class HeatmapNodeView extends NodeView {
 		 * @param hiLitKeys
 		 *            A {@link Set} of row ids.
 		 */
-		public void setHilites(final Set<DataCell> hiLitKeys) {
-			for (final DataCell dataCell : hiLitKeys) {
+		public void setHilites(final Set<RowKey> hiLitKeys) {
+			for (final RowKey dataCell : hiLitKeys) {
 				final Pair<Integer, Integer> pair = keyToPlateAndPosition
-						.get(dataCell);
+						.get(dataCell.getString());
 				hilites[pair.getLeft().intValue() - 1][pair.getRight()] = true;
 			}
 		}

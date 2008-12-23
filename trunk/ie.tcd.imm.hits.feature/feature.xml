@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ie.tcd.imm.hits.feature"
-      label="Feature Feature"
+      label="HiTS main feature"
       version="0.0.1"
-      provider-name="TCD">
+      provider-name="TCD"
+      colocation-affinity="ie.tcd.imm.hits.feature">
 
    <description url="http://code.google.com/p/hits/">
       HiTS - High Throughput Screening
@@ -34,12 +35,13 @@ KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It de
          id="ie.tcd.imm.hits"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.1"/>
 
    <plugin
          id="ie.tcd.imm.hits.3rdparty"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.0.1"
          unpack="false"/>
+
 </feature>

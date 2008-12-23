@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import javax.swing.JComponent;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.RowKey;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
@@ -47,7 +48,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	private static final long serialVersionUID = 7832090816939923780L;
 	private ViewModel viewModel;
 	private final WellViewPanel[] wells = new WellViewPanel[384];
-	private Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition;
+	private Map<String, Pair<Integer, Integer>> keyToPlateAndPosition;
 	private VolatileModel volatileModel;
 	/** From 0. */
 	private int plate;
@@ -477,8 +478,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	}
 
 	private void hilite(final KeyEvent event, final boolean hilite) {
-		for (final DataCell key : event.keys()) {
-			final Pair<Integer, Integer> pair = keyToPlateAndPosition.get(key);
+		for (final RowKey key : event.keys()) {
+			final Pair<Integer, Integer> pair = keyToPlateAndPosition.get(key.getString());
 			if (pair != null) {
 				assert pair != null;
 				final int plate = pair.getLeft().intValue() - 1;
@@ -495,7 +496,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	}
 
 	@Override
-	public void unHiLiteAll() {
+	public void unHiLiteAll(KeyEvent event) {
 		for (final WellViewPanel well : wells) {
 			if (well != null) {
 				well.setHilited(false);

@@ -32,8 +32,9 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.property.hilite.DefaultHiLiteManager;
+import org.knime.core.node.property.hilite.DefaultHiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteHandler;
+import org.knime.core.node.property.hilite.HiLiteManager;
 
 /**
  * This is the model implementation of Heatmap. Shows the heatmap of the plates.
@@ -160,7 +161,7 @@ public class HeatmapNodeModel extends NodeModel {
 	}
 
 	/** This is the {@link HiliteManager} which updates the HiLites. */
-	private final DefaultHiLiteManager hiliteManager = new DefaultHiLiteManager();
+	private final HiLiteManager hiliteManager = new HiLiteManager();
 
 	private ModelBuilder modelBuilder;
 
@@ -169,8 +170,8 @@ public class HeatmapNodeModel extends NodeModel {
 	 */
 	protected HeatmapNodeModel() {
 		super(1, 1);
-		setAutoExecutable(true);
-		setInHiLiteHandler(0, hiliteManager);
+//		setAutoExecutable(true);
+		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
 	}
 
 	/**
@@ -274,7 +275,7 @@ public class HeatmapNodeModel extends NodeModel {
 						ModelBuilder.SCORING_METHOD_COLUMN,
 						ModelBuilder.SUMMARISE_METHOD_COLUMN }),
 				new ArrayList<String>(normalisations)));
-		setInHiLiteHandler(0, hiliteManager);
+		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
 		return new BufferedDataTable[] { (BufferedDataTable) modelBuilder
 				.getTable() };
 	}
@@ -396,6 +397,6 @@ public class HeatmapNodeModel extends NodeModel {
 			final HiLiteHandler hiLiteHdl) {
 		super.setInHiLiteHandler(inIndex, hiLiteHdl);
 		Assert.isTrue(inIndex == 0, "Only the first inport supports HiLite.");
-		hiliteManager.addHiLiteHandler(hiLiteHdl);
+		hiliteManager.addToHiLiteHandler(hiLiteHdl);
 	}
 }
