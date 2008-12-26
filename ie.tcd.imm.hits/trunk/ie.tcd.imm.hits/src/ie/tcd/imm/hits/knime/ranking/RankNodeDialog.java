@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
@@ -92,7 +93,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 			protected void updateComponent() {
 				super.updateComponent();
 				final SpecAnalyser specAnalyser = new SpecAnalyser(
-						getLastTableSpec(0));
+						(DataTableSpec) getLastTableSpec(0));
 				final List<String> params = specAnalyser.getParameters();
 				parameters.replaceListItems(params, params.isEmpty() ? ""
 						: params.get(0));

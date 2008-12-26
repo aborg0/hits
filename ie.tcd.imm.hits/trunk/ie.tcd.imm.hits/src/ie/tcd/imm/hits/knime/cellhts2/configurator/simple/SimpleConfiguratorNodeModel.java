@@ -168,7 +168,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 					}
 					final String well = parts[1];
 					plateConfContainer.addRowToTable(new DefaultRow(new RowKey(
-							new IntCell(++i)), new StringCell(parts[0]),
+							String.valueOf(++i)), new StringCell(parts[0]),
 							new StringCell(well), new StringCell(parts[2])));
 				}
 			} finally {
@@ -207,7 +207,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 						}
 						descConfContainer
 								.addRowToTable(new DefaultRow(new RowKey(
-										new IntCell(i)), new StringCell(
+										String.valueOf(i)), new StringCell(
 										currentGroup == null ? ""
 												: currentGroup),
 										new StringCell(line.substring(0,

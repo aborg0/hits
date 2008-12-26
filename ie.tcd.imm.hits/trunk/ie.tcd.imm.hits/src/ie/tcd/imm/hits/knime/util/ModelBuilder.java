@@ -46,7 +46,7 @@ public class ModelBuilder {
 	private final SpecAnalyser specAnalyser;
 
 	/** key, plate, position [0-95] */
-	private final Map<DataCell, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<DataCell, Pair<Integer, Integer>>();
+	private final Map<String, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<String, Pair<Integer, Integer>>();
 
 	/**
 	 * Constructs a {@link ModelBuilder} with creating a {@link SpecAnalyser}
@@ -518,7 +518,7 @@ public class ModelBuilder {
 				textColumns.get(entry.getKey())[well] = ((StringValue) dataRow
 						.getCell(entry.getValue().intValue())).getStringValue();
 			}
-			keyToPlateAndPosition.put(dataRow.getKey().getId(),
+			keyToPlateAndPosition.put(dataRow.getKey().getString(),
 					new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
 			if (hasReplicate) {
 				final Integer replicate = getInt(dataRow, replicateIndex);
@@ -770,7 +770,7 @@ public class ModelBuilder {
 	 * @return An unmodifiable {@link Map} from the row ids to a {@link Pair} of
 	 *         plate, position ({@code 0-95}) values.
 	 */
-	public Map<DataCell, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
+	public Map<String, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
 		return Collections.unmodifiableMap(keyToPlateAndPosition);
 	}
 }

@@ -6,6 +6,7 @@ package org.knime.core.node.defaultnodesettings;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
 
 /**
  * This {@link DialogComponent} is for updating other components. Please
@@ -26,7 +27,7 @@ public class UpdatableComponent extends DialogComponent {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void checkConfigurabilityBeforeLoad(final DataTableSpec[] specs)
+	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
 		// TODO Auto-generated method stub
 

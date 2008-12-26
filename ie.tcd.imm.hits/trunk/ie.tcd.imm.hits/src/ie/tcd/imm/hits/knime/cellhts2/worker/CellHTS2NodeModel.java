@@ -655,7 +655,7 @@ public class CellHTS2NodeModel extends NodeModel {
 										.singletonList(values), false, false,
 								stats, null, parametersModel.getIncludeList(),
 								additionalColumns);
-						scores.addRowToTable(new DefaultRow(new IntCell(
+						scores.addRowToTable(new DefaultRow(String.valueOf(
 								rowStart + row), values));
 						if (row % 50 == 0) {
 							exec.checkCanceled();
@@ -682,8 +682,8 @@ public class CellHTS2NodeModel extends NodeModel {
 						for (int repl = 0; repl < replicateCount; ++repl) {
 							replicates
 									.addRowToTable(new DefaultRow(
-											new StringCell((row + 1) + "_"
-													+ (repl + 1)), rows
+											(row + 1) + "_"
+													+ (repl + 1), rows
 													.get(repl)));
 						}
 						if (row % 50 == 0) {
@@ -756,7 +756,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				int i = 0;
 				for (final String outFolder : outDirs.values()) {
 					outputFolders.addRowToTable(new DefaultRow(new RowKey(
-							new IntCell(++i)), new StringCell(outFolder)));
+							String.valueOf(++i)), new StringCell(outFolder)));
 				}
 			}
 			outputFolders.close();
@@ -860,9 +860,9 @@ public class CellHTS2NodeModel extends NodeModel {
 									((REXPDouble) allZFactor.asList().get(0))
 											.asDoubles()[replicateCount * param
 											+ repl]));
-					aggregate.addRowToTable(new DefaultRow(new StringCell(
+					aggregate.addRowToTable(new DefaultRow(
 							normalise + "_" + (plate + 1) + "_" + (repl + 1)
-									+ "_" + param), values));
+									+ "_" + param, values));
 				}
 			}
 		}

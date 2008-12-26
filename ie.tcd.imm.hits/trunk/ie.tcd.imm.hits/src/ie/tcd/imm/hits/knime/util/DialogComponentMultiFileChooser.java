@@ -34,6 +34,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.util.StringHistory;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -193,8 +194,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void checkConfigurabilityBeforeLoad(final DataTableSpec[] specs)
-			throws NotConfigurableException {
+	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
+	throws NotConfigurableException {
 		// No check needed.
 	}
 
