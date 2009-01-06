@@ -142,7 +142,9 @@ public class ColourSelector extends JPanel {
 	public static abstract class Sample extends JPanel {
 		private Color up = Color.RED;
 
-		private Color down = Color.GREEN, middle = Color.BLACK;
+		private Color down = Color.GREEN;
+		private @Nullable
+		Color middle = Color.BLACK;
 
 		private double upVal = 1.0;
 
@@ -419,7 +421,8 @@ public class ColourSelector extends JPanel {
 		public static class Model implements Serializable {
 			private static final long serialVersionUID = 8613456651113117411L;
 			private final double downVal, upVal;
-			private final Double middleVal;
+			private @Nullable
+			final Double middleVal;
 			private final Color down, middle, up;
 
 			/**
@@ -481,8 +484,8 @@ public class ColourSelector extends JPanel {
 			 * @param val
 			 *            The new value.
 			 */
-			public Model(final Model model, final Positions pos,
-					final Double val) {
+			public Model(final Model model, final Positions pos, @Nullable
+			final Double val) {
 				this(pos == Positions.Down ? val.doubleValue() : model
 						.getDownVal(), pos == Positions.Middle ? val : model
 						.getMiddleVal(), pos == Positions.Up ? val

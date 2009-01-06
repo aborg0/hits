@@ -30,6 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -45,11 +46,14 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
  * <p>
  * (Subclassing, change listener friendly.)
  * 
- * @author bakosg@tcd.ie
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
 @DefaultAnnotation(Nonnull.class)
 public class DialogComponentMultiFileChooser extends DialogComponent {
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(DialogComponentMultiFileChooser.class);
+
 	/** This selects the folder. */
 	protected final JComboBox dirNameComboBox = new JComboBox();
 	private final StringHistory stringHistory;
@@ -193,8 +197,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs)
-	throws NotConfigurableException {
+	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
+			throws NotConfigurableException {
 		// No check needed.
 	}
 
@@ -263,20 +267,27 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			fileNames[i] = file.getName();
 		}
 		final String currentSelection = getCurrentSelection();
+		final String homeDirName = System.getProperty("user.home");
 		final File dir = new File(
-				dirName == null ? (currentSelection == null ? System
-						.getProperty("user.home") : currentSelection) : dirName);
+				dirName == null || !new File(dirName).isDirectory() ? (currentSelection == null ? homeDirName
+						: new File(currentSelection).isDirectory() ? currentSelection
+								: homeDirName)
+						: dirName);
 		dirNameComboBox.setSelectedItem(dir.getAbsolutePath());
 		final File[] files = dir.listFiles(possibleExtensions);
 		final SortedSet<String> names = new TreeSet<String>();
-		for (final File file : files) {
-			names.add(file.getName());
+		if (files != null) {
+			for (final File file : files) {
+				names.add(file.getName());
+			}
 		}
 		fileNameModel.clear();
 		for (final String fileName : fileNames) {
 			if (!names.contains(fileName)) {
-				throw new IllegalStateException("The file: " + fileName
-						+ " is no longer available.");
+				logger.warn("The file: " + fileName
+						+ " is no longer available.",
+						new IllegalStateException("The file: " + fileName
+								+ " is no longer available."));
 			}
 			fileNameModel.addElement(fileName);
 			names.remove(fileName);
