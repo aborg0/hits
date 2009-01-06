@@ -62,7 +62,6 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.RowKey;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
@@ -79,7 +78,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
-public class HeatmapNodeView extends NodeView {
+public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	private final LegendPanel legendPanel;
 	private final LegendPanel legendPanel2;
 	// private final JTable infoTable = new JTable(1, 1);
@@ -786,7 +785,7 @@ public class HeatmapNodeView extends NodeView {
 	 * @param nodeModel
 	 *            The model (class: {@link HeatmapNodeModel})
 	 */
-	protected HeatmapNodeView(final NodeModel nodeModel) {
+	protected HeatmapNodeView(final HeatmapNodeModel nodeModel) {
 		super(nodeModel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
 		showHilite = new JCheckBoxMenuItem("Show HiLite visuals", true);

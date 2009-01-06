@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.knime.ranking;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 
 /**
@@ -16,13 +15,13 @@ import org.knime.core.node.NodeView;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class RankNodeFactory extends NodeFactory {
+public class RankNodeFactory extends NodeFactory<RankNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeModel createNodeModel() {
+	public RankNodeModel createNodeModel() {
 		return new RankNodeModel();
 	}
 
@@ -38,8 +37,8 @@ public class RankNodeFactory extends NodeFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView createNodeView(final int viewIndex,
-			final NodeModel nodeModel) {
+	public NodeView<RankNodeModel> createNodeView(final int viewIndex,
+			final RankNodeModel nodeModel) {
 		throw new IndexOutOfBoundsException("No views: " + viewIndex);
 	}
 

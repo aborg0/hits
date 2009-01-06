@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.feature"
       label="HiTS main feature"
-      version="0.0.1"
+      version="0.0.2"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.feature">
 
@@ -35,13 +35,13 @@ KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It de
          id="ie.tcd.imm.hits"
          download-size="0"
          install-size="0"
-         version="0.0.1"/>
+         version="0.0.0"/>
 
    <plugin
          id="ie.tcd.imm.hits.3rdparty"
          download-size="0"
          install-size="0"
-         version="0.0.1"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

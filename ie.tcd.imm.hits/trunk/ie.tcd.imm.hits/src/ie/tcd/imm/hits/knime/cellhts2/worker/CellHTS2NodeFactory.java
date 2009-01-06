@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 
 /**
@@ -11,13 +10,13 @@ import org.knime.core.node.NodeView;
  *
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class CellHTS2NodeFactory extends NodeFactory {
+public class CellHTS2NodeFactory extends NodeFactory<CellHTS2NodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NodeModel createNodeModel() {
+    public CellHTS2NodeModel createNodeModel() {
         return new CellHTS2NodeModel();
     }
 
@@ -33,8 +32,8 @@ public class CellHTS2NodeFactory extends NodeFactory {
      * {@inheritDoc}
      */
     @Override
-    public NodeView createNodeView(final int viewIndex,
-            final NodeModel nodeModel) {
+    public NodeView<CellHTS2NodeModel> createNodeView(final int viewIndex,
+            final CellHTS2NodeModel nodeModel) {
         return new CellHTS2NodeView(nodeModel);
     }
 

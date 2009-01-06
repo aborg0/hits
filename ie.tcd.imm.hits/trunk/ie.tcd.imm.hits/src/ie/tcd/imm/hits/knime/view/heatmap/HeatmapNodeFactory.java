@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 
 /**
@@ -11,13 +10,13 @@ import org.knime.core.node.NodeView;
  *
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class HeatmapNodeFactory extends NodeFactory {
+public class HeatmapNodeFactory extends NodeFactory<HeatmapNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public NodeModel createNodeModel() {
+    public HeatmapNodeModel createNodeModel() {
         return new HeatmapNodeModel();
     }
 
@@ -33,8 +32,8 @@ public class HeatmapNodeFactory extends NodeFactory {
      * {@inheritDoc}
      */
     @Override
-    public NodeView createNodeView(final int viewIndex,
-            final NodeModel nodeModel) {
+    public NodeView<HeatmapNodeModel> createNodeView(final int viewIndex,
+            final HeatmapNodeModel nodeModel) {
         return new HeatmapNodeView(nodeModel);
     }
 

@@ -3,7 +3,6 @@ package ie.tcd.imm.hits.knime.cellhts2.worker;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -17,7 +16,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @NotThreadSafe
 @DefaultAnnotation(Nonnull.class)
-public class CellHTS2NodeView extends NodeView {
+public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 
 	/**
 	 * Creates a new view.
@@ -25,7 +24,7 @@ public class CellHTS2NodeView extends NodeView {
 	 * @param nodeModel
 	 *            The model (class: {@link CellHTS2NodeModel})
 	 */
-	protected CellHTS2NodeView(final NodeModel nodeModel) {
+	protected CellHTS2NodeView(final CellHTS2NodeModel nodeModel) {
 		super(nodeModel);
 
 		// TODO instantiate the components of the view here.

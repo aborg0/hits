@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;

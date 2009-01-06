@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.knime.xls;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeView;
 
 /**
@@ -11,13 +10,13 @@ import org.knime.core.node.NodeView;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class ImporterNodeFactory extends NodeFactory {
+public class ImporterNodeFactory extends NodeFactory<ImporterNodeModel> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeModel createNodeModel() {
+	public ImporterNodeModel createNodeModel() {
 		return new ImporterNodeModel();
 	}
 
@@ -33,8 +32,8 @@ public class ImporterNodeFactory extends NodeFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView createNodeView(final int viewIndex,
-			final NodeModel nodeModel) {
+	public NodeView<ImporterNodeModel> createNodeView(final int viewIndex,
+			final ImporterNodeModel nodeModel) {
 		throw new ArrayIndexOutOfBoundsException("No view with index: "
 				+ viewIndex);
 		// return new ImporterNodeView(nodeModel);
