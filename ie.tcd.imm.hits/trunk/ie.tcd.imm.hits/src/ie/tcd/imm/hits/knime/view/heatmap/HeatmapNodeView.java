@@ -124,7 +124,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			 * {@inheritDoc}
 			 */
 			@Override
-			public void unHiLiteAll(KeyEvent event) {
+			public void unHiLiteAll(final KeyEvent event) {
 				for (final Map<Integer, Heatmap> map : heatmap.heatmaps
 						.values()) {
 					for (final Heatmap heatmap : map.values()) {
@@ -410,9 +410,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -421,20 +421,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-					 * Collections .<ParameterModel>
-					 * emptyList()
-					 */, Arrays.asList(defaultParamModel, defaultParamModel,
+												 * Collections .<ParameterModel>
+												 * emptyList()
+												 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-					 * Collections.<ParameterModel>
-					 * emptyList()
-					 */, true));
+																	 * Collections.<ParameterModel>
+																	 * emptyList()
+																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -762,9 +762,16 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 */
 		public void setHilites(final Set<RowKey> hiLitKeys) {
 			for (final RowKey dataCell : hiLitKeys) {
+				final String string = dataCell.getString();
 				final Pair<Integer, Integer> pair = keyToPlateAndPosition
-						.get(dataCell.getString());
-				hilites[pair.getLeft().intValue() - 1][pair.getRight()] = true;
+						.containsKey(string) ? keyToPlateAndPosition
+						.get(string)
+						: string.contains("_") ? keyToPlateAndPosition
+								.get(string.substring(0, string.indexOf('_')))
+								: null;
+				if (pair != null) {
+					hilites[pair.getLeft().intValue() - 1][pair.getRight()] = true;
+				}
 			}
 		}
 
@@ -848,9 +855,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		// /Init the defaults.
 		currentViewModel.getMain().getArrangementModel().mutate(
-				((HeatmapNodeModel) nodeModel).getPossibleParameters());
+				(nodeModel).getPossibleParameters());
 		volatileModel.mutateValues(currentViewModel.getMain()
-				.getArrangementModel(), (HeatmapNodeModel) nodeModel);
+				.getArrangementModel(), nodeModel);
 		controlPanel.updateControl(currentViewModel);
 
 		heatmapPanel = new HeatmapPanel(getCurrentViewModel(), null,
@@ -1021,6 +1028,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	 */
 	@Override
 	public HeatmapNodeModel getNodeModel() {
-		return (HeatmapNodeModel) super.getNodeModel();
+		return super.getNodeModel();
 	}
 }

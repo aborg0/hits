@@ -283,7 +283,8 @@ public class RankNodeModel extends NodeModel {
 								final double[] others = otherMap.get(stat);
 								final double[] ds = statValues.get(stat);
 								for (int i = ds.length; i-- > 0;) {
-									((wellTypes[i].equalsIgnoreCase("sample")) ? samples
+									((wellTypes[i] != null && wellTypes[i]
+											.equalsIgnoreCase("sample")) ? samples
 											: others)[96
 											* (plate.intValue() - plateShift)
 											+ i] = ds[i];
@@ -533,12 +534,16 @@ public class RankNodeModel extends NodeModel {
 			final int wellIdx, final StatTypes stat,
 			final RankingGroups grouping, final int plateShift) {
 		final int plate = ((IntCell) origRow.getCell(plateIdx)).getIntValue();
-		return getRank(((StringCell) origRow.getCell(experimentIdx))
-				.getStringValue(), parameter, ModelBuilder.getNormKey(origRow,
-				normMethodIdx, logTransformIdx, normKindIdx,
-				varianceAdjustmentIdx, scoreMethodIdx, sumMethodIdx), plate,
-				replicateIdx >= 0 ? ((IntCell) origRow.getCell(replicateIdx))
-						.getIntValue() : noReplicates.intValue(), ModelBuilder
+		return getRank(
+				((StringCell) origRow.getCell(experimentIdx)).getStringValue(),
+				parameter,
+				ModelBuilder.getNormKey(origRow, normMethodIdx,
+						logTransformIdx, normKindIdx, varianceAdjustmentIdx,
+						scoreMethodIdx, sumMethodIdx),
+				plate,
+				replicateIdx >= 0 && stat.isUseReplicates() ? ((IntCell) origRow
+						.getCell(replicateIdx)).getIntValue()
+						: noReplicates.intValue(), ModelBuilder
 						.convertWellToPosition(((StringCell) origRow
 								.getCell(wellIdx)).getStringValue()), stat,
 				grouping, plateShift);
