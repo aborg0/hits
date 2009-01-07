@@ -1,7 +1,6 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import ie.tcd.imm.hits.knime.util.SelectionMoverActionListener;
-import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -22,14 +21,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -77,8 +73,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_EXPERIMENT_NAME,
 						CellHTS2NodeModel.DEFAULT_EXPERIMENT_NAME),
 				"experiment", true, 51);
-		final JTextField experimentTextField = (JTextField) experimentDialog
-				.getComponentPanel().getComponent(1);
 		experimentDialog
 				.setToolTipText("The short really description of the experiment (should not contain tab characters)");
 		addDialogComponent(experimentDialog);
@@ -153,9 +147,9 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_FOLDER_PATTERN,
 						CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN), "Pattern:",
 				CellHTS2NodeModel.POSSIBLE_FOLDER_PATTERNS);
-		final JComboBox patternCombobox = (JComboBox) patternDialog
-				.getComponentPanel().getComponent(1);
-		patternCombobox.setEditable(true);
+		// final JComboBox patternCombobox = (JComboBox) patternDialog
+		// .getComponentPanel().getComponent(1);
+		// patternCombobox.setEditable(true);
 		addDialogComponent(patternDialog);
 		setHorizontalPlacement(false);
 		addDialogComponent(sample);
@@ -165,12 +159,13 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentColumnFilter parametersDialog = new DialogComponentColumnFilter(
 				new SettingsModelFilterString(
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
-						new String[] { ImporterNodeModel.PLATE_COL_NAME,
-								ImporterNodeModel.REPLICATE_COL_NAME,
-								ImporterNodeModel.WELL_COL_NAME,
-								ImporterNodeModel.GENE_ID_COL_NAME,
-								ImporterNodeModel.GENE_ANNOTATION_COL_NAME }),
-				0, DoubleValue.class);
+						new String[] { /*
+										 * ImporterNodeModel.PLATE_COL_NAME,
+										 * ImporterNodeModel.REPLICATE_COL_NAME,
+										 * ImporterNodeModel.WELL_COL_NAME,
+										 * ImporterNodeModel.GENE_ID_COL_NAME,
+										 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
+										 */}), 0, DoubleValue.class);
 		final ColumnFilterPanel columnsFilter = (ColumnFilterPanel) parametersDialog
 				.getComponentPanel().getComponent(0);
 		final JPanel includePanel = (JPanel) columnsFilter.getComponent(1);
@@ -180,7 +175,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final JPanel buttonPanel2 = (JPanel) center.getComponent(1);
 		final JPanel buttonPanel = (JPanel) buttonPanel2.getComponent(0);
 		final JButton upButton = new JButton("^");
-		upButton.setMaximumSize(new Dimension(125, 5));
+		upButton.setMaximumSize(new Dimension(125, 10));
 		buttonPanel.add(upButton);
 		final DefaultListModel includeListModel = (DefaultListModel) includeList
 				.getModel();
@@ -189,7 +184,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		buttonPanel.add(new JPanel());
 
 		final JButton downButton = new JButton("v");
-		downButton.setMaximumSize(new Dimension(125, 5));
+		downButton.setMaximumSize(new Dimension(125, 10));
 		buttonPanel.add(downButton);
 		downButton.addActionListener(new SelectionMoverActionListener(
 				includeList, includeListModel, 1));
@@ -230,84 +225,88 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
 			@Override
 			public void contentsChanged(final ListDataEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 
 		});
 		{
-			updateSample(sample, experimentTextField, normalizationCombobox,
-					isMultiplicativeDialogModel, fileChooser, patternCombobox,
-					includeListModel);
-
+			updateSample(sample, experimentDialog, normalizationDialog,
+					isMultiplicativeDialogModel, fileChooser, patternDialog,
+					parametersDialog);
 		}
-		patternCombobox.addActionListener(new ActionListener() {
+		patternDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+			public void stateChanged(final ChangeEvent e) {
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 		});
 		normalizationCombobox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 		});
 		isMultiplicativeDialogModel.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 		});
-		experimentTextField.addActionListener(new ActionListener() {
+		experimentDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+			public void stateChanged(final ChangeEvent e) {
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 		});
 		fileChooser.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				updateSample(sample, experimentTextField,
-						normalizationCombobox, isMultiplicativeDialogModel,
-						fileChooser, patternCombobox, includeListModel);
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
 			}
 		});
 	}
 
 	private void updateSample(final DialogComponentMultiLineString sample,
-			final JTextField experimentTextField,
-			final JComboBox normalizationCombobox,
+			final DialogComponentString experimentDialog,
+			final DialogComponentStringSelection normalizationDialog,
 			final ButtonModel isMultiplicativeDialogModel,
 			final DialogComponentFileChooser fileChooser,
-			final JComboBox patternCombobox, final ListModel includeList) {
+			final DialogComponentStringSelection patternDialog,
+			final DialogComponentColumnFilter parametersDialog) {
 		final StringBuilder sb = new StringBuilder();
 		final String outdirSelected = ((SettingsModelString) fileChooser
 				.getModel()).getStringValue();
 		final String outdir = outdirSelected == null ? "" : outdirSelected;
-		final List<String> paramList = new ArrayList<String>(includeList
-				.getSize());
-		for (int i = 0; i < includeList.getSize(); ++i) {
-			paramList.add(((DataColumnSpec) includeList.getElementAt(i))
-					.getName());
+		final SettingsModelFilterString parametersModel = (SettingsModelFilterString) parametersDialog
+				.getModel();
+		final List<String> paramList = new ArrayList<String>(parametersModel
+				.getIncludeList().size());
+		for (int i = 0; i < parametersModel.getIncludeList().size(); ++i) {
+			paramList.add((parametersModel.getIncludeList().get(i)));
 		}
-		final Map<String, String> dirs = CellHTS2NodeModel.computeOutDirs(
-				CellHTS2NodeModel
-						.computeNormMethods((String) normalizationCombobox
-								.getSelectedItem()), patternCombobox.getModel()
-						.getSelectedItem().toString(),
-				outdir.endsWith("/") ? outdir : outdir + "/", paramList,
-				experimentTextField.getText(), isMultiplicativeDialogModel
-						.isSelected());
+		final Map<String, String> dirs = CellHTS2NodeModel
+				.computeOutDirs(
+						CellHTS2NodeModel
+								.computeNormMethods(((SettingsModelString) normalizationDialog
+										.getModel()).getStringValue()),
+						((SettingsModelString) patternDialog.getModel())
+								.getStringValue(),
+						outdir.endsWith("/") ? outdir : outdir + "/",
+						paramList, ((SettingsModelString) experimentDialog
+								.getModel()).getStringValue(),
+						isMultiplicativeDialogModel.isSelected());
 		for (final String dir : dirs.values()) {
 			sb.append(dir.replace('/', File.separatorChar).trim()).append('\n');
 		}

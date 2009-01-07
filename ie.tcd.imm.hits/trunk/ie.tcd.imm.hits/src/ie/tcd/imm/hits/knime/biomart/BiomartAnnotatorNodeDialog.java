@@ -1,16 +1,12 @@
 package ie.tcd.imm.hits.knime.biomart;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -67,41 +63,43 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentMultiLineString selectedBiomartAttributesDialog = new DialogComponentMultiLineString(
 				new SettingsModelString("selected_attributes_not_used", ""),
 				"Selected: ", false, 70, 8);
-		addActionListenerTo(biomartDatabaseDialog, new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final JComboBox combobox = ((JComboBox) e.getSource());
-				final Object selectedItem = combobox.getSelectedItem();
-				if (selectedItem instanceof String) {
-					final String dbName = (String) selectedItem;
-					try {
-						final RConnection conn = new RConnection();
-						try {
-							conn.voidEval("library(\"biomaRt\")");
-							conn.voidEval("biomartDb = useMart(\"" + dbName
-									+ "\")");
-							final REXP datasetsResult = conn
-									.eval("listDatasets(biomartDb)");
-							final RList table = ((REXPGenericVector) datasetsResult)
-									.asList();
+		biomartDatabaseDialog.getModel().addChangeListener(
+				new ChangeListener() {
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						final JComboBox combobox = ((JComboBox) e.getSource());
+						final Object selectedItem = combobox.getSelectedItem();
+						if (selectedItem instanceof String) {
+							final String dbName = (String) selectedItem;
+							try {
+								final RConnection conn = new RConnection();
+								try {
+									conn.voidEval("library(\"biomaRt\")");
+									conn.voidEval("biomartDb = useMart(\""
+											+ dbName + "\")");
+									final REXP datasetsResult = conn
+											.eval("listDatasets(biomartDb)");
+									final RList table = ((REXPGenericVector) datasetsResult)
+											.asList();
 
-							final String[] shortNames = ((REXPString) table
-									.get(0)).asStrings();
-							biomartDatasetDialog.replaceListItems(Arrays
-									.asList(shortNames), null);
-						} finally {
-							conn.close();
+									final String[] shortNames = ((REXPString) table
+											.get(0)).asStrings();
+									biomartDatasetDialog.replaceListItems(
+											Arrays.asList(shortNames), null);
+								} finally {
+									conn.close();
+								}
+							} catch (final RserveException e1) {
+								logger.error(
+										"Unable to select the datasets for "
+												+ dbName, e1);
+							}
 						}
-					} catch (final RserveException e1) {
-						logger.error("Unable to select the datasets for "
-								+ dbName, e1);
 					}
-				}
-			}
-		});
-		addActionListenerTo(biomartDatasetDialog, new ActionListener() {
+				});
+		biomartDatasetDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void stateChanged(final ChangeEvent e) {
 				final JComboBox combobox = ((JComboBox) e.getSource());
 				final Object object = ((JComboBox) biomartDatabaseDialog
 						.getComponentPanel().getComponent(1)).getSelectedItem();
@@ -169,15 +167,20 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		createNewGroup("Attributes");
 		setHorizontalPlacement(true);
 		addDialogComponent(biomartAttributesDialog);
-		((JList) ((JScrollPane) biomartAttributesDialog.getComponentPanel()
-				.getComponent(1)).getViewport().getComponent(0))
-				.addListSelectionListener(new ListSelectionListener() {
+		biomartAttributesDialog.getModel().addChangeListener(
+				new ChangeListener() {
+					// ((JList) ((JScrollPane)
+					// biomartAttributesDialog.getComponentPanel()
+					// .getComponent(1)).getViewport().getComponent(0))
+					// .addListSelectionListener(new ListSelectionListener() {
+					// @Override
+					// public void valueChanged(final ListSelectionEvent e) {
 					@Override
-					public void valueChanged(final ListSelectionEvent e) {
-						final Object[] selectedValues = ((JList) e.getSource())
-								.getSelectedValues();
+					public void stateChanged(final ChangeEvent e) {
+						final String[] selectedValues = ((SettingsModelStringArray) e
+								.getSource()).getStringArrayValue();
 						final StringBuilder sb = new StringBuilder();
-						for (final Object selected : selectedValues) {
+						for (final String selected : selectedValues) {
 							sb.append(selected).append(" - ").append(
 									attributes.get(selected)).append("\n");
 						}
@@ -190,12 +193,12 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 
 	}
 
-	private static void addActionListenerTo(
-			final DialogComponentStringSelection dialog,
-			final ActionListener actionListener) {
-		final JComboBox combobox = ((JComboBox) dialog.getComponentPanel()
-				.getComponent(1));
-		combobox.addActionListener(actionListener);
-	}
+	// private static void addActionListenerTo(
+	// final DialogComponentStringSelection dialog,
+	// final ActionListener actionListener) {
+	// final JComboBox combobox = ((JComboBox) dialog.getComponentPanel()
+	// .getComponent(1));
+	// combobox.addActionListener(actionListener);
+	// }
 
 }
