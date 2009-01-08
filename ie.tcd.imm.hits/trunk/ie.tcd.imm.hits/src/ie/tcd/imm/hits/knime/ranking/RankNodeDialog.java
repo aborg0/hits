@@ -38,6 +38,8 @@ import org.knime.core.node.defaultnodesettings.UpdatableComponent;
  */
 public class RankNodeDialog extends DefaultNodeSettingsPane {
 
+	private static final String[] EMPTY_ARRAY = new String[] { "" };
+
 	/**
 	 * New pane for configuring Rank node dialog.
 	 */
@@ -95,22 +97,35 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 				final SpecAnalyser specAnalyser = new SpecAnalyser(
 						(DataTableSpec) getLastTableSpec(0));
 				final List<String> params = specAnalyser.getParameters();
-				parameters.replaceListItems(params, params.isEmpty() ? ""
-						: params.get(0));
+				parameters.replaceListItems(params, computeSelections(params,
+						((SettingsModelStringArray) parameters.getModel())
+								.getStringArrayValue()));
 				final ArrayList<String> possStats = new ArrayList<String>(6);
 				final EnumSet<StatTypes> stats = specAnalyser.getStatistics();
 				for (final StatTypes statTypes : new StatTypes[] {
-						StatTypes.score, // StatTypes.normalized,
-						StatTypes.median, StatTypes.meanOrDiff, // StatTypes.raw,
-				// StatTypes.rawPerMedian //TODO Currently only non-replicates
-				// are supported
-				}) {
+						StatTypes.score, StatTypes.normalized,
+						StatTypes.median, StatTypes.meanOrDiff, StatTypes.raw,
+						StatTypes.rawPerMedian }) {
 					if (stats.contains(statTypes)) {
 						possStats.add(statTypes.name());
 					}
 				}
-				statistics.replaceListItems(possStats, possStats.isEmpty() ? ""
-						: possStats.get(0));
+				statistics.replaceListItems(possStats, computeSelections(
+						possStats, ((SettingsModelStringArray) statistics
+								.getModel()).getStringArrayValue()));
+			}
+
+			private String[] computeSelections(final List<String> params,
+					final String[] selections) {
+				final List<String> intersect = new ArrayList<String>(
+						selections.length);
+				for (final String selection : selections) {
+					if (params.contains(selection)) {
+						intersect.add(selection);
+					}
+				}
+				return intersect.isEmpty() ? EMPTY_ARRAY : intersect
+						.toArray(new String[intersect.size()]);
 			}
 		});
 	}
