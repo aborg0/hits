@@ -32,7 +32,12 @@
             - normalised<br/>
             - median<br/>
             - raw/median</option>
-        <option name="regulation">With this control you can set the neutral element of the parameter/statistics.</option>
+        <option name="parameters">Select the parameters you want to analyse.</option>
+        <option name="regulation">With this control you can set the neutral
+        	element of the parameter/statistics. If you select for example 
+        	<b>0+</b>, it will mean that the values above <b>0</b> will have
+        	positive rank values, while the values below <b>0</b> will have negative rank values.
+        	With <b>0-</b> the opposite is true.</option>
         <option name="tie handling">You can specify what to do if there is a tie in the ranking:<br/>
         Options:<br/>
          - increase (tie at second rank: 1, 2, 2, 2, 5)<br/>
