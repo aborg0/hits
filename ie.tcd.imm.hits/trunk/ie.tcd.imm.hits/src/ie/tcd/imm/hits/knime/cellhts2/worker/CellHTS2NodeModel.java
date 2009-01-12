@@ -109,10 +109,17 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/** Configuration key for the normalisation method */
 	static final String CFGKEY_NORMALISATION_METHOD = "ie.tcd.imm.hits.knime.cellhts2.norm";
+	/**
+	 * Possible values of the normalisation methods when {@code locfit} is
+	 * installed.
+	 */
+	static final String[] POSSIBLE_NORMALISATION_METHODS_LOCFIT = new String[] {
+			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
+			"shorth", "locfit", "loess" };
 	/** Possible values of the normalisation methods. */
 	static final String[] POSSIBLE_NORMALISATION_METHODS = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
-			"shorth", "locfit", "loess" };
+			"shorth" };
 	private static final Map<String, String> explanationOfNormalisationMethods = new HashMap<String, String>();
 	static {
 		explanationOfNormalisationMethods
@@ -231,7 +238,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	/** Possible values of the pattern that generates the folders. */
 	static final String[] POSSIBLE_FOLDER_PATTERNS = new String[] { "", "{e}",
 			"{e}\\{p}", "{e}\\{n}{*}\\{p15}", "{p}", "{n}\\{p}", "{e}_{p}",
-			"{e}_{n}{*}_{p15}", "{p}", "{n}_{p}" };
+			"{e}_{n}{*}_{p15}", "{p}", "{n}_{p}", "" };
 	/** Default value of pattern generating the folder */
 	static final String DEFAULT_FOLDER_PATTERN = POSSIBLE_FOLDER_PATTERNS[3];
 
@@ -655,8 +662,8 @@ public class CellHTS2NodeModel extends NodeModel {
 										.singletonList(values), false, false,
 								stats, null, parametersModel.getIncludeList(),
 								additionalColumns);
-						scores.addRowToTable(new DefaultRow(String.valueOf(
-								rowStart + row), values));
+						scores.addRowToTable(new DefaultRow(String
+								.valueOf(rowStart + row), values));
 						if (row % 50 == 0) {
 							exec.checkCanceled();
 						}
@@ -680,11 +687,8 @@ public class CellHTS2NodeModel extends NodeModel {
 								parametersModel.getIncludeList(),
 								additionalColumns);
 						for (int repl = 0; repl < replicateCount; ++repl) {
-							replicates
-									.addRowToTable(new DefaultRow(
-											(row + 1) + "_"
-													+ (repl + 1), rows
-													.get(repl)));
+							replicates.addRowToTable(new DefaultRow((row + 1)
+									+ "_" + (repl + 1), rows.get(repl)));
 						}
 						if (row % 50 == 0) {
 							exec.checkCanceled();
@@ -860,9 +864,9 @@ public class CellHTS2NodeModel extends NodeModel {
 									((REXPDouble) allZFactor.asList().get(0))
 											.asDoubles()[replicateCount * param
 											+ repl]));
-					aggregate.addRowToTable(new DefaultRow(
-							normalise + "_" + (plate + 1) + "_" + (repl + 1)
-									+ "_" + param, values));
+					aggregate.addRowToTable(new DefaultRow(normalise + "_"
+							+ (plate + 1) + "_" + (repl + 1) + "_" + param,
+							values));
 				}
 			}
 		}

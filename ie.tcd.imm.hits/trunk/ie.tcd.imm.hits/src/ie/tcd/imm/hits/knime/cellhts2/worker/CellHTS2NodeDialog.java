@@ -42,6 +42,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilterPanel;
+import org.rosuda.REngine.REXPLogical;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RserveException;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -82,7 +85,8 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
 						CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]),
 				"Normalisation method: ",
-				CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
+				checkLocFit() ? CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_LOCFIT
+						: CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
 		final JComboBox normalizationCombobox = (JComboBox) normalizationDialog
 				.getComponentPanel().getComponent(1);
 		normalizationDialog
@@ -160,12 +164,12 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelFilterString(
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
 						new String[] { /*
-										 * ImporterNodeModel.PLATE_COL_NAME,
-										 * ImporterNodeModel.REPLICATE_COL_NAME,
-										 * ImporterNodeModel.WELL_COL_NAME,
-										 * ImporterNodeModel.GENE_ID_COL_NAME,
-										 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
-										 */}), 0, DoubleValue.class);
+						 * ImporterNodeModel.PLATE_COL_NAME,
+						 * ImporterNodeModel.REPLICATE_COL_NAME,
+						 * ImporterNodeModel.WELL_COL_NAME,
+						 * ImporterNodeModel.GENE_ID_COL_NAME,
+						 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
+						 */}), 0, DoubleValue.class);
 		final ColumnFilterPanel columnsFilter = (ColumnFilterPanel) parametersDialog
 				.getComponentPanel().getComponent(0);
 		final JPanel includePanel = (JPanel) columnsFilter.getComponent(1);
@@ -276,6 +280,26 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						patternDialog, parametersDialog);
 			}
 		});
+	}
+
+	private static boolean checkLocFit() {
+		try {
+
+			final RConnection conn;
+			conn = new RConnection(/* "127.0.0.1", 1099, 10000 */);
+			try {
+				if (conn.isConnected()) {
+					final REXPLogical hasLocfit = (REXPLogical) conn
+							.eval("require('locfit')");
+					return hasLocfit.isTrue()[0];
+				}
+			} finally {
+				conn.close();
+			}
+		} catch (final RserveException e) {
+			return false;
+		}
+		return false;
 	}
 
 	private void updateSample(final DialogComponentMultiLineString sample,
