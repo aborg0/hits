@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/ie.tcd.imm.hits.feature_0.0.1.jar" id="ie.tcd.imm.hits.feature" version="0.0.1"/>
+   <description url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/">
+      HiTS official update iste
+   </description>
+   <feature url="features/ie.tcd.imm.hits.feature_0.1.0.jar" id="ie.tcd.imm.hits.feature" version="0.1.0">
+      <category name="HiTS"/>
+   </feature>
+   <!--feature url="file:/Z:/path_to/features/ie.tcd.imm.hits.feature_0.1.0.jar" id="ie.tcd.imm.hits.feature" version="0.1.0">
+      <category name="HiTS"/>
+   </feature-->
+   <!--archive path="features/ie.tcd.imm.hits.feature_0.1.0.jar" url="file:/Z:/path_to/features/ie.tcd.imm.hits.feature_0.1.0.jar"/-->
+   <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.0.1.jar" url="file:/Z:/path_to/plugins/ie.tcd.imm.hits.3rdparty_0.0.1.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="file:/Z:/path_to/plugins/ie.tcd.imm.hits_0.1.0.jar"/>
+   <category-def name="HiTS" label="HiTS">
+      <description>
+         Contains the nodes, and the non-standard dependencies.
+      </description>
+   </category-def>
 </site>
