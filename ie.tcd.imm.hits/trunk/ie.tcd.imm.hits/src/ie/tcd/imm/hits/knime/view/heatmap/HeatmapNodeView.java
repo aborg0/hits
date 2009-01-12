@@ -304,7 +304,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			for (final Slider slider : sliders) {
 				// assert choice.getAggregateType() == null;
 				// assert choice.getType().isDiscrete() : choice;
-				allCount += slider.getValueMapping().size();
+				allCount += slider.getSelections().size();
 			}
 			return allCount;
 		}
@@ -855,7 +855,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		// /Init the defaults.
 		currentViewModel.getMain().getArrangementModel().mutate(
-				(nodeModel).getPossibleParameters());
+				nodeModel.getPossibleParameters());
 		volatileModel.mutateValues(currentViewModel.getMain()
 				.getArrangementModel(), nodeModel);
 		controlPanel.updateControl(currentViewModel);

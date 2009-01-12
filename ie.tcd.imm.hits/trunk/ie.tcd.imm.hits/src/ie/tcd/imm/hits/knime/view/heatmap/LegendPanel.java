@@ -210,6 +210,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 						if (currentSlider != null) {
 							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
 									.getValueMapping().entrySet()) {
+								if (!currentSlider.getSelections().contains(
+										entry.getKey())) {
+									continue;
+								}
 								g.setColor(Color.WHITE);
 								final Font origFont = g.getFont();
 								g.setFont(origFont.deriveFont(Font.BOLD));
@@ -261,16 +265,18 @@ public class LegendPanel extends JPanel implements ActionListener {
 								paramModel);
 						final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 								.getValueMapping();
-						final int[] radiuses = getRadiuses(radius, valueMapping
-								.size());
+						final int[] radiuses = getRadiuses(radius, slider
+								.getSelections().size());
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : valueMapping
 								.entrySet()) {
-							g.drawString(
-									entry.getValue().getRight().toString(),
-									radius / 2 - 30 + radiuses[i],
-									(int) (radius * 1.35) + (i % 2) * 15);
-							++i;
+							if (slider.getSelections().contains(entry.getKey())) {
+								g.drawString(entry.getValue().getRight()
+										.toString(), radius / 2 - 30
+										+ radiuses[i], (int) (radius * 1.35)
+										+ (i % 2) * 15);
+								++i;
+							}
 						}
 					}
 					((Graphics2D) g).rotate(startAngle / 180.0 * Math.PI);
@@ -288,11 +294,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
-							g.drawString(
-									entry.getValue().getRight().toString(), i
-											* bounds.width / primaryCount,
-									30 + (i % 2) * 15);
-							++i;
+							if (slider.getSelections().contains(entry.getKey())) {
+								g.drawString(entry.getValue().getRight()
+										.toString(), i * bounds.width
+										/ primaryCount, 30 + (i % 2) * 15);
+								++i;
+							}
 						}
 					}
 					((Graphics2D) g).rotate(-Math.PI / 2);
@@ -304,12 +311,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final Slider slider = getCurrentSlider(sliders, model);
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
-							g
-									.drawString(entry.getValue().getRight()
-											.toString(), 5 - (i + 1)
-											* bounds.width / secundaryCount,
-											30 + (i % 2) * 15);
-							++i;
+							if (slider.getSelections().contains(entry.getKey())) {
+								g.drawString(entry.getValue().getRight()
+										.toString(), 5 - (i + 1) * bounds.width
+										/ secundaryCount, 30 + (i % 2) * 15);
+								++i;
+							}
 						}
 					}
 					g.setFont(origFont);

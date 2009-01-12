@@ -183,7 +183,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		// nodeModel.scoreValues.get(platePos[0]).entrySet().size()
 		final Slider replicateSlider = ArrangementModel.selectNth(
 				mainArrangement, 0, StatTypes.replicate);
-		final int replicateCount = replicateSlider.getValueMapping().size();// getParameters().iterator()
+		final int replicateCount = replicateSlider.getSelections().size();// getParameters().iterator()
 		// .next().getColorLegend().size();
 		final Color[][] colors = new Color[rows * cols][size/* * replicateCount */];
 		for (final Entry<ParameterModel, Collection<Slider>> mainEntry : mainArrangement
@@ -249,14 +249,18 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			final int paramCount = computeSplitterCount(Collections
 					.singleton(parameterSlider));
 			final Set<String> currentParameters = new HashSet<String>();
-			for (final Pair<ParameterModel, Object> m : parameterSlider
-					.getValueMapping().values()) {
-				currentParameters.add((String) m.getRight());
+			for (final Entry<Integer, Pair<ParameterModel, Object>> m : parameterSlider
+					.getValueMapping().entrySet()) {
+				if (parameterSlider.getSelections().contains(m.getKey())) {
+					currentParameters.add((String) m.getValue().getRight());
+				}
 			}
 			final Set<Integer> currentReplicates = new HashSet<Integer>();
-			for (final Pair<ParameterModel, Object> m : replicateSlider
-					.getValueMapping().values()) {
-				currentReplicates.add((Integer) m.getRight());
+			for (final Entry<Integer, Pair<ParameterModel, Object>> m : replicateSlider
+					.getValueMapping().entrySet()) {
+				if (replicateSlider.getSelections().contains(m.getKey())) {
+					currentReplicates.add((Integer) m.getValue().getRight());
+				}
 			}
 			final ColourModel colourModel = volatileModel.getColourModel();
 			if (selected.isUseReplicates()) {
@@ -303,10 +307,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 									break;
 								case _384:
 									colors[i / 12 * cols + i % 12][/*
-									 * (replicateEntry
-									 * .getKey().intValue() -
-									 * 1)
-									 */replicateValue * paramCount + param] = colorI;
+																	 * (replicateEntry
+																	 * .getKey().intValue() -
+																	 * 1)
+																	 */replicateValue * paramCount + param] = colorI;
 								default:
 									break;
 								}
@@ -321,6 +325,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					int param = 0;
 					for (final Entry<Integer, Pair<ParameterModel, Object>> entry : parameterSlider
 							.getValueMapping().entrySet()) {
+						if (!parameterSlider.getSelections().contains(
+								entry.getKey())) {
+							continue;
+						}
 						// final int param = entry.getKey().intValue() - 1;
 						final String paramName = (String) entry.getValue()
 								.getRight();
@@ -409,7 +417,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			// final List<ParameterModel> parameters = slider.getParameters();
 			// assert parameters.size() == 1 : slider;
 			// final ParameterModel parameter = parameters.iterator().next();
-			ret *= slider.getValueMapping().size();// parameter.getColorLegend().size();
+			ret *= slider.getSelections().size();// parameter.getColorLegend().size();
 		}
 		return ret;
 	}
@@ -478,7 +486,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 
 	private void hilite(final KeyEvent event, final boolean hilite) {
 		for (final RowKey key : event.keys()) {
-			final Pair<Integer, Integer> pair = keyToPlateAndPosition.get(key.getString());
+			final Pair<Integer, Integer> pair = keyToPlateAndPosition.get(key
+					.getString());
 			if (pair != null) {
 				assert pair != null;
 				final int plate = pair.getLeft().intValue() - 1;
@@ -495,7 +504,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	}
 
 	@Override
-	public void unHiLiteAll(KeyEvent event) {
+	public void unHiLiteAll(final KeyEvent event) {
 		for (final WellViewPanel well : wells) {
 			if (well != null) {
 				well.setHilited(false);

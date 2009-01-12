@@ -351,7 +351,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 			ret += parameterModel.getAggregateType() == null ? (current == null ? (parameterModel
 					.getColorLegend().size() > 0 ? parameterModel
 					.getColorLegend().size() : 1)
-					: current.getValueMapping().size())
+					: current.getSelections().size())
 					: 1;
 		}
 		return ret;

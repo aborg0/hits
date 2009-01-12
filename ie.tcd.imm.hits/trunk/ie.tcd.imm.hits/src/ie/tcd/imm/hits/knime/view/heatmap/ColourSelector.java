@@ -638,14 +638,15 @@ public class ColourSelector extends JPanel {
 			up.setValue(Double.valueOf(model.getUpVal()));
 			sample.setDown(model.getDownVal());
 			sample.setMiddle(model.getMiddleVal() == null ? 0.0 : model
-					.getMiddleVal());
+					.getMiddleVal().doubleValue());
 			sample.setUp(model.getUpVal());
 			sample.setDown(model.getDown());
 			sample.setMiddle(model.getMiddleVal() == null ? null : model
 					.getMiddle());
 			sample.setUp(model.getUp());
 			downButton.setBackground(model.getDown());
-			middleButton.setBackground(model.getMiddle());
+			middleButton.setBackground(model.getMiddle() == null ? Color.BLACK
+					: model.getMiddle());
 			upButton.setBackground(model.getUp());
 			sample.setModel(model);
 		}

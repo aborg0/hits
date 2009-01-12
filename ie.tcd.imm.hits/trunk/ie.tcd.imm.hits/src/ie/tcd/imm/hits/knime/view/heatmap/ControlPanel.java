@@ -118,6 +118,8 @@ public class ControlPanel extends JPanel {
 		private final List<ParameterModel> parameters = new ArrayList<ParameterModel>();
 		private final Map<Integer, Pair<ParameterModel, Object>> valueMapping = new HashMap<Integer, Pair<ParameterModel, Object>>();
 
+		private final Set<Integer> selections = new HashSet<Integer>();
+
 		/**
 		 * Constructs {@link Slider}s, with cache.
 		 */
@@ -163,11 +165,19 @@ public class ControlPanel extends JPanel {
 		private Slider(final Type type, final int subId,
 				final List<ParameterModel> parameters,
 				final Map<Integer, Pair<ParameterModel, Object>> valueMapping) {
+			this(type, subId, parameters, valueMapping, valueMapping.keySet());
+		}
+
+		private Slider(final Type type, final int subId,
+				final List<ParameterModel> parameters,
+				final Map<Integer, Pair<ParameterModel, Object>> valueMapping,
+				final Set<Integer> selection) {
 			super();
 			this.type = type;
 			this.subId = subId;
 			this.parameters.addAll(parameters);
 			this.valueMapping.putAll(valueMapping);
+			this.selections.addAll(selection);
 		}
 
 		@Override
@@ -219,6 +229,13 @@ public class ControlPanel extends JPanel {
 			} else if (!valueMapping.equals(other.valueMapping)) {
 				return false;
 			}
+			if (selections == null) {
+				if (other.selections != null) {
+					return false;
+				}
+			} else if (!selections.equals(other.selections)) {
+				return false;
+			}
 			return true;
 		}
 
@@ -248,10 +265,43 @@ public class ControlPanel extends JPanel {
 
 		/**
 		 * @return A {@link Map} from the constants to the values. It is
-		 *         <b>modifiable</b>!
+		 *         <em>not modifiable</em>!
 		 */
 		public Map<Integer, Pair<ParameterModel, Object>> getValueMapping() {
-			return valueMapping;
+			return Collections.unmodifiableMap(valueMapping);
+		}
+
+		/**
+		 * @return The selected (to view) values of the {@link Slider}. (<em>Not modifiable!</em>)
+		 */
+		public Set<Integer> getSelections() {
+			return Collections.unmodifiableSet(selections);
+		}
+
+		/**
+		 * Selects the value with key {@code val}.
+		 * 
+		 * @param val
+		 *            The value key to select.
+		 * @see #getSelections()
+		 * @see #deselect(Integer)
+		 * @see #getValueMapping()
+		 */
+		public void select(final Integer val) {
+			selections.add(val);
+		}
+
+		/**
+		 * Deselects the value with key {@code val}.
+		 * 
+		 * @param val
+		 *            The value key to deselect.
+		 * @see #getSelections()
+		 * @see #select(Integer)
+		 * @see #getValueMapping()
+		 */
+		public void deselect(final Integer val) {
+			selections.remove(val);
 		}
 
 		@Override
@@ -880,7 +930,8 @@ public class ControlPanel extends JPanel {
 					.getValueMapping().entrySet()) {
 				final String val = entry.getValue().getRight().toString();
 				final JToggleButton button = new JToggleButton(val);
-				button.setSelected(true);
+				button.setSelected(slider.getSelections().contains(
+						entry.getKey()));
 				final Integer origKey = entry.getKey();
 				final LinkedHashMap<Integer, Pair<ParameterModel, Object>> originalMap = new LinkedHashMap<Integer, Pair<ParameterModel, Object>>(
 						slider.getValueMapping());
@@ -893,14 +944,11 @@ public class ControlPanel extends JPanel {
 								for (final Slider otherSlider : entry
 										.getValue()) {
 									if (otherSlider.equals(slider)) {
-										otherSlider.getValueMapping().put(
-												origKey,
-												originalMap.get(origKey));
+										otherSlider.select(origKey);
 									}
 								}
 							}
-							slider.getValueMapping().put(origKey,
-									originalMap.get(origKey));
+							slider.select(origKey);
 							arrangementModel.addValue(slider, origKey,
 									originalMap.get(origKey));
 						} else {
@@ -909,12 +957,17 @@ public class ControlPanel extends JPanel {
 								for (final Slider otherSlider : entry
 										.getValue()) {
 									if (otherSlider.equals(slider)) {
-										otherSlider.getValueMapping().remove(
-												origKey);
+										otherSlider.deselect(origKey);
+										if (otherSlider.getSelections()
+												.isEmpty()) {
+											otherSlider.select(origKey);
+											button.setSelected(true);
+											return;
+										}
 									}
 								}
 							}
-							slider.getValueMapping().remove(origKey);
+							slider.deselect(origKey);
 							arrangementModel.removeValue(slider, origKey);
 						}
 						volatileModel
