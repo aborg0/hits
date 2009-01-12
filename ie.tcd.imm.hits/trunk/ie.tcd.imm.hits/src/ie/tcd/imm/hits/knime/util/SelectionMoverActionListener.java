@@ -6,6 +6,8 @@ package ie.tcd.imm.hits.knime.util;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
@@ -13,6 +15,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
+
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
+import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -33,6 +40,7 @@ public class SelectionMoverActionListener implements ActionListener,
 	private final JList list;
 	private final DefaultListModel model;
 	private final int move;
+	private final SettingsModel settingsModel;
 
 	/**
 	 * 
@@ -42,13 +50,18 @@ public class SelectionMoverActionListener implements ActionListener,
 	 *            The {@link DefaultListModel} of {@code list}.
 	 * @param move
 	 *            We move the selection by this amount.
+	 * @param settingsModel
+	 *            The {@link SettingsModelFilterString}, or
+	 *            {@link SettingsModelStringArray} for the list of values.
 	 */
 	public SelectionMoverActionListener(final JList list,
-			final DefaultListModel model, final int move) {
+			final DefaultListModel model, final int move,
+			final SettingsModel settingsModel) {
 		super();
 		this.list = list;
 		this.model = model;
 		this.move = move;
+		this.settingsModel = settingsModel;
 	}
 
 	/*
@@ -82,6 +95,46 @@ public class SelectionMoverActionListener implements ActionListener,
 							+ move - sgn);
 				}
 				model.setElementAt(tmp, selected + move);
+			}
+			final String[] newValues = new String[model.size()];
+			for (int i = model.size(); i-- > 0;) {
+				final Object elem = model.getElementAt(i);
+				if (elem instanceof DataColumnSpec) {
+					final DataColumnSpec spec = (DataColumnSpec) elem;
+					newValues[i] = spec.getName();
+				} else if (elem instanceof String) {
+					final String str = (String) elem;
+					newValues[i] = str;
+				} else {
+					throw new UnsupportedOperationException(
+							"Not supported type: " + elem.getClass());
+				}
+			}
+			if (settingsModel instanceof SettingsModelFilterString) {
+				final SettingsModelFilterString m = (SettingsModelFilterString) settingsModel;
+				m.setIncludeList(newValues);
+			} else if (settingsModel instanceof SettingsModelStringArray) {
+				final SettingsModelStringArray m = (SettingsModelStringArray) settingsModel;
+				m.setStringArrayValue(newValues);
+			} else {
+				// Do nothing, no change will be notified.
+			}
+			try {
+				final Method method = SettingsModel.class
+						.getDeclaredMethod("notifyChangeListeners");
+				method.setAccessible(true);
+				final Object result = method.invoke(settingsModel);
+				assert result == null;
+			} catch (final SecurityException e1) {
+				// Do nothing, no change will be notified.
+			} catch (final NoSuchMethodException e1) {
+				// Do nothing, no change will be notified.
+			} catch (final IllegalArgumentException e1) {
+				// Do nothing, no change will be notified.
+			} catch (final IllegalAccessException e1) {
+				// Do nothing, no change will be notified.
+			} catch (final InvocationTargetException e1) {
+				// Do nothing, no change will be notified.
 			}
 			for (int i = 0; i < selectedIndices.length; i++) {
 				selectedIndices[i] += move;

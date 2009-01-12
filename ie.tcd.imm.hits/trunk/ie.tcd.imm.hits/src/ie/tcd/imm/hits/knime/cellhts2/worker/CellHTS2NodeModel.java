@@ -235,12 +235,13 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/** Configuration key for pattern generating the folder */
 	static final String CFGKEY_FOLDER_PATTERN = "ie.tcd.imm.hits.knime.cellhts2.folder_pattern";
-	/** Possible values of the pattern that generates the folders. */
-	static final String[] POSSIBLE_FOLDER_PATTERNS = new String[] { "", "{e}",
-			"{e}\\{p}", "{e}\\{n}{*}\\{p15}", "{p}", "{n}\\{p}", "{e}_{p}",
-			"{e}_{n}{*}_{p15}", "{p}", "{n}_{p}", "" };
+	// /** Possible values of the pattern that generates the folders. */
+	// static final String[] POSSIBLE_FOLDER_PATTERNS = new String[] { "",
+	// "{e}",
+	// "{e}\\{p}", "{e}\\{n}{*}\\{p15}", "{p}", "{n}\\{p}", "{e}_{p}",
+	// "{e}_{n}{*}_{p15}", "{p}", "{n}_{p}"};
 	/** Default value of pattern generating the folder */
-	static final String DEFAULT_FOLDER_PATTERN = POSSIBLE_FOLDER_PATTERNS[3];
+	static final String DEFAULT_FOLDER_PATTERN = "{e}\\{n}{*}\\{p15}";
 
 	private final SettingsModelString normMethodModel = new SettingsModelString(
 			CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
@@ -340,8 +341,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;

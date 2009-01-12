@@ -146,11 +146,10 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				.setToolTipText("The directory of the results. (Previous results will be overwritten.)");
 		setHorizontalPlacement(true);
 		addDialogComponent(fileChooser);
-		final DialogComponentStringSelection patternDialog = new DialogComponentStringSelection(
+		final DialogComponentString patternDialog = new DialogComponentString(
 				new SettingsModelString(
 						CellHTS2NodeModel.CFGKEY_FOLDER_PATTERN,
-						CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN), "Pattern:",
-				CellHTS2NodeModel.POSSIBLE_FOLDER_PATTERNS);
+						CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN), "Pattern:");
 		// final JComboBox patternCombobox = (JComboBox) patternDialog
 		// .getComponentPanel().getComponent(1);
 		// patternCombobox.setEditable(true);
@@ -184,14 +183,16 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DefaultListModel includeListModel = (DefaultListModel) includeList
 				.getModel();
 		upButton.addActionListener(new SelectionMoverActionListener(
-				includeList, includeListModel, -1));
+				includeList, includeListModel, -1,
+				(SettingsModelFilterString) parametersDialog.getModel()));
 		buttonPanel.add(new JPanel());
 
 		final JButton downButton = new JButton("v");
 		downButton.setMaximumSize(new Dimension(125, 10));
 		buttonPanel.add(downButton);
 		downButton.addActionListener(new SelectionMoverActionListener(
-				includeList, includeListModel, 1));
+				includeList, includeListModel, 1,
+				(SettingsModelFilterString) parametersDialog.getModel()));
 		buttonPanel.add(new JPanel());
 
 		parametersDialog.setIncludeTitle("Selected parameters for analysis");
@@ -213,6 +214,14 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				"Aspect ratio of images", .1);
 		aspectRationDialog.getModel().setEnabled(false);
 		addDialogComponent(aspectRationDialog);
+		parametersDialog.getModel().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				updateSample(sample, experimentDialog, normalizationDialog,
+						isMultiplicativeDialogModel, fileChooser,
+						patternDialog, parametersDialog);
+			}
+		});
 		includeListModel.addListDataListener(new ListDataListener() {
 
 			@Override
@@ -307,7 +316,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 			final DialogComponentStringSelection normalizationDialog,
 			final ButtonModel isMultiplicativeDialogModel,
 			final DialogComponentFileChooser fileChooser,
-			final DialogComponentStringSelection patternDialog,
+			final DialogComponentString patternDialog,
 			final DialogComponentColumnFilter parametersDialog) {
 		final StringBuilder sb = new StringBuilder();
 		final String outdirSelected = ((SettingsModelString) fileChooser

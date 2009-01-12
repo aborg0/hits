@@ -149,12 +149,12 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		final int size = moveUpButton.getPreferredSize().height;
 		moveUpButton.setPreferredSize(new Dimension(size, size));
 		moveUpButton.addActionListener(new SelectionMoverActionListener(
-				fileNameList, fileNameModel, -1));
+				fileNameList, fileNameModel, -1, getModel()));
 		labelAndButtonsPanel
 				.add(new JLabel(fileNameLabel), BorderLayout.CENTER);
 		final JButton moveDownButton = new JButton("v");
 		moveDownButton.addActionListener(new SelectionMoverActionListener(
-				fileNameList, fileNameModel, 1));
+				fileNameList, fileNameModel, 1, getModel()));
 		moveDownButton.setPreferredSize(new Dimension(size, size));
 		labelAndButtonsPanel.add(moveDownButton, BorderLayout.SOUTH);
 		fileNameList.setVisibleRowCount(visibleRowCount);
