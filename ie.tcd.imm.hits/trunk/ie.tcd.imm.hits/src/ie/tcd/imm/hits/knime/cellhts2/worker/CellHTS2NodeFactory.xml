@@ -34,6 +34,9 @@
         <li>none - do not score the replicates</li>
         <li>zscore - use the robust z score method (x-median)/MAD</li>
         <li>NPI - Normalized percent inhibition, (μpos − x)/(μpos − μneg)</li>
+        <li>zscoreByPlate - use the robust z score method (x-median)/MAD for each plate</li>
+        <li>zscoreNonRobust - use the non-robust z score method (x-μ)/SD</li>
+        <li>zscoreNonRobustByPlate - use the non-robust z score method (x-μ)/SD for each plate</li>
         </ul></p></option>
         <option name="Summarize replicates with"><p>You can select which statistic would you like about from the scored replicates. Possible options:
         <ul>
