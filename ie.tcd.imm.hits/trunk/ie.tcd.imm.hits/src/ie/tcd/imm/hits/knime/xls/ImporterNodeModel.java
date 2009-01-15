@@ -222,10 +222,12 @@ public class ImporterNodeModel extends NodeModel {
 						if (wellIndex == -1) {
 							System.out.println(wellName);
 						}
-						final String annot = wellIndex == -1 ? null
-								: annotations[j / replicateCount][wellIndex][1];
-						final String geneID = wellIndex == -1 ? null
-								: annotations[j / replicateCount][wellIndex][0];
+						final String annot = wellIndex == -1
+								|| annotations == null ? null : annotations[j
+								/ replicateCount][wellIndex][1];
+						final String geneID = wellIndex == -1
+								|| annotations == null ? null : annotations[j
+								/ replicateCount][wellIndex][0];
 						final String nonNullAnnot = annot == null ? "" : annot;
 						final String nonNullGeneID = geneID == null ? ""
 								: geneID;
