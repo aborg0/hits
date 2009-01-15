@@ -3,6 +3,8 @@
 
 This page describes how to install/update the plugin to an existing KNIME installation.
 
+You may also wan to check the [Dependencies dependencies] page
+
 == Prerequisites ==
 
 You need an installed KNIME 2.0.x installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
