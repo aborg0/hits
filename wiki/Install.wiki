@@ -10,7 +10,10 @@ You may also wan to check the [Dependencies dependencies] page
 You need an installed KNIME 2.0.x installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
 If you are using an internet connection with proxy, you may want to set the appropriate preferences at File/Preferences.../_General_/_Network Connections_ tab. Please note you have to check *Enable proxy authentication* if you have to give user name and password for your proxy connection.
 
-You may install additional nodes from the introduction page.
+You may want to look at this presentation if you are in trouble: [http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5 HiTS Start and Setup KNIME]
+<wiki:comment> wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/103153836024844296842/googledocument.xml" height="600" width="800" border="0" up_webpagename="http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5" </wiki:comment>
+
+You can install additional nodes from the introduction page, or from the _Help_ menu.
 
 == Install ==
 
