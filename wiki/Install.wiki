@@ -5,7 +5,7 @@ This page describes how to install/update the plugin to an existing KNIME instal
 
 == Prerequisites ==
 
-You need an installed KNIME 2.0.x installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime|this page].
+You need an installed KNIME 2.0.x installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
 If you are using an internet connection with proxy, you may want to set the appropriate preferences at File/Preferences.../_General_/_Network Connections_ tab. Please note you have to check *Enable proxy authentication* if you have to give user name and password for your proxy connection.
 
 You may install additional nodes from the introduction page.
