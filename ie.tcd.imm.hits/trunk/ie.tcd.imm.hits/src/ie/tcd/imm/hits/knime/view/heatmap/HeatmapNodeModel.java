@@ -22,7 +22,10 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
+import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.container.ContainerTable;
+import org.knime.core.data.container.DataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -41,6 +44,8 @@ import org.knime.core.node.property.hilite.HiLiteManager;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class HeatmapNodeModel extends NodeModel {
+	private static final String INPUT_TABLE_ZIP = "inputtable.zip";
+
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(HeatmapNodeModel.class);
@@ -169,7 +174,7 @@ public class HeatmapNodeModel extends NodeModel {
 	 */
 	protected HeatmapNodeModel() {
 		super(1, 1);
-//		setAutoExecutable(true);
+		// setAutoExecutable(true);
 		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
 	}
 
@@ -179,7 +184,14 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		modelBuilder = new ModelBuilder(inData[0]);
+		executeInner(inData[0], exec);
+		return new BufferedDataTable[] { (BufferedDataTable) modelBuilder
+				.getTable() };
+	}
+
+	private void executeInner(final DataTable table, final ExecutionMonitor exec)
+			throws CanceledExecutionException {
+		modelBuilder = new ModelBuilder(table);
 		exec.checkCanceled();
 		final SpecAnalyser sa = modelBuilder.getSpecAnalyser();
 		if (sa.isHasReplicate()) {
@@ -275,15 +287,13 @@ public class HeatmapNodeModel extends NodeModel {
 						ModelBuilder.SUMMARISE_METHOD_COLUMN }),
 				new ArrayList<String>(normalisations)));
 		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
-		return new BufferedDataTable[] { (BufferedDataTable) modelBuilder
-				.getTable() };
 	}
 
 	/**
 	 * @return The actual table used.
 	 */
-	public BufferedDataTable getTable() {
-		return (BufferedDataTable) modelBuilder.getTable();
+	public DataTable getTable() {
+		return modelBuilder.getTable();
 	}
 
 	/**
@@ -369,6 +379,11 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 		// TODO load internal data.
+		final File file = new File(internDir, INPUT_TABLE_ZIP);
+		if (file.isFile() && file.exists()) {
+			final ContainerTable table = DataContainer.readFromZip(file);
+			executeInner(table, exec);
+		}
 		// Everything handed to output ports is loaded automatically (data
 		// returned by the execute method, models loaded in loadModelContent,
 		// and user settings set through loadSettingsFrom - is all taken care
@@ -384,6 +399,12 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 		// TODO save internal models.
+		final File file = new File(internDir, INPUT_TABLE_ZIP);
+		if (getTable() != null) {
+			DataContainer.writeToZip(getTable(), file, exec);
+		} else {
+			file.delete();
+		}
 		// Everything written to output ports is saved automatically (data
 		// returned by the execute method, models saved in the saveModelContent,
 		// and user settings saved through saveSettingsTo - is all taken care
