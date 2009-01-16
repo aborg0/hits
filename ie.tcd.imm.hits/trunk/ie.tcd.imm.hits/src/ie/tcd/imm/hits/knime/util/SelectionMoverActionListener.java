@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -77,7 +76,6 @@ public class SelectionMoverActionListener implements ActionListener,
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final int[] selectedIndices = list.getSelectedIndices();
-		Arrays.sort(selectedIndices);
 		final int max = model.getSize();
 		if (selectedIndices.length > 0
 				&& (move > 0 && selectedIndices[selectedIndices.length - 1]
