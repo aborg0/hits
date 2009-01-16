@@ -37,7 +37,6 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -75,14 +74,6 @@ public class ImporterNodeModel extends NodeModel {
 	/** The default annotation file path. */
 	static final String DEFAULT_ANNOTATION_FILE = "";
 
-	/**
-	 * The configuration key for adding the annotations to the first outport or
-	 * not.
-	 */
-	static final String CFGKEY_COMBINE_ANNOTATIONS = "ie.tcd.imm.hits.knime.xls.combine_annot";
-	/** The default value for adding the annotations to the first outport */
-	static final boolean DEFAULT_COMBINE_ANNOTATIONS = true;
-
 	/** The configuration key for the well count per plate parameter. */
 	static final String CFGKEY_WELL_COUNT = "ie.tcd.imm.hits.knime.wells";
 	/** The default well count */
@@ -111,9 +102,6 @@ public class ImporterNodeModel extends NodeModel {
 	private final SettingsModelString annotationFileNameModel = new SettingsModelString(
 			CFGKEY_ANNOTATION_FILE, DEFAULT_ANNOTATION_FILE);
 
-	private final SettingsModelBoolean combineAnnotationsModel = new SettingsModelBoolean(
-			CFGKEY_COMBINE_ANNOTATIONS, DEFAULT_COMBINE_ANNOTATIONS);
-
 	private final SettingsModelIntegerBounded wellCountModel = new SettingsModelIntegerBounded(
 			ImporterNodeModel.CFGKEY_WELL_COUNT,
 			ImporterNodeModel.DEFAULT_WELL_COUNT, DEFAULT_WELL_COUNT,
@@ -132,7 +120,7 @@ public class ImporterNodeModel extends NodeModel {
 	 */
 	protected ImporterNodeModel() {
 
-		super(0, 2);
+		super(0, 1);
 	}
 
 	/**
@@ -141,10 +129,9 @@ public class ImporterNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
+		final boolean addAnnotations = !annotationFileNameModel
+				.getStringValue().isEmpty();
 		BufferedDataContainer container = null;
-		final BufferedDataContainer annotationsTable = exec
-				.createDataContainer(getAnnotationTableSpec());
-		// final String dir = dirModel.getStringValue();
 		int rows, cols;
 		switch (wellCountModel.getIntValue()) {
 		case 96:
@@ -174,7 +161,7 @@ public class ImporterNodeModel extends NodeModel {
 							.getSheet("Summary by wells");
 					final HSSFRow row = perWellSheet.getRow(1);
 					int columns = 3;
-					for (short i = row.getLastCellNum(); i-- > Math.max(row
+					for (int i = row.getLastCellNum(); i-- > Math.max(row
 							.getFirstCellNum(), 1)
 							&& row.getCell(i) != null;) {
 						++columns;
@@ -204,8 +191,7 @@ public class ImporterNodeModel extends NodeModel {
 					}
 					for (int i = 3; i < perWellSheet.getLastRowNum() + 1; ++i) {
 						final DataCell[] values = new DataCell[columns
-								+ (combineAnnotationsModel.getBooleanValue() ? 2
-										: 0)];
+								+ (addAnnotations ? 2 : 0)];
 						values[0] = new IntCell(1 + (j / replicateCount));// plate
 						values[1] = new IntCell(1 + (j % replicateCount));// replicate
 						final HSSFRow currentRow = perWellSheet.getRow(i);
@@ -231,7 +217,7 @@ public class ImporterNodeModel extends NodeModel {
 						final String nonNullAnnot = annot == null ? "" : annot;
 						final String nonNullGeneID = geneID == null ? ""
 								: geneID;
-						if (combineAnnotationsModel.getBooleanValue()) {
+						if (addAnnotations) {
 							values[columns] = new StringCell(nonNullGeneID);
 							values[columns + 1] = new StringCell(nonNullAnnot);
 						}
@@ -240,12 +226,7 @@ public class ImporterNodeModel extends NodeModel {
 								+ (i - 2);
 						final DefaultRow defaultRow = new DefaultRow(
 								new RowKey(keyString), values);
-						final DefaultRow annotRow = new DefaultRow(new RowKey(
-								keyString), values[0], values[1], values[2],
-								new StringCell(nonNullGeneID), new StringCell(
-										nonNullAnnot));
 						container.addRowToTable(defaultRow);
-						annotationsTable.addRowToTable(annotRow);
 					}
 					final DataType[] cellTypes = new DataType[columns];
 					for (int i = 0; i < cellTypes.length; i++) {
@@ -265,9 +246,8 @@ public class ImporterNodeModel extends NodeModel {
 		}
 		// once we are done, we close the container and return its table
 		container.close();
-		annotationsTable.close();
 		final BufferedDataTable out = container.getTable();
-		return new BufferedDataTable[] { out, annotationsTable.getTable() };
+		return new BufferedDataTable[] { out };
 	}
 
 	private static String[][][] readAnnotations(final int plateCount,
@@ -358,10 +338,6 @@ public class ImporterNodeModel extends NodeModel {
 					"The annotation file -if specified must be readable!");
 		}
 
-		// final String dirName = dirModel.getStringValue();
-		// if (dirName == null) {
-		// throw new InvalidSettingsException("Must select a directory.");
-		// }
 		final File file = new File(filesModel.getStringArrayValue()[0]);
 		final FileInputStream fis;
 		try {
@@ -372,8 +348,7 @@ public class ImporterNodeModel extends NodeModel {
 				final HSSFSheet perWellSheet = wb.getSheet("Summary by wells");
 				final HSSFRow row = perWellSheet.getRow(1);
 				final DataTableSpec dataTableSpec = getDataTableSpecFromRow(row);
-				return new DataTableSpec[] { dataTableSpec,
-						getAnnotationTableSpec() };
+				return new DataTableSpec[] { dataTableSpec };
 			} finally {
 				fis.close();
 			}
@@ -385,23 +360,17 @@ public class ImporterNodeModel extends NodeModel {
 		}
 	}
 
-	private static DataTableSpec getAnnotationTableSpec() {
-		return new DataTableSpec(new String[] { PLATE_COL_NAME,
-				REPLICATE_COL_NAME, WELL_COL_NAME, GENE_ID_COL_NAME,
-				GENE_ANNOTATION_COL_NAME },
-				new DataType[] { IntCell.TYPE, IntCell.TYPE, StringCell.TYPE,
-						StringCell.TYPE, StringCell.TYPE });
-	}
-
 	private DataTableSpec getDataTableSpecFromRow(final HSSFRow row) {
 		final List<String> header = new ArrayList<String>();
-		for (short i = row.getLastCellNum(); i-- > Math.max(row
-				.getFirstCellNum(), 1)
+		for (int i = row.getLastCellNum(); i-- > Math.max(
+				row.getFirstCellNum(), 1)
 				&& row.getCell(i) != null;) {
 			header.add(0, row.getCell(i).getRichStringCellValue().getString());
 		}
+		final boolean addAnnotations = !annotationFileNameModel
+				.getStringValue().isEmpty();
 		final DataType[] cellTypes = new DataType[header.size()
-				+ (combineAnnotationsModel.getBooleanValue() ? 5 : 3)];
+				+ (addAnnotations ? 5 : 3)];
 		for (int i = 0; i < header.size(); i++) {
 			cellTypes[i + 3] = DoubleCell.TYPE;
 		}
@@ -411,7 +380,7 @@ public class ImporterNodeModel extends NodeModel {
 		header.add(0, WELL_COL_NAME);
 		header.add(0, REPLICATE_COL_NAME);
 		header.add(0, PLATE_COL_NAME);
-		if (combineAnnotationsModel.getBooleanValue()) {
+		if (addAnnotations) {
 			header.add(GENE_ID_COL_NAME);
 			header.add(GENE_ANNOTATION_COL_NAME);
 			cellTypes[cellTypes.length - 2] = StringCell.TYPE;
@@ -427,9 +396,7 @@ public class ImporterNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// dirModel.saveSettingsTo(settings);
 		annotationFileNameModel.saveSettingsTo(settings);
-		combineAnnotationsModel.saveSettingsTo(settings);
 		filesModel.saveSettingsTo(settings);
 		wellCountModel.saveSettingsTo(settings);
 		plateCountModel.saveSettingsTo(settings);
@@ -442,9 +409,7 @@ public class ImporterNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// dirModel.loadSettingsFrom(settings);
 		annotationFileNameModel.loadSettingsFrom(settings);
-		combineAnnotationsModel.loadSettingsFrom(settings);
 		filesModel.loadSettingsFrom(settings);
 		wellCountModel.loadSettingsFrom(settings);
 		plateCountModel.loadSettingsFrom(settings);
@@ -457,10 +422,7 @@ public class ImporterNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// filesModel.validateSettings(settings);
-		// dirModel.validateSettings(settings);
 		annotationFileNameModel.validateSettings(settings);
-		combineAnnotationsModel.validateSettings(settings);
 		wellCountModel.validateSettings(settings);
 		plateCountModel.validateSettings(settings);
 		replicateCountModel.validateSettings(settings);

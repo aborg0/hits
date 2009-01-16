@@ -8,10 +8,8 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -107,14 +105,16 @@ public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 		annotFileChooser.setBorderTitle("Annotation file");
 		annotFileChooser.setToolTipText("The file containing the annotations.");
 		addDialogComponent(annotFileChooser);
-		final DialogComponentBoolean addAnnotationsDialog = new DialogComponentBoolean(
-				new SettingsModelBoolean(
-						ImporterNodeModel.CFGKEY_COMBINE_ANNOTATIONS,
-						ImporterNodeModel.DEFAULT_COMBINE_ANNOTATIONS),
-				"Put annotations to the main output?");
-		addAnnotationsDialog
-				.setToolTipText("Add the gene annotations to the main outport too if checked.");
-		addDialogComponent(addAnnotationsDialog);
+		// final DialogComponentBoolean addAnnotationsDialog = new
+		// DialogComponentBoolean(
+		// new SettingsModelBoolean(
+		// ImporterNodeModel.CFGKEY_COMBINE_ANNOTATIONS,
+		// ImporterNodeModel.DEFAULT_COMBINE_ANNOTATIONS),
+		// "Put annotations to the main output?");
+		// addAnnotationsDialog
+		// .setToolTipText("Add the gene annotations to the main outport too if
+		// checked.");
+		// addDialogComponent(addAnnotationsDialog);
 		closeCurrentGroup();
 	}
 }

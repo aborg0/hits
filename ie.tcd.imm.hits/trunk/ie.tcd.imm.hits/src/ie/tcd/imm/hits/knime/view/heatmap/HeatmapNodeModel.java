@@ -173,7 +173,7 @@ public class HeatmapNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected HeatmapNodeModel() {
-		super(1, 1);
+		super(1, 0);
 		// setAutoExecutable(true);
 		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
 	}
@@ -185,8 +185,10 @@ public class HeatmapNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		executeInner(inData[0], exec);
-		return new BufferedDataTable[] { (BufferedDataTable) modelBuilder
-				.getTable() };
+		return new BufferedDataTable[] { /*
+		 * (BufferedDataTable) modelBuilder
+		 * .getTable()
+		 */};
 	}
 
 	private void executeInner(final DataTable table, final ExecutionMonitor exec)
@@ -335,7 +337,7 @@ public class HeatmapNodeModel extends NodeModel {
 		// to execute. If the node can execute in its current state return
 		// the spec of its output data table(s) (if you can, otherwise an array
 		// with null elements), or throw an exception with a useful user message
-		return new DataTableSpec[] { inSpecs[0] };
+		return new DataTableSpec[] { /* inSpecs[0] */};
 	}
 
 	/**

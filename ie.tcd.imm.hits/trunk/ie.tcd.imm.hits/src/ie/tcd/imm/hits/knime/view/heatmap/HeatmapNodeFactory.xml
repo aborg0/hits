@@ -18,7 +18,7 @@
     <ports>
         <dataIn index="0" name="Data">An output of CellHTS2 node.</dataIn>
         <!-- possibly more ports here-->
-        <dataOut index="0" name="Data">The same as the input.</dataOut>
+        <!--dataOut index="0" name="Data">The same as the input.</dataOut-->
         <!--modelIn index="0">Description of first model input port...</modelIn-->
         <!--modelOut index="0">Description of first model output port...</modelOut-->
     </ports>    
