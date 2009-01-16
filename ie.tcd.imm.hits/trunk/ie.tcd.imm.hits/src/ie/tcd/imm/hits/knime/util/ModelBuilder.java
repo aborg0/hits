@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.util;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
@@ -643,7 +644,9 @@ public class ModelBuilder {
 	 *            {@code [a-hA-H](0)?[0-9]}.
 	 * @return The {@code 0} based position on the 96 well plate. (Horizontal
 	 *         first, then vertical.)
+	 * @see Format#convertWellToPosition(String)
 	 */
+	@Deprecated
 	public static int convertWellToPosition(final String well) {
 		return ((Character.toLowerCase(well.charAt(0)) - 'a')
 				* 12

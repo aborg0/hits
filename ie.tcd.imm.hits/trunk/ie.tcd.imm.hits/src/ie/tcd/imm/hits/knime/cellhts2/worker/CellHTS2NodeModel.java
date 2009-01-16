@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeModel;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -341,8 +343,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			 * "127.0.0.1", 1099, 10000
+			 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -364,11 +366,19 @@ public class CellHTS2NodeModel extends NodeModel {
 			int plateCount = 0;
 			int wellRowCount = 0;
 			int wellColCount = 0;
+			final int plateIdx = getIndex(inData,
+					ImporterNodeModel.PLATE_COL_NAME);
+			final int replicateIdx = getIndex(inData,
+					ImporterNodeModel.REPLICATE_COL_NAME);
+			final int wellIdx = getIndex(inData,
+					ImporterNodeModel.WELL_COL_NAME);
 			for (final DataRow dataRow : inData[0]) {
-				final Iterator<DataCell> it = dataRow.iterator();
-				final int plate = ((IntCell) it.next()).getIntValue();
-				final int replicate = ((IntCell) it.next()).getIntValue();
-				final String wellId = ((StringCell) it.next()).getStringValue();
+				final int plate = ((IntCell) dataRow.getCell(plateIdx))
+						.getIntValue();
+				final int replicate = ((IntCell) dataRow.getCell(replicateIdx))
+						.getIntValue();
+				final String wellId = ((StringCell) dataRow.getCell(wellIdx))
+						.getStringValue();
 				replicateCount = Math.max(replicateCount, replicate);
 				plateCount = Math.max(plateCount, plate);
 				wellRowCount = Math.max(wellRowCount,
@@ -417,35 +427,37 @@ public class CellHTS2NodeModel extends NodeModel {
 			final double[] rawValues = new double[inData[0].getRowCount()
 					* paramCount];
 			// final int i = 0;
-			final HashSet<String> paramSet = new HashSet<String>(
-					parametersModel.getIncludeList());
+			// final HashSet<String> paramSet = new HashSet<String>(
+			// parametersModel.getIncludeList());
+			final Map<String, Integer> paramIndices = new HashMap<String, Integer>();
+			{
+				final DataTableSpec tableSpec = inData[0].getDataTableSpec();
+				for (int i = tableSpec.getNumColumns(); i-- > 0;) {
+					paramIndices.put(tableSpec.getColumnSpec(i).getName(),
+							Integer.valueOf(i));
+				}
+			}
 			for (final DataRow dataRow : inData[0]) {
 				// final Iterator<DataCell> it = dataRow.iterator();
-				final Iterator<DataColumnSpec> it = inData[0]
-						.getDataTableSpec().iterator();
-				it.next();
-				it.next();
-				it.next();
-				final int plate = ((IntCell) /* it.next() */dataRow.getCell(0))
-						.getIntValue() - 1;
+				final int plate = ((IntCell) /* it.next() */dataRow
+						.getCell(plateIdx)).getIntValue() - 1;
 				final int replicate = ((IntCell) /* it.next() */dataRow
-						.getCell(1)).getIntValue() - 1;
+						.getCell(replicateIdx)).getIntValue() - 1;
 				final String wellId = ((StringCell) /* it.next() */dataRow
-						.getCell(2)).getStringValue();
-				final int well = getWellNumber(wellId);
-				for (int j = 3, k = 0; it.hasNext(); ++j) {
-					final DataCell nextCell = dataRow.getCell(j);// it.next();
-					final String colName = it.next().getName();
-					if (/* nextCell.getType().equals(StringCell.TYPE) */!paramSet
-							.contains(colName)) {
-						// break;
-						continue;
+						.getCell(wellIdx)).getStringValue();
+				final int well = Format._96.convertWellToPosition(wellId);
+				// getWellNumber(wellId);
+				{
+					int j = 0;
+					for (final String colName : parametersModel
+							.getIncludeList()) {
+						final DoubleValue cell = (DoubleValue) dataRow
+								.getCell(paramIndices.get(colName).intValue());
+						rawValues[plate
+								* (replicateCount * paramCount * wellCount)
+								+ replicate * (paramCount * wellCount) + j++
+								* wellCount + well] = cell.getDoubleValue();
 					}
-
-					rawValues[plate * (replicateCount * paramCount * wellCount)
-							+ replicate * (paramCount * wellCount) + k++
-							* wellCount + well] = ((DoubleCell) nextCell)
-							.getDoubleValue();
 				}
 			}
 			exec.checkCanceled();
@@ -771,6 +783,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		} finally {
 			conn.close();
 		}
+	}
+
+	private static int getIndex(final BufferedDataTable[] inData,
+			final String colName) {
+		final int plateIdx = inData[0].getDataTableSpec().findColumnIndex(
+				colName);
+		assert plateIdx != -1 : "No " + colName + " column";
+		return plateIdx;
 	}
 
 	/**
@@ -1744,20 +1764,21 @@ public class CellHTS2NodeModel extends NodeModel {
 		return ret;
 	}
 
-	/**
-	 * TODO only 96 well format supported. Use
-	 * {@link ModelBuilder#convertWellToPosition(String)} instead this.
-	 * 
-	 * @param wellId
-	 * @return The well position starting from {@code 0}. Ideal for array index
-	 *         computation
-	 */
-	@Deprecated
-	private static int getWellNumber(final String wellId) {
-		assert wellId.length() >= 2 && wellId.length() < 4;
-		return (wellId.charAt(0) - 'A') * 12
-				+ Integer.valueOf(wellId.substring(1)) - 1;
-	}
+	// /**
+	// * TODO only 96 well format supported. Use
+	// * {@link ModelBuilder#convertWellToPosition(String)} instead this.
+	// *
+	// * @param wellId
+	// * @return The well position starting from {@code 0}. Ideal for array
+	// index
+	// * computation
+	// */
+	// @Deprecated
+	// private static int getWellNumber(final String wellId) {
+	// assert wellId.length() >= 2 && wellId.length() < 4;
+	// return (wellId.charAt(0) - 'A') * 12
+	// + Integer.valueOf(wellId.substring(1)) - 1;
+	// }
 
 	/**
 	 * {@inheritDoc}
@@ -1775,34 +1796,50 @@ public class CellHTS2NodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (!inSpecs[0].getColumnSpec(0).getType().equals(IntCell.TYPE)
-				|| !inSpecs[0].getColumnSpec(1).getType().equals(IntCell.TYPE)
-				|| !inSpecs[0].getColumnSpec(2).getType().equals(
+		final int plateIdx = checkColumn(inSpecs,
+				ImporterNodeModel.PLATE_COL_NAME);
+		final int replicateIdx = checkColumn(inSpecs,
+				ImporterNodeModel.REPLICATE_COL_NAME);
+		final int wellIdx = checkColumn(inSpecs,
+				ImporterNodeModel.WELL_COL_NAME);
+		if (!inSpecs[0].getColumnSpec(plateIdx).getType().equals(IntCell.TYPE)
+				|| !inSpecs[0].getColumnSpec(replicateIdx).getType().equals(
+						IntCell.TYPE)
+				|| !inSpecs[0].getColumnSpec(wellIdx).getType().equals(
 						StringCell.TYPE)) {
 			throw new InvalidSettingsException("Wrong input type on first port");
 		}
-		if (!inSpecs[0].getColumnSpec(0).getName().equalsIgnoreCase(
+		if (!inSpecs[0].getColumnSpec(plateIdx).getName().equalsIgnoreCase(
 				ImporterNodeModel.PLATE_COL_NAME)
-				|| !inSpecs[0].getColumnSpec(1).getName().equalsIgnoreCase(
-						ImporterNodeModel.REPLICATE_COL_NAME)
-				|| !inSpecs[0].getColumnSpec(2).getName().equalsIgnoreCase(
-						ImporterNodeModel.WELL_COL_NAME)) {
+				|| !inSpecs[0].getColumnSpec(replicateIdx).getName()
+						.equalsIgnoreCase(ImporterNodeModel.REPLICATE_COL_NAME)
+				|| !inSpecs[0].getColumnSpec(wellIdx).getName()
+						.equalsIgnoreCase(ImporterNodeModel.WELL_COL_NAME)) {
 			throw new InvalidSettingsException("Wrong input name on first port");
 		}
-		final Iterator<DataColumnSpec> firstIt = inSpecs[0].iterator();
-		firstIt.next();
-		firstIt.next();
-		firstIt.next();
-		while (firstIt.hasNext()) {
-			final DataColumnSpec spec = firstIt.next();
-			/*
-			 * if (firstIt.hasNext()) { if
-			 * (!spec.getType().equals(DoubleCell.TYPE)) { throw new
-			 * InvalidSettingsException( "Illegal type of parameter"); } } else
-			 */if (!spec.getType().equals(DoubleCell.TYPE)
-					&& !spec.getType().equals(StringCell.TYPE)) {
-				throw new InvalidSettingsException(
-						"Illegal type of parameter on first port");
+		{
+			final Iterator<DataColumnSpec> firstIt = inSpecs[0].iterator();
+			// firstIt.next();
+			// firstIt.next();
+			// firstIt.next();
+			final Set<String> checkedNames = new HashSet<String>();
+			checkedNames.add(ImporterNodeModel.PLATE_COL_NAME);
+			checkedNames.add(ImporterNodeModel.REPLICATE_COL_NAME);
+			checkedNames.add(ImporterNodeModel.WELL_COL_NAME);
+			while (firstIt.hasNext()) {
+				final DataColumnSpec spec = firstIt.next();
+				if (!checkedNames.contains(spec.getName())) {
+					/*
+					 * if (firstIt.hasNext()) { if
+					 * (!spec.getType().equals(DoubleCell.TYPE)) { throw new
+					 * InvalidSettingsException( "Illegal type of parameter"); } }
+					 * else
+					 */if (!spec.getType().equals(DoubleCell.TYPE)
+							&& !spec.getType().equals(StringCell.TYPE)) {
+						throw new InvalidSettingsException(
+								"Illegal type of parameter on first port");
+					}
+				}
 			}
 		}
 		if (!inSpecs[1].getColumnSpec(0).getType().equals(StringCell.TYPE)
@@ -1844,6 +1881,16 @@ public class CellHTS2NodeModel extends NodeModel {
 				computeTopTableSpec(inSpecs[0], true));
 		return new DataTableSpec[] { sumTableSpec, repTableSpec,
 				aggregateValuesSpec, configurationSpec, outputFolderSpec };
+	}
+
+	private int checkColumn(final DataTableSpec[] inSpecs, final String colName)
+			throws InvalidSettingsException {
+		final int idx = inSpecs[0].findColumnIndex(colName);
+		if (idx == -1) {
+			throw new InvalidSettingsException("No " + colName
+					+ " column found.");
+		}
+		return idx;
 	}
 
 	/**

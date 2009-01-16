@@ -3,11 +3,11 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Format;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;

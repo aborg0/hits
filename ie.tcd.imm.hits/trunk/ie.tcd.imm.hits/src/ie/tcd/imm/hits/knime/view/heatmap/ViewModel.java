@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -41,38 +42,6 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class ViewModel implements ActionListener {
 	private final WeakHashMap<ChangeListener, Boolean> changeListeners = new WeakHashMap<ChangeListener, Boolean>();
 	private final WeakHashMap<ActionListener, Boolean> actionListeners = new WeakHashMap<ActionListener, Boolean>();
-
-	/**
-	 * Plate format. Only {@code 96}, or {@code 384} are supported.
-	 */
-	public static enum Format {
-		/** 96 plate format */
-		_96(8, 12),
-		/** 384 plate format */
-		_384(16, 24);
-
-		private final int row;
-		private final int col;
-
-		private Format(final int row, final int col) {
-			this.row = row;
-			this.col = col;
-		}
-
-		/**
-		 * @return The row count for the {@link Format plate format}.
-		 */
-		public int getRow() {
-			return row;
-		}
-
-		/**
-		 * @return The column count for the {@link Format plate format}.
-		 */
-		public int getCol() {
-			return col;
-		}
-	}
 
 	/**
 	 * The shape of the well representation.
