@@ -49,5 +49,6 @@ Export-Package: edu.umd.cs.findbugs.annotations,
  org.rosuda.REngine,
  org.rosuda.REngine.Rserve,
  org.rosuda.REngine.Rserve.protocol
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

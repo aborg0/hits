@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar" sourcepath="lib/source/poi_3.2_FINAL_20081019-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/REngine_2.5.2.jar" sourcepath="lib/source/Rserve_0.5.2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/Rserve_2.5.2.jar" sourcepath="lib/source/Rserve_0.5.2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/annotations.jar" sourcepath="lib/source/annotations_1.3.7-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar"/>
-	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar" sourcepath="lib/source/poi_3.2_FINAL_20081019-src.zip"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar" sourcepath="ie.tcd.imm.hits.3rdpartysrc.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
