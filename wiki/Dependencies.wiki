@@ -1,5 +1,5 @@
 This package is using the following components:
- * [http://www.knime.org/downloads/knime KNIME] 2.x
+ * [http://www.knime.org/downloads/knime KNIME] 2.x (The first [http://www.knime.org/introduction/screencasts screencast] helps you to install it.)
  * [http://cran.r-project.org/mirrors.html R] 2.8.x ([InstallR  help to install and setup R])
  * [http://www.bioconductor.org/packages/release/bioc/html/cellHTS2.html CellHTS2 2.6.x] (recommends {{{locfit}}}) ([InstallCellHTS2 help to install and setup CellHTS2])
  * [http://www.rforge.net/Rserve/ Rserve] 0.5.2 or later ([InstallRserve help to install and setup Rserve])
