@@ -41,6 +41,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicBorders;
 
@@ -922,7 +923,8 @@ public class ControlPanel extends JPanel {
 		final ArrangementModel arrangementModel = viewModel.getMain()
 				.getArrangementModel();
 		final List<ParameterModel> parameters = slider.getParameters();
-		final JPanel ret = new JPanel();
+		final JToolBar ret = new JToolBar(parameters.iterator().next().getShortName());
+		ret.setFloatable(true);
 		if (parameters.size() == 1) {
 			final ParameterModel model = parameters.iterator().next();
 			ret.setBorder(new TitledBorder(model.getShortName()));
@@ -997,21 +999,24 @@ public class ControlPanel extends JPanel {
 	private Component createSliderComboBox(final Slider slider) {
 		final List<ParameterModel> parameters = slider.getParameters();
 		if (parameters.size() == 1) {
-			final JComboBox ret = new JComboBox();
+			final JComboBox combobox = new JComboBox();
 			for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 					.getValueMapping().entrySet()) {
-				ret.addItem(entry.getValue().getRight());
+				combobox.addItem(entry.getValue().getRight());
 			}
-			ret.setSelectedIndex(view.getVolatileModel().getSliderPositions()
+			combobox.setSelectedIndex(view.getVolatileModel().getSliderPositions()
 					.get(slider).intValue() - 1);
 			// ret.setEditable(false);
-			ret.addActionListener(new ActionListener() {
+			combobox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent e) {
 					view.getVolatileModel().setSliderPosition(slider,
-							Integer.valueOf(ret.getSelectedIndex() + 1));
+							Integer.valueOf(combobox.getSelectedIndex() + 1));
 				}
 			});
+			JToolBar ret=new JToolBar(slider.getParameters().iterator().next().getShortName());
+			ret.add(combobox);
+			ret.setFloatable(true);
 			return ret;
 		}
 		throw new UnsupportedOperationException("Sorry, not supported yet.");

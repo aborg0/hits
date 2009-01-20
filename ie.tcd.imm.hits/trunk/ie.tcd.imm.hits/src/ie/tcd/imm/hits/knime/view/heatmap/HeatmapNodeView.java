@@ -54,6 +54,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
@@ -235,7 +236,10 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						0).getShortName()));
 				// if (allChoiceCount > 1) {
 				currentContainer.setLayout(new BorderLayout());
-				currentContainer.add(slider, BorderLayout.NORTH);
+				JToolBar toolbar = new JToolBar(selectorSlider.getParameters().iterator().next().getShortName());
+				toolbar.setFloatable(true);
+				toolbar.add(slider);
+				currentContainer.add(toolbar, BorderLayout.NORTH);
 				currentContainer.add(currentContainer = new JPanel(),
 						BorderLayout.CENTER);
 				slider.addChangeListener(new ChangeListener() {
