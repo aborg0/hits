@@ -3,4 +3,4 @@ This package is using the following components:
  * [http://cran.r-project.org/mirrors.html R] 2.8.x ([InstallR  help to install and setup R])
  * [http://www.bioconductor.org/packages/release/bioc/html/cellHTS2.html CellHTS2 2.6.x] (recommends {{{locfit}}}) ([InstallCellHTS2 help to install and setup CellHTS2])
  * [http://www.rforge.net/Rserve/ Rserve] 0.5.2 or later ([InstallRserve help to install and setup Rserve])
- * [http://java.sun.com/javase/ Java SE 6] (SUN JRE update 10 and 11 have very annoying UI problems with KNIME under MS Windows, so those are not recommended)
+ * [http://java.sun.com/javase/ Java SE 6] (SUN JRE update 10 and 11 have very annoying UI problems with KNIME under MS Windows, so those are not recommended; the one is included with the KNIME installation is OK, so you do not have to download anything.)
