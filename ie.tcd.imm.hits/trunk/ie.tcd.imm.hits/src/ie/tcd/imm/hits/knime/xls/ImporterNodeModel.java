@@ -166,6 +166,7 @@ public class ImporterNodeModel extends NodeModel {
 							&& row.getCell(i) != null;) {
 						++columns;
 					}
+					exec.checkCanceled();
 					if (j == 0) {
 						final DataTableSpec outputSpec = getDataTableSpecFromRow(row);
 						container = exec.createDataContainer(outputSpec);
@@ -206,7 +207,7 @@ public class ImporterNodeModel extends NodeModel {
 						}
 						final int wellIndex = getIndex(wellName, rows, cols);
 						if (wellIndex == -1) {
-							System.out.println(wellName);
+							logger.debug(wellName);
 						}
 						final String annot = wellIndex == -1
 								|| annotations == null ? null : annotations[j
