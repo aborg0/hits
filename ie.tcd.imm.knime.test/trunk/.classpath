@@ -5,8 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits.3rdparty"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
-	<classpathentry kind="lib" path="lib/easyb-0.9.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar"/>
-	<classpathentry kind="lib" path="D:/progs/eclipse_knime_2.0/plugins/org.testng.eclipse_5.8.0.2/lib/testng-jdk15.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TestNG_jdk15"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
