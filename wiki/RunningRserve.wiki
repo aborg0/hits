@@ -1,0 +1,5 @@
+This page describes how to run Rserve on your computer.
+
+First you have to install Rserve. You can follow [InstallCellHTS2 this guide].
+
+You may start it with the shortcut, or with the {{{library("Rserve")}}} command. (Please take attention to the proxy settings if you want to use the [biomaRtAnnotatorNode biomaRt Annotator] node in both case.)
