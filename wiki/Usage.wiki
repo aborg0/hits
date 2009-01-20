@@ -1,4 +1,4 @@
-#labels DescribeshowtouseHiTS,Featured
+#labels Featured
 = Usage =
 
 After you have [InstallDependencies installed all dependencies] and the [Install HiTS plugins] you are almost ready to use this program. (We are assuming you have set the proxy settings if you need them in one of the previous steps.)
