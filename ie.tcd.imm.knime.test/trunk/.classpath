@@ -5,6 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits.3rdparty"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TestNG_jdk15"/>
+	<classpathentry kind="var" path="TESTNG_HOME/lib/testng-jdk15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
