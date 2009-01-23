@@ -1,6 +1,8 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 
 /**
  * <code>NodeDialog</code> for the "Heatmap" Node. Shows the heatmap of the
@@ -21,6 +23,9 @@ public class HeatmapNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	protected HeatmapNodeDialog() {
 		super();
-
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				HeatmapNodeModel.CFGKEY_SAVE_SETTINGS,
+				HeatmapNodeModel.DEFAULT_SAVE_SETTINGS),
+				"Save settings of changes."));
 	}
 }

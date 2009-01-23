@@ -1,7 +1,6 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 
 import java.awt.Color;
@@ -77,7 +76,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		}
 		final List<ParameterModel> primerParameters = model.getMain()
 				.getPrimerParameters();
-		final Collection<Slider> sliders = model.getMain()
+		final Collection<SliderModel> sliders = model.getMain()
 				.getArrangementModel().getSliders().get(Type.Splitter);
 		final int primerParamCount = Math.max(1, selectValueCount(
 				primerParameters, sliders));
@@ -176,7 +175,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 			}
 			if (model.getMain().isDrawPrimaryBorders()) {
 				g.setColor(borderColor);
-				if (primerParamCount > 0) {
+				if (primerParamCount > 1) {
 					for (int i = primerParamCount; i-- > 0;) {
 						final double angle = (model.getMain().getStartAngle() + i
 								* 360 / primerParamCount)
@@ -333,15 +332,15 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 * @param parameters
 	 *            The parameters of the splits.
 	 * @param sliders
-	 *            The {@link Slider}s splitting the wells.
+	 *            The {@link SliderModel}s splitting the wells.
 	 * @return The number of different values to represent.
 	 */
 	protected static int selectValueCount(
 			final List<ParameterModel> parameters,
-			final Collection<Slider> sliders) {
+			final Collection<SliderModel> sliders) {
 		int ret = 0;
-		Slider current = null;
-		for (final Slider slider : sliders) {
+		SliderModel current = null;
+		for (final SliderModel slider : sliders) {
 			if (slider.getParameters().equals(parameters)) {
 				current = slider;
 				break;

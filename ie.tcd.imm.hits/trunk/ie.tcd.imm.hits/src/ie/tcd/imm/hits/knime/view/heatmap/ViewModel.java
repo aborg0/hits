@@ -5,7 +5,6 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
 
@@ -29,6 +28,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -39,6 +39,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
+@XmlRootElement(name = "viewmodel")
 public class ViewModel implements ActionListener {
 	private final WeakHashMap<ChangeListener, Boolean> changeListeners = new WeakHashMap<ChangeListener, Boolean>();
 	private final WeakHashMap<ActionListener, Boolean> actionListeners = new WeakHashMap<ActionListener, Boolean>();
@@ -135,13 +136,13 @@ public class ViewModel implements ActionListener {
 	}
 
 	/**
-	 * This class is for the {@link Slider}s outside of the wells.
+	 * This class is for the {@link SliderModel}s outside of the wells.
 	 */
 	public static class OverviewModel implements Serializable {
 		private static final long serialVersionUID = -4371472124531160973L;
 
 		/**
-		 * The possible places of {@link Slider}s outside of the wells.
+		 * The possible places of {@link SliderModel}s outside of the wells.
 		 */
 		public static enum Places implements CompatibleValues {
 			/** These are for the rows. */
@@ -232,7 +233,7 @@ public class ViewModel implements ActionListener {
 		 * Constructs a {@link ShapeModel} using the parameters.
 		 * 
 		 * @param arrangementModel
-		 *            This describes the actual {@link Slider}s.
+		 *            This describes the actual {@link SliderModel}s.
 		 * @param primerParameters
 		 *            This describes the primary split {@link ParameterModel}s.
 		 * @param secunderParameters
@@ -270,7 +271,7 @@ public class ViewModel implements ActionListener {
 		 * Constructs a {@link ShapeModel} using the parameters.
 		 * 
 		 * @param arrangementModel
-		 *            This describes the actual {@link Slider}s.
+		 *            This describes the actual {@link SliderModel}s.
 		 * @param primerParameters
 		 *            This describes the primary split {@link ParameterModel}s.
 		 * @param secunderParameters
@@ -295,7 +296,7 @@ public class ViewModel implements ActionListener {
 		 * Constructs a {@link ShapeModel} using the parameters.
 		 * 
 		 * @param arrangementModel
-		 *            This describes the actual {@link Slider}s.
+		 *            This describes the actual {@link SliderModel}s.
 		 * @param model
 		 *            The model to copy.
 		 * @param place

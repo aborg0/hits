@@ -5,6 +5,7 @@ import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatisti
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,6 +110,7 @@ public class ModelBuilder {
 	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = new TreeMap<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, String[]>>>> texts = new TreeMap<String, Map<String, Map<Integer, Map<String, String[]>>>>();
+	private final Map<String, Map<String, Map<Integer, Color[]>>> colours = new TreeMap<String, Map<String, Map<Integer, Color[]>>>();
 
 	/** The name of the replicate column. */
 	public static final String REPLICATE_COLUMN = "Replicate";
@@ -460,11 +462,17 @@ public class ModelBuilder {
 								experiment,
 								new TreeMap<String, Map<Integer, Map<String, String[]>>>());
 			}
+			if (!colours.containsKey(experiment)) {
+				colours.put(experiment,
+						new TreeMap<String, Map<Integer, Color[]>>());
+			}
 			final Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> normMethodValues = replicates
 					.get(experiment);
 			final Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> scoreNormMethodValues = scores
 					.get(experiment);
 			final Map<String, Map<Integer, Map<String, String[]>>> textsNormMethodValues = texts
+					.get(experiment);
+			final Map<String, Map<Integer, Color[]>> colourNormMethodValues = colours
 					.get(experiment);
 			final String normKey = getNormKey(dataRow, normMethodIndex,
 					logTransformIndex, normKindIndex, varianceAdjustmentIndex,
@@ -485,11 +493,17 @@ public class ModelBuilder {
 				textsNormMethodValues.put(normKey,
 						new HashMap<Integer, Map<String, String[]>>());
 			}
+			if (!colourNormMethodValues.containsKey(normKey)) {
+				colourNormMethodValues.put(normKey,
+						new HashMap<Integer, Color[]>());
+			}
 			final Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> replicateValues = normMethodValues
 					.get(normKey);
 			final Map<Integer, Map<String, Map<StatTypes, double[]>>> scoreValues = scoreNormMethodValues
 					.get(normKey);
 			final Map<Integer, Map<String, String[]>> textValues = textsNormMethodValues
+					.get(normKey);
+			final Map<Integer, Color[]> colourValues = colourNormMethodValues
 					.get(normKey);
 			final Integer plate = getInt(dataRow, plateIndex);
 			minPlate = Math.min(minPlate, plate.intValue());
@@ -511,9 +525,14 @@ public class ModelBuilder {
 					map.put(colName, new String[96]);
 				}
 			}
+			if (!colourValues.containsKey(plate)) {
+				colourValues.put(plate, new Color[96]);
+			}
 			final Map<String, String[]> textColumns = textValues.get(plate);
 			final int well = convertWellToPosition(((StringCell) dataRow
 					.getCell(wellIndex)).getStringValue());
+			colourValues.get(plate)[well] = table.getDataTableSpec()
+					.getRowColor(dataRow).getColor();
 			for (final Entry<String, Integer> entry : stringIndices.entrySet()) {
 				textColumns.get(entry.getKey())[well] = ((StringValue) dataRow
 						.getCell(entry.getValue().intValue())).getStringValue();
@@ -725,12 +744,27 @@ public class ModelBuilder {
 	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
 	 *         <li>plate</li>
 	 *         <li>column name</li>
-	 *         <li>{@link String}s to for each position on plate. (May contain
+	 *         <li>{@link String}s for each position on plate. (May contain
 	 *         {@code null} values)</li>
 	 *         </ul>
 	 */
 	public Map<String, Map<String, Map<Integer, Map<String, String[]>>>> getTexts() {
 		return texts;
+	}
+
+	/**
+	 * @return the colours of {@link #getTable() table}, the dimensions are
+	 *         these:
+	 *         <ul>
+	 *         <li>experiment</li>
+	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>plate</li>
+	 *         <li>{@link Color}s for each position on plate. (May contain
+	 *         {@code null} values)</li>
+	 *         </ul>
+	 */
+	public Map<String, Map<String, Map<Integer, Color[]>>> getColours() {
+		return colours;
 	}
 
 	/**

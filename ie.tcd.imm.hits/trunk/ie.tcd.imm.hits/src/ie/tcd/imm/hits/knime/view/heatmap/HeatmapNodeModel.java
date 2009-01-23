@@ -35,6 +35,7 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteManager;
 
@@ -45,6 +46,17 @@ import org.knime.core.node.property.hilite.HiLiteManager;
  */
 public class HeatmapNodeModel extends NodeModel {
 	private static final String INPUT_TABLE_ZIP = "inputtable.zip";
+
+	/** Configuration key for the save settings option. */
+	static final String CFGKEY_SAVE_SETTINGS = "ie.tcd.imm.hits.knime.view.heatmap.settings";
+	/** Default value for the save settings option. */
+	static final boolean DEFAULT_SAVE_SETTINGS = true;
+
+	private final SettingsModelBoolean saveSettingsModel = new SettingsModelBoolean(
+			CFGKEY_SAVE_SETTINGS, DEFAULT_SAVE_SETTINGS);
+
+	/** The file name of the saved settings. */
+	static final String SAVE_SETTINGS_FILE_NAME = "settings.xml";
 
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
@@ -169,6 +181,8 @@ public class HeatmapNodeModel extends NodeModel {
 
 	private ModelBuilder modelBuilder;
 
+	private File internDir;
+
 	/**
 	 * Constructor for the node model.
 	 */
@@ -186,9 +200,9 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		executeInner(inData[0], exec);
 		return new BufferedDataTable[] { /*
-		 * (BufferedDataTable) modelBuilder
-		 * .getTable()
-		 */};
+											 * (BufferedDataTable) modelBuilder
+											 * .getTable()
+											 */};
 	}
 
 	private void executeInner(final DataTable table, final ExecutionMonitor exec)
@@ -345,7 +359,7 @@ public class HeatmapNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO save user settings to the config object.
+		saveSettingsModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -354,11 +368,7 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
-		// TODO load (valid) settings from the config object.
-		// It can be safely assumed that the settings are valided by the
-		// method below.
-
+		saveSettingsModel.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -367,10 +377,7 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO check if the settings could be applied to our model
-		// e.g. if the count is in a certain range (which is ensured by the
-		// SettingsModel).
-		// Do not actually set any values of any member variables.
+		saveSettingsModel.validateSettings(settings);
 	}
 
 	/**
@@ -380,6 +387,7 @@ public class HeatmapNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+		this.internDir = internDir;
 		// TODO load internal data.
 		final File file = new File(internDir, INPUT_TABLE_ZIP);
 		if (file.isFile() && file.exists()) {
@@ -420,5 +428,13 @@ public class HeatmapNodeModel extends NodeModel {
 		super.setInHiLiteHandler(inIndex, hiLiteHdl);
 		Assert.isTrue(inIndex == 0, "Only the first inport supports HiLite.");
 		hiliteManager.addToHiLiteHandler(hiLiteHdl);
+	}
+
+	boolean isSaveSettings() {
+		return saveSettingsModel.getBooleanValue();
+	}
+
+	File getInternDir() {
+		return internDir;
 	}
 }

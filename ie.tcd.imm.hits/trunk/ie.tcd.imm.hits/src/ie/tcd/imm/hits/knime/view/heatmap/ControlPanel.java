@@ -4,10 +4,10 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.SliderFactory;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,237 +80,6 @@ public class ControlPanel extends JPanel {
 	private final LegendPanel legendPanel;
 
 	/**
-	 * This is something that represents a {@link ParameterModel} list and
-	 * values.
-	 */
-	static class Slider implements Serializable {
-		private static final long serialVersionUID = 8868671426882187720L;
-
-		/**
-		 * The position of the {@link Slider} in the window.
-		 */
-		static enum Type {
-			/**
-			 * The {@link Slider} is not visible, only settable from the control
-			 * screen
-			 */
-			Hidden,
-			/** The {@link Slider} splits the wells */
-			Splitter,
-			/** The {@link Slider} is distributed across the vertical scrollbar */
-			ScrollVertical,
-			/** The {@link Slider} is distributed across the horizontal scrollbar */
-			ScrollHorisontal,
-			/** The {@link Slider} values are on the selector panel. */
-			Selector;
-		}
-
-		/**
-		 * The maximum number of independent factors. This is an upper bound for
-		 * the different sliders for the same parameters.
-		 */
-		public static final int MAX_INDEPENDENT_FACTORS = 3;
-
-		private final int subId;
-
-		private final Type type;
-
-		private final List<ParameterModel> parameters = new ArrayList<ParameterModel>();
-		private final Map<Integer, Pair<ParameterModel, Object>> valueMapping = new HashMap<Integer, Pair<ParameterModel, Object>>();
-
-		private final Set<Integer> selections = new HashSet<Integer>();
-
-		/**
-		 * Constructs {@link Slider}s, with cache.
-		 */
-		public static class SliderFactory implements Serializable {
-			private static final long serialVersionUID = -5156367879519731281L;
-			private final Set<Slider> sliders = new HashSet<Slider>();
-
-			/**
-			 * Finds or creates a {@link Slider} with the given parameters.
-			 * 
-			 * @param type
-			 *            The {@link Type} (position) of the slider.
-			 * @param parameters
-			 *            The parameters belonging to the slider.
-			 * @param valueMapping
-			 *            The values mapped to the integer constants. The
-			 *            integer constants usually start from {@code 1}.
-			 * @return A {@link Set} of possible {@link Slider}s previously
-			 *         created, or created a new one with these parameters..
-			 */
-			public Set<Slider> get(
-					final Type type,
-					final List<ParameterModel> parameters,
-					final Map<Integer, Pair<ParameterModel, Object>> valueMapping) {
-				final Set<Slider> ret = new HashSet<Slider>();
-				for (final Slider slider : sliders) {
-					if (slider.type == type
-							&& parameters.equals(slider.parameters)
-							&& valueMapping.equals(slider.valueMapping)) {
-						ret.add(slider);
-					}
-				}
-				if (ret.isEmpty()) {
-					final Slider slider = new Slider(type, 0, parameters,
-							valueMapping);
-					sliders.add(slider);
-					ret.add(slider);
-				}
-				return ret;
-			}
-		}
-
-		private Slider(final Type type, final int subId,
-				final List<ParameterModel> parameters,
-				final Map<Integer, Pair<ParameterModel, Object>> valueMapping) {
-			this(type, subId, parameters, valueMapping, valueMapping.keySet());
-		}
-
-		private Slider(final Type type, final int subId,
-				final List<ParameterModel> parameters,
-				final Map<Integer, Pair<ParameterModel, Object>> valueMapping,
-				final Set<Integer> selection) {
-			super();
-			this.type = type;
-			this.subId = subId;
-			this.parameters.addAll(parameters);
-			this.valueMapping.putAll(valueMapping);
-			this.selections.addAll(selection);
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result
-					+ ((parameters == null) ? 0 : parameters.hashCode());
-			result = prime * result + subId;
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
-			result = prime * result
-					+ ((valueMapping == null) ? 0 : valueMapping.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final Slider other = (Slider) obj;
-			if (parameters == null) {
-				if (other.parameters != null) {
-					return false;
-				}
-			} else if (!parameters.equals(other.parameters)) {
-				return false;
-			}
-			if (subId != other.subId) {
-				return false;
-			}
-			if (type == null) {
-				if (other.type != null) {
-					return false;
-				}
-			} else if (type != other.type) {
-				return false;
-			}
-			if (valueMapping == null) {
-				if (other.valueMapping != null) {
-					return false;
-				}
-			} else if (!valueMapping.equals(other.valueMapping)) {
-				return false;
-			}
-			if (selections == null) {
-				if (other.selections != null) {
-					return false;
-				}
-			} else if (!selections.equals(other.selections)) {
-				return false;
-			}
-			return true;
-		}
-
-		/**
-		 * Each slider should belong to a parameter list, which is not
-		 * necessarily unique. This value tells which is it.
-		 * 
-		 * @return The id of the parameter group.
-		 */
-		public int getSubId() {
-			return subId;
-		}
-
-		/**
-		 * @return The position of the slider.
-		 */
-		public Type getType() {
-			return type;
-		}
-
-		/**
-		 * @return The parameters belonging to this {@link Slider}.
-		 */
-		public List<ParameterModel> getParameters() {
-			return Collections.unmodifiableList(parameters);
-		}
-
-		/**
-		 * @return A {@link Map} from the constants to the values. It is
-		 *         <em>not modifiable</em>!
-		 */
-		public Map<Integer, Pair<ParameterModel, Object>> getValueMapping() {
-			return Collections.unmodifiableMap(valueMapping);
-		}
-
-		/**
-		 * @return The selected (to view) values of the {@link Slider}. (<em>Not modifiable!</em>)
-		 */
-		public Set<Integer> getSelections() {
-			return Collections.unmodifiableSet(selections);
-		}
-
-		/**
-		 * Selects the value with key {@code val}.
-		 * 
-		 * @param val
-		 *            The value key to select.
-		 * @see #getSelections()
-		 * @see #deselect(Integer)
-		 * @see #getValueMapping()
-		 */
-		public void select(final Integer val) {
-			selections.add(val);
-		}
-
-		/**
-		 * Deselects the value with key {@code val}.
-		 * 
-		 * @param val
-		 *            The value key to deselect.
-		 * @see #getSelections()
-		 * @see #select(Integer)
-		 * @see #getValueMapping()
-		 */
-		public void deselect(final Integer val) {
-			selections.remove(val);
-		}
-
-		@Override
-		public String toString() {
-			return type + "_" + subId + " " + parameters;
-		}
-	}
-
-	/**
 	 * This class represents the arrangement of the sliders.
 	 */
 	static class ArrangementModel implements Serializable, ActionListener {
@@ -319,13 +87,13 @@ public class ControlPanel extends JPanel {
 
 		private final SliderFactory factory = new SliderFactory();
 
-		private final EnumMap<Type, Collection<Slider>> sliders = new EnumMap<Type, Collection<Slider>>(
+		private final EnumMap<Type, Collection<SliderModel>> sliders = new EnumMap<Type, Collection<SliderModel>>(
 				Type.class);
 
 		private final Map<StatTypes, Collection<String>> typeValues = new EnumMap<StatTypes, Collection<String>>(
 				StatTypes.class);
 
-		private final LinkedHashMap<ParameterModel, Collection<Slider>> mainArrangement = new LinkedHashMap<ParameterModel, Collection<Slider>>();
+		private final LinkedHashMap<ParameterModel, Collection<SliderModel>> mainArrangement = new LinkedHashMap<ParameterModel, Collection<SliderModel>>();
 
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -337,12 +105,12 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
-		 * @return The {@link Slider}s at different positions.
+		 * @return The {@link SliderModel}s at different positions.
 		 */
-		public Map<Type, Collection<Slider>> getSliders() {
-			final EnumMap<Type, Collection<Slider>> ret = new EnumMap<Type, Collection<Slider>>(
+		public Map<Type, Collection<SliderModel>> getSliders() {
+			final EnumMap<Type, Collection<SliderModel>> ret = new EnumMap<Type, Collection<SliderModel>>(
 					Type.class);
-			for (final Map.Entry<Type, Collection<Slider>> entry : sliders
+			for (final Map.Entry<Type, Collection<SliderModel>> entry : sliders
 					.entrySet()) {
 				ret.put(entry.getKey(), Collections
 						.unmodifiableCollection(entry.getValue()));
@@ -355,7 +123,7 @@ public class ControlPanel extends JPanel {
 		 * 
 		 * @param possibleParameters
 		 *            The possible parameters which may be present in the
-		 *            {@link Slider}s.
+		 *            {@link SliderModel}s.
 		 */
 		public void mutate(final Collection<ParameterModel> possibleParameters) {
 			// TODO mutate the current arrangement, instead of creating new
@@ -365,7 +133,7 @@ public class ControlPanel extends JPanel {
 				typeValues.put(type, new TreeSet<String>());
 			}
 			for (final Type type : Type.values()) {
-				sliders.put(type, new ArrayList<Slider>());
+				sliders.put(type, new ArrayList<SliderModel>());
 			}
 			ParameterModel parameters = null;
 			ParameterModel plateModel = null;
@@ -420,7 +188,7 @@ public class ControlPanel extends JPanel {
 					typeValues.remove(type);
 				}
 			}
-			final Slider paramsSlider;
+			final SliderModel paramsSlider;
 			{
 				final Map<Integer, Pair<ParameterModel, Object>> parametersMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
 				int i = 1;
@@ -432,13 +200,13 @@ public class ControlPanel extends JPanel {
 										name));
 					}
 				}
-				final Set<Slider> set = factory.get(Type.Splitter, Collections
+				final Set<SliderModel> set = factory.get(Type.Splitter, Collections
 						.singletonList(parameters), parametersMapping);
 				assert !set.isEmpty();
 				sliders.get(Type.Splitter).add(
 						paramsSlider = set.iterator().next());
 			}
-			final Slider plateSlider;
+			final SliderModel plateSlider;
 			{
 				final Map<Integer, Pair<ParameterModel, Object>> plateMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
 				for (final Object o : plateModel.getColorLegend().keySet()) {
@@ -448,13 +216,13 @@ public class ControlPanel extends JPanel {
 								plateModel, i));
 					}
 				}
-				final Set<Slider> plateSet = factory.get(Type.Selector,
+				final Set<SliderModel> plateSet = factory.get(Type.Selector,
 						Collections.singletonList(plateModel), plateMapping);
 				assert !plateSet.isEmpty();
 				sliders.get(Type.Selector).add(
 						plateSlider = plateSet.iterator().next());
 			}
-			final Slider replicateSlider;
+			final SliderModel replicateSlider;
 			{
 				final Map<Integer, Pair<ParameterModel, Object>> replicateMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
 				for (final Object o : replicateModel.getColorLegend().keySet()) {
@@ -467,14 +235,14 @@ public class ControlPanel extends JPanel {
 				}
 				if (replicateMapping.isEmpty()) {
 				}
-				final Set<Slider> replicateSet = factory.get(Type.Splitter,
+				final Set<SliderModel> replicateSet = factory.get(Type.Splitter,
 						Collections.singletonList(replicateModel),
 						replicateMapping);
 				assert !replicateSet.isEmpty();
 				sliders.get(Type.Splitter).add(
 						replicateSlider = replicateSet.iterator().next());
 			}
-			final Slider statSlider;
+			final SliderModel statSlider;
 			{
 				int i = 1;
 				final Map<Integer, Pair<ParameterModel, Object>> statMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
@@ -482,13 +250,13 @@ public class ControlPanel extends JPanel {
 					statMapping.put(i++, new Pair<ParameterModel, Object>(
 							stats, StatTypes.valueOf(statName)));
 				}
-				final Set<Slider> statSet = factory.get(Type.Hidden,
+				final Set<SliderModel> statSet = factory.get(Type.Hidden,
 						Collections.singletonList(stats), statMapping);
 				assert !statSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						statSlider = statSet.iterator().next());
 			}
-			final Slider experimentSlider;
+			final SliderModel experimentSlider;
 			{
 				int i = 1;
 				final Map<Integer, Pair<ParameterModel, Object>> experimentMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
@@ -498,14 +266,14 @@ public class ControlPanel extends JPanel {
 							new Pair<ParameterModel, Object>(experiments,
 									experimentName));
 				}
-				final Set<Slider> experimentSet = factory.get(Type.Hidden,
+				final Set<SliderModel> experimentSet = factory.get(Type.Hidden,
 						Collections.singletonList(experiments),
 						experimentMapping);
 				assert !experimentSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						experimentSlider = experimentSet.iterator().next());
 			}
-			final Slider normaliseSlider;
+			final SliderModel normaliseSlider;
 			{
 				int i = 1;
 				final Map<Integer, Pair<ParameterModel, Object>> normaliseMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
@@ -514,14 +282,14 @@ public class ControlPanel extends JPanel {
 					normaliseMapping.put(i++, new Pair<ParameterModel, Object>(
 							normalisation, normalisationName));
 				}
-				final Set<Slider> normalisationSet = factory.get(Type.Hidden,
+				final Set<SliderModel> normalisationSet = factory.get(Type.Hidden,
 						Collections.singletonList(normalisation),
 						normaliseMapping);
 				assert !normalisationSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						normaliseSlider = normalisationSet.iterator().next());
 			}
-			final ArrayList<Slider> mainSliders = new ArrayList<Slider>();
+			final ArrayList<SliderModel> mainSliders = new ArrayList<SliderModel>();
 			mainSliders.add(experimentSlider);
 			mainSliders.add(normaliseSlider);
 			mainSliders.add(statSlider);
@@ -544,12 +312,12 @@ public class ControlPanel extends JPanel {
 
 		/**
 		 * There is a prioritised set of parameters, which are shown. This tells
-		 * for which {@link ParameterModel} what {@link Slider}s have affect.
+		 * for which {@link ParameterModel} what {@link SliderModel}s have affect.
 		 * 
 		 * @return A {@link Map} from the {@link ParameterModel}s to the
-		 *         {@link Slider}s.
+		 *         {@link SliderModel}s.
 		 */
-		public LinkedHashMap<ParameterModel, Collection<Slider>> getMainArrangement() {
+		public LinkedHashMap<ParameterModel, Collection<SliderModel>> getMainArrangement() {
 			return mainArrangement;
 		}
 
@@ -575,32 +343,32 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
-		 * Selects a {@link Slider} from {@code mainArrangement} with the proper
-		 * {@link Slider#getSubId()}, and with a parameter with proper
+		 * Selects a {@link SliderModel} from {@code mainArrangement} with the proper
+		 * {@link SliderModel#getSubId()}, and with a parameter with proper
 		 * {@link ParameterModel#getType()}.
 		 * 
 		 * @param mainArrangement
 		 *            A mapping from the {@link ParameterModel}s to the
-		 *            affected {@link Slider}s.
+		 *            affected {@link SliderModel}s.
 		 * @param n
-		 *            A {@link Slider#getSubId()}.
+		 *            A {@link SliderModel#getSubId()}.
 		 * @param stat
 		 *            A {@link StatTypes}.
-		 * @return The first {@link Slider} with {@link Slider#getSubId()}
+		 * @return The first {@link SliderModel} with {@link SliderModel#getSubId()}
 		 *         {@code n} and with a {@link ParameterModel#getType()}
 		 *         {@code stat} from {@code arrangementModel}. It returns
-		 *         {@code null}, if no such {@link Slider} found.
+		 *         {@code null}, if no such {@link SliderModel} found.
 		 * @see #getMainArrangement()
 		 */
-		static Slider selectNth(
-				final LinkedHashMap<ParameterModel, Collection<Slider>> mainArrangement,
+		static SliderModel selectNth(
+				final LinkedHashMap<ParameterModel, Collection<SliderModel>> mainArrangement,
 				final int n, final StatTypes stat) {
 			int u = 0;
-			for (final Map.Entry<ParameterModel, Collection<Slider>> entry : mainArrangement
+			for (final Map.Entry<ParameterModel, Collection<SliderModel>> entry : mainArrangement
 					.entrySet()) {
 				if (u++ == n) {
-					final Collection<Slider> sliders = entry.getValue();
-					for (final Slider slider : sliders) {
+					final Collection<SliderModel> sliders = entry.getValue();
+					for (final SliderModel slider : sliders) {
 						for (final ParameterModel param : slider
 								.getParameters()) {
 							if (param.getType() == stat) {
@@ -620,13 +388,13 @@ public class ControlPanel extends JPanel {
 			return mainArrangement.toString();
 		}
 
-		public void addValue(final Slider slider, final Integer origKey,
+		public void addValue(final SliderModel slider, final Integer origKey,
 				final Pair<ParameterModel, Object> map) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void removeValue(final Slider slider, final Integer origKey) {
+		public void removeValue(final SliderModel slider, final Integer origKey) {
 			// TODO Auto-generated method stub
 
 		}
@@ -846,13 +614,13 @@ public class ControlPanel extends JPanel {
 				.getArrangementModel();
 		// Update hidden sliders
 		{
-			final Collection<Slider> sliders = arrangementModel.getSliders()
+			final Collection<SliderModel> sliders = arrangementModel.getSliders()
 					.get(Type.Hidden);
 			hiddenSliders.removeAll();
 			final GridBagLayout gridBagLayout = new GridBagLayout();
 			hiddenSliders.setLayout(gridBagLayout);
-			final int[] counts = new int[Slider.MAX_INDEPENDENT_FACTORS];
-			for (final Slider slider : sliders) {
+			final int[] counts = new int[SliderModel.MAX_INDEPENDENT_FACTORS];
+			for (final SliderModel slider : sliders) {
 				final int pos = ++counts[slider.getSubId()];
 				final GridBagConstraints constraint = new GridBagConstraints();
 				constraint.gridx = slider.getSubId();
@@ -861,7 +629,7 @@ public class ControlPanel extends JPanel {
 			}
 		}
 		{
-			final Collection<Slider> sliders = arrangementModel.getSliders()
+			final Collection<SliderModel> sliders = arrangementModel.getSliders()
 					.get(Type.Splitter);
 			final List<ParameterModel> primerParameters = currentViewModel
 					.getMain().getPrimerParameters();
@@ -870,7 +638,7 @@ public class ControlPanel extends JPanel {
 					.size());
 			primarySliders.setLayout(gridBagLayout);
 			for (final ParameterModel parameterModel : primerParameters) {
-				for (final Slider possSlider : sliders) {
+				for (final SliderModel possSlider : sliders) {
 					final List<ParameterModel> parameters = possSlider
 							.getParameters();
 					if (parameters.size() == 1) {
@@ -888,7 +656,7 @@ public class ControlPanel extends JPanel {
 			}
 		}
 		{
-			final Collection<Slider> sliders = arrangementModel.getSliders()
+			final Collection<SliderModel> sliders = arrangementModel.getSliders()
 					.get(Type.Splitter);
 			final List<ParameterModel> secundaryParameters = currentViewModel
 					.getMain().getSecunderParameters();
@@ -897,7 +665,7 @@ public class ControlPanel extends JPanel {
 					secundaryParameters.size());
 			secundarySliders.setLayout(gridBagLayout);
 			for (final ParameterModel parameterModel : secundaryParameters) {
-				for (final Slider possSlider : sliders) {
+				for (final SliderModel possSlider : sliders) {
 					final List<ParameterModel> parameters = possSlider
 							.getParameters();
 					if (parameters.size() == 1) {
@@ -919,11 +687,12 @@ public class ControlPanel extends JPanel {
 	}
 
 	private Component createSliderModifier(final ViewModel viewModel,
-			final Slider slider, final VolatileModel volatileModel) {
+			final SliderModel slider, final VolatileModel volatileModel) {
 		final ArrangementModel arrangementModel = viewModel.getMain()
 				.getArrangementModel();
 		final List<ParameterModel> parameters = slider.getParameters();
-		final JToolBar ret = new JToolBar(parameters.iterator().next().getShortName());
+		final JToolBar ret = new JToolBar(parameters.iterator().next()
+				.getShortName());
 		ret.setFloatable(true);
 		if (parameters.size() == 1) {
 			final ParameterModel model = parameters.iterator().next();
@@ -941,9 +710,9 @@ public class ControlPanel extends JPanel {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
 						if (button.isSelected()) {
-							for (final Entry<ParameterModel, Collection<Slider>> entry : arrangementModel
+							for (final Entry<ParameterModel, Collection<SliderModel>> entry : arrangementModel
 									.getMainArrangement().entrySet()) {
-								for (final Slider otherSlider : entry
+								for (final SliderModel otherSlider : entry
 										.getValue()) {
 									if (otherSlider.equals(slider)) {
 										otherSlider.select(origKey);
@@ -954,9 +723,9 @@ public class ControlPanel extends JPanel {
 							arrangementModel.addValue(slider, origKey,
 									originalMap.get(origKey));
 						} else {
-							for (final Entry<ParameterModel, Collection<Slider>> entry : arrangementModel
+							for (final Entry<ParameterModel, Collection<SliderModel>> entry : arrangementModel
 									.getMainArrangement().entrySet()) {
-								for (final Slider otherSlider : entry
+								for (final SliderModel otherSlider : entry
 										.getValue()) {
 									if (otherSlider.equals(slider)) {
 										otherSlider.deselect(origKey);
@@ -996,7 +765,7 @@ public class ControlPanel extends JPanel {
 		throw new UnsupportedOperationException("Sorry, not supported yet.");
 	}
 
-	private Component createSliderComboBox(final Slider slider) {
+	private Component createSliderComboBox(final SliderModel slider) {
 		final List<ParameterModel> parameters = slider.getParameters();
 		if (parameters.size() == 1) {
 			final JComboBox combobox = new JComboBox();
@@ -1004,8 +773,8 @@ public class ControlPanel extends JPanel {
 					.getValueMapping().entrySet()) {
 				combobox.addItem(entry.getValue().getRight());
 			}
-			combobox.setSelectedIndex(view.getVolatileModel().getSliderPositions()
-					.get(slider).intValue() - 1);
+			combobox.setSelectedIndex(view.getVolatileModel()
+					.getSliderPositions().get(slider).intValue() - 1);
 			// ret.setEditable(false);
 			combobox.addActionListener(new ActionListener() {
 				@Override
@@ -1014,7 +783,8 @@ public class ControlPanel extends JPanel {
 							Integer.valueOf(combobox.getSelectedIndex() + 1));
 				}
 			});
-			JToolBar ret=new JToolBar(slider.getParameters().iterator().next().getShortName());
+			final JToolBar ret = new JToolBar(slider.getParameters().iterator()
+					.next().getShortName());
 			ret.add(combobox);
 			ret.setFloatable(true);
 			return ret;

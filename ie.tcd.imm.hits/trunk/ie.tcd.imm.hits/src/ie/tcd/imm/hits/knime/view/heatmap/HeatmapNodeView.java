@@ -1,14 +1,15 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
+import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.BorderLayout;
@@ -24,6 +25,9 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,10 +64,16 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.RowKey;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
@@ -80,6 +90,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(HeatmapNodeView.class);
+
 	private final LegendPanel legendPanel;
 	private final LegendPanel legendPanel2;
 	// private final JTable infoTable = new JTable(1, 1);
@@ -94,11 +107,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	private final JMenuItem hiliteSelected;
 	private final JCheckBoxMenuItem showColorsLegend;
 	private final JCheckBoxMenuItem showTooltipsLegend;
-	private final JCheckBoxMenuItem testingForSelected;
 	private final HeatmapPanel heatmapPanel;
 	private final ColourSelector colourSelector = new ColourSelector(
 			Collections.<String> emptyList(), Collections
 					.<StatTypes> emptyList());
+
+	private final ControlsHandler<? extends SettingsModel> controlsHandler = new ControlsHandlerKNIMEFactory();
 
 	/**
 	 * This {@link HiLiteListener} updates the {@link HeatmapPanel} on changes
@@ -196,18 +210,18 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			// final List<ParameterModel> choiceModel =
 			// overview.getChoiceModel();
 			// TODO use the proper value assigned to
-			final Map<Type, Collection<Slider>> sliders = model.getMain()
+			final Map<Type, Collection<SliderModel>> sliders = model.getMain()
 					.getArrangementModel().getSliders();
 			final int allChoiceCount = volatileModel.count(StatTypes.plate);
 			final int selectorCount = possibleValueCount(sliders
 					.get(Type.Selector));
 			Container currentContainer = this;
-			final Collection<Slider> possSelectors = model.getMain()
+			final Collection<SliderModel> possSelectors = model.getMain()
 					.getArrangementModel().getSliders().get(Type.Selector);
-			for (final Slider selector : possSelectors) {
+			for (final SliderModel selector : possSelectors) {
 				final Color[] possColors = new Color[] { Color.DARK_GRAY,
 						Color.LIGHT_GRAY };
-				final Slider selectorSlider = possSelectors.size() > 0 ? possSelectors
+				final SliderModel selectorSlider = possSelectors.size() > 0 ? possSelectors
 						.iterator().next()
 						: null;
 				final int sliderPos = !volatileModel.getSliderPositions()
@@ -236,7 +250,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						0).getShortName()));
 				// if (allChoiceCount > 1) {
 				currentContainer.setLayout(new BorderLayout());
-				JToolBar toolbar = new JToolBar(selectorSlider.getParameters().iterator().next().getShortName());
+				final JToolBar toolbar = new JToolBar(selectorSlider
+						.getParameters().iterator().next().getShortName());
 				toolbar.setFloatable(true);
 				toolbar.add(slider);
 				currentContainer.add(toolbar, BorderLayout.NORTH);
@@ -303,9 +318,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 		}
 
-		private int possibleValueCount(final Collection<Slider> sliders) {
+		private int possibleValueCount(final Collection<SliderModel> sliders) {
 			int allCount = 0;
-			for (final Slider slider : sliders) {
+			for (final SliderModel slider : sliders) {
 				// assert choice.getAggregateType() == null;
 				// assert choice.getType().isDiscrete() : choice;
 				allCount += slider.getSelections().size();
@@ -414,9 +429,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -425,20 +440,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
+					 * Collections .<ParameterModel>
+					 * emptyList()
+					 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
+					 * Collections.<ParameterModel>
+					 * emptyList()
+					 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -492,8 +507,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		private boolean[][] hilites;
 		/** Plate/position selections. (indices start from 0.) */
 		private boolean[][] selections;
-		/** The current {@link Slider} positions. */
-		private final Map<Slider, Integer> sliderPositions = new HashMap<Slider, Integer>();
+		/** The current {@link SliderModel} positions. */
+		private final Map<SliderModel, Integer> sliderPositions = new HashMap<SliderModel, Integer>();
 
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -533,9 +548,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		}
 
 		/**
-		 * @return An unmodifiable {@link Map} of {@link Slider} positions.
+		 * @return An unmodifiable {@link Map} of {@link SliderModel} positions.
 		 */
-		public Map<Slider, Integer> getSliderPositions() {
+		public Map<SliderModel, Integer> getSliderPositions() {
 			return Collections.unmodifiableMap(sliderPositions);
 		}
 
@@ -543,11 +558,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * Updates the {@code slider} to the new {@code value}.
 		 * 
 		 * @param slider
-		 *            A {@link Slider}
+		 *            A {@link SliderModel}
 		 * @param value
 		 *            The new value of it.
 		 */
-		public void setSliderPosition(final Slider slider, final Integer value) {
+		public void setSliderPosition(final SliderModel slider,
+				final Integer value) {
 			sliderPositions.put(slider, value);
 			actionPerformed(new ActionEvent(slider, (int) (System
 					.currentTimeMillis() & 0xffffffff), "slider value changed"));
@@ -566,9 +582,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				final HeatmapNodeModel nodeModel) {
 			// TODO Auto-generated method stub
 			this.arrangementModel = arrangementModel;
-			for (final Collection<Slider> sliderColl : arrangementModel
+			for (final Collection<SliderModel> sliderColl : arrangementModel
 					.getSliders().values()) {
-				for (final Slider slider : sliderColl) {
+				for (final SliderModel slider : sliderColl) {
 					setSliderPosition(slider, Integer.valueOf(1));
 				}
 			}
@@ -645,10 +661,10 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 *         {@link StatTypes} .
 		 */
 		private int count(final StatTypes param) {
-			final Collection<Slider> sliders = arrangementModel
+			final Collection<SliderModel> sliders = arrangementModel
 					.getMainArrangement().entrySet().iterator().next()
 					.getValue();
-			for (final Slider slider : sliders) {
+			for (final SliderModel slider : sliders) {
 				for (final ParameterModel parameters : slider.getParameters()) {
 					if (parameters.getType() == param) {
 						return slider.getValueMapping().size();
@@ -844,11 +860,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		showTooltipsLegend = new JCheckBoxMenuItem("Show tooltips legend", true);
 		legendMenu.add(showTooltipsLegend);
 		getJMenuBar().add(legendMenu);
-		final JMenu testingMenu = new JMenu("Testing");
-		testingForSelected = new JCheckBoxMenuItem(
-				"Show only selected parameters", false);
-		testingMenu.add(testingForSelected);
-		getJMenuBar().add(testingMenu);
 
 		final JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				true);
@@ -963,6 +974,26 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	@Override
 	protected void onClose() {
 		// TODO things to do when closing the view
+		if (getNodeModel().isSaveSettings()) {
+			try {
+				final JAXBContext context = JAXBContext
+						.newInstance(ViewModel.class);
+				final Marshaller marshaller = context.createMarshaller();
+				final FileOutputStream os = new FileOutputStream(new File(
+						getNodeModel().getInternDir(),
+						HeatmapNodeModel.SAVE_SETTINGS_FILE_NAME));
+				try {
+					// FIXME it is not working: no 0-arg constructor.
+					marshaller.marshal(currentViewModel, os);
+				} finally {
+					os.close();
+				}
+			} catch (final JAXBException e) {
+				logger.info("Unable to save state.", e);
+			} catch (final IOException e) {
+				logger.info("Unable to save state.", e);
+			}
+		}
 	}
 
 	/**
@@ -975,6 +1006,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		// final Set<DataCell> hilitKeys = heatmapPanel.dataModel
 		// .getInHiLiteHandler(0).getHiLitKeys();
 		// heatmapPanel.hiliteListener.hiLite(new KeyEvent(this, hilitKeys));
+		final File settingsFile = new File(getNodeModel().getInternDir(),
+				HeatmapNodeModel.SAVE_SETTINGS_FILE_NAME);
+		if (getNodeModel().isSaveSettings() && settingsFile.canRead()) {
+			try {
+				final JAXBContext context = JAXBContext
+						.newInstance(ViewModel.class);
+				final Unmarshaller unmarshaller = context.createUnmarshaller();
+				unmarshaller.setSchema(null);
+				currentViewModel = ViewModel.class.cast(unmarshaller
+						.unmarshal(settingsFile));
+			} catch (final JAXBException e) {
+				logger.info("Unable to load state.", e);
+			}
+		}
 		modelChanged();
 	}
 

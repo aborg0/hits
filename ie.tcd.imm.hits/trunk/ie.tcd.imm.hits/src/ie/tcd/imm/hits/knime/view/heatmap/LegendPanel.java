@@ -3,8 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.Slider.Type;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
@@ -187,7 +186,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			super.paintComponent(g);
 			final Rectangle bounds = getBounds();
 			final int radius = Math.min(bounds.width, bounds.height) / 2;
-			final Collection<Slider> sliders = getModel().getMain()
+			final Collection<SliderModel> sliders = getModel().getMain()
 					.getArrangementModel().getSliders().get(Type.Splitter);
 			final int primaryCount = selectValueCount(getModel().getMain()
 					.getPrimerParameters(), sliders);
@@ -205,7 +204,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					angle += 180 / primaryCount;
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final Slider currentSlider = getCurrentSlider(sliders,
+						final SliderModel currentSlider = getCurrentSlider(sliders,
 								model);
 						if (currentSlider != null) {
 							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
@@ -261,7 +260,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 								.iterator().next();
 						g.drawString(paramModel.getShortName(), radius / 2,
 								(int) (radius * 1.2));
-						final Slider slider = getCurrentSlider(sliders,
+						final SliderModel slider = getCurrentSlider(sliders,
 								paramModel);
 						final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 								.getValueMapping();
@@ -289,7 +288,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					g.setColor(borderColor);
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final Slider slider = getCurrentSlider(sliders, model);
+						final SliderModel slider = getCurrentSlider(sliders, model);
 						g.drawString(model.getShortName(), 10, 15);
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
@@ -308,7 +307,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						g.drawString(model.getShortName(), -bounds.height + 5,
 								15);
 						int i = 0;
-						final Slider slider = getCurrentSlider(sliders, model);
+						final SliderModel slider = getCurrentSlider(sliders, model);
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
@@ -327,10 +326,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 
-		private Slider getCurrentSlider(final Collection<Slider> sliders,
+		private SliderModel getCurrentSlider(final Collection<SliderModel> sliders,
 				final ParameterModel model) {
-			Slider currentSlider = null;
-			for (final Slider slider : sliders) {
+			SliderModel currentSlider = null;
+			for (final SliderModel slider : sliders) {
 				for (final ParameterModel pm : slider.getParameters()) {
 					if (pm.equals(model)) {
 						currentSlider = slider;
@@ -360,7 +359,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 	}
 
 	/**
-	 * This panel shows the layout of the {@link Slider}s.
+	 * This panel shows the layout of the {@link SliderModel}s.
 	 */
 	private static class LayoutLegendPanel extends JPanel {
 		private static final long serialVersionUID = 4132948016212511178L;
