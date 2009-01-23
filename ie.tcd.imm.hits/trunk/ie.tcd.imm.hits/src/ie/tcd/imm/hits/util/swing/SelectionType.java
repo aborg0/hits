@@ -1,8 +1,8 @@
 package ie.tcd.imm.hits.util.swing;
 
 /**
- * Describes the selection type possible for a control. ({@link #Single}, or
- * {@link #Multiple})
+ * Describes the selection type possible for a control. ({@link #Single},
+ * {@link #MultipleAtLeastOne}, or {@link #MultipleOrNone})
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */

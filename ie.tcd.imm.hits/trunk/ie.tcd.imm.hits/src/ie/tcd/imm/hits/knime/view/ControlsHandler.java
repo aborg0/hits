@@ -8,6 +8,8 @@ import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
  * This interface is for handling the components.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <ModelType>
+ *            The type of the used model in {@link VariableControl}.
  */
 public interface ControlsHandler<ModelType> {
 	/**

@@ -200,9 +200,9 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		executeInner(inData[0], exec);
 		return new BufferedDataTable[] { /*
-											 * (BufferedDataTable) modelBuilder
-											 * .getTable()
-											 */};
+		 * (BufferedDataTable) modelBuilder
+		 * .getTable()
+		 */};
 	}
 
 	private void executeInner(final DataTable table, final ExecutionMonitor exec)
@@ -430,10 +430,16 @@ public class HeatmapNodeModel extends NodeModel {
 		hiliteManager.addToHiLiteHandler(hiLiteHdl);
 	}
 
+	/**
+	 * @return the save settings property value.
+	 */
 	boolean isSaveSettings() {
 		return saveSettingsModel.getBooleanValue();
 	}
 
+	/**
+	 * @return the internal directory to store the view parameters.
+	 */
 	File getInternDir() {
 		return internDir;
 	}

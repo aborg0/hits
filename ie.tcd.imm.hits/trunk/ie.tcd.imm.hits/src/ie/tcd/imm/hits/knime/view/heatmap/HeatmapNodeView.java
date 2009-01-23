@@ -429,9 +429,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -440,20 +440,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-					 * Collections .<ParameterModel>
-					 * emptyList()
-					 */, Arrays.asList(defaultParamModel, defaultParamModel,
+												 * Collections .<ParameterModel>
+												 * emptyList()
+												 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-					 * Collections.<ParameterModel>
-					 * emptyList()
-					 */, true));
+																	 * Collections.<ParameterModel>
+																	 * emptyList()
+																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -795,10 +795,19 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 		}
 
+		/**
+		 * @return the used {@link ColourModel}.
+		 */
 		public ColourModel getColourModel() {
 			return colourModel;
 		}
 
+		/**
+		 * Sets the new {@link ColourModel} to {@code colourModel}.
+		 * 
+		 * @param colourModel
+		 *            the new {@link ColourModel}.
+		 */
 		public void setColourModel(final ColourModel colourModel) {
 			this.colourModel = colourModel;
 		}

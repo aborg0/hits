@@ -24,10 +24,14 @@ class ButtonsControl extends AbstractVariableControl {
 
 	/**
 	 * @param model
+	 *            A {@link SettingsModelFilterString} to store the preferences.
+	 * @param selectionType
+	 *            The {@link SelectionType} for this control.
 	 */
 	public ButtonsControl(final SettingsModelFilterString model,
 			final SelectionType selectionType) {
 		super(model, selectionType);
+		updateComponent();
 	}
 
 	/*
@@ -57,6 +61,10 @@ class ButtonsControl extends AbstractVariableControl {
 		}
 		for (final String exclude : excludeList) {
 			buttons.add(new JToggleButton(exclude, !INCLUDE_INDICATOR));
+		}
+		getPanel().removeAll();
+		for (final JToggleButton button : buttons) {
+			getPanel().add(button);
 		}
 	}
 }

@@ -31,14 +31,19 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	private final SelectionType selectionType;
 
 	/**
+	 * Sets the initial parameters.
 	 * 
+	 * @param model
+	 *            The model to use.
+	 * @param selectionType
+	 *            The supported {@link SelectionType}.
 	 */
 	public AbstractVariableControl(final SettingsModelFilterString model,
 			final SelectionType selectionType) {
 		super(model);
 		this.selectionType = selectionType;
-		getComponentPanel().add(panel);
-		panel.setFloatable(false);
+		getComponentPanel().add(getPanel());
+		getPanel().setFloatable(false);
 	}
 
 	/*
@@ -68,7 +73,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	@Override
 	public boolean isFloatable() {
-		return panel.isFloatable();
+		return getPanel().isFloatable();
 	}
 
 	/*
@@ -78,7 +83,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	@Override
 	public void setFloatable(final boolean isFloatable) {
-		panel.setFloatable(isFloatable);
+		getPanel().setFloatable(isFloatable);
 	}
 
 	/*
@@ -100,7 +105,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	@Override
 	public void setToolTipText(final String text) {
-		panel.setToolTipText(text);
+		getPanel().setToolTipText(text);
 	}
 
 	/*
@@ -117,5 +122,12 @@ abstract class AbstractVariableControl extends DialogComponent implements
 						+ " is included too: " + model.getIncludeList());
 			}
 		}
+	}
+
+	/**
+	 * @return the panel
+	 */
+	protected JToolBar getPanel() {
+		return panel;
 	}
 }

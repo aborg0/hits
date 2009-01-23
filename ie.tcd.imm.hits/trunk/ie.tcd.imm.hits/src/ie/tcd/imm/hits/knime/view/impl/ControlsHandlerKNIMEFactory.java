@@ -32,8 +32,11 @@ public class ControlsHandlerKNIMEFactory implements
 		ControlsHandler<SettingsModel> {
 	private Map<SliderModel, VariableControl<? extends SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<? extends SettingsModel>>();
 
+	/**
+	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
+	 */
 	public ControlsHandlerKNIMEFactory() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	/*

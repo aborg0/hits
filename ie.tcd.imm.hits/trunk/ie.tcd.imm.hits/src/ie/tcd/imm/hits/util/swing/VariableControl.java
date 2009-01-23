@@ -15,9 +15,14 @@ import javax.swing.JTabbedPane;
  * A Swing control to be able to change the representation of the control look.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <ModelType>
+ *            The type of the model used inside.
  */
 public interface VariableControl<ModelType> extends Serializable {
 
+	/**
+	 * The supported control types.
+	 */
 	public static enum ControlTypes {
 		/** Something like {@link JSlider}. */
 		Slider(EnumSet.of(SelectionType.Unmodifiable, SelectionType.Single)),
