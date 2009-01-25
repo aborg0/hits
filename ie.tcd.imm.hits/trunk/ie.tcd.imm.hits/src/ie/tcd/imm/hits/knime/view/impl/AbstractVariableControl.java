@@ -38,7 +38,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 * @param selectionType
 	 *            The supported {@link SelectionType}.
 	 */
-	public AbstractVariableControl(final SettingsModelFilterString model,
+	public AbstractVariableControl(final SettingsModelListSelection model,
 			final SelectionType selectionType) {
 		super(model);
 		this.selectionType = selectionType;
@@ -129,5 +129,15 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	protected JToolBar getPanel() {
 		return panel;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
+	 */
+	@Override
+	protected void updateComponent() {
+		panel.removeAll();
 	}
 }
