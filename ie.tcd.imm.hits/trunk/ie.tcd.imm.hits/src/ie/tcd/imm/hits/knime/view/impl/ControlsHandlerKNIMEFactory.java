@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
 
 import javax.annotation.CheckReturnValue;
@@ -64,43 +65,37 @@ public class ControlsHandlerKNIMEFactory implements
 		for (final Pair<ParameterModel, Object> pair : valueMapping.values()) {
 			vals.add(pair.getRight().toString());
 		}
-		final Set<Integer> selections = slider.getSelections();
+		final Set<Integer> selections = new TreeSet<Integer>(slider
+				.getSelections());
+		switch (controlType) {
+		case Buttons:
+		case Invisible:
+		case List:
+		case ScrollBarHorisontal:
+		case ScrollBarVertical:
+			// Do nothing, multiple selections are allowed.
+			break;
+		case ComboBox:
+		case RadioButton:
+		case Slider:
+		case Tab:
+			final Integer sel = selections.iterator().next();
+			selections.clear();
+			selections.add(sel);
+			for (final Integer select : selections) {
+				if (!select.equals(sel)) {
+					slider.deselect(select);
+				}
+			}
+			break;
+		default:
+			throw new UnsupportedOperationException(
+					"Not supported control type: " + controlType);
+		}
 		final Collection<String> selected = new HashSet<String>();
 		for (final Integer integer : selections) {
 			selected.add(vals.get(integer.intValue() - 1));
 		}
-		// switch (controlType) {
-		// case Buttons:
-		// selected = vals;
-		// break;
-		// case ComboBox:
-		// selected = Collections.singletonList(vals.get(0));
-		// break;
-		// case Invisible:
-		// selected = Collections.<String> emptyList();
-		// break;
-		// case List:
-		// selected = vals;
-		// break;
-		// case RadioButton:
-		// selected = Collections.<String> emptyList();
-		// break;
-		// case ScrollBarHorisontal:
-		// selected = vals;
-		// break;
-		// case ScrollBarVertical:
-		// selected = vals;
-		// break;
-		// case Slider:
-		// selected = Collections.singletonList(vals.get(0));
-		// break;
-		// case Tab:
-		// selected = Collections.singletonList(vals.get(0));
-		// break;
-		// default:
-		// throw new UnsupportedOperationException("Unknown control type: "
-		// + controlType);
-		// }
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				name, vals, selected);
 		settingsModelListSelection.addChangeListener(new ChangeListener() {

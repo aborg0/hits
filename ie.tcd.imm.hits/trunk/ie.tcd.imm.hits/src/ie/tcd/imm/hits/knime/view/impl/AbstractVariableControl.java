@@ -140,4 +140,9 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	protected void updateComponent() {
 		panel.removeAll();
 	}
+
+	/**
+	 * @return The type of the implementation.
+	 */
+	protected abstract ControlTypes getType();
 }

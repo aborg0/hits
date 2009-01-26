@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -23,7 +22,7 @@ import javax.swing.JComboBox;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * A {@link VariableControl} with {@link ControlTypes#ComboBox}.
+ * A {@link VariableControl} with {@link VariableControl.ControlTypes#ComboBox}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -103,5 +102,15 @@ class ComboBoxControl extends AbstractVariableControl {
 		final Set<String> selection = model.getSelection();
 		assert selection.size() == 1;
 		combobox.setSelectedItem(selection.iterator().next());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
+	 */
+	@Override
+	protected ControlTypes getType() {
+		return ControlTypes.ComboBox;
 	}
 }

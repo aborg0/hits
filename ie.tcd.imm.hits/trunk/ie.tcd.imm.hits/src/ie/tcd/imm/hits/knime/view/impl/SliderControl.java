@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ import javax.swing.JSlider;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * A {@link VariableControl} with {@link ControlTypes#Slider}.
+ * A {@link VariableControl} with {@link VariableControl.ControlTypes#Slider}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -78,5 +77,15 @@ class SliderControl extends AbstractVariableControl {
 		if (slider.getValue() != selected) {
 			slider.setValue(selected);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
+	 */
+	@Override
+	protected ControlTypes getType() {
+		return ControlTypes.Slider;
 	}
 }

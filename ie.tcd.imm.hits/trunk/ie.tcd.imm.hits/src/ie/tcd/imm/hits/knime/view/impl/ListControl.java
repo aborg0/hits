@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +24,8 @@ import javax.swing.event.ListSelectionListener;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * A {@link VariableControl} with control type: {@link ControlTypes#List}.
+ * A {@link VariableControl} with control type:
+ * {@link VariableControl.ControlTypes#List}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -161,5 +161,15 @@ class ListControl extends AbstractVariableControl {
 			ret.add((String) model.getElementAt(i));
 		}
 		return ret;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
+	 */
+	@Override
+	protected ControlTypes getType() {
+		return ControlTypes.List;
 	}
 }

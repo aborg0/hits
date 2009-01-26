@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- * A {@link VariableControl} with {@link ControlTypes#Buttons}.
+ * A {@link VariableControl} with {@link VariableControl.ControlTypes#Buttons}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -175,5 +174,15 @@ class ButtonsControl extends AbstractVariableControl {
 				}
 			});
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
+	 */
+	@Override
+	protected ControlTypes getType() {
+		return ControlTypes.Buttons;
 	}
 }
