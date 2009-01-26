@@ -5,6 +5,14 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ie.tcd.imm.hits.3rdparty"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
-	<classpathentry kind="var" path="TESTNG_HOME/lib/testng-jdk15.jar"/>
+	<classpathentry kind="var" path="TESTNG_HOME/lib/testng-jdk15.jar" sourcepath="/TESTNG_HOME/lib/src.zip"/>
+	<classpathentry kind="lib" path="lib/debug-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/fest-assert-1.0.jar" sourcepath="lib/source/fest-assert-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/fest-reflect-1.0.jar" sourcepath="lib/source/fest-reflect-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/fest-swing-1.0.jar" sourcepath="lib/source/fest-swing-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/fest-swing-testng-1.0.jar" sourcepath="lib/source/fest-swing-testng-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/fest-util-1.0.jar" sourcepath="lib/source/fest-util-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/MRJToolkitStubs-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

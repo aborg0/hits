@@ -10,10 +10,15 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
+ * Tests for {@link Format}'s
+ * {@link Format#convertWellToPosition(String) well parsing method}.
  * 
+ * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class TestFormat {
+	/**
+	 * @return Good wells with the expected results.
+	 */
 	@SuppressWarnings("boxing")
 	@DataProvider(name = "goodWells")
 	public Object[][] goodWellsProvider() {
@@ -30,6 +35,9 @@ public class TestFormat {
 				{ "B - 1", Format._384, 24 }, };
 	}
 
+	/**
+	 * @return All possible values of {@link Format}.
+	 */
 	@DataProvider(name = "allFormats")
 	public Object[][] allFormatsProvider() {
 		final Format[] values = Format.values();
@@ -40,6 +48,9 @@ public class TestFormat {
 		return ret;
 	}
 
+	/**
+	 * @return Well-like values which are problematic.
+	 */
 	@DataProvider(name = "problemProvider")
 	public Object[][] problemProvider() {
 		return new Object[][] { { "", Format._96 }, { "", Format._384 },
@@ -50,6 +61,16 @@ public class TestFormat {
 				{ "A25", Format._384 }, };
 	}
 
+	/**
+	 * Tests the good values.
+	 * 
+	 * @param well
+	 *            The well {@link String}.
+	 * @param format
+	 *            The {@link Format}.
+	 * @param position
+	 *            The expected position.
+	 */
 	@Test(dataProvider = "goodWellsProvider")
 	public void goodWells(final String well, final Format format,
 			final int position) {
@@ -60,11 +81,25 @@ public class TestFormat {
 				"Too large: " + pos);
 	}
 
+	/**
+	 * Checks every {@link Format} with null input.
+	 * 
+	 * @param format
+	 *            A {@link Format}.
+	 */
 	@Test(dataProvider = "allFormats", expectedExceptions = { NullPointerException.class })
 	public void nullWell(final Format format) {
 		format.convertWellToPosition(null);
 	}
 
+	/**
+	 * Checks whether the method gives {@link Exception}s or not.
+	 * 
+	 * @param well
+	 *            A well-like {@link String}.
+	 * @param format
+	 *            A {@link Format}.
+	 */
 	@Test(dataProvider = "problemProvider", expectedExceptions = {
 			StringIndexOutOfBoundsException.class,
 			IllegalArgumentException.class, NumberFormatProvider.class })
