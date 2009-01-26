@@ -48,6 +48,7 @@ public class SliderModel implements Serializable {
 
 	private final int subId;
 
+	@Deprecated
 	private final SliderModel.Type type;
 
 	private final List<ParameterModel> parameters = new ArrayList<ParameterModel>();
@@ -82,7 +83,8 @@ public class SliderModel implements Serializable {
 				final Map<Integer, Pair<ParameterModel, Object>> valueMapping) {
 			final Set<SliderModel> ret = new HashSet<SliderModel>();
 			for (final SliderModel slider : sliders) {
-				if (slider.type == type && parameters.equals(slider.parameters)
+				if (/* slider.type == type && */parameters
+						.equals(slider.parameters)
 						&& valueMapping.equals(slider.valueMapping)) {
 					ret.add(slider);
 				}
@@ -147,7 +149,7 @@ public class SliderModel implements Serializable {
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		result = prime * result + subId;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		// result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result
 				+ ((valueMapping == null) ? 0 : valueMapping.hashCode());
 		return result;
@@ -175,13 +177,13 @@ public class SliderModel implements Serializable {
 		if (subId != other.subId) {
 			return false;
 		}
-		if (type == null) {
-			if (other.type != null) {
-				return false;
-			}
-		} else if (type != other.type) {
-			return false;
-		}
+		// if (type == null) {
+		// if (other.type != null) {
+		// return false;
+		// }
+		// } else if (type != other.type) {
+		// return false;
+		// }
 		if (valueMapping == null) {
 			if (other.valueMapping != null) {
 				return false;
@@ -212,6 +214,7 @@ public class SliderModel implements Serializable {
 	/**
 	 * @return The position of the slider.
 	 */
+	@Deprecated
 	public SliderModel.Type getType() {
 		return type;
 	}
@@ -266,6 +269,13 @@ public class SliderModel implements Serializable {
 
 	@Override
 	public String toString() {
-		return type + "_" + subId + " " + parameters;
+		return preferredControlType + "_" + subId + " " + parameters;
+	}
+
+	/**
+	 * @return the preferredControlType
+	 */
+	public ControlTypes getPreferredControlType() {
+		return preferredControlType;
 	}
 }

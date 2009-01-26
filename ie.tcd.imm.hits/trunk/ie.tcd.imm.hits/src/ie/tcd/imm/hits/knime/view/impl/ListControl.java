@@ -3,11 +3,13 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,8 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.knime.core.node.defaultnodesettings.SettingsModel;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -39,10 +43,13 @@ class ListControl extends AbstractVariableControl {
 	 *            {@link VariableControl}.
 	 * @param selectionType
 	 *            The {@link SelectionType selection type}.
+	 * @param controlsHandler
+	 *            The {@link ControlsHandler} for the possible transformations.
 	 */
 	ListControl(final SettingsModelListSelection model,
-			final SelectionType selectionType) {
-		super(model, selectionType);
+			final SelectionType selectionType,
+			final ControlsHandler<SettingsModel> controlsHandler) {
+		super(model, selectionType, controlsHandler);
 		list.setName(model.getConfigName());
 		updateComponent();
 		switch (selectionType) {
@@ -147,7 +154,9 @@ class ListControl extends AbstractVariableControl {
 			++i;
 		}
 		assert index == selection.size();
-		list.setSelectedIndices(indices);
+		if (!Arrays.equals(indices, list.getSelectedIndices())) {
+			list.setSelectedIndices(indices);
+		}
 	}
 
 	/**
@@ -169,7 +178,48 @@ class ListControl extends AbstractVariableControl {
 	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
 	 */
 	@Override
-	protected ControlTypes getType() {
+	public ControlTypes getType() {
 		return ControlTypes.List;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((list == null) ? 0 : list.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ListControl other = (ListControl) obj;
+		if (list == null) {
+			if (other.list != null) {
+				return false;
+			}
+		} else if (list != other.list) {
+			return false;
+		}
+		return true;
+	}
+
 }

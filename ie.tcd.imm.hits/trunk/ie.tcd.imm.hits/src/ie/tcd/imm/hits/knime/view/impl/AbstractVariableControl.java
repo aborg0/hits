@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -30,6 +31,8 @@ abstract class AbstractVariableControl extends DialogComponent implements
 
 	private final SelectionType selectionType;
 
+	private final ControlsHandler<SettingsModel> controlHandler;
+
 	/**
 	 * Sets the initial parameters.
 	 * 
@@ -37,11 +40,15 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 *            The model to use.
 	 * @param selectionType
 	 *            The supported {@link SelectionType}.
+	 * @param controlHandler
+	 *            The handler for possible transformations.
 	 */
 	public AbstractVariableControl(final SettingsModelListSelection model,
-			final SelectionType selectionType) {
+			final SelectionType selectionType,
+			final ControlsHandler<SettingsModel> controlHandler) {
 		super(model);
 		this.selectionType = selectionType;
+		this.controlHandler = controlHandler;
 		getComponentPanel().add(getPanel());
 		getPanel().setFloatable(false);
 	}
@@ -141,8 +148,72 @@ abstract class AbstractVariableControl extends DialogComponent implements
 		panel.removeAll();
 	}
 
-	/**
-	 * @return The type of the implementation.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.util.swing.VariableControl#getControlsHandler()
 	 */
-	protected abstract ControlTypes getType();
+	@Override
+	public ControlsHandler<SettingsModel> getControlsHandler() {
+		return controlHandler;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((controlHandler == null) ? 0 : controlHandler.hashCode());
+		result = prime * result + ((panel == null) ? 0 : panel.hashCode());
+		result = prime * result
+				+ ((selectionType == null) ? 0 : selectionType.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final AbstractVariableControl other = (AbstractVariableControl) obj;
+		if (controlHandler == null) {
+			if (other.controlHandler != null) {
+				return false;
+			}
+		} else if (controlHandler != other.controlHandler) {
+			return false;
+		}
+		if (panel == null) {
+			if (other.panel != null) {
+				return false;
+			}
+		} else if (panel != other.panel) {
+			return false;
+		}
+		if (selectionType == null) {
+			if (other.selectionType != null) {
+				return false;
+			}
+		} else if (selectionType != other.selectionType) {
+			return false;
+		}
+		return true;
+	}
+
 }

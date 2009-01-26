@@ -1,5 +1,7 @@
 package ie.tcd.imm.hits.util.swing;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Set;
@@ -89,4 +91,14 @@ public interface VariableControl<ModelType> extends Serializable {
 	 * @see #setFloatable(boolean)
 	 */
 	public boolean isFloatable();
+
+	/**
+	 * @return The associated {@link ControlsHandler}.
+	 */
+	public ControlsHandler<ModelType> getControlsHandler();
+
+	/**
+	 * @return The type of the implementation.
+	 */
+	public abstract ControlTypes getType();
 }

@@ -3,16 +3,22 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.JLabel;
 import javax.swing.JSlider;
+
+import org.knime.core.node.defaultnodesettings.SettingsModel;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -22,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class SliderControl extends AbstractVariableControl {
+class SliderControl extends VariableControlWithMenu {
 	private static final long serialVersionUID = -3901494558881660768L;
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,
 			0, 1, 1));
@@ -30,11 +36,15 @@ class SliderControl extends AbstractVariableControl {
 	/**
 	 * @param model
 	 * @param selectionType
+	 * @param controlsHandler
 	 */
 	public SliderControl(final SettingsModelListSelection model,
-			final SelectionType selectionType) {
-		super(model, selectionType);
+			final SelectionType selectionType,
+			final ControlsHandler<SettingsModel> controlsHandler) {
+		super(model, selectionType, controlsHandler);
 		slider.setName(model.getConfigName());
+		slider.setSnapToTicks(true);
+		slider.setPaintLabels(true);
 		updateComponent();
 		getPanel().add(slider);
 	}
@@ -59,24 +69,43 @@ class SliderControl extends AbstractVariableControl {
 		@SuppressWarnings("unchecked")
 		final ListSelection<String> model = (ListSelection<String>) getModel();
 		final List<String> possibleValues = model.getPossibleValues();
-		int min = Integer.MAX_VALUE;
-		int max = Integer.MIN_VALUE;
+		final Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
+		int i = 1;
 		for (final String valueStr : possibleValues) {
-			final int i = Integer.parseInt(valueStr);
-			min = Math.min(min, i);
-			max = Math.max(max, i);
+			labels.put(Integer.valueOf(i++), new JLabel(valueStr));
 		}
-		if (slider.getModel().getMinimum() != min) {
-			slider.getModel().setMinimum(min);
-		}
-		if (slider.getModel().getMaximum() != max) {
-			slider.getModel().setMaximum(max);
-		}
+		slider.setLabelTable(labels);
+		slider.getModel().setMinimum(1);
+		slider.getModel().setMaximum(i - 1);
 		final String selectionStr = model.getSelection().iterator().next();
-		final int selected = Integer.parseInt(selectionStr);
+		final int selected = select(possibleValues, selectionStr);
 		if (slider.getValue() != selected) {
 			slider.setValue(selected);
 		}
+	}
+
+	/**
+	 * Selects the index of {@code selectionStr} in {@code possibleValues}
+	 * (starting from {@code 1}).
+	 * 
+	 * @param possibleValues
+	 *            A {@link List} of {@link String}s.
+	 * @param selectionStr
+	 *            A {@link String} from {@code possibleValues}.
+	 * @return The index of {@code selectionStr} in {@code possibleValues}
+	 *         starting from {@code 1}.
+	 */
+	private int select(final List<String> possibleValues,
+			final String selectionStr) {
+		int i = 1;
+		for (final String val : possibleValues) {
+			if (val.equals(selectionStr)) {
+				return i;
+			}
+			++i;
+		}
+		throw new IllegalStateException("Not found selection: " + selectionStr
+				+ " in : " + possibleValues);
 	}
 
 	/*
@@ -85,7 +114,48 @@ class SliderControl extends AbstractVariableControl {
 	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
 	 */
 	@Override
-	protected ControlTypes getType() {
+	public ControlTypes getType() {
 		return ControlTypes.Slider;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((slider == null) ? 0 : slider.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final SliderControl other = (SliderControl) obj;
+		if (slider == null) {
+			if (other.slider != null) {
+				return false;
+			}
+		} else if (slider != other.slider) {
+			return false;
+		}
+		return true;
+	}
+
 }

@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -19,6 +20,8 @@ import javax.annotation.Nonnull;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
@@ -27,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class ComboBoxControl extends AbstractVariableControl {
+class ComboBoxControl extends VariableControlWithMenu {
 	private static final long serialVersionUID = -9025497242849755048L;
 
 	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
@@ -35,10 +38,12 @@ class ComboBoxControl extends AbstractVariableControl {
 	/**
 	 * @param model
 	 * @param selectionType
+	 * @param controlsHandler
 	 */
 	public ComboBoxControl(final SettingsModelListSelection model,
-			final SelectionType selectionType) {
-		super(model, selectionType);
+			final SelectionType selectionType,
+			final ControlsHandler<SettingsModel> controlsHandler) {
+		super(model, selectionType, controlsHandler);
 		switch (selectionType) {
 		case MultipleAtLeastOne:
 		case MultipleOrNone:
@@ -101,7 +106,9 @@ class ComboBoxControl extends AbstractVariableControl {
 		}
 		final Set<String> selection = model.getSelection();
 		assert selection.size() == 1;
-		combobox.setSelectedItem(selection.iterator().next());
+		if (combobox.getSelectedItem() != selection.iterator().next()) {
+			combobox.setSelectedItem(selection.iterator().next());
+		}
 	}
 
 	/*
@@ -110,7 +117,49 @@ class ComboBoxControl extends AbstractVariableControl {
 	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
 	 */
 	@Override
-	protected ControlTypes getType() {
+	public ControlTypes getType() {
 		return ControlTypes.ComboBox;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((combobox == null) ? 0 : combobox.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ComboBoxControl other = (ComboBoxControl) obj;
+		if (combobox == null) {
+			if (other.combobox != null) {
+				return false;
+			}
+		} else if (combobox != other.combobox) {
+			return false;
+		}
+		return true;
+	}
+
 }

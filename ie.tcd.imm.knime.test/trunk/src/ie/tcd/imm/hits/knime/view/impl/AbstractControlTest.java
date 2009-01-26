@@ -45,22 +45,12 @@ public abstract class AbstractControlTest {
 	protected static final String VALUE_1 = "xx";
 	/** A sample value. Associated with {@link #slider2}. */
 	protected static final String VALUE_2 = "xy";
-	/** A sample number value. Associated with {@link #sliderNumber1}. */
-	protected static final String NUMBER_0 = "0";
-	/** A sample number value. Associated with {@link #sliderNumber2}. */
-	protected static final String NUMBER_1 = "1";
-	/** A sample number value. Associated with {@link #sliderNumber2}. */
-	protected static final String NUMBER_2 = "2";
 	/** The {@link FrameFixture} used for tests. */
 	protected FrameFixture window;
 	/** A sample {@link SliderModel} with one value. */
 	protected SliderModel slider1;
 	/** A sample {@link SliderModel} with two values. */
 	protected SliderModel slider2;
-	/** A sample {@link SliderModel} with one numeric value. */
-	protected SliderModel sliderNumber1;
-	/** A sample {@link SliderModel} with two numeric values. */
-	protected SliderModel sliderNumber2;
 	private JFrame frame;
 	/** The {@link ControlsHandler} to create the {@link VariableControl}s. */
 	protected ControlsHandler<? extends SettingsModel> controlsHandler;
@@ -103,21 +93,6 @@ public abstract class AbstractControlTest {
 		slider2 = new SliderFactory().get(Type.Splitter,
 				Collections.singletonList(paramModel2), valueMapping)
 				.iterator().next();
-		final Map<Integer, Pair<ParameterModel, Object>> numberMapping = new HashMap<Integer, Pair<ParameterModel, Object>>();
-		numberMapping.put(Integer.valueOf(1), new Pair<ParameterModel, Object>(
-				paramModel2, NUMBER_1));
-		numberMapping.put(Integer.valueOf(2), new Pair<ParameterModel, Object>(
-				paramModel2, NUMBER_2));
-		sliderNumber1 = new SliderFactory().get(
-				Type.Splitter,
-				Collections.singletonList(paramModel1),
-				Collections
-						.singletonMap(Integer.valueOf(1),
-								new Pair<ParameterModel, Object>(paramModel1,
-										NUMBER_0))).iterator().next();
-		sliderNumber2 = new SliderFactory().get(Type.Splitter,
-				Collections.singletonList(paramModel2), numberMapping)
-				.iterator().next();
 	}
 
 	/**
@@ -144,5 +119,4 @@ public abstract class AbstractControlTest {
 	public void clearFrame() {
 		window.cleanUp();
 	}
-
 }

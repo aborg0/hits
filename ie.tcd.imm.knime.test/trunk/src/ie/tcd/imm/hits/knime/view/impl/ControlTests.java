@@ -119,18 +119,15 @@ public class ControlTests extends AbstractControlTest {
 	@GUITest
 	public void slider() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
-				.getComponent(sliderNumber1, ControlTypes.Slider);
+				.getComponent(slider1, ControlTypes.Slider);
 		final JPanel view1 = (JPanel) component0.getView();
 		final VariableControl<?> component1 = controlsHandler.getComponent(
-				sliderNumber2, ControlTypes.Slider);
+				slider2, ControlTypes.Slider);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
-		final JSliderFixture slider = window
-				.slider(sliderNumber1.getParameters()
-						+ sliderNumber1.getType().toString()
-						+ sliderNumber1.getSubId());
+		final JSliderFixture slider = window.slider(slider1.getParameters()
+				+ slider1.getType().toString() + slider1.getSubId());
 		slider.requireEnabled();
-		// Assert.assertEquals(slider.target.getValue(), Integer
-		// .parseInt(NUMBER_0));
+		Assert.assertEquals(slider.target.getValue(), 1);
 	}
 }

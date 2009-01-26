@@ -5,13 +5,17 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,10 +23,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -40,6 +47,17 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class ControlsHandlerKNIMEFactory implements
 		ControlsHandler<SettingsModel> {
 	private Map<SliderModel, VariableControl<? extends SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<? extends SettingsModel>>();
+	private final EnumMap<Type, Map<String, WeakReference<JComponent>>> containers = new EnumMap<Type, Map<String, WeakReference<JComponent>>>(
+			Type.class);
+	{
+		for (final Type type : Type.values()) {
+			containers.put(type,
+					new HashMap<String, WeakReference<JComponent>>());
+		}
+	}
+
+	private final Map<JComponent, /* Weak */Map<VariableControl<? extends SettingsModel>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<? extends SettingsModel>, Boolean>>();
+	private final Map<VariableControl<? extends SettingsModel>, JComponent> controlToComponent = new WeakHashMap<VariableControl<? extends SettingsModel>, JComponent>();
 
 	/**
 	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
@@ -127,35 +145,43 @@ public class ControlsHandlerKNIMEFactory implements
 				}
 			}
 		});
+		final VariableControl<? extends SettingsModel> control = getControl(
+				controlType, settingsModelListSelection);
+		if (!cache.containsKey(slider)) {
+			cache.put(slider, control);
+		}
+		return cache.get(slider);
+	}
+
+	/**
+	 * @param controlType
+	 * @param settingsModelListSelection
+	 * @return
+	 */
+	private VariableControl<? extends SettingsModel> getControl(
+			final ControlTypes controlType,
+			final SettingsModelListSelection settingsModelListSelection) {
+		final VariableControl<SettingsModel> variableControl;
 		switch (controlType) {
 		case Buttons:
-			if (!cache.containsKey(slider)) {
-				cache.put(slider, new ButtonsControl(
-						settingsModelListSelection,
-						SelectionType.MultipleAtLeastOne));
-			}
-			return cache.get(slider);
-		case List:
-			if (!cache.containsKey(slider)) {
-				cache.put(slider, new ListControl(settingsModelListSelection,
-						SelectionType.MultipleAtLeastOne));
-			}
-			return cache.get(slider);
-		case ComboBox:
-			if (!cache.containsKey(slider)) {
-				cache.put(slider, new ComboBoxControl(
-						settingsModelListSelection, SelectionType.Single));
-			}
-			return cache.get(slider);
-		case Invisible:
+			variableControl = new ButtonsControl(settingsModelListSelection,
+					SelectionType.MultipleAtLeastOne, this);
 			break;
+		case List:
+			variableControl = new ListControl(settingsModelListSelection,
+					SelectionType.MultipleAtLeastOne, this);
+			break;
+		case ComboBox:
+			variableControl = new ComboBoxControl(settingsModelListSelection,
+					SelectionType.Single, this);
+			break;
+		case Invisible:
+			throw new UnsupportedOperationException("Not supported yet.");
 
 		case Slider:
-			if (!cache.containsKey(slider)) {
-				cache.put(slider, new SliderControl(settingsModelListSelection,
-						SelectionType.Single));
-			}
-			return cache.get(slider);
+			variableControl = new SliderControl(settingsModelListSelection,
+					SelectionType.Single, this);
+			break;
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
 			// if (!cache.containsKey(slider)) {
@@ -173,6 +199,219 @@ public class ControlsHandlerKNIMEFactory implements
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
 		}
-		return null;
+		return variableControl;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#changeControlType(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
+	 *      ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes)
+	 */
+	@Override
+	public boolean changeControlType(
+			final VariableControl<SettingsModel> variableControl,
+			final ControlTypes type) {
+		if (type == variableControl.getType()) {
+			return false;
+		}
+		final JComponent component = controlToComponent.get(variableControl);
+		if (component == null) {
+			return false;
+		}
+		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
+				.get(component);
+		final Boolean removed = map.remove(variableControl);
+		assert removed != null;
+		assert removed.booleanValue() == true;
+		component.remove(variableControl.getView());
+		SliderModel slider = null;
+		for (final Entry<SliderModel, VariableControl<? extends SettingsModel>> entry : cache
+				.entrySet()) {
+			if (entry.getValue().equals(variableControl)) {
+				slider = entry.getKey();
+			}
+		}
+		final VariableControl<? extends SettingsModel> removedVariableControl = cache
+				.remove(slider);
+		assert removedVariableControl != null;
+		final VariableControl<? extends SettingsModel> control = getControl(
+				type, (SettingsModelListSelection) variableControl.getModel());
+		cache.put(slider, control);
+		component.add(control.getView());
+		component.revalidate();
+		addToMap(map, control);
+		controlToComponent.put(control, component);
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#deregister(ie.tcd.imm.hits.knime.view.heatmap.SliderModel)
+	 */
+	@Override
+	public boolean deregister(final SliderModel model) {
+		final VariableControl<? extends SettingsModel> variableControl = cache
+				.get(model);
+		if (variableControl == null) {
+			return false;
+		}
+		final JComponent component = controlToComponent.get(variableControl);
+		if (component == null) {
+			return false;
+		}
+		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
+				.get(component);
+		assert map != null;
+		final Boolean removed = map.remove(variableControl);
+		assert removed != null;
+		assert removed.booleanValue() == true;
+		component.remove(variableControl.getView());
+		final JComponent removedComponent = controlToComponent
+				.remove(variableControl);
+		assert removedComponent != null;
+		final VariableControl<? extends SettingsModel> removedVariableControl = cache
+				.remove(model);
+		assert removedVariableControl != null;
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#move(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
+	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
+	 *      java.lang.String)
+	 */
+	@Override
+	public boolean move(final SliderModel model, final Type containerType,
+			final String nameOfContainer) {
+		final JComponent newContainer = getContainer(containerType,
+				nameOfContainer);
+		if (newContainer == null) {
+			return false;
+		}
+		final VariableControl<? extends SettingsModel> variableControl = cache
+				.get(model);
+		if (variableControl == null) {
+			return false;
+		}
+		final JComponent oldContainer = controlToComponent.get(variableControl);
+		if (oldContainer == null) {
+			return false;
+		}
+		final Map<VariableControl<? extends SettingsModel>, Boolean> oldControls = componentToControls
+				.get(oldContainer);
+		// Transaction start
+		oldControls.remove(variableControl);
+		oldContainer.remove(variableControl.getView());
+		oldContainer.revalidate();
+		newContainer.add(variableControl.getView());
+		newContainer.revalidate();
+		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
+				.get(newContainer);
+		assert map != null;
+		addToMap(map, variableControl);
+		// Transaction end
+		controlToComponent.put(variableControl, newContainer);
+		return true;
+	}
+
+	/**
+	 * @param map
+	 * @param variableControl
+	 */
+	private void addToMap(
+			final Map<VariableControl<? extends SettingsModel>, Boolean> map,
+			final VariableControl<? extends SettingsModel> variableControl) {
+		map.put(variableControl, Boolean.TRUE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#register(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
+	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
+	 *      java.lang.String)
+	 */
+	@Override
+	public boolean register(final SliderModel model, final Type modelType,
+			final String nameOfContainer) {
+		final JComponent component = getContainer(modelType, nameOfContainer);
+		if (component == null) {
+			return false;
+		}
+		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
+				.get(component);
+		assert map != null;
+		final ControlTypes controlType;
+		switch (modelType) {
+		case Hidden:
+			controlType = ControlTypes.ComboBox;
+			break;
+		case Selector:
+			controlType = ControlTypes.Slider;
+			break;
+		case Splitter:
+			controlType = ControlTypes.Buttons;
+			break;
+		case ScrollHorisontal:
+		case ScrollVertical:
+			throw new UnsupportedOperationException(
+					"Scrolls are not supported yet...");
+		default:
+			throw new UnsupportedOperationException("Not supported position: "
+					+ modelType);
+		}
+		final VariableControl<? extends SettingsModel> variableControl = getComponent(
+				model, controlType);
+		if (variableControl == null) {
+			return false;
+		}
+		component.add(variableControl.getView());
+		addToMap(map, variableControl);
+		controlToComponent.put(variableControl, component);
+		return true;
+	}
+
+	/**
+	 * Selects a {@link JComponent} if exists with the proper properties.
+	 * 
+	 * @param containerType
+	 *            A {@link Type}.
+	 * @param nameOfContainer
+	 *            A name of the container. May be {@code null}.
+	 * @return The {@link JComponent} associated to {@code containerType} and
+	 *         {@code nameOfContainer}, or {@code null} if it is not
+	 *         {@link #setContainer(JComponent, Type, String) set} before.
+	 */
+	private @Nullable
+	JComponent getContainer(final Type containerType, @Nullable
+	final String nameOfContainer) {
+		final WeakReference<JComponent> component = containers.get(
+				containerType).get(nameOfContainer);
+		return component == null ? null : component.get();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#setContainer(javax.swing.JComponent,
+	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
+	 *      java.lang.String)
+	 */
+	@Override
+	public void setContainer(final JComponent container, final Type type,
+			final String name) {
+		final Map<String, WeakReference<JComponent>> map = containers.get(type);
+		if (map.isEmpty()) {
+			map.put(null, new WeakReference<JComponent>(container));
+		}
+		map.put(name, new WeakReference<JComponent>(container));
+		componentToControls
+				.put(
+						container,
+						new WeakHashMap<VariableControl<? extends SettingsModel>, Boolean>());
 	}
 }

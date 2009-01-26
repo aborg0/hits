@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -21,12 +22,14 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+
 /**
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#Buttons}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-class ButtonsControl extends AbstractVariableControl {
+class ButtonsControl extends VariableControlWithMenu {
 	/**
 	 * The listener for the buttons.
 	 */
@@ -101,10 +104,13 @@ class ButtonsControl extends AbstractVariableControl {
 	 *            preferences.
 	 * @param selectionType
 	 *            The {@link SelectionType} for this control.
+	 * @param controlsHandler
+	 *            The {@link ControlsHandler} for the possible transformations.
 	 */
 	public ButtonsControl(final SettingsModelListSelection model,
-			final SelectionType selectionType) {
-		super(model, selectionType);
+			final SelectionType selectionType,
+			final ControlsHandler<SettingsModel> controlsHandler) {
+		super(model, selectionType, controlsHandler);
 		updateComponent();
 		getModel().addChangeListener(new ChangeListener() {
 
@@ -182,7 +188,56 @@ class ButtonsControl extends AbstractVariableControl {
 	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#getType()
 	 */
 	@Override
-	protected ControlTypes getType() {
+	public ControlTypes getType() {
 		return ControlTypes.Buttons;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((buttons == null) ? 0 : buttons.hashCode());
+		result = prime * result
+				+ ((currentFocus == null) ? 0 : currentFocus.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ButtonsControl other = (ButtonsControl) obj;
+		if (buttons == null) {
+			if (other.buttons != null) {
+				return false;
+			}
+		} else if (buttons != other.buttons) {
+			return false;
+		}
+		if (currentFocus == null) {
+			if (other.currentFocus != null) {
+				return false;
+			}
+		} else if (!currentFocus.equals(other.currentFocus)) {
+			return false;
+		}
+		return true;
 	}
 }
