@@ -2,10 +2,12 @@ package ie.tcd.imm.hits.knime.view;
 
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.Container;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.swing.JComponent;
@@ -106,9 +108,9 @@ public interface ControlsHandler<ModelType> {
 	 * Moves the {@link VariableControl} associated to {@code model} to the new
 	 * position: {@code containerType} and {@code nameOfContainer}.
 	 * 
-	 * @param model
+	 * @param variableControl
 	 *            A {@link #register(SliderModel, Type, String) registered}
-	 *            {@link SliderModel}.
+	 *            {@link VariableControl}.
 	 * @param containerType
 	 *            The <b>new</b> {@link Type}.
 	 * @param nameOfContainer
@@ -116,8 +118,8 @@ public interface ControlsHandler<ModelType> {
 	 *            which means one of the possible containers.
 	 * @return Indicates whether the it has moved ({@code true}) or not ({@code false}).
 	 */
-	public boolean move(SliderModel model, SliderModel.Type containerType,
-			@Nullable
+	public boolean move(VariableControl<ModelType> variableControl,
+			SliderModel.Type containerType, @Nullable
 			String nameOfContainer);
 
 	/**
@@ -133,4 +135,10 @@ public interface ControlsHandler<ModelType> {
 	 */
 	public boolean changeControlType(
 			VariableControl<ModelType> variableControl, ControlTypes type);
+
+	/**
+	 * @return The possible component positions.
+	 * @see #setContainer(JComponent, Type, String)
+	 */
+	public Set<Pair<Type, String>> findContainers();
 }

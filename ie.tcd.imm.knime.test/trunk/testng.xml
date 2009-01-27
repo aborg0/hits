@@ -3,6 +3,7 @@
   <test verbose="2" name="ie.tcd.imm.hits.knime.view.impl" annotations="JDK">
     <classes>
       <class name="ie.tcd.imm.hits.knime.view.impl.ControlTests"/>
+      <class name="ie.tcd.imm.hits.knime.view.impl.MockTest"/>
     </classes>
   </test>
   <test verbose="2" name="ie.tcd.imm.hits.common" annotations="JDK">

@@ -280,21 +280,16 @@ public class ControlsHandlerKNIMEFactory implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#move(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#move(ie.tcd.imm.hits.util.swing.VariableControl,
 	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean move(final SliderModel model, final Type containerType,
-			final String nameOfContainer) {
+	public boolean move(final VariableControl<SettingsModel> variableControl,
+			final Type containerType, final String nameOfContainer) {
 		final JComponent newContainer = getContainer(containerType,
 				nameOfContainer);
 		if (newContainer == null) {
-			return false;
-		}
-		final VariableControl<? extends SettingsModel> variableControl = cache
-				.get(model);
-		if (variableControl == null) {
 			return false;
 		}
 		final JComponent oldContainer = controlToComponent.get(variableControl);
@@ -413,5 +408,22 @@ public class ControlsHandlerKNIMEFactory implements
 				.put(
 						container,
 						new WeakHashMap<VariableControl<? extends SettingsModel>, Boolean>());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#findContainers()
+	 */
+	@Override
+	public Set<Pair<Type, String>> findContainers() {
+		final Set<Pair<Type, String>> ret = new HashSet<Pair<Type, String>>();
+		for (final Entry<Type, Map<String, WeakReference<JComponent>>> entry : containers
+				.entrySet()) {
+			for (final String name : entry.getValue().keySet()) {
+				ret.add(new Pair<Type, String>(entry.getKey(), name));
+			}
+		}
+		return ret;
 	}
 }

@@ -5,6 +5,8 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -12,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -32,10 +35,32 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 abstract class VariableControlWithMenu extends AbstractVariableControl {
-	/**
-	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
-	 * 
-	 */
+	private static final long serialVersionUID = -3325790267603732617L;
+
+	private class MoveAction extends AbstractAction {
+		private static final long serialVersionUID = -701281759726333944L;
+		private final Pair<Type, String> position;
+
+		/**
+		 * @param position
+		 */
+		public MoveAction(final Pair<Type, String> position) {
+			this.position = position;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			getControlsHandler().move(VariableControlWithMenu.this,
+					position.getLeft(), position.getRight());
+		}
+
+	}
+
 	private final class VisualChangeAction extends AbstractAction {
 		private static final long serialVersionUID = -2164544588301759074L;
 		private final ControlTypes controlTypes;
@@ -53,8 +78,6 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 					VariableControlWithMenu.this, controlTypes);
 		}
 	}
-
-	private static final long serialVersionUID = -3325790267603732617L;
 
 	/**
 	 * @param model
@@ -86,6 +109,17 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		toSlider.setText("to slider");
 		menuCompat.add(toSlider);
 		popup.add(menuCompat);
+		final JMenu moveMenu = new JMenu();
+		moveMenu.setText("Move to");
+		moveMenu.setMnemonic(KeyEvent.VK_M);
+		final Set<Pair<Type, String>> containers = getControlsHandler()
+				.findContainers();
+		for (final Pair<Type, String> pair : containers) {
+			final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
+			posMenu.setText(pair.getRight() + " [" + pair.getLeft() + "]");
+			moveMenu.add(posMenu);
+		}
+		popup.add(moveMenu);
 		final MouseAdapter popupListener = new MouseAdapter() {
 			/*
 			 * (non-Javadoc)

@@ -10,9 +10,11 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -32,7 +34,14 @@ import org.fest.swing.annotation.GUITest;
 import org.fest.swing.core.BasicRobot;
 import org.fest.swing.core.Robot;
 import org.fest.swing.fixture.FrameFixture;
+import org.fest.swing.fixture.JComboBoxFixture;
+import org.fest.swing.fixture.JMenuItemFixture;
+import org.fest.swing.fixture.JPanelFixture;
+import org.fest.swing.fixture.JPopupMenuFixture;
+import org.fest.swing.fixture.JSliderFixture;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -88,6 +97,9 @@ public class MockTest {
 
 	private FrameFixture window;
 
+	/**
+	 * Creates a sample application with the {@link FrameFixture}.
+	 */
 	@BeforeMethod
 	public void createSampleApp() {
 		final Robot robot = BasicRobot.robotWithNewAwtHierarchy();
@@ -172,23 +184,93 @@ public class MockTest {
 				createValueMapping(parameter)).iterator().next();
 	}
 
+	/**
+	 * Tests whether the initial position of the components are appropriate or
+	 * not.
+	 */
 	@GUITest
 	@Test
 	public void testInitialArrangement() {
 		window.panel(LOWER_RIGHT).toolBar();
-		// window.panel(UPPER_LEFT).slider("replicate");
-		// window.panel(UPPER_LEFT).slider("plate");
+		window.panel(UPPER_LEFT).slider(getSliderName(replicateSlider));
 		window.panel(UPPER_RIGHT).comboBox();
 		window.panel(LOWER_RIGHT).toggleButton("param1");
 		window.panel(LOWER_RIGHT).toggleButton("param2");
 		window.panel(LOWER_RIGHT).toggleButton("param3");
-		// window.panel(LOWER_CENTER).comboBox("statistics");
-		// window.panel(LOWER_CENTER).comboBox("normalisation");
+		window.panel(LOWER_CENTER).comboBox(getSliderName(statsSlider));
+		window.panel(LOWER_CENTER).comboBox(getSliderName(normSlider));
+	}
+
+	/**
+	 * Tests the effect of selecting an option to change the appearance of some
+	 * {@link VariableControl}s.
+	 */
+	@GUITest
+	@Test
+	public void testChangeControl() {
+		final JComboBoxFixture experimentCombobox = window.panel(UPPER_RIGHT)
+				.comboBox();
+		window.robot.rightClick(experimentCombobox.target.getParent());
+		final JPanelFixture panelFixture = new JPanelFixture(window.robot,
+				(JPanel) experimentCombobox.target.getParent().getParent());
+		final JPopupMenuFixture popupMenu = panelFixture
+				.showPopupMenuAt(new Point(0, 0));
+		popupMenu.menuItemWithPath("Change appearance", "to drop down list")
+				.click();
+		experimentCombobox.requireVisible();
+		final JPopupMenuFixture popupMenu2 = panelFixture
+				.showPopupMenuAt(new Point(0, 0));
+		final JMenuItemFixture toSlider = popupMenu2.menuItemWithPath(
+				"Change appearance", "to slider");
+		toSlider.click();
+		final JSliderFixture newSlider = window.panel(UPPER_RIGHT).slider();
+		Assert.assertEquals(newSlider.target.getValue(), 1);
+	}
+
+	/**
+	 * Tests the move of the controls to another place.
+	 */
+	@GUITest
+	@Test
+	public void testMove() {
+		final JComboBoxFixture experimentCombobox = window.panel(UPPER_RIGHT)
+				.comboBox();
+		experimentCombobox.robot.settings().delayBetweenEvents(500);
+		window.robot.rightClick(experimentCombobox.target.getParent());
+		final JPanelFixture panelFixture = new JPanelFixture(window.robot,
+				(JPanel) experimentCombobox.target.getParent().getParent());
+		final JPopupMenuFixture popupMenu = panelFixture
+				.showPopupMenuAt(new Point(0, 0));
+		popupMenu.menuItemWithPath("Move to",
+				UPPER_RIGHT + " [" + Type.Hidden + "]").click();
+		experimentCombobox.requireVisible();
+		final JPopupMenuFixture popupMenu2 = panelFixture
+				.showPopupMenuAt(new Point(0, 0));
+		final JMenuItemFixture toSlider = popupMenu2.menuItemWithPath(
+				"Move to", LOWER + " [" + Type.Hidden + "]");
+		toSlider.click();
+		final JComboBoxFixture newCombobox = window.panel(LOWER_CENTER)
+				.comboBox(getSliderName(experimentSlider));
+		newCombobox.requireSelection((String) experimentSlider
+				.getValueMapping().get(
+						experimentSlider.getSelections().iterator().next())
+				.getRight());
+	}
+
+	/**
+	 * @param slider
+	 *            A {@link SliderModel}.
+	 * @return The name of {@code slider}.
+	 */
+	private String getSliderName(final SliderModel slider) {
+		return slider.getParameters().toString() + slider.getType()
+				+ slider.getSubId();
 	}
 
 	/**
 	 * @param parameterModel
-	 * @return
+	 *            A {@link ParameterModel}.
+	 * @return A value mapping based on the {@code parameterModel}'s values.
 	 */
 	private Map<Integer, Pair<ParameterModel, Object>> createValueMapping(
 			final ParameterModel parameterModel) {
@@ -199,5 +281,13 @@ public class MockTest {
 					parameterModel, val));
 		}
 		return ret;
+	}
+
+	/**
+	 * Cleans the frame.
+	 */
+	@AfterMethod
+	public void clean() {
+		window.cleanUp();
 	}
 }
