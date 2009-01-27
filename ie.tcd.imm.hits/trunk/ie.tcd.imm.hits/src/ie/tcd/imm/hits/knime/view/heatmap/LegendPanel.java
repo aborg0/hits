@@ -191,7 +191,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			final int primaryCount = selectValueCount(getModel().getMain()
 					.getPrimerParameters(), sliders);
 			final int secundaryCount = selectValueCount(getModel().getMain()
-					.getSecunderParameters(), sliders);
+					.getSeconderParameters(), sliders);
 			switch (getModel().getShape()) {
 			case Circle:
 				if (showLabels) {
@@ -254,7 +254,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					((Graphics2D) g).rotate(-startAngle / 180.0 * Math.PI);
 					g.setFont(getFont().deriveFont(Font.BOLD));
 					final List<ParameterModel> secunderParameters = getModel()
-							.getMain().getSecunderParameters();
+							.getMain().getSeconderParameters();
 					if (secunderParameters.size() > 0) {
 						final ParameterModel paramModel = secunderParameters
 								.iterator().next();
@@ -303,7 +303,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					}
 					((Graphics2D) g).rotate(-Math.PI / 2);
 					for (final ParameterModel model : getModel().getMain()
-							.getSecunderParameters()) {
+							.getSeconderParameters()) {
 						g.drawString(model.getShortName(), -bounds.height + 5,
 								15);
 						int i = 0;

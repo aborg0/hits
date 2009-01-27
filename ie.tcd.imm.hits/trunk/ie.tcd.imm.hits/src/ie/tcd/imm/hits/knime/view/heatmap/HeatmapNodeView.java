@@ -33,11 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,22 +46,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -119,6 +110,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	 * of {@link HeatmapPanel}.
 	 */
 	private static class HeatmapPanel extends JPanel implements ActionListener {
+		private static final long serialVersionUID = 6589091201002870311L;
+
 		private static final class HeatmapHiLiteListener implements
 				HiLiteListener, Serializable {
 			private static final long serialVersionUID = -1134588773984128388L;
@@ -175,13 +168,14 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 		}
 
-		private static final long serialVersionUID = 6589091201002870311L;
 		private final Map<Integer, Map<Integer, Heatmap>> heatmaps = new HashMap<Integer, Map<Integer, Heatmap>>();
 		private ViewModel model;
 		private @Nullable
 		HeatmapNodeModel dataModel;
 		private final HeatmapHiLiteListener hiliteListener;
 		private final VolatileModel volatileModel;
+		private final JPanel controlPanel = new JPanel();
+		private final JPanel heatmapsPanel = new JPanel();
 
 		/**
 		 * Constructs the {@link HeatmapPanel}.
@@ -196,6 +190,10 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		public HeatmapPanel(final ViewModel model, @Nullable
 		final HeatmapNodeModel dataModel, final VolatileModel volatileModel) {
 			super();
+			controlPanel.setName(PositionConstants.upper.name());
+			setLayout(new BorderLayout());
+			add(controlPanel, BorderLayout.NORTH);
+			add(heatmapsPanel, BorderLayout.CENTER);
 			this.model = model;
 			this.dataModel = dataModel;
 			this.volatileModel = volatileModel;
@@ -204,7 +202,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		}
 
 		private void internalSetModel() {
-			removeAll();
+			heatmapsPanel.removeAll();
 			heatmaps.clear();
 			final OverviewModel overview = model.getOverview();
 			// final List<ParameterModel> choiceModel =
@@ -215,58 +213,62 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			final int allChoiceCount = volatileModel.count(StatTypes.plate);
 			final int selectorCount = possibleValueCount(sliders
 					.get(Type.Selector));
-			Container currentContainer = this;
+			Container currentContainer = heatmapsPanel;
 			final Collection<SliderModel> possSelectors = model.getMain()
 					.getArrangementModel().getSliders().get(Type.Selector);
-			for (final SliderModel selector : possSelectors) {
-				final Color[] possColors = new Color[] { Color.DARK_GRAY,
-						Color.LIGHT_GRAY };
-				final SliderModel selectorSlider = possSelectors.size() > 0 ? possSelectors
-						.iterator().next()
-						: null;
-				final int sliderPos = !volatileModel.getSliderPositions()
-						.containsKey(selectorSlider) ? 1 : volatileModel
-						.getSliderPositions().get(selectorSlider).intValue();
-				final JSlider slider = new JSlider(SwingConstants.HORIZONTAL,
-						1, allChoiceCount, sliderPos);
-				slider.setMinorTickSpacing(1);
-				slider.setMajorTickSpacing(5);
-				slider.setSnapToTicks(true);
-				slider.setPaintLabels(true);
-				final Dictionary<Integer, JComponent> labels = new Hashtable<Integer, JComponent>();
-				final Set<ParameterModel> paramSet = new HashSet<ParameterModel>();
-				for (final Entry<Integer, Pair<ParameterModel, Object>> entry : selector
-						.getValueMapping().entrySet()) {
-					final JLabel label = new JLabel(entry.getValue().getRight()
-							.toString());
-					final ParameterModel key = entry.getValue().getLeft();
-					paramSet.add(key);
-					label.setBackground(possColors[paramSet.size()
-							% possColors.length]);
-					labels.put(entry.getKey(), label);
-				}
-				slider.setLabelTable(labels);
-				slider.setBorder(new TitledBorder(selector.getParameters().get(
-						0).getShortName()));
-				// if (allChoiceCount > 1) {
-				currentContainer.setLayout(new BorderLayout());
-				final JToolBar toolbar = new JToolBar(selectorSlider
-						.getParameters().iterator().next().getShortName());
-				toolbar.setFloatable(true);
-				toolbar.add(slider);
-				currentContainer.add(toolbar, BorderLayout.NORTH);
-				currentContainer.add(currentContainer = new JPanel(),
-						BorderLayout.CENTER);
-				slider.addChangeListener(new ChangeListener() {
-					@Override
-					public void stateChanged(final ChangeEvent e) {
-						final int selected = slider.getModel().getValue();
-						volatileModel.setSliderPosition(selectorSlider, Integer
-								.valueOf(selected));
-						setModel(dataModel);
-					}
-				});
-			}
+			// for (final SliderModel selector : possSelectors) {
+			// final Color[] possColors = new Color[] { Color.DARK_GRAY,
+			// Color.LIGHT_GRAY };
+			// final SliderModel selectorSlider = possSelectors.size() > 0 ?
+			// possSelectors
+			// .iterator().next()
+			// : null;
+			// final int sliderPos = !volatileModel.getSliderPositions()
+			// .containsKey(selectorSlider) ? 1 : volatileModel
+			// .getSliderPositions().get(selectorSlider).intValue();
+			// final JSlider slider = new JSlider(SwingConstants.HORIZONTAL,
+			// 1, allChoiceCount, sliderPos);
+			// slider.setMinorTickSpacing(1);
+			// slider.setMajorTickSpacing(5);
+			// slider.setSnapToTicks(true);
+			// slider.setPaintLabels(true);
+			// final Dictionary<Integer, JComponent> labels = new
+			// Hashtable<Integer, JComponent>();
+			// final Set<ParameterModel> paramSet = new
+			// HashSet<ParameterModel>();
+			// for (final Entry<Integer, Pair<ParameterModel, Object>> entry :
+			// selector
+			// .getValueMapping().entrySet()) {
+			// final JLabel label = new JLabel(entry.getValue().getRight()
+			// .toString());
+			// final ParameterModel key = entry.getValue().getLeft();
+			// paramSet.add(key);
+			// label.setBackground(possColors[paramSet.size()
+			// % possColors.length]);
+			// labels.put(entry.getKey(), label);
+			// }
+			// slider.setLabelTable(labels);
+			// slider.setBorder(new TitledBorder(selector.getParameters().get(
+			// 0).getShortName()));
+			// // if (allChoiceCount > 1) {
+			// currentContainer.setLayout(new BorderLayout());
+			// final JToolBar toolbar = new JToolBar(selectorSlider
+			// .getParameters().iterator().next().getShortName());
+			// toolbar.setFloatable(true);
+			// toolbar.add(slider);
+			// currentContainer.add(toolbar, BorderLayout.NORTH);
+			// currentContainer.add(currentContainer = new JPanel(),
+			// BorderLayout.CENTER);
+			// slider.addChangeListener(new ChangeListener() {
+			// @Override
+			// public void stateChanged(final ChangeEvent e) {
+			// final int selected = slider.getModel().getValue();
+			// volatileModel.setSliderPosition(selectorSlider, Integer
+			// .valueOf(selected));
+			// setModel(dataModel);
+			// }
+			// });
+			// }
 			final int rowCount = Math.max(1, possibleValueCount(sliders
 					.get(Type.ScrollVertical)));
 			final int colCount = Math.max(1, possibleValueCount(sliders
@@ -429,9 +431,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -440,20 +442,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
+					 * Collections .<ParameterModel>
+					 * emptyList()
+					 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
+					 * Collections.<ParameterModel>
+					 * emptyList()
+					 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -825,11 +827,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		super(nodeModel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
 		showHilite = new JCheckBoxMenuItem("Show HiLite visuals", true);
-		hiliteMenu.add(showHilite);
+		// hiliteMenu.add(showHilite);
 		showOnlyHilited = new JCheckBoxMenuItem("Show only HiLited values",
 				false);
-		hiliteMenu.add(showOnlyHilited);
-		hiliteMenu.add(new JMenuItem());
+		// hiliteMenu.add(showOnlyHilited);
+		// hiliteMenu.add(new JMenuItem());
 		hiliteSelected = new JMenuItem(HiLiteHandler.HILITE_SELECTED);
 		hiliteMenu.add(hiliteSelected);
 		unHiliteSelected = new JMenuItem(HiLiteHandler.UNHILITE_SELECTED);
@@ -868,7 +870,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		legendMenu.add(showColorsLegend);
 		showTooltipsLegend = new JCheckBoxMenuItem("Show tooltips legend", true);
 		legendMenu.add(showTooltipsLegend);
-		getJMenuBar().add(legendMenu);
+		// getJMenuBar().add(legendMenu);
 
 		final JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				true);
@@ -940,6 +942,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		volatileModel.addActionListener(legendPanel);
 		volatileModel.addActionListener(legendPanel2);
 		setCurrentViewModel(currentViewModel);
+		controlsHandler.setContainer(heatmapPanel.controlPanel, Type.Selector,
+				PositionConstants.upper.name());
 	}
 
 	/**
@@ -949,6 +953,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	protected void modelChanged() {
 		// TODO retrieve the new model from your nodemodel and
 		// update the view.
+		for (final Entry<Type, Collection<SliderModel>> entry : getVolatileModel().arrangementModel
+				.getSliders().entrySet()) {
+			for (final SliderModel model : entry.getValue()) {
+				controlsHandler.deregister(model);
+			}
+		}
 		final HeatmapNodeModel nodeModel = getNodeModel();
 		assert nodeModel != null;
 		volatileModel.setHiliteHandler(nodeModel.getInHiLiteHandler(0));
@@ -969,12 +979,39 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 		}
 		controlPanel.setModel(nodeModel);
+		for (final Entry<Type, Collection<SliderModel>> entry : getVolatileModel().arrangementModel
+				.getSliders().entrySet()) {
+			for (final SliderModel model : entry.getValue()) {
+				controlsHandler.register(model, entry.getKey(),
+						getDefaultPosition(entry.getKey()));
+				model.addActionListener(volatileModel);
+			}
+		}
 		heatmapPanel.setModel(nodeModel);
 		colourSelector.update(nodeModel.getModelBuilder().getSpecAnalyser()
 				.getParameters(), nodeModel.getModelBuilder().getSpecAnalyser()
 				.getStatistics());
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
+	}
+
+	/**
+	 * @param type
+	 *            A {@link Type}.
+	 * @return The default position name for {{@code type}.
+	 */
+	private String getDefaultPosition(final Type type) {
+		switch (type) {
+		case Hidden:
+			return PositionConstants.control.name();
+		case Selector:
+			return PositionConstants.upper.name();
+		case Splitter:
+			return PositionConstants.primary.name();
+		default:
+			throw new UnsupportedOperationException("Not supported type: "
+					+ type);
+		}
 	}
 
 	/**
@@ -1087,5 +1124,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	@Override
 	public HeatmapNodeModel getNodeModel() {
 		return super.getNodeModel();
+	}
+
+	public ControlsHandler<? extends SettingsModel> getControlsHandler() {
+		return controlsHandler;
 	}
 }

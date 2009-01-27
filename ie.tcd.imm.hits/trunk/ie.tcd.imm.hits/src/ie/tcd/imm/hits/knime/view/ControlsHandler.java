@@ -141,4 +141,19 @@ public interface ControlsHandler<ModelType> {
 	 * @see #setContainer(JComponent, Type, String)
 	 */
 	public Set<Pair<Type, String>> findContainers();
+
+	/**
+	 * Selects a {@link JComponent} if exists with the proper properties.
+	 * 
+	 * @param containerType
+	 *            A {@link Type}.
+	 * @param nameOfContainer
+	 *            A name of the container. May be {@code null}.
+	 * @return The {@link JComponent} associated to {@code containerType} and
+	 *         {@code nameOfContainer}, or {@code null} if it is not
+	 *         {@link #setContainer(JComponent, Type, String) set} before.
+	 */
+	public @Nullable
+	JComponent getContainer(final Type containerType, @Nullable
+	final String nameOfContainer);
 }

@@ -9,6 +9,9 @@ import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
@@ -33,6 +36,8 @@ abstract class AbstractVariableControl extends DialogComponent implements
 
 	private final ControlsHandler<SettingsModel> controlHandler;
 
+	private final ChangeListener changeListener;
+
 	/**
 	 * Sets the initial parameters.
 	 * 
@@ -42,15 +47,27 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 *            The supported {@link SelectionType}.
 	 * @param controlHandler
 	 *            The handler for possible transformations.
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	public AbstractVariableControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlHandler) {
+			final ControlsHandler<SettingsModel> controlHandler,
+			final ChangeListener changeListener) {
 		super(model);
+		panel.setBorder(new TitledBorder(model.getConfigName()));
 		this.selectionType = selectionType;
 		this.controlHandler = controlHandler;
+		this.changeListener = new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				changeListener.stateChanged(e);
+				updateComponent();
+			}
+		};
 		getComponentPanel().add(getPanel());
 		getPanel().setFloatable(false);
+		model.addChangeListener(this.changeListener);
 	}
 
 	/*
@@ -216,4 +233,11 @@ abstract class AbstractVariableControl extends DialogComponent implements
 		return true;
 	}
 
+	/**
+	 * @return the change listener of the {@link #getModel() model}.
+	 */
+	@Override
+	public ChangeListener getModelChangeListener() {
+		return changeListener;
+	}
 }

@@ -12,6 +12,7 @@ import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
+import java.awt.Component;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -98,13 +99,14 @@ public class ControlsHandlerKNIMEFactory implements
 		case Slider:
 		case Tab:
 			final Integer sel = selections.iterator().next();
-			selections.clear();
-			selections.add(sel);
-			for (final Integer select : selections) {
-				if (!select.equals(sel)) {
-					slider.deselect(select);
-				}
-			}
+			// selections.clear();
+			// selections.add(sel);
+			slider.selectSingle(sel);
+			// for (final Integer select : selections) {
+			// if (!select.equals(sel)) {
+			// slider.deselect(select);
+			// }
+			// }
 			break;
 		default:
 			throw new UnsupportedOperationException(
@@ -116,7 +118,28 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				name, vals, selected);
-		settingsModelListSelection.addChangeListener(new ChangeListener() {
+		final VariableControl<? extends SettingsModel> control = createControl(
+				slider, controlType, settingsModelListSelection);
+		if (!cache.containsKey(slider)) {
+			cache.put(slider, control);
+		}
+		return cache.get(slider);
+	}
+
+	/**
+	 * @param slider
+	 *            The {@link SliderModel} containing the possible values, ...
+	 * @param controlType
+	 *            A {@link ControlTypes}.
+	 * @param settingsModelListSelection
+	 *            A {@link SettingsModelListSelection}.
+	 * @param changeListener
+	 * @return The control with the proper parameters.
+	 */
+	private VariableControl<? extends SettingsModel> createControl(
+			final SliderModel slider, final ControlTypes controlType,
+			final SettingsModelListSelection settingsModelListSelection) {
+		final ChangeListener changeListener = new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				final Set<String> selections = settingsModelListSelection
@@ -133,54 +156,43 @@ public class ControlsHandlerKNIMEFactory implements
 				}
 				final Set<Integer> sliderSelection = new HashSet<Integer>(
 						slider.getSelections());
-				for (final Integer index : selectedIndices) {
-					if (!sliderSelection.contains(index)) {
-						slider.select(index);
+				if (selectedIndices.size() == 1) {
+					slider.selectSingle(selectedIndices.iterator().next());
+				} else {
+					for (final Integer index : selectedIndices) {
+						if (!sliderSelection.contains(index)) {
+							slider.select(index);
+						}
+					}
+					for (final Integer index : sliderSelection) {
+						if (!selectedIndices.contains(index)) {
+							slider.deselect(index);
+						}
 					}
 				}
-				for (final Integer index : sliderSelection) {
-					if (!selectedIndices.contains(index)) {
-						slider.deselect(index);
-					}
-				}
-			}
-		});
-		final VariableControl<? extends SettingsModel> control = getControl(
-				controlType, settingsModelListSelection);
-		if (!cache.containsKey(slider)) {
-			cache.put(slider, control);
-		}
-		return cache.get(slider);
-	}
 
-	/**
-	 * @param controlType
-	 * @param settingsModelListSelection
-	 * @return
-	 */
-	private VariableControl<? extends SettingsModel> getControl(
-			final ControlTypes controlType,
-			final SettingsModelListSelection settingsModelListSelection) {
+			}
+		};
 		final VariableControl<SettingsModel> variableControl;
 		switch (controlType) {
 		case Buttons:
 			variableControl = new ButtonsControl(settingsModelListSelection,
-					SelectionType.MultipleAtLeastOne, this);
+					SelectionType.MultipleAtLeastOne, this, changeListener);
 			break;
 		case List:
 			variableControl = new ListControl(settingsModelListSelection,
-					SelectionType.MultipleAtLeastOne, this);
+					SelectionType.MultipleAtLeastOne, this, changeListener);
 			break;
 		case ComboBox:
 			variableControl = new ComboBoxControl(settingsModelListSelection,
-					SelectionType.Single, this);
+					SelectionType.Single, this, changeListener);
 			break;
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
 
 		case Slider:
 			variableControl = new SliderControl(settingsModelListSelection,
-					SelectionType.Single, this);
+					SelectionType.Single, this, changeListener);
 			break;
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
@@ -224,6 +236,16 @@ public class ControlsHandlerKNIMEFactory implements
 		final Boolean removed = map.remove(variableControl);
 		assert removed != null;
 		assert removed.booleanValue() == true;
+		int originalPosition = -1;
+		{
+			final Component[] components = component.getComponents();
+			for (int i = 0; i < components.length; i++) {
+				if (components[i] == variableControl.getView()) {
+					originalPosition = i;
+					break;
+				}
+			}
+		}
 		component.remove(variableControl.getView());
 		SliderModel slider = null;
 		for (final Entry<SliderModel, VariableControl<? extends SettingsModel>> entry : cache
@@ -235,10 +257,14 @@ public class ControlsHandlerKNIMEFactory implements
 		final VariableControl<? extends SettingsModel> removedVariableControl = cache
 				.remove(slider);
 		assert removedVariableControl != null;
-		final VariableControl<? extends SettingsModel> control = getControl(
-				type, (SettingsModelListSelection) variableControl.getModel());
+		final SettingsModelListSelection settingsModel = (SettingsModelListSelection) variableControl
+				.getModel();
+		settingsModel.removeChangeListener(removedVariableControl
+				.getModelChangeListener());
+		final VariableControl<? extends SettingsModel> control = createControl(
+				slider, type, settingsModel);
 		cache.put(slider, control);
-		component.add(control.getView());
+		component.add(control.getView(), originalPosition);
 		component.revalidate();
 		addToMap(map, control);
 		controlToComponent.put(control, component);
@@ -274,6 +300,8 @@ public class ControlsHandlerKNIMEFactory implements
 		final VariableControl<? extends SettingsModel> removedVariableControl = cache
 				.remove(model);
 		assert removedVariableControl != null;
+		removedVariableControl.getModel().removeChangeListener(
+				removedVariableControl.getModelChangeListener());
 		return true;
 	}
 
@@ -381,7 +409,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 *         {@code nameOfContainer}, or {@code null} if it is not
 	 *         {@link #setContainer(JComponent, Type, String) set} before.
 	 */
-	private @Nullable
+	@Override
+	public @Nullable
 	JComponent getContainer(final Type containerType, @Nullable
 	final String nameOfContainer) {
 		final WeakReference<JComponent> component = containers.get(

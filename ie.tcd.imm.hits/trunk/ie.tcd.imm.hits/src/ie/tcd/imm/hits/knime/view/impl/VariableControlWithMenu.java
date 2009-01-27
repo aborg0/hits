@@ -10,6 +10,7 @@ import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -19,9 +20,12 @@ import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -83,11 +87,14 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 	 * @param model
 	 * @param selectionType
 	 * @param controlsHandler
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	public VariableControlWithMenu(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler) {
-		super(model, selectionType, controlsHandler);
+			final ControlsHandler<SettingsModel> controlsHandler,
+			final ChangeListener changeListener) {
+		super(model, selectionType, controlsHandler, changeListener);
 		final JPopupMenu popup = new JPopupMenu("Change behaviour");
 		final JMenu menuCompat = new JMenu();
 		menuCompat.setText("Change appearance");
@@ -115,9 +122,30 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		final Set<Pair<Type, String>> containers = getControlsHandler()
 				.findContainers();
 		for (final Pair<Type, String> pair : containers) {
-			final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
-			posMenu.setText(pair.getRight() + " [" + pair.getLeft() + "]");
-			moveMenu.add(posMenu);
+			if (pair.getRight() != null) {
+				final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
+				posMenu.setText(pair.getRight() + " [" + pair.getLeft() + "]");
+				posMenu.getModel().addChangeListener(new ChangeListener() {
+					private final JComponent container = getControlsHandler()
+							.getContainer(pair.getLeft(), pair.getRight());
+					private final Color origBackground = container == null ? null
+							: container.getBackground();
+					private final Color origForeground = container == null ? null
+							: container.getForeground();
+
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						if (posMenu.isArmed() && container != null) {
+							container.setBackground(origForeground);
+						}
+						if (!posMenu.isArmed() && container != null) {
+							container.setBackground(origBackground);
+						}
+					}
+
+				});
+				moveMenu.add(posMenu);
+			}
 		}
 		popup.add(moveMenu);
 		final MouseAdapter popupListener = new MouseAdapter() {
@@ -150,5 +178,4 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		getComponentPanel().addMouseListener(popupListener);
 		getPanel().addMouseListener(popupListener);
 	}
-
 }

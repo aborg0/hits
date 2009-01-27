@@ -64,7 +64,7 @@ public class ControlPanel extends JPanel {
 	private final JCheckBox showBorderButton = new JCheckBox("Show border");
 	private final JCheckBox showPrimarySeparatorButton = new JCheckBox(
 			"Show slice separators");
-	private final JCheckBox showSecundarySeparatorButton = new JCheckBox(
+	private final JCheckBox showSecondarySeparatorButton = new JCheckBox(
 			"Show circle separators");
 	private final JCheckBox showAdditionalSeparatorButton = new JCheckBox(
 			"Show rectangle");
@@ -200,8 +200,9 @@ public class ControlPanel extends JPanel {
 										name));
 					}
 				}
-				final Set<SliderModel> set = factory.get(Type.Splitter, Collections
-						.singletonList(parameters), parametersMapping);
+				final Set<SliderModel> set = factory.get(Type.Splitter,
+						Collections.singletonList(parameters),
+						parametersMapping);
 				assert !set.isEmpty();
 				sliders.get(Type.Splitter).add(
 						paramsSlider = set.iterator().next());
@@ -235,8 +236,9 @@ public class ControlPanel extends JPanel {
 				}
 				if (replicateMapping.isEmpty()) {
 				}
-				final Set<SliderModel> replicateSet = factory.get(Type.Splitter,
-						Collections.singletonList(replicateModel),
+				final Set<SliderModel> replicateSet = factory.get(
+						Type.Splitter, Collections
+								.singletonList(replicateModel),
 						replicateMapping);
 				assert !replicateSet.isEmpty();
 				sliders.get(Type.Splitter).add(
@@ -282,8 +284,8 @@ public class ControlPanel extends JPanel {
 					normaliseMapping.put(i++, new Pair<ParameterModel, Object>(
 							normalisation, normalisationName));
 				}
-				final Set<SliderModel> normalisationSet = factory.get(Type.Hidden,
-						Collections.singletonList(normalisation),
+				final Set<SliderModel> normalisationSet = factory.get(
+						Type.Hidden, Collections.singletonList(normalisation),
 						normaliseMapping);
 				assert !normalisationSet.isEmpty();
 				sliders.get(Type.Hidden).add(
@@ -312,7 +314,8 @@ public class ControlPanel extends JPanel {
 
 		/**
 		 * There is a prioritised set of parameters, which are shown. This tells
-		 * for which {@link ParameterModel} what {@link SliderModel}s have affect.
+		 * for which {@link ParameterModel} what {@link SliderModel}s have
+		 * affect.
 		 * 
 		 * @return A {@link Map} from the {@link ParameterModel}s to the
 		 *         {@link SliderModel}s.
@@ -343,9 +346,9 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
-		 * Selects a {@link SliderModel} from {@code mainArrangement} with the proper
-		 * {@link SliderModel#getSubId()}, and with a parameter with proper
-		 * {@link ParameterModel#getType()}.
+		 * Selects a {@link SliderModel} from {@code mainArrangement} with the
+		 * proper {@link SliderModel#getSubId()}, and with a parameter with
+		 * proper {@link ParameterModel#getType()}.
 		 * 
 		 * @param mainArrangement
 		 *            A mapping from the {@link ParameterModel}s to the
@@ -354,10 +357,11 @@ public class ControlPanel extends JPanel {
 		 *            A {@link SliderModel#getSubId()}.
 		 * @param stat
 		 *            A {@link StatTypes}.
-		 * @return The first {@link SliderModel} with {@link SliderModel#getSubId()}
-		 *         {@code n} and with a {@link ParameterModel#getType()}
-		 *         {@code stat} from {@code arrangementModel}. It returns
-		 *         {@code null}, if no such {@link SliderModel} found.
+		 * @return The first {@link SliderModel} with
+		 *         {@link SliderModel#getSubId()} {@code n} and with a
+		 *         {@link ParameterModel#getType()} {@code stat} from
+		 *         {@code arrangementModel}. It returns {@code null}, if no
+		 *         such {@link SliderModel} found.
 		 * @see #getMainArrangement()
 		 */
 		static SliderModel selectNth(
@@ -466,7 +470,7 @@ public class ControlPanel extends JPanel {
 	private final JPanel hiddenSliders = new JPanel();
 
 	private final JPanel primarySliders = new JPanel();
-	private final JPanel secundarySliders = new JPanel();
+	private final JPanel secondarySliders = new JPanel();
 	private final JPanel additionalSliders = new JPanel();
 
 	/**
@@ -531,7 +535,7 @@ public class ControlPanel extends JPanel {
 		add(shapePanel, shapeConstraints);
 		addBorderButton(origView, gbLayout, showBorderButton, 1, 2, 0);
 		addBorderButton(origView, gbLayout, showPrimarySeparatorButton, 2, 2, 1);
-		addBorderButton(origView, gbLayout, showSecundarySeparatorButton, 3, 2,
+		addBorderButton(origView, gbLayout, showSecondarySeparatorButton, 3, 2,
 				2);
 		addBorderButton(origView, gbLayout, showAdditionalSeparatorButton, 4,
 				2, 3);
@@ -545,22 +549,30 @@ public class ControlPanel extends JPanel {
 		hiddenSlidersConstraints.gridx = 1;
 		hiddenSlidersConstraints.gridy = 5;
 		gbLayout.addLayoutComponent(hiddenSliders, hiddenSlidersConstraints);
+		origView.getControlsHandler().setContainer(hiddenSliders, Type.Hidden,
+				PositionConstants.control.name());
 		add(hiddenSliders, hiddenSlidersConstraints);
 		final GridBagConstraints primaryConstraints = new GridBagConstraints();
 		primaryConstraints.gridx = 1;
 		primaryConstraints.gridy = 2;
 		gbLayout.addLayoutComponent(primarySliders, primaryConstraints);
+		origView.getControlsHandler().setContainer(primarySliders,
+				Type.Splitter, PositionConstants.primary.name());
 		add(primarySliders, primaryConstraints);
-		final GridBagConstraints secundaryConstraints = new GridBagConstraints();
-		secundaryConstraints.gridx = 1;
-		secundaryConstraints.gridy = 3;
-		gbLayout.addLayoutComponent(secundarySliders, secundaryConstraints);
-		add(secundarySliders, secundaryConstraints);
+		final GridBagConstraints secondaryConstraints = new GridBagConstraints();
+		secondaryConstraints.gridx = 1;
+		secondaryConstraints.gridy = 3;
+		gbLayout.addLayoutComponent(secondarySliders, secondaryConstraints);
+		origView.getControlsHandler().setContainer(secondarySliders,
+				Type.Splitter, PositionConstants.secondary.name());
+		add(secondarySliders, secondaryConstraints);
 		final GridBagConstraints additionalConstraints = new GridBagConstraints();
 		additionalConstraints.gridx = 1;
 		additionalConstraints.gridy = 4;
 		gbLayout.addLayoutComponent(additionalSliders, additionalConstraints);
 		add(additionalSliders, additionalConstraints);
+		origView.getControlsHandler().setContainer(additionalSliders,
+				Type.Hidden, PositionConstants.additional.name());
 	}
 
 	/**
@@ -575,7 +587,7 @@ public class ControlPanel extends JPanel {
 			shapeGroup.setSelected(circle.getModel(), true);
 			shapeGroup.setSelected(rectangle.getModel(), false);
 			showPrimarySeparatorButton.setText("Show slice separators");
-			showSecundarySeparatorButton.setText("Show circle separators");
+			showSecondarySeparatorButton.setText("Show circle separators");
 			showAdditionalSeparatorButton.setVisible(true);
 			showAdditionalSeparatorButton.setText("Show rectangle");
 			break;
@@ -583,7 +595,7 @@ public class ControlPanel extends JPanel {
 			shapeGroup.setSelected(rectangle.getModel(), true);
 			shapeGroup.setSelected(circle.getModel(), false);
 			showPrimarySeparatorButton.setText("Show vertical lines");
-			showSecundarySeparatorButton.setText("Show horizontal lines");
+			showSecondarySeparatorButton.setText("Show horizontal lines");
 			showAdditionalSeparatorButton.setVisible(false);
 			break;
 		default:
@@ -605,7 +617,7 @@ public class ControlPanel extends JPanel {
 		}
 		setSelection(currentViewModel.getMain(), showBorderButton, 0);
 		setSelection(currentViewModel.getMain(), showPrimarySeparatorButton, 1);
-		setSelection(currentViewModel.getMain(), showSecundarySeparatorButton,
+		setSelection(currentViewModel.getMain(), showSecondarySeparatorButton,
 				2);
 		setSelection(currentViewModel.getMain(), showAdditionalSeparatorButton,
 				3);
@@ -614,26 +626,26 @@ public class ControlPanel extends JPanel {
 				.getArrangementModel();
 		// Update hidden sliders
 		{
-			final Collection<SliderModel> sliders = arrangementModel.getSliders()
-					.get(Type.Hidden);
-			hiddenSliders.removeAll();
+			final Collection<SliderModel> sliders = arrangementModel
+					.getSliders().get(Type.Hidden);
+			// hiddenSliders.removeAll();
 			final GridBagLayout gridBagLayout = new GridBagLayout();
 			hiddenSliders.setLayout(gridBagLayout);
 			final int[] counts = new int[SliderModel.MAX_INDEPENDENT_FACTORS];
-			for (final SliderModel slider : sliders) {
-				final int pos = ++counts[slider.getSubId()];
-				final GridBagConstraints constraint = new GridBagConstraints();
-				constraint.gridx = slider.getSubId();
-				constraint.gridy = pos;
-				hiddenSliders.add(createSliderComboBox(slider), constraint);
-			}
+			// for (final SliderModel slider : sliders) {
+			// final int pos = ++counts[slider.getSubId()];
+			// final GridBagConstraints constraint = new GridBagConstraints();
+			// constraint.gridx = slider.getSubId();
+			// constraint.gridy = pos;
+			// hiddenSliders.add(createSliderComboBox(slider), constraint);
+			// }
 		}
 		{
-			final Collection<SliderModel> sliders = arrangementModel.getSliders()
-					.get(Type.Splitter);
+			final Collection<SliderModel> sliders = arrangementModel
+					.getSliders().get(Type.Splitter);
 			final List<ParameterModel> primerParameters = currentViewModel
 					.getMain().getPrimerParameters();
-			primarySliders.removeAll();
+			// primarySliders.removeAll();
 			final GridLayout gridBagLayout = new GridLayout(1, primerParameters
 					.size());
 			primarySliders.setLayout(gridBagLayout);
@@ -644,11 +656,12 @@ public class ControlPanel extends JPanel {
 					if (parameters.size() == 1) {
 						final ParameterModel possParameter = parameters
 								.iterator().next();
-						if (possParameter.getType() == parameterModel.getType()) {
-							primarySliders.add(createSliderModifier(
-									currentViewModel, possSlider, view
-											.getVolatileModel()));
-						}
+						// if (possParameter.getType() ==
+						// parameterModel.getType()) {
+						// primarySliders.add(createSliderModifier(
+						// currentViewModel, possSlider, view
+						// .getVolatileModel()));
+						// }
 					} else {
 						// TODO ??
 					}
@@ -656,26 +669,27 @@ public class ControlPanel extends JPanel {
 			}
 		}
 		{
-			final Collection<SliderModel> sliders = arrangementModel.getSliders()
-					.get(Type.Splitter);
-			final List<ParameterModel> secundaryParameters = currentViewModel
-					.getMain().getSecunderParameters();
-			secundarySliders.removeAll();
-			final GridLayout gridBagLayout = new GridLayout(1,
-					secundaryParameters.size());
-			secundarySliders.setLayout(gridBagLayout);
-			for (final ParameterModel parameterModel : secundaryParameters) {
+			final Collection<SliderModel> sliders = arrangementModel
+					.getSliders().get(Type.Splitter);
+			final List<ParameterModel> secondaryParameters = currentViewModel
+					.getMain().getSeconderParameters();
+			// secondarySliders.removeAll();
+			final GridLayout gridLayout = new GridLayout(1, secondaryParameters
+					.size());
+			secondarySliders.setLayout(gridLayout);
+			for (final ParameterModel parameterModel : secondaryParameters) {
 				for (final SliderModel possSlider : sliders) {
 					final List<ParameterModel> parameters = possSlider
 							.getParameters();
 					if (parameters.size() == 1) {
 						final ParameterModel possParameter = parameters
 								.iterator().next();
-						if (possParameter.getType() == parameterModel.getType()) {
-							secundarySliders.add(createSliderModifier(
-									currentViewModel, possSlider, view
-											.getVolatileModel()));
-						}
+						// if (possParameter.getType() ==
+						// parameterModel.getType()) {
+						// secondarySliders.add(createSliderModifier(
+						// currentViewModel, possSlider, view
+						// .getVolatileModel()));
+						// }
 					} else {
 						// TODO ??
 					}
@@ -809,14 +823,14 @@ public class ControlPanel extends JPanel {
 				final ShapeModel shapeModel = new ShapeModel(
 						origArrangementModel, origShapeModel
 								.getPrimerParameters(), origShapeModel
-								.getSecunderParameters(), origShapeModel
+								.getSeconderParameters(), origShapeModel
 								.getAdditionalParameters(),
 						boolPos == 0 ? checkbox.isSelected() : origShapeModel
 								.isDrawBorder(), boolPos == 1 ? checkbox
 								.isSelected() : origShapeModel
 								.isDrawPrimaryBorders(),
 						boolPos == 2 ? checkbox.isSelected() : origShapeModel
-								.isDrawSecundaryBorders(),
+								.isDrawSecondaryBorders(),
 						boolPos == 3 ? checkbox.isSelected() : origShapeModel
 								.isDrawAdditionalBorders());
 				origView.setCurrentViewModel(new ViewModel(viewModel,
@@ -832,7 +846,7 @@ public class ControlPanel extends JPanel {
 	private void setSelection(final ShapeModel model, final JCheckBox checkbox,
 			final int boolPos) {
 		final boolean[] bools = new boolean[] { model.isDrawBorder(),
-				model.isDrawPrimaryBorders(), model.isDrawSecundaryBorders(),
+				model.isDrawPrimaryBorders(), model.isDrawSecondaryBorders(),
 				model.isDrawAdditionalBorders() };
 		checkbox.setSelected(bools[boolPos]);
 	}

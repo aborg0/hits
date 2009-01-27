@@ -4,6 +4,8 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.eclipse.swt.widgets.Slider;
 
@@ -57,6 +60,8 @@ public class SliderModel implements Serializable {
 	private final Set<Integer> selections = new HashSet<Integer>();
 
 	private final ControlTypes preferredControlType;
+
+	private Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
 
 	/**
 	 * Constructs {@link SliderModel}s, with cache.
@@ -251,7 +256,26 @@ public class SliderModel implements Serializable {
 	 * @see #getValueMapping()
 	 */
 	public void select(final Integer val) {
+		final boolean add = selections.add(val);
+		if (add) {
+			notifyListeners();
+		}
+	}
+
+	/**
+	 * Selects a single value with key: {@code val}.
+	 * 
+	 * @param val
+	 *            A possible value. (Starting from {@code 1}).
+	 */
+	public void selectSingle(final Integer val) {
+		if (selections.size() == 1 && selections.contains(val)) {
+			return;
+		}
+		selections.clear();
 		selections.add(val);
+		notifyListeners();
+
 	}
 
 	/**
@@ -264,7 +288,17 @@ public class SliderModel implements Serializable {
 	 * @see #getValueMapping()
 	 */
 	public void deselect(final Integer val) {
-		selections.remove(val);
+		final boolean remove = selections.remove(val);
+		if (remove) {
+			notifyListeners();
+		}
+	}
+
+	private void notifyListeners() {
+		for (final ActionListener listener : listeners.keySet()) {
+			listener.actionPerformed(new ActionEvent(this, (int) (System
+					.currentTimeMillis() & 0xFFFFFFFF), "selectionChange"));
+		}
 	}
 
 	@Override
@@ -277,5 +311,16 @@ public class SliderModel implements Serializable {
 	 */
 	public ControlTypes getPreferredControlType() {
 		return preferredControlType;
+	}
+
+	/**
+	 * Adds an {@link ActionListener}.
+	 * 
+	 * @param actionListener
+	 *            An {@link ActionListener} to notify the listeners about
+	 *            changes.
+	 */
+	public void addActionListener(final ActionListener actionListener) {
+		listeners.put(actionListener, Boolean.TRUE);
 	}
 }

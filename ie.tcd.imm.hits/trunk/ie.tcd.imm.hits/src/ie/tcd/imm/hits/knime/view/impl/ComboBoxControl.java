@@ -19,6 +19,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -39,11 +40,14 @@ class ComboBoxControl extends VariableControlWithMenu {
 	 * @param model
 	 * @param selectionType
 	 * @param controlsHandler
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	public ComboBoxControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler) {
-		super(model, selectionType, controlsHandler);
+			final ControlsHandler<SettingsModel> controlsHandler,
+			final ChangeListener changeListener) {
+		super(model, selectionType, controlsHandler, changeListener);
 		switch (selectionType) {
 		case MultipleAtLeastOne:
 		case MultipleOrNone:
@@ -62,11 +66,14 @@ class ComboBoxControl extends VariableControlWithMenu {
 		combobox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(final ItemEvent e) {
+				final Set<String> newSelection = Collections
+						.singleton((String) combobox.getSelectedItem());
 				if (selectionType != SelectionType.Unmodifiable) {
-					model.setSelection(Collections.singleton((String) combobox
-							.getSelectedItem()));
+					if (!newSelection.equals(model.getSelection())) {
+						model.setSelection(newSelection);
+					}
 				}
-				updateComponent();
+				// updateComponent();
 			}
 		});
 		getPanel().add(combobox);

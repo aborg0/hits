@@ -8,15 +8,19 @@ import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -37,11 +41,14 @@ class SliderControl extends VariableControlWithMenu {
 	 * @param model
 	 * @param selectionType
 	 * @param controlsHandler
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	public SliderControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler) {
-		super(model, selectionType, controlsHandler);
+			final ControlsHandler<SettingsModel> controlsHandler,
+			final ChangeListener changeListener) {
+		super(model, selectionType, controlsHandler, changeListener);
 		slider.setName(model.getConfigName());
 		slider.setSnapToTicks(true);
 		slider.setPaintLabels(true);
@@ -82,6 +89,24 @@ class SliderControl extends VariableControlWithMenu {
 		if (slider.getValue() != selected) {
 			slider.setValue(selected);
 		}
+		slider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				final Set<String> newSelection = Collections
+						.singleton(((JLabel) slider.getLabelTable().get(
+								Integer.valueOf(slider.getValue()))).getText());
+				if (getSelectionType() != SelectionType.Unmodifiable) {
+					if (!newSelection.equals(model.getSelection())) {
+						model.setSelection(newSelection);
+						updateComponent();
+					}
+				} else {
+					if (!newSelection.equals(model.getSelection())) {
+						updateComponent();
+					}
+				}
+			}
+		});
 	}
 
 	/**

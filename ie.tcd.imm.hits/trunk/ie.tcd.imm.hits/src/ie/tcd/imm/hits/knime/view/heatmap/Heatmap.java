@@ -116,8 +116,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				.getSliderPositions();
 		final Collection<SliderModel> sliders = viewModel.getMain()
 				.getArrangementModel().getSliders().get(Type.Selector);
-		final int currentPlate = (sliders.size() > 0 ? sliderPositions.get(
-				sliders.iterator().next()).intValue() : 1) - 1;
+		final int currentPlate = (sliders.size() > 0 ? /*
+		 * sliderPositions.get(
+		 * sliders.iterator().next()).intValue()
+		 */sliders.iterator().next().getSelections().iterator().next() : 1) - 1;
 		final boolean[] hiliteValues = volatileModel
 				.getHiliteValues(currentPlate);
 		final boolean[] selections = volatileModel
@@ -143,15 +145,20 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			for (final ParameterModel model : slider.getParameters()) {
 				switch (model.getType()) {
 				case plate:
-					platePos[slider.getSubId()] = entry.getValue().intValue();
+					platePos[slider.getSubId()] = slider.getSelections()
+							.iterator().next().intValue();// entry.getValue().intValue();
 					break;
 				case experimentName:
 					experimentPos[slider.getSubId()] = (String) slider
-							.getValueMapping().get(entry.getValue()).getRight();
+							.getValueMapping()
+							.get(slider.getSelections().iterator().next()/* entry.getValue() */)
+							.getRight();
 					break;
 				case normalisation:
 					normalisationPos[slider.getSubId()] = (String) slider
-							.getValueMapping().get(entry.getValue()).getRight();
+							.getValueMapping()
+							.get(slider.getSelections().iterator().next()/* entry.getValue() */)
+							.getRight();
 					break;
 				default:
 					// Do nothing.
@@ -178,7 +185,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				size += computeSplitterCount(splitterSliders);
 			}
 		}
-		plate = volatileModel.getSliderPositions().get(aPlateSlider).intValue() - 1;
+		plate = aPlateSlider.getSelections().iterator().next().intValue() - 1;// volatileModel.getSliderPositions().get(aPlateSlider).intValue()
+																				// - 1;
 		// replicateMap.entrySet().iterator().next()
 		// .getValue().keySet().size();//
 		// nodeModel.scoreValues.get(platePos[0]).entrySet().size()
@@ -200,8 +208,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				final List<ParameterModel> parameters = currentSlider
 						.getParameters();
 				for (final ParameterModel parameterModel : parameters) {
-					final Integer currentSliderValue = sliderPositions
-							.get(currentSlider);
+					final Integer currentSliderValue = currentSlider
+							.getSelections().size() != 1 ? null : currentSlider
+							.getSelections().iterator().next();// sliderPositions
+					// .get(currentSlider);
 					// FIXME if problem with null
 					switch (parameterModel.getType()) {
 					case metaStatType: {
@@ -412,13 +422,14 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			if (plateColours != null) {
 				final Color[] array = plateColours.get(Integer
 						.valueOf(plate + 1));
-				if (array != null)
+				if (array != null) {
 					for (int i = rows * cols; i-- > 0;) {
 						final Color color = array[i];
 						wells[i]
 								.setBackground(color == null ? ColorAttr.BACKGROUND
 										: color);
 					}
+				}
 			}
 		}
 		for (int i = rows * cols; i-- > 0;) {

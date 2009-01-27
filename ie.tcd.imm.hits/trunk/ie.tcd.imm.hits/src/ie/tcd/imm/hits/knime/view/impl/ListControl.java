@@ -20,6 +20,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -34,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class ListControl extends AbstractVariableControl {
+class ListControl extends VariableControlWithMenu {
 	/**
 	 * Constructs a {@link ListControl}.
 	 * 
@@ -45,11 +46,14 @@ class ListControl extends AbstractVariableControl {
 	 *            The {@link SelectionType selection type}.
 	 * @param controlsHandler
 	 *            The {@link ControlsHandler} for the possible transformations.
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	ListControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler) {
-		super(model, selectionType, controlsHandler);
+			final ControlsHandler<SettingsModel> controlsHandler,
+			final ChangeListener changeListener) {
+		super(model, selectionType, controlsHandler, changeListener);
 		list.setName(model.getConfigName());
 		updateComponent();
 		switch (selectionType) {

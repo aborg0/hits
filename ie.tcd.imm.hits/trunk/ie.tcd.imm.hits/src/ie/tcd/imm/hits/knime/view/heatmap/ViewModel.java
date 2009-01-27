@@ -108,8 +108,8 @@ public class ViewModel implements ActionListener {
 		public static enum Places implements CompatibleValues {
 			/** Split by the primary splitting position. */
 			Primer(EnumSet.of(ValueType.Discrete, ValueType.Continuous)),
-			/** Split by the secundary splitting position. */
-			Secunder(EnumSet.of(ValueType.Discrete, ValueType.Continuous)),
+			/** Split by the secondary splitting position. */
+			Seconder(EnumSet.of(ValueType.Discrete, ValueType.Continuous)),
 			/** Additional positions for results. */
 			Additional(EnumSet.of(ValueType.Discrete, ValueType.Continuous));
 			private final EnumSet<ValueType> compatibleValues;
@@ -224,7 +224,7 @@ public class ViewModel implements ActionListener {
 
 		private final boolean drawBorder;
 		private final boolean drawPrimaryBorders;
-		private final boolean drawSecundaryBorders;
+		private final boolean drawSecondaryBorders;
 		private final boolean drawAdditionalBorders;
 
 		private final int startAngle = 30;
@@ -244,7 +244,7 @@ public class ViewModel implements ActionListener {
 		 *            If set draws a (rectangular) border around the well.
 		 * @param drawPrimaryBorders
 		 *            If set draws borders for the primary selections.
-		 * @param drawSecundaryBorders
+		 * @param drawSecondaryBorders
 		 *            If set draws borders for the secondary selections.
 		 * @param drawAdditionalBorders
 		 *            If set draws borders for the additional data.
@@ -254,7 +254,7 @@ public class ViewModel implements ActionListener {
 				final List<ParameterModel> secunderParameters,
 				final List<ParameterModel> additionalParameters,
 				final boolean drawBorder, final boolean drawPrimaryBorders,
-				final boolean drawSecundaryBorders,
+				final boolean drawSecondaryBorders,
 				final boolean drawAdditionalBorders) {
 			super();
 			this.arrangementModel = arrangementModel;
@@ -263,7 +263,7 @@ public class ViewModel implements ActionListener {
 			this.additionalParameters.addAll(additionalParameters);
 			this.drawBorder = drawBorder;
 			this.drawPrimaryBorders = drawPrimaryBorders;
-			this.drawSecundaryBorders = drawSecundaryBorders;
+			this.drawSecondaryBorders = drawSecondaryBorders;
 			this.drawAdditionalBorders = drawAdditionalBorders;
 		}
 
@@ -316,26 +316,26 @@ public class ViewModel implements ActionListener {
 			if (place == null) {
 				this.drawBorder = drawBorder;
 				this.drawPrimaryBorders = model.drawPrimaryBorders;
-				this.drawSecundaryBorders = model.drawSecundaryBorders;
+				this.drawSecondaryBorders = model.drawSecondaryBorders;
 				this.drawAdditionalBorders = model.drawAdditionalBorders;
 			} else {
 				switch (place) {
 				case Primer:
 					this.drawBorder = model.drawBorder;
 					this.drawPrimaryBorders = drawBorder;
-					this.drawSecundaryBorders = model.drawSecundaryBorders;
+					this.drawSecondaryBorders = model.drawSecondaryBorders;
 					this.drawAdditionalBorders = model.drawAdditionalBorders;
 					break;
-				case Secunder:
+				case Seconder:
 					this.drawBorder = model.drawBorder;
 					this.drawPrimaryBorders = model.drawPrimaryBorders;
-					this.drawSecundaryBorders = model.drawBorder;
+					this.drawSecondaryBorders = model.drawBorder;
 					this.drawAdditionalBorders = model.drawAdditionalBorders;
 					break;
 				case Additional:
 					this.drawBorder = model.drawBorder;
 					this.drawPrimaryBorders = model.drawPrimaryBorders;
-					this.drawSecundaryBorders = model.drawSecundaryBorders;
+					this.drawSecondaryBorders = model.drawSecondaryBorders;
 					this.drawAdditionalBorders = model.drawBorder;
 					break;
 
@@ -355,7 +355,7 @@ public class ViewModel implements ActionListener {
 		/**
 		 * @return The secondary split {@link ParameterModel}s.
 		 */
-		public List<ParameterModel> getSecunderParameters() {
+		public List<ParameterModel> getSeconderParameters() {
 			return Collections.unmodifiableList(secunderParameters);
 		}
 
@@ -383,8 +383,8 @@ public class ViewModel implements ActionListener {
 		/**
 		 * @return Draw lines between secondary separators?
 		 */
-		public boolean isDrawSecundaryBorders() {
-			return drawSecundaryBorders;
+		public boolean isDrawSecondaryBorders() {
+			return drawSecondaryBorders;
 		}
 
 		/**

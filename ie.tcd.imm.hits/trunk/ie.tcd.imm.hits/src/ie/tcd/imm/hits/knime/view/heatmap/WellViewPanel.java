@@ -81,7 +81,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		final int primerParamCount = Math.max(1, selectValueCount(
 				primerParameters, sliders));
 		final int secCount = Math.max(1, selectValueCount(model.getMain()
-				.getSecunderParameters(), sliders));
+				.getSeconderParameters(), sliders));
 		int colorPos = 0;
 		switch (model.getShape()) {
 		case Circle: {
@@ -188,7 +188,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 					}
 				}
 			}
-			if (model.getMain().isDrawSecundaryBorders()) {
+			if (model.getMain().isDrawSecondaryBorders()) {
 				g.setColor(borderColor);
 				if (secCount > 0) {
 					for (int i = radiuses.length; i-- > 1;) {
@@ -237,7 +237,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 									+ radius);
 				}
 			}
-			if (model.getMain().isDrawSecundaryBorders() && secCount > 1) {
+			if (model.getMain().isDrawSecondaryBorders() && secCount > 1) {
 				g.setColor(borderColor);
 				for (int j = secCount - 1; j-- > 0;) {
 					g.drawLine(bounds.width / 2 - radius, bounds.height / 2

@@ -12,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeListener;
 
 /**
  * A Swing control to be able to change the representation of the control look.
@@ -100,5 +101,11 @@ public interface VariableControl<ModelType> extends Serializable {
 	/**
 	 * @return The type of the implementation.
 	 */
-	public abstract ControlTypes getType();
+	public ControlTypes getType();
+
+	/**
+	 * @return The {@link ChangeListener} which is associated to the
+	 *         {@code ModelType} {@link #getModel() model}.
+	 */
+	public ChangeListener getModelChangeListener();
 }

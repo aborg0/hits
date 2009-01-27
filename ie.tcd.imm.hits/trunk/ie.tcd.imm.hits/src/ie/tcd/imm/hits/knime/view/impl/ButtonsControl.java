@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -106,19 +105,22 @@ class ButtonsControl extends VariableControlWithMenu {
 	 *            The {@link SelectionType} for this control.
 	 * @param controlsHandler
 	 *            The {@link ControlsHandler} for the possible transformations.
+	 * @param changeListener
+	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
 	public ButtonsControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler) {
-		super(model, selectionType, controlsHandler);
+			final ControlsHandler<SettingsModel> controlsHandler,
+			final ChangeListener changeListener) {
+		super(model, selectionType, controlsHandler, changeListener);
 		updateComponent();
-		getModel().addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				updateComponent();
-			}
-		});
+		// getModel().addChangeListener(new ChangeListener() {
+		//
+		// @Override
+		// public void stateChanged(final ChangeEvent e) {
+		// updateComponent();
+		// }
+		// });
 	}
 
 	/*
@@ -199,11 +201,7 @@ class ButtonsControl extends VariableControlWithMenu {
 	 */
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((buttons == null) ? 0 : buttons.hashCode());
-		result = prime * result
-				+ ((currentFocus == null) ? 0 : currentFocus.hashCode());
+		final int result = super.hashCode();
 		return result;
 	}
 
