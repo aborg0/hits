@@ -204,8 +204,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					angle += 180 / primaryCount;
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel currentSlider = getCurrentSlider(sliders,
-								model);
+						final SliderModel currentSlider = getCurrentSlider(
+								sliders, model);
 						if (currentSlider != null) {
 							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
 									.getValueMapping().entrySet()) {
@@ -288,7 +288,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					g.setColor(borderColor);
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel slider = getCurrentSlider(sliders, model);
+						final SliderModel slider = getCurrentSlider(sliders,
+								model);
 						g.drawString(model.getShortName(), 10, 15);
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
@@ -307,7 +308,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 						g.drawString(model.getShortName(), -bounds.height + 5,
 								15);
 						int i = 0;
-						final SliderModel slider = getCurrentSlider(sliders, model);
+						final SliderModel slider = getCurrentSlider(sliders,
+								model);
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
@@ -326,7 +328,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 
-		private SliderModel getCurrentSlider(final Collection<SliderModel> sliders,
+		private SliderModel getCurrentSlider(
+				final Collection<SliderModel> sliders,
 				final ParameterModel model) {
 			SliderModel currentSlider = null;
 			for (final SliderModel slider : sliders) {
@@ -431,6 +434,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
+		revalidate();
 		repaint();
 	}
 

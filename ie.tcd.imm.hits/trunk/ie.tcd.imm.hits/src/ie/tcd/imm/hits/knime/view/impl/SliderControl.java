@@ -49,6 +49,20 @@ class SliderControl extends VariableControlWithMenu {
 			final ControlsHandler<SettingsModel> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
+		switch (selectionType) {
+		case MultipleAtLeastOne:
+		case MultipleOrNone:
+			if (model.getSelection().size() > 1) {
+				model.setSelection(Collections.singleton(model.getSelection()
+						.iterator().next()));
+			}
+			break;
+		case Single:
+		case Unmodifiable:
+			break;
+		default:
+			break;
+		}
 		slider.setName(model.getConfigName());
 		slider.setSnapToTicks(true);
 		slider.setPaintLabels(true);

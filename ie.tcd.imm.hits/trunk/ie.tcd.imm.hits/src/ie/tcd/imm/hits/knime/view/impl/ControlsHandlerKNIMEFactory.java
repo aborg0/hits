@@ -4,9 +4,12 @@
 package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.ControlsHandler.ConsistencyChecker.DefaultConsistencyChecker;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -14,10 +17,12 @@ import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.Component;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +52,33 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @NotThreadSafe
 public class ControlsHandlerKNIMEFactory implements
 		ControlsHandler<SettingsModel> {
+	/**
+	 * A {@link ChangeEvent} for the model changes of the {@link SliderModel}s.
+	 */
+	public class ArrangementEvent extends ChangeEvent {
+		private static final long serialVersionUID = -7662127679795688559L;
+		private final ShapeModel newArrangement;
+
+		/**
+		 * @param source
+		 *            Mostly a {@link ControlsHandler} instance.
+		 * @param newArrangement
+		 *            The new arrangement of {@link SliderModel}s.
+		 */
+		public ArrangementEvent(final Object source,
+				final ShapeModel newArrangement) {
+			super(source);
+			this.newArrangement = newArrangement;
+		}
+
+		/**
+		 * @return The new arrangement of {@link SliderModel}s.
+		 */
+		public ShapeModel getNewArrangement() {
+			return newArrangement;
+		}
+	}
+
 	private Map<SliderModel, VariableControl<? extends SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<? extends SettingsModel>>();
 	private final EnumMap<Type, Map<String, WeakReference<JComponent>>> containers = new EnumMap<Type, Map<String, WeakReference<JComponent>>>(
 			Type.class);
@@ -59,6 +91,9 @@ public class ControlsHandlerKNIMEFactory implements
 
 	private final Map<JComponent, /* Weak */Map<VariableControl<? extends SettingsModel>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<? extends SettingsModel>, Boolean>>();
 	private final Map<VariableControl<? extends SettingsModel>, JComponent> controlToComponent = new WeakHashMap<VariableControl<? extends SettingsModel>, JComponent>();
+	private ConsistencyChecker checker = new DefaultConsistencyChecker();
+	private final List<WeakReference<ChangeListener>> listeners = new ArrayList<WeakReference<ChangeListener>>();
+	private ShapeModel arrangement;
 
 	/**
 	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
@@ -76,8 +111,7 @@ public class ControlsHandlerKNIMEFactory implements
 	@Override
 	public VariableControl<? extends SettingsModel> getComponent(
 			final SliderModel slider, final ControlTypes controlType) {
-		final String name = slider.getParameters()
-				+ slider.getType().toString() + slider.getSubId();
+		final String name = createName(slider);
 		final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 				.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
@@ -127,17 +161,80 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	/**
+	 * Generates a name for the {@link ControlsHandler}.
+	 * 
+	 * @param slider
+	 *            A {@link SliderModel}.
+	 * @return The short name of the first {@link ParameterModel} of
+	 *         {@code slider}.
+	 */
+	public static String createName(final SliderModel slider) {
+		final String name = slider.getParameters().iterator().next()
+				.getShortName();
+		return name;
+	}
+
+	/**
 	 * @param slider
 	 *            The {@link SliderModel} containing the possible values, ...
 	 * @param controlType
 	 *            A {@link ControlTypes}.
 	 * @param settingsModelListSelection
 	 *            A {@link SettingsModelListSelection}.
-	 * @param changeListener
 	 * @return The control with the proper parameters.
 	 */
 	private VariableControl<? extends SettingsModel> createControl(
 			final SliderModel slider, final ControlTypes controlType,
+			final SettingsModelListSelection settingsModelListSelection) {
+		final ChangeListener changeListener = createChangeListener(slider,
+				settingsModelListSelection);
+		final SelectionType selection;
+		switch (controlType) {
+		case Buttons:
+			selection = SelectionType.MultipleAtLeastOne;
+			break;
+		case List:
+			selection = SelectionType.MultipleAtLeastOne;
+			break;
+		case ComboBox:
+			selection = SelectionType.Single;
+			break;
+		case Invisible:
+			selection = SelectionType.Unmodifiable;
+			break;
+		case RadioButton:
+			selection = SelectionType.Single;
+			break;
+		case ScrollBarHorisontal:
+			selection = SelectionType.Unmodifiable;
+			break;
+		case ScrollBarVertical:
+			selection = SelectionType.Unmodifiable;
+			break;
+		case Slider:
+			selection = SelectionType.Single;
+			break;
+		case Tab:
+			selection = SelectionType.Single;
+			break;
+		default:
+			throw new UnsupportedOperationException("Not supported yet: "
+					+ controlType);
+		}
+		return createControl(controlType, settingsModelListSelection,
+				changeListener, selection);
+	}
+
+	/**
+	 * @param slider
+	 *            A {@link SliderModel}.
+	 * @param settingsModelListSelection
+	 *            A {@link SettingsModelListSelection}.
+	 * @return The {@link ChangeListener} adjusting the {@code slider}
+	 *         selections to {@code settingsModelListSelection} selections to be
+	 *         in synchrony.
+	 */
+	private ChangeListener createChangeListener(final SliderModel slider,
 			final SettingsModelListSelection settingsModelListSelection) {
 		final ChangeListener changeListener = new ChangeListener() {
 			@Override
@@ -173,27 +270,40 @@ public class ControlsHandlerKNIMEFactory implements
 
 			}
 		};
-		final VariableControl<SettingsModel> variableControl;
+		return changeListener;
+	}
+
+	/**
+	 * @param controlType
+	 *            The preferred {@link ControlTypes}.
+	 * @param settingsModelListSelection
+	 *            The used model.
+	 * @param changeListener
+	 *            The associated {@link ChangeListener}.
+	 * @param selection
+	 *            The {@link SelectionType selection} mode.
+	 * @return The {@link VariableControl} with the desired parameters.
+	 */
+	private VariableControl<? extends SettingsModel> createControl(
+			final ControlTypes controlType,
+			final SettingsModelListSelection settingsModelListSelection,
+			final ChangeListener changeListener, final SelectionType selection) {
 		switch (controlType) {
 		case Buttons:
-			variableControl = new ButtonsControl(settingsModelListSelection,
-					SelectionType.MultipleAtLeastOne, this, changeListener);
-			break;
+			return new ButtonsControl(settingsModelListSelection, selection,
+					this, changeListener);
 		case List:
-			variableControl = new ListControl(settingsModelListSelection,
-					SelectionType.MultipleAtLeastOne, this, changeListener);
-			break;
+			return new ListControl(settingsModelListSelection, selection, this,
+					changeListener);
 		case ComboBox:
-			variableControl = new ComboBoxControl(settingsModelListSelection,
-					SelectionType.Single, this, changeListener);
-			break;
+			return new ComboBoxControl(settingsModelListSelection, selection,
+					this, changeListener);
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
 
 		case Slider:
-			variableControl = new SliderControl(settingsModelListSelection,
-					SelectionType.Single, this, changeListener);
-			break;
+			return new SliderControl(settingsModelListSelection, selection,
+					this, changeListener);
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
 			// if (!cache.containsKey(slider)) {
@@ -211,7 +321,6 @@ public class ControlsHandlerKNIMEFactory implements
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
 		}
-		return variableControl;
 	}
 
 	/*
@@ -262,7 +371,9 @@ public class ControlsHandlerKNIMEFactory implements
 		settingsModel.removeChangeListener(removedVariableControl
 				.getModelChangeListener());
 		final VariableControl<? extends SettingsModel> control = createControl(
-				slider, type, settingsModel);
+				type, settingsModel,
+				createChangeListener(slider, settingsModel),
+				removedVariableControl.getSelectionType());
 		cache.put(slider, control);
 		component.add(control.getView(), originalPosition);
 		component.revalidate();
@@ -454,5 +565,140 @@ public class ControlsHandlerKNIMEFactory implements
 			}
 		}
 		return ret;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#setConsistencyChecker(ie.tcd.imm.hits.knime.view.ControlsHandler.ConsistencyChecker)
+	 */
+	@Override
+	public void setConsistencyChecker(final ConsistencyChecker checker) {
+		this.checker = checker;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#addChangeListener(javax.swing.event.ChangeListener)
+	 */
+	@Override
+	public void addChangeListener(final ChangeListener changeListener) {
+		if (!containsListener(changeListener)) {
+			listeners.add(new WeakReference<ChangeListener>(changeListener));
+		}
+	}
+
+	/**
+	 * @param changeListener
+	 *            A {@link ChangeListener}.
+	 * @return one of the listeners is {@code changeListener}.
+	 */
+	private boolean containsListener(final ChangeListener changeListener) {
+		for (final WeakReference<ChangeListener> listenerRef : listeners) {
+			if (changeListener.equals(listenerRef.get())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#removeChangeListener(javax.swing.event.ChangeListener)
+	 */
+	@Override
+	public void removeChangeListener(final ChangeListener changeListener) {
+		for (final Iterator<WeakReference<ChangeListener>> it = listeners
+				.iterator(); it.hasNext();) {
+			final WeakReference<ChangeListener> listenerRef = it.next();
+			final ChangeListener listener = listenerRef.get();
+			if (changeListener.equals(listener) || listener == null) {
+				it.remove();
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#exchangeControls(ie.tcd.imm.hits.util.swing.VariableControl,
+	 *      ie.tcd.imm.hits.util.swing.VariableControl)
+	 */
+	@Override
+	public boolean exchangeControls(final VariableControl<SettingsModel> first,
+			final VariableControl<SettingsModel> second) {
+		assert arrangement != null;
+		final Pair<Type, String> firstPos = getPosition(first);
+		final Pair<Type, String> secondPos = getPosition(second);
+		if (firstPos == null || secondPos == null) {
+			return false;
+		}
+		if (firstPos.equals(secondPos)) {
+			return false;
+		}
+		final List<ParameterModel> primerParameters = arrangement
+				.getPrimerParameters();
+		final List<ParameterModel> seconderParameters = arrangement
+				.getSeconderParameters();
+		final Map<Type, SliderModel> newArrangement = new HashMap<Type, SliderModel>();
+		final ArrangementModel newArrModel = new ArrangementModel();
+		final List<ParameterModel> newPrimParams = new ArrayList<ParameterModel>();
+		final List<ParameterModel> newSecParams = new ArrayList<ParameterModel>();
+		final List<ParameterModel> newAdditionalParams = new ArrayList<ParameterModel>();
+		final ShapeModel shapeModel = new ShapeModel(newArrModel,
+				newPrimParams, newSecParams, newAdditionalParams, arrangement
+						.isDrawBorder(), arrangement.isDrawPrimaryBorders(),
+				arrangement.isDrawSecondaryBorders(), arrangement
+						.isDrawAdditionalBorders());
+		if (checker.checkConsistency(shapeModel)) {
+			notifyChangeListeners(new ArrangementEvent(this, shapeModel));
+			return true;
+		}
+		return false;
+	}
+
+	private void notifyChangeListeners(final ChangeEvent event) {
+		for (final Iterator<WeakReference<ChangeListener>> it = listeners
+				.iterator(); it.hasNext();) {
+			final WeakReference<ChangeListener> listenerRef = it.next();
+			final ChangeListener listener = listenerRef.get();
+			if (listener == null) {
+				it.remove();
+			} else {
+				listener.stateChanged(event);
+			}
+		}
+	}
+
+	private @Nullable
+	Pair<Type, String> getPosition(
+			final VariableControl<SettingsModel> variableControl) {
+		Pair<Type, String> ret = null;
+		final JComponent view = variableControl.getView();
+		for (final Entry<Type, Map<String, WeakReference<JComponent>>> entry : containers
+				.entrySet()) {
+			for (final Entry<String, WeakReference<JComponent>> contEntry : entry
+					.getValue().entrySet()) {
+				if (view.equals(contEntry.getValue().get())) {
+					if (ret == null || ret.getRight() == null) {
+						ret = new Pair<Type, String>(entry.getKey(), contEntry
+								.getKey());
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Sets the new {@link ShapeModel}.
+	 * 
+	 * @param arrangement
+	 *            The new {@link ShapeModel}.
+	 */
+	public void setArrangement(final ShapeModel arrangement) {
+		this.arrangement = arrangement;
 	}
 }

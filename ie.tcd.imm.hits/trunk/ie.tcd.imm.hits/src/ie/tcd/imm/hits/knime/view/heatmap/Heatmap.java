@@ -139,30 +139,37 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final int[] platePos = new int[SliderModel.MAX_INDEPENDENT_FACTORS];
 		final String[] experimentPos = new String[SliderModel.MAX_INDEPENDENT_FACTORS];
 		final String[] normalisationPos = new String[SliderModel.MAX_INDEPENDENT_FACTORS];
-		for (final Entry<SliderModel, Integer> entry : sliderPositions
-				.entrySet()) {
-			final SliderModel slider = entry.getKey();
-			for (final ParameterModel model : slider.getParameters()) {
-				switch (model.getType()) {
-				case plate:
-					platePos[slider.getSubId()] = slider.getSelections()
-							.iterator().next().intValue();// entry.getValue().intValue();
-					break;
-				case experimentName:
-					experimentPos[slider.getSubId()] = (String) slider
-							.getValueMapping()
-							.get(slider.getSelections().iterator().next()/* entry.getValue() */)
-							.getRight();
-					break;
-				case normalisation:
-					normalisationPos[slider.getSubId()] = (String) slider
-							.getValueMapping()
-							.get(slider.getSelections().iterator().next()/* entry.getValue() */)
-							.getRight();
-					break;
-				default:
-					// Do nothing.
-					break;
+		// for (final Entry<SliderModel, Integer> entry : sliderPositions
+		// .entrySet()) {
+		// final SliderModel slider = entry.getKey();
+		for (final Entry<Type, Collection<SliderModel>> entry : viewModel
+				.getMain().getArrangementModel().getSliders().entrySet()) {
+			for (final SliderModel slider : entry.getValue()) {
+
+				for (final ParameterModel model : slider.getParameters()) {
+					switch (model.getType()) {
+					case plate:
+						platePos[slider.getSubId()] = slider.getSelections()
+								.iterator().next().intValue();// entry.getValue().intValue();
+						break;
+					case experimentName:
+						experimentPos[slider.getSubId()] = (String) slider
+								.getValueMapping().get(
+										slider.getSelections().iterator()
+												.next()/* entry.getValue() */)
+								.getRight();
+						break;
+					case normalisation:
+						normalisationPos[slider.getSubId()] = (String) slider
+								.getValueMapping().get(
+										slider.getSelections().iterator()
+												.next()/* entry.getValue() */)
+								.getRight();
+						break;
+					default:
+						// Do nothing.
+						break;
+					}
 				}
 			}
 		}
@@ -186,7 +193,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			}
 		}
 		plate = aPlateSlider.getSelections().iterator().next().intValue() - 1;// volatileModel.getSliderPositions().get(aPlateSlider).intValue()
-																				// - 1;
+		// - 1;
 		// replicateMap.entrySet().iterator().next()
 		// .getValue().keySet().size();//
 		// nodeModel.scoreValues.get(platePos[0]).entrySet().size()

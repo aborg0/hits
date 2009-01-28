@@ -51,9 +51,18 @@ class ComboBoxControl extends VariableControlWithMenu {
 		switch (selectionType) {
 		case MultipleAtLeastOne:
 		case MultipleOrNone:
-			throw new UnsupportedOperationException(
-					"Not supported selection type: " + selectionType);
+			if (model.getSelection().size() > 1) {
+				model.setSelection(Collections.singleton(model.getSelection()
+						.iterator().next()));
+			}
+			break;
+		// throw new UnsupportedOperationException(
+		// "Not supported selection type: " + selectionType);
 		case Single:
+			if (model.getSelection().size() > 1) {
+				model.setSelection(Collections.singleton(model.getSelection()
+						.iterator().next()));
+			}
 			break;
 		case Unmodifiable:
 			break;

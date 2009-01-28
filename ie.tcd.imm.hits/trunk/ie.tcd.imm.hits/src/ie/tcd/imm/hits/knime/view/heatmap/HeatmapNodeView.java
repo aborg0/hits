@@ -584,10 +584,31 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				final HeatmapNodeModel nodeModel) {
 			// TODO Auto-generated method stub
 			this.arrangementModel = arrangementModel;
-			for (final Collection<SliderModel> sliderColl : arrangementModel
-					.getSliders().values()) {
-				for (final SliderModel slider : sliderColl) {
-					setSliderPosition(slider, Integer.valueOf(1));
+			// for (final Collection<SliderModel> sliderColl : arrangementModel
+			// .getSliders().values()) {
+			// for (final SliderModel slider : sliderColl) {
+			// setSliderPosition(slider, Integer.valueOf(1));
+			// }
+			// }
+			for (final Entry<Type, Collection<SliderModel>> entry : arrangementModel
+					.getSliders().entrySet()) {
+				switch (entry.getKey()) {
+				case ScrollHorisontal:
+				case ScrollVertical:
+				case Splitter:
+					// Leave the selections.
+					break;
+				case Hidden:
+				case Selector:
+					for (final SliderModel m : entry.getValue()) {
+						if (m.getSelections().size() > 1) {
+							m.selectSingle(m.getSelections().iterator().next());
+						}
+					}
+					break;
+				default:
+					throw new UnsupportedOperationException(
+							"Not supported type: " + entry.getKey());
 				}
 			}
 			final int plateCount = count(StatTypes.plate);
@@ -884,6 +905,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				nodeModel.getPossibleParameters());
 		volatileModel.mutateValues(currentViewModel.getMain()
 				.getArrangementModel(), nodeModel);
+		((ControlsHandlerKNIMEFactory) controlsHandler)
+				.setArrangement(currentViewModel.getMain());
 		controlPanel.updateControl(currentViewModel);
 
 		heatmapPanel = new HeatmapPanel(getCurrentViewModel(), null,

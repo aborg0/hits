@@ -235,7 +235,7 @@ public class MockTest {
 	public void testMove() {
 		final JComboBoxFixture experimentCombobox = window.panel(UPPER_RIGHT)
 				.comboBox();
-		experimentCombobox.robot.settings().delayBetweenEvents(500);
+		// experimentCombobox.robot.settings().delayBetweenEvents(500);
 		window.robot.rightClick(experimentCombobox.target.getParent());
 		final JPanelFixture panelFixture = new JPanelFixture(window.robot,
 				(JPanel) experimentCombobox.target.getParent().getParent());
@@ -263,8 +263,7 @@ public class MockTest {
 	 * @return The name of {@code slider}.
 	 */
 	private String getSliderName(final SliderModel slider) {
-		return slider.getParameters().toString() + slider.getType()
-				+ slider.getSubId();
+		return ControlsHandlerKNIMEFactory.createName(slider);
 	}
 
 	/**

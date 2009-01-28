@@ -82,7 +82,8 @@ public class ControlPanel extends JPanel {
 	/**
 	 * This class represents the arrangement of the sliders.
 	 */
-	static class ArrangementModel implements Serializable, ActionListener {
+	public static class ArrangementModel implements Serializable,
+			ActionListener {
 		private static final long serialVersionUID = -3108970660588264496L;
 
 		private final SliderFactory factory = new SliderFactory();
@@ -206,6 +207,9 @@ public class ControlPanel extends JPanel {
 				assert !set.isEmpty();
 				sliders.get(Type.Splitter).add(
 						paramsSlider = set.iterator().next());
+				for (final Integer select : parametersMapping.keySet()) {
+					paramsSlider.select(select);
+				}
 			}
 			final SliderModel plateSlider;
 			{
@@ -222,6 +226,7 @@ public class ControlPanel extends JPanel {
 				assert !plateSet.isEmpty();
 				sliders.get(Type.Selector).add(
 						plateSlider = plateSet.iterator().next());
+				plateSlider.select(Integer.valueOf(1));
 			}
 			final SliderModel replicateSlider;
 			{
@@ -257,6 +262,7 @@ public class ControlPanel extends JPanel {
 				assert !statSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						statSlider = statSet.iterator().next());
+				statSlider.select(Integer.valueOf(1));
 			}
 			final SliderModel experimentSlider;
 			{
@@ -274,6 +280,7 @@ public class ControlPanel extends JPanel {
 				assert !experimentSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						experimentSlider = experimentSet.iterator().next());
+				experimentSlider.select(Integer.valueOf(1));
 			}
 			final SliderModel normaliseSlider;
 			{
@@ -290,6 +297,7 @@ public class ControlPanel extends JPanel {
 				assert !normalisationSet.isEmpty();
 				sliders.get(Type.Hidden).add(
 						normaliseSlider = normalisationSet.iterator().next());
+				normaliseSlider.select(Integer.valueOf(1));
 			}
 			final ArrayList<SliderModel> mainSliders = new ArrayList<SliderModel>();
 			mainSliders.add(experimentSlider);
@@ -622,6 +630,8 @@ public class ControlPanel extends JPanel {
 		setSelection(currentViewModel.getMain(), showAdditionalSeparatorButton,
 				3);
 		legendPanel.setViewModel(currentViewModel);
+		view.getVolatileModel().removeActionListener(legendPanel);
+		view.getVolatileModel().addActionListener(legendPanel);
 		final ArrangementModel arrangementModel = currentViewModel.getMain()
 				.getArrangementModel();
 		// Update hidden sliders

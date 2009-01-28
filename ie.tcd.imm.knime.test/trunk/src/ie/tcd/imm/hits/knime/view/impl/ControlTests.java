@@ -37,7 +37,8 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link ButtonsControl}.
 	 */
-	@Test(timeOut = 3000)
+	@Test
+	// (timeOut = 3000)
 	@GUITest
 	public void buttons() {
 		final JPanel view1 = (JPanel) controlsHandler.getComponent(slider1,
@@ -84,8 +85,8 @@ public class ControlTests extends AbstractControlTest {
 				slider2, ControlTypes.List);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
-		final JListFixture list = window.list(slider2.getParameters()
-				+ slider2.getType().toString() + slider1.getSubId());
+		final JListFixture list = window.list(ControlsHandlerKNIMEFactory
+				.createName(slider2));
 		list.requireEnabled();
 		Assert.assertEquals(new String[] { VALUE_1, VALUE_2 }, list.contents());
 		list.requireSelectedItems(VALUE_1, VALUE_2);
@@ -104,9 +105,8 @@ public class ControlTests extends AbstractControlTest {
 				slider2, ControlTypes.ComboBox);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
-		final JComboBoxFixture comboBox = window.comboBox(slider1
-				.getParameters()
-				+ slider1.getType().toString() + slider1.getSubId());
+		final JComboBoxFixture comboBox = window
+				.comboBox(ControlsHandlerKNIMEFactory.createName(slider1));
 		comboBox.requireEnabled();
 		comboBox.requireNotEditable();
 		comboBox.requireSelection(VALUE_0);
@@ -125,8 +125,8 @@ public class ControlTests extends AbstractControlTest {
 				slider2, ControlTypes.Slider);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
-		final JSliderFixture slider = window.slider(slider1.getParameters()
-				+ slider1.getType().toString() + slider1.getSubId());
+		final JSliderFixture slider = window.slider(ControlsHandlerKNIMEFactory
+				.createName(slider1));
 		slider.requireEnabled();
 		Assert.assertEquals(slider.target.getValue(), 1);
 	}

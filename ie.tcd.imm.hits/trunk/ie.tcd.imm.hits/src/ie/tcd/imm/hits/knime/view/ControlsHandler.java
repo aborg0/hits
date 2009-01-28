@@ -7,10 +7,16 @@ import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.Container;
+import java.io.Serializable;
 import java.util.Set;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.JComponent;
+import javax.swing.event.ChangeListener;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * This interface is for handling the components. (This should also handle the
@@ -20,7 +26,46 @@ import javax.swing.JComponent;
  * @param <ModelType>
  *            The type of the used model in {@link VariableControl}.
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ControlsHandler<ModelType> {
+	/**
+	 * Implementations of this interface checks whether the current state is
+	 * consistent or not.
+	 */
+	public interface ConsistencyChecker {
+		/**
+		 * Checks the consistency of the model.
+		 * 
+		 * @param context
+		 *            The context of the state where the consistency have to be
+		 *            checked.
+		 * 
+		 * @return If the current state is consistent {@code true} else
+		 *         {@code false}.
+		 */
+		public boolean checkConsistency(Object context);
+
+		/**
+		 * The default implementation of {@link ConsistencyChecker}. Always
+		 * returns {@code true}.
+		 */
+		public static final class DefaultConsistencyChecker implements
+				ConsistencyChecker, Serializable {
+			private static final long serialVersionUID = 1205471241911533014L;
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see ie.tcd.imm.hits.knime.view.ControlsHandler.ConsistencyChecker#checkConsistency()
+			 */
+			@Override
+			public boolean checkConsistency(final Object context) {
+				return true;
+			}
+
+		}
+	}
+
 	/**
 	 * Creates or gets the component for the {@code slider} with the type of
 	 * {@code controlType}.
@@ -156,4 +201,46 @@ public interface ControlsHandler<ModelType> {
 	public @Nullable
 	JComponent getContainer(final Type containerType, @Nullable
 	final String nameOfContainer);
+
+	/**
+	 * Adds a {@link ChangeListener} ({@code changeListener}) to
+	 * {@link ControlsHandler}. This will notify the listener about the
+	 * {@link SliderModel} type changes.
+	 * 
+	 * @param changeListener
+	 *            A {@link ChangeListener}.
+	 * @see #removeChangeListener(ChangeListener)
+	 */
+	public void addChangeListener(final ChangeListener changeListener);
+
+	/**
+	 * Removes {@code changeListener} from the {@link ChangeListener} of the
+	 * {@link ControlsHandler}.
+	 * 
+	 * @param changeListener
+	 *            A {@link ChangeListener}
+	 * @see #addChangeListener(ChangeListener)
+	 */
+	public void removeChangeListener(final ChangeListener changeListener);
+
+	/**
+	 * Changes the two {@link VariableControl}s.
+	 * 
+	 * @param first
+	 *            A {@link VariableControl}.
+	 * @param second
+	 *            Another {@link VariableControl}. May be {@code null}.
+	 * @return Indicates whether the change has done ({@code true}) or not ({@code false}).
+	 */
+	public boolean exchangeControls(final VariableControl<ModelType> first,
+			final VariableControl<ModelType> second);
+
+	/**
+	 * Sets the current {@link ConsistencyChecker} associated with the
+	 * ControlsHandler.
+	 * 
+	 * @param checker
+	 *            A non-{@code null} {@link ConsistencyChecker}.
+	 */
+	public void setConsistencyChecker(final ConsistencyChecker checker);
 }
