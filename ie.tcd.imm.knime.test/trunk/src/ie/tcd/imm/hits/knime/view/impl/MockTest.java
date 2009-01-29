@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
@@ -11,6 +12,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -33,6 +35,7 @@ import javax.swing.border.TitledBorder;
 import org.fest.swing.annotation.GUITest;
 import org.fest.swing.core.BasicRobot;
 import org.fest.swing.core.Robot;
+import org.fest.swing.exception.ComponentLookupException;
 import org.fest.swing.fixture.FrameFixture;
 import org.fest.swing.fixture.JComboBoxFixture;
 import org.fest.swing.fixture.JMenuItemFixture;
@@ -142,16 +145,28 @@ public class MockTest {
 		downComponent.addTab("Sth", lowerArea);
 		createSliders(new SliderFactory());
 		controlsHandler = new ControlsHandlerKNIMEFactory();
-		controlsHandler.setContainer(leftUpperPanel, Type.Selector, UPPER_LEFT);
-		controlsHandler.setContainer(lowerRightPanel, Type.Splitter, LOWER);
-		controlsHandler.setContainer(lowerCenterPanel, Type.Hidden, LOWER);
-		controlsHandler.setContainer(rightPanel, Type.Hidden, UPPER_RIGHT);
-		controlsHandler.register(plateSlider, Type.Selector, null);
-		controlsHandler.register(replicateSlider, Type.Selector, UPPER_LEFT);
-		controlsHandler.register(experimentSlider, Type.Hidden, UPPER_RIGHT);
-		controlsHandler.register(statsSlider, Type.Hidden, null);
-		controlsHandler.register(normSlider, Type.Hidden, LOWER);
-		controlsHandler.register(paramSlider, Type.Splitter, null);
+		controlsHandler.setContainer(leftUpperPanel, SplitType.SingleSelect,
+				UPPER_LEFT);
+		controlsHandler.setContainer(lowerRightPanel, SplitType.PrimarySplit,
+				LOWER);
+		controlsHandler.setContainer(lowerRightPanel, SplitType.SeconderSplit,
+				LOWER);
+		controlsHandler.setContainer(lowerCenterPanel, SplitType.SingleSelect,
+				LOWER);
+		controlsHandler.setContainer(rightPanel, SplitType.SingleSelect,
+				UPPER_RIGHT);
+		controlsHandler.register(plateSlider, SplitType.SingleSelect, null,
+				ControlTypes.Slider);
+		controlsHandler.register(replicateSlider, SplitType.SeconderSplit,
+				UPPER_LEFT, ControlTypes.Slider);
+		controlsHandler.register(experimentSlider, SplitType.SingleSelect,
+				UPPER_RIGHT, ControlTypes.ComboBox);
+		controlsHandler.register(statsSlider, SplitType.SingleSelect, null,
+				ControlTypes.ComboBox);
+		controlsHandler.register(normSlider, SplitType.SingleSelect, LOWER,
+				ControlTypes.ComboBox);
+		controlsHandler.register(paramSlider, SplitType.PrimarySplit, null,
+				ControlTypes.Buttons);
 
 		window = new FrameFixture(robot, frame);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -192,12 +207,12 @@ public class MockTest {
 	@Test
 	public void testInitialArrangement() {
 		window.panel(LOWER_RIGHT).toolBar();
-		window.panel(UPPER_LEFT).slider(getSliderName(replicateSlider));
+		window.panel(UPPER_LEFT).slider(getSliderName(plateSlider));
 		window.panel(UPPER_RIGHT).comboBox();
 		window.panel(LOWER_RIGHT).toggleButton("param1");
 		window.panel(LOWER_RIGHT).toggleButton("param2");
 		window.panel(LOWER_RIGHT).toggleButton("param3");
-		window.panel(LOWER_CENTER).comboBox(getSliderName(statsSlider));
+		window.panel(UPPER_LEFT).comboBox(getSliderName(statsSlider));
 		window.panel(LOWER_CENTER).comboBox(getSliderName(normSlider));
 	}
 
@@ -242,13 +257,19 @@ public class MockTest {
 		final JPopupMenuFixture popupMenu = panelFixture
 				.showPopupMenuAt(new Point(0, 0));
 		popupMenu.menuItemWithPath("Move to",
-				UPPER_RIGHT + " [" + Type.Hidden + "]").click();
+				UPPER_RIGHT + " [" + SplitType.SingleSelect + "]").click();
 		experimentCombobox.requireVisible();
 		final JPopupMenuFixture popupMenu2 = panelFixture
 				.showPopupMenuAt(new Point(0, 0));
 		final JMenuItemFixture toSlider = popupMenu2.menuItemWithPath(
-				"Move to", LOWER + " [" + Type.Hidden + "]");
+				"Move to", LOWER + " [" + SplitType.SingleSelect + "]");
 		toSlider.click();
+		try {
+			window.panel(UPPER_RIGHT).panel(getSliderName(experimentSlider));
+			Assert.fail("experiment not moved!");
+		} catch (final ComponentLookupException e) {
+			// Expected
+		}
 		final JComboBoxFixture newCombobox = window.panel(LOWER_CENTER)
 				.comboBox(getSliderName(experimentSlider));
 		newCombobox.requireSelection((String) experimentSlider

@@ -38,6 +38,7 @@ public class ControlTests extends AbstractControlTest {
 	 * Tests {@link ButtonsControl}.
 	 */
 	@Test
+	// (enabled = false)
 	// (timeOut = 3000)
 	@GUITest
 	public void buttons() {
@@ -56,7 +57,7 @@ public class ControlTests extends AbstractControlTest {
 				.toggleButton(VALUE_2);
 		toggleButtonXY.requireEnabled();
 		toggleButtonXY.requireSelected();
-		toggleButtonXY.click();
+		window.toggleButton(VALUE_2).click();
 		Assert.assertEquals(slider2.getSelections(), Collections
 				.singleton(Integer.valueOf(1)));
 		window.toggleButton(VALUE_1).click();

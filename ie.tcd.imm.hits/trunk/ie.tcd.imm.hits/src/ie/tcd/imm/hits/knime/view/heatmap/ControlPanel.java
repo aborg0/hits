@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
@@ -557,30 +558,32 @@ public class ControlPanel extends JPanel {
 		hiddenSlidersConstraints.gridx = 1;
 		hiddenSlidersConstraints.gridy = 5;
 		gbLayout.addLayoutComponent(hiddenSliders, hiddenSlidersConstraints);
-		origView.getControlsHandler().setContainer(hiddenSliders, Type.Hidden,
-				PositionConstants.control.name());
+		origView.getControlsHandler().setContainer(hiddenSliders,
+				SplitType.SingleSelect, PositionConstants.control.name());
 		add(hiddenSliders, hiddenSlidersConstraints);
 		final GridBagConstraints primaryConstraints = new GridBagConstraints();
 		primaryConstraints.gridx = 1;
 		primaryConstraints.gridy = 2;
 		gbLayout.addLayoutComponent(primarySliders, primaryConstraints);
 		origView.getControlsHandler().setContainer(primarySliders,
-				Type.Splitter, PositionConstants.primary.name());
+				SplitType.PrimarySplit, PositionConstants.primary.name());
 		add(primarySliders, primaryConstraints);
 		final GridBagConstraints secondaryConstraints = new GridBagConstraints();
 		secondaryConstraints.gridx = 1;
 		secondaryConstraints.gridy = 3;
 		gbLayout.addLayoutComponent(secondarySliders, secondaryConstraints);
 		origView.getControlsHandler().setContainer(secondarySliders,
-				Type.Splitter, PositionConstants.secondary.name());
+				SplitType.SeconderSplit, PositionConstants.secondary.name());
 		add(secondarySliders, secondaryConstraints);
-		final GridBagConstraints additionalConstraints = new GridBagConstraints();
-		additionalConstraints.gridx = 1;
-		additionalConstraints.gridy = 4;
-		gbLayout.addLayoutComponent(additionalSliders, additionalConstraints);
-		add(additionalSliders, additionalConstraints);
-		origView.getControlsHandler().setContainer(additionalSliders,
-				Type.Hidden, PositionConstants.additional.name());
+		// final GridBagConstraints additionalConstraints = new
+		// GridBagConstraints();
+		// additionalConstraints.gridx = 1;
+		// additionalConstraints.gridy = 4;
+		// gbLayout.addLayoutComponent(additionalSliders,
+		// additionalConstraints);
+		// add(additionalSliders, additionalConstraints);
+		// origView.getControlsHandler().setContainer(additionalSliders,
+		// SplitType.AdditionalInfo, PositionConstants.additional.name());
 	}
 
 	/**

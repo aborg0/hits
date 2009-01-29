@@ -2,6 +2,7 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -10,7 +11,9 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
+import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -55,6 +58,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -431,9 +436,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -442,20 +447,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-					 * Collections .<ParameterModel>
-					 * emptyList()
-					 */, Arrays.asList(defaultParamModel, defaultParamModel,
+												 * Collections .<ParameterModel>
+												 * emptyList()
+												 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-					 * Collections.<ParameterModel>
-					 * emptyList()
-					 */, true));
+																	 * Collections.<ParameterModel>
+																	 * emptyList()
+																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -965,8 +970,18 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		volatileModel.addActionListener(legendPanel);
 		volatileModel.addActionListener(legendPanel2);
 		setCurrentViewModel(currentViewModel);
-		controlsHandler.setContainer(heatmapPanel.controlPanel, Type.Selector,
-				PositionConstants.upper.name());
+		controlsHandler.setContainer(heatmapPanel.controlPanel,
+				SplitType.SingleSelect, PositionConstants.upper.name());
+		controlsHandler.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				if (e instanceof ArrangementEvent) {
+					final ArrangementEvent event = (ArrangementEvent) e;
+					setCurrentViewModel(new ViewModel(getCurrentViewModel(),
+							event.getNewArrangement()));
+				}
+			}
+		});
 	}
 
 	/**
@@ -1005,8 +1020,40 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		for (final Entry<Type, Collection<SliderModel>> entry : getVolatileModel().arrangementModel
 				.getSliders().entrySet()) {
 			for (final SliderModel model : entry.getValue()) {
-				controlsHandler.register(model, entry.getKey(),
-						getDefaultPosition(entry.getKey()));
+				SplitType splitType;
+				final ControlTypes controlType;
+				switch (type(model)) {
+				case experimentName:
+				case normalisation:
+				case metaStatType:
+				case plate:
+					controlType = ControlTypes.ComboBox;
+					splitType = SplitType.SingleSelect;
+					break;
+				case parameter:
+					splitType = SplitType.PrimarySplit;
+					controlType = ControlTypes.Buttons;
+					break;
+				case replicate:
+					splitType = SplitType.SeconderSplit;
+					controlType = ControlTypes.Buttons;
+					break;
+				case meanOrDiff:
+				case median:
+				case normalized:
+				case otherEnumeration:
+				case otherNumeric:
+				case rankNonReplicates:
+				case rankReplicates:
+				case raw:
+				case rawPerMedian:
+				case score:
+				default:
+					throw new UnsupportedOperationException("Not supported: "
+							+ type(model));
+				}
+				controlsHandler.register(model, splitType,
+						getDefaultPosition(entry.getKey()), controlType);
 				model.addActionListener(volatileModel);
 			}
 		}
@@ -1016,6 +1063,14 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				.getStatistics());
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
+	}
+
+	/**
+	 * @param model
+	 * @return
+	 */
+	private StatTypes type(final SliderModel model) {
+		return model.getParameters().iterator().next().getType();
 	}
 
 	/**

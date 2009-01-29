@@ -4,10 +4,9 @@
 package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.ControlsHandler.ConsistencyChecker.DefaultConsistencyChecker;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
@@ -52,6 +51,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @NotThreadSafe
 public class ControlsHandlerKNIMEFactory implements
 		ControlsHandler<SettingsModel> {
+
 	/**
 	 * A {@link ChangeEvent} for the model changes of the {@link SliderModel}s.
 	 */
@@ -80,10 +80,10 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	private Map<SliderModel, VariableControl<? extends SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<? extends SettingsModel>>();
-	private final EnumMap<Type, Map<String, WeakReference<JComponent>>> containers = new EnumMap<Type, Map<String, WeakReference<JComponent>>>(
-			Type.class);
+	private final EnumMap<SplitType, Map<String, WeakReference<JComponent>>> containers = new EnumMap<SplitType, Map<String, WeakReference<JComponent>>>(
+			SplitType.class);
 	{
-		for (final Type type : Type.values()) {
+		for (final SplitType type : SplitType.values()) {
 			containers.put(type,
 					new HashMap<String, WeakReference<JComponent>>());
 		}
@@ -94,6 +94,19 @@ public class ControlsHandlerKNIMEFactory implements
 	private ConsistencyChecker checker = new DefaultConsistencyChecker();
 	private final List<WeakReference<ChangeListener>> listeners = new ArrayList<WeakReference<ChangeListener>>();
 	private ShapeModel arrangement;
+
+	private Map<SplitType, Map<VariableControl<? extends SettingsModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<? extends SettingsModel>, Boolean>>(
+			SplitType.class);
+	{
+		for (final SplitType type : SplitType.values()) {
+			splitToControls
+					.put(
+							type,
+							new WeakHashMap<VariableControl<? extends SettingsModel>, Boolean>());
+		}
+	}
+
+	private Map<VariableControl<? extends SettingsModel>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel>, SplitType>();
 
 	/**
 	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
@@ -111,50 +124,51 @@ public class ControlsHandlerKNIMEFactory implements
 	@Override
 	public VariableControl<? extends SettingsModel> getComponent(
 			final SliderModel slider, final ControlTypes controlType) {
-		final String name = createName(slider);
-		final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
-				.getValueMapping();
-		final List<String> vals = new LinkedList<String>();
-		for (final Pair<ParameterModel, Object> pair : valueMapping.values()) {
-			vals.add(pair.getRight().toString());
-		}
-		final Set<Integer> selections = new TreeSet<Integer>(slider
-				.getSelections());
-		switch (controlType) {
-		case Buttons:
-		case Invisible:
-		case List:
-		case ScrollBarHorisontal:
-		case ScrollBarVertical:
-			// Do nothing, multiple selections are allowed.
-			break;
-		case ComboBox:
-		case RadioButton:
-		case Slider:
-		case Tab:
-			final Integer sel = selections.iterator().next();
-			// selections.clear();
-			// selections.add(sel);
-			slider.selectSingle(sel);
-			// for (final Integer select : selections) {
-			// if (!select.equals(sel)) {
-			// slider.deselect(select);
-			// }
-			// }
-			break;
-		default:
-			throw new UnsupportedOperationException(
-					"Not supported control type: " + controlType);
-		}
-		final Collection<String> selected = new HashSet<String>();
-		for (final Integer integer : selections) {
-			selected.add(vals.get(integer.intValue() - 1));
-		}
-		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
-				name, vals, selected);
-		final VariableControl<? extends SettingsModel> control = createControl(
-				slider, controlType, settingsModelListSelection);
 		if (!cache.containsKey(slider)) {
+			final String name = createName(slider);
+			final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
+					.getValueMapping();
+			final List<String> vals = new LinkedList<String>();
+			for (final Pair<ParameterModel, Object> pair : valueMapping
+					.values()) {
+				vals.add(pair.getRight().toString());
+			}
+			final Set<Integer> selections = new TreeSet<Integer>(slider
+					.getSelections());
+			switch (controlType) {
+			case Buttons:
+			case Invisible:
+			case List:
+			case ScrollBarHorisontal:
+			case ScrollBarVertical:
+				// Do nothing, multiple selections are allowed.
+				break;
+			case ComboBox:
+			case RadioButton:
+			case Slider:
+			case Tab:
+				final Integer sel = selections.iterator().next();
+				// selections.clear();
+				// selections.add(sel);
+				slider.selectSingle(sel);
+				// for (final Integer select : selections) {
+				// if (!select.equals(sel)) {
+				// slider.deselect(select);
+				// }
+				// }
+				break;
+			default:
+				throw new UnsupportedOperationException(
+						"Not supported control type: " + controlType);
+			}
+			final Collection<String> selected = new HashSet<String>();
+			for (final Integer integer : selections) {
+				selected.add(vals.get(integer.intValue() - 1));
+			}
+			final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
+					name, vals, selected);
+			final VariableControl<? extends SettingsModel> control = createControl(
+					slider, controlType, settingsModelListSelection);
 			cache.put(slider, control);
 		}
 		return cache.get(slider);
@@ -398,6 +412,11 @@ public class ControlsHandlerKNIMEFactory implements
 		if (component == null) {
 			return false;
 		}
+		final SplitType splitType = controlToSplit.get(variableControl);
+		assert splitType != null;
+		final Boolean r = splitToControls.get(splitType)
+				.remove(variableControl);
+		assert r != null && r.booleanValue() == true;
 		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
@@ -411,6 +430,7 @@ public class ControlsHandlerKNIMEFactory implements
 		final VariableControl<? extends SettingsModel> removedVariableControl = cache
 				.remove(model);
 		assert removedVariableControl != null;
+		assert removedVariableControl == variableControl;
 		removedVariableControl.getModel().removeChangeListener(
 				removedVariableControl.getModelChangeListener());
 		return true;
@@ -420,14 +440,13 @@ public class ControlsHandlerKNIMEFactory implements
 	 * (non-Javadoc)
 	 * 
 	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#move(ie.tcd.imm.hits.util.swing.VariableControl,
-	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
 	 *      java.lang.String)
 	 */
 	@Override
 	public boolean move(final VariableControl<SettingsModel> variableControl,
-			final Type containerType, final String nameOfContainer) {
-		final JComponent newContainer = getContainer(containerType,
-				nameOfContainer);
+			final String nameOfContainer) {
+		final JComponent newContainer = getContainer(
+				getSplitType(variableControl), nameOfContainer);
 		if (newContainer == null) {
 			return false;
 		}
@@ -453,6 +472,15 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	/**
+	 * @param variableControl
+	 * @return
+	 */
+	private SplitType getSplitType(
+			final VariableControl<SettingsModel> variableControl) {
+		return controlToSplit.get(variableControl);
+	}
+
+	/**
 	 * @param map
 	 * @param variableControl
 	 */
@@ -470,8 +498,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean register(final SliderModel model, final Type modelType,
-			final String nameOfContainer) {
+	public boolean register(final SliderModel model, final SplitType modelType,
+			final String nameOfContainer, final ControlTypes controlType) {
 		final JComponent component = getContainer(modelType, nameOfContainer);
 		if (component == null) {
 			return false;
@@ -479,25 +507,25 @@ public class ControlsHandlerKNIMEFactory implements
 		final Map<VariableControl<? extends SettingsModel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
-		final ControlTypes controlType;
-		switch (modelType) {
-		case Hidden:
-			controlType = ControlTypes.ComboBox;
-			break;
-		case Selector:
-			controlType = ControlTypes.Slider;
-			break;
-		case Splitter:
-			controlType = ControlTypes.Buttons;
-			break;
-		case ScrollHorisontal:
-		case ScrollVertical:
-			throw new UnsupportedOperationException(
-					"Scrolls are not supported yet...");
-		default:
-			throw new UnsupportedOperationException("Not supported position: "
-					+ modelType);
-		}
+		// final ControlTypes controlType;
+		// switch (modelType) {
+		// case Hidden:
+		// controlType = ControlTypes.ComboBox;
+		// break;
+		// case Selector:
+		// controlType = ControlTypes.Slider;
+		// break;
+		// case Splitter:
+		// controlType = ControlTypes.Buttons;
+		// break;
+		// case ScrollHorisontal:
+		// case ScrollVertical:
+		// throw new UnsupportedOperationException(
+		// "Scrolls are not supported yet...");
+		// default:
+		// throw new UnsupportedOperationException("Not supported position: "
+		// + modelType);
+		// }
 		final VariableControl<? extends SettingsModel> variableControl = getComponent(
 				model, controlType);
 		if (variableControl == null) {
@@ -505,6 +533,10 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 		component.add(variableControl.getView());
 		addToMap(map, variableControl);
+		final Map<VariableControl<? extends SettingsModel>, Boolean> map2 = splitToControls
+				.get(modelType);
+		addToMap(map2, variableControl);
+		controlToSplit.put(variableControl, modelType);
 		controlToComponent.put(variableControl, component);
 		return true;
 	}
@@ -512,20 +544,24 @@ public class ControlsHandlerKNIMEFactory implements
 	/**
 	 * Selects a {@link JComponent} if exists with the proper properties.
 	 * 
-	 * @param containerType
-	 *            A {@link Type}.
+	 * @param splitType
+	 *            A {@link SplitType}.
 	 * @param nameOfContainer
 	 *            A name of the container. May be {@code null}.
 	 * @return The {@link JComponent} associated to {@code containerType} and
 	 *         {@code nameOfContainer}, or {@code null} if it is not
-	 *         {@link #setContainer(JComponent, Type, String) set} before.
+	 *         {@link #setContainer(JComponent, SplitType, String) set} before.
 	 */
 	@Override
 	public @Nullable
-	JComponent getContainer(final Type containerType, @Nullable
+	JComponent getContainer(final SplitType splitType, @Nullable
 	final String nameOfContainer) {
-		final WeakReference<JComponent> component = containers.get(
-				containerType).get(nameOfContainer);
+		final Map<String, WeakReference<JComponent>> map = containers
+				.get(splitType);
+		if (map == null) {
+			return null;
+		}
+		final WeakReference<JComponent> component = map.get(nameOfContainer);
 		return component == null ? null : component.get();
 	}
 
@@ -537,7 +573,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 *      java.lang.String)
 	 */
 	@Override
-	public void setContainer(final JComponent container, final Type type,
+	public void setContainer(final JComponent container, final SplitType type,
 			final String name) {
 		final Map<String, WeakReference<JComponent>> map = containers.get(type);
 		if (map.isEmpty()) {
@@ -556,12 +592,12 @@ public class ControlsHandlerKNIMEFactory implements
 	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#findContainers()
 	 */
 	@Override
-	public Set<Pair<Type, String>> findContainers() {
-		final Set<Pair<Type, String>> ret = new HashSet<Pair<Type, String>>();
-		for (final Entry<Type, Map<String, WeakReference<JComponent>>> entry : containers
+	public Set<Pair<SplitType, String>> findContainers() {
+		final Set<Pair<SplitType, String>> ret = new HashSet<Pair<SplitType, String>>();
+		for (final Entry<SplitType, Map<String, WeakReference<JComponent>>> entry : containers
 				.entrySet()) {
 			for (final String name : entry.getValue().keySet()) {
-				ret.add(new Pair<Type, String>(entry.getKey(), name));
+				ret.add(new Pair<SplitType, String>(entry.getKey(), name));
 			}
 		}
 		return ret;
@@ -630,32 +666,36 @@ public class ControlsHandlerKNIMEFactory implements
 	public boolean exchangeControls(final VariableControl<SettingsModel> first,
 			final VariableControl<SettingsModel> second) {
 		assert arrangement != null;
-		final Pair<Type, String> firstPos = getPosition(first);
-		final Pair<Type, String> secondPos = getPosition(second);
+		final SplitType firstPos = getSplitType(first);
+		final SplitType secondPos = getSplitType(second);
 		if (firstPos == null || secondPos == null) {
 			return false;
 		}
 		if (firstPos.equals(secondPos)) {
 			return false;
 		}
-		final List<ParameterModel> primerParameters = arrangement
-				.getPrimerParameters();
-		final List<ParameterModel> seconderParameters = arrangement
-				.getSeconderParameters();
-		final Map<Type, SliderModel> newArrangement = new HashMap<Type, SliderModel>();
-		final ArrangementModel newArrModel = new ArrangementModel();
-		final List<ParameterModel> newPrimParams = new ArrayList<ParameterModel>();
-		final List<ParameterModel> newSecParams = new ArrayList<ParameterModel>();
-		final List<ParameterModel> newAdditionalParams = new ArrayList<ParameterModel>();
-		final ShapeModel shapeModel = new ShapeModel(newArrModel,
-				newPrimParams, newSecParams, newAdditionalParams, arrangement
-						.isDrawBorder(), arrangement.isDrawPrimaryBorders(),
-				arrangement.isDrawSecondaryBorders(), arrangement
-						.isDrawAdditionalBorders());
-		if (checker.checkConsistency(shapeModel)) {
-			notifyChangeListeners(new ArrangementEvent(this, shapeModel));
-			return true;
-		}
+		// final List<ParameterModel> primerParameters = arrangement
+		// .getPrimerParameters();
+		// final List<ParameterModel> seconderParameters = arrangement
+		// .getSeconderParameters();
+		// final Map<Type, SliderModel> newArrangement = new HashMap<Type,
+		// SliderModel>();
+		// final ArrangementModel newArrModel = new ArrangementModel();
+		// final List<ParameterModel> newPrimParams = new
+		// ArrayList<ParameterModel>();
+		// final List<ParameterModel> newSecParams = new
+		// ArrayList<ParameterModel>();
+		// final List<ParameterModel> newAdditionalParams = new
+		// ArrayList<ParameterModel>();
+		// final ShapeModel shapeModel = new ShapeModel(newArrModel,
+		// newPrimParams, newSecParams, newAdditionalParams, arrangement
+		// .isDrawBorder(), arrangement.isDrawPrimaryBorders(),
+		// arrangement.isDrawSecondaryBorders(), arrangement
+		// .isDrawAdditionalBorders());
+		// if (checker.checkConsistency(shapeModel)) {
+		// notifyChangeListeners(new ArrangementEvent(this, shapeModel));
+		// return true;
+		// }
 		return false;
 	}
 
@@ -672,19 +712,20 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
+	@Deprecated
 	private @Nullable
-	Pair<Type, String> getPosition(
+	Pair<SplitType, String> getPosition(
 			final VariableControl<SettingsModel> variableControl) {
-		Pair<Type, String> ret = null;
-		final JComponent view = variableControl.getView();
-		for (final Entry<Type, Map<String, WeakReference<JComponent>>> entry : containers
+		Pair<SplitType, String> ret = null;
+		final JComponent view = controlToComponent.get(variableControl);// variableControl.getView();
+		for (final Entry<SplitType, Map<String, WeakReference<JComponent>>> entry : containers
 				.entrySet()) {
 			for (final Entry<String, WeakReference<JComponent>> contEntry : entry
 					.getValue().entrySet()) {
 				if (view.equals(contEntry.getValue().get())) {
 					if (ret == null || ret.getRight() == null) {
-						ret = new Pair<Type, String>(entry.getKey(), contEntry
-								.getKey());
+						ret = new Pair<SplitType, String>(entry.getKey(),
+								contEntry.getKey());
 					}
 				}
 			}

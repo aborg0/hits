@@ -4,8 +4,8 @@
 package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -39,16 +39,43 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 abstract class VariableControlWithMenu extends AbstractVariableControl {
+	/**
+	 * An action to change to another {@link SplitType type} of container.
+	 */
+	private class ChangeAction extends AbstractAction {
+
+		private final SplitType primarySplit;
+
+		/**
+		 * @param primarySplit
+		 */
+		public ChangeAction(final SplitType primarySplit) {
+			this.primarySplit = primarySplit;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
 	private static final long serialVersionUID = -3325790267603732617L;
 
 	private class MoveAction extends AbstractAction {
 		private static final long serialVersionUID = -701281759726333944L;
-		private final Pair<Type, String> position;
+		private final Pair<SplitType, String> position;
 
 		/**
 		 * @param position
 		 */
-		public MoveAction(final Pair<Type, String> position) {
+		public MoveAction(final Pair<SplitType, String> position) {
 			this.position = position;
 		}
 
@@ -60,7 +87,7 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			getControlsHandler().move(VariableControlWithMenu.this,
-					position.getLeft(), position.getRight());
+					position.getRight());
 		}
 
 	}
@@ -119,9 +146,9 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		final JMenu moveMenu = new JMenu();
 		moveMenu.setText("Move to");
 		moveMenu.setMnemonic(KeyEvent.VK_M);
-		final Set<Pair<Type, String>> containers = getControlsHandler()
+		final Set<Pair<SplitType, String>> containers = getControlsHandler()
 				.findContainers();
-		for (final Pair<Type, String> pair : containers) {
+		for (final Pair<SplitType, String> pair : containers) {
 			if (pair.getRight() != null) {
 				final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
 				posMenu.setText(pair.getRight() + " [" + pair.getLeft() + "]");
@@ -148,6 +175,14 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 			}
 		}
 		popup.add(moveMenu);
+		final JMenu changeType = new JMenu("Change type");
+		changeType.setMnemonic(KeyEvent.VK_C);
+		final JMenuItem toPrimary = new JMenuItem(new ChangeAction(
+				SplitType.PrimarySplit));
+		changeType.add(toPrimary);
+		toPrimary.setMnemonic(KeyEvent.VK_P);
+		toPrimary.setText("to primary");
+		popup.add(changeType);
 		final MouseAdapter popupListener = new MouseAdapter() {
 			/*
 			 * (non-Javadoc)

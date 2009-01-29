@@ -102,77 +102,75 @@ public interface ControlsHandler<ModelType> {
 	 * 
 	 * @param model
 	 *            The model of the control to register.
-	 * @param containerType
+	 * @param splitType
 	 *            The positional type of the container.
 	 * @param nameOfContainer
 	 *            The name of the container. May be {@code null}, which means
 	 *            one of the possible values, not specified.
+	 * @param preferredControlType
+	 *            The preferred control type for the {@code model}.
 	 * @return Indicates whether the registration did something ({@code true})
 	 *         or not ({@code false}).
 	 * @see #deregister(SliderModel)
-	 * @see #setContainer(JComponent,
-	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type, String)
+	 * @see #setContainer(JComponent, SplitType, String)
 	 */
-	public boolean register(SliderModel model, SliderModel.Type containerType,
-			@Nullable
-			String nameOfContainer);
+	public boolean register(SliderModel model, SplitType splitType, @Nullable
+	String nameOfContainer, ControlTypes preferredControlType);
 
 	/**
 	 * Removes all {@link VariableControl}s associated to the {@code model}.
 	 * <p>
 	 * If {@code model} previously was not
-	 * {@link #register(SliderModel, ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type, String) registered}
+	 * {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
 	 * it will do nothing.
 	 * 
 	 * @param model
 	 *            A previously registered {@link SliderModel}.
 	 * @return Indicates whether the deregistration did something ({@code true})
 	 *         or not ({@code false}).
-	 * @see #register(SliderModel,
-	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type, String)
+	 * @see #register(SliderModel, SplitType, String, ControlTypes)
 	 */
 	public boolean deregister(SliderModel model);
 
 	/**
 	 * Registers {@code container} as a {@link Container} for the
 	 * {@link SliderModel}s with type {@code type}. It can be referenced as
-	 * {@code name} in {@link #register(SliderModel, Type, String)}.
+	 * {@code name} in
+	 * {@link #register(SliderModel, SplitType, String, ControlTypes)}.
 	 * 
 	 * @param container
 	 *            A {@link JComponent}.
 	 * @param type
-	 *            A {@link Type} of the {@link SliderModel}.
+	 *            A {@link SplitType} of the {@link SliderModel}.
 	 * @param name
 	 *            A name associated to the {@code container}
-	 * @see #register(SliderModel, Type, String)
+	 * @see #register(SliderModel, SplitType, String, ControlTypes)
 	 */
-	public void setContainer(JComponent container, SliderModel.Type type,
-			String name);
+	public void setContainer(JComponent container, SplitType type, String name);
 
 	/**
 	 * Moves the {@link VariableControl} associated to {@code model} to the new
 	 * position: {@code containerType} and {@code nameOfContainer}.
 	 * 
 	 * @param variableControl
-	 *            A {@link #register(SliderModel, Type, String) registered}
+	 *            A
+	 *            {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
 	 *            {@link VariableControl}.
-	 * @param containerType
-	 *            The <b>new</b> {@link Type}.
 	 * @param nameOfContainer
 	 *            The <b>new</b> name of the container. May be {@code null},
 	 *            which means one of the possible containers.
 	 * @return Indicates whether the it has moved ({@code true}) or not ({@code false}).
 	 */
-	public boolean move(VariableControl<ModelType> variableControl,
-			SliderModel.Type containerType, @Nullable
-			String nameOfContainer);
+	public boolean move(VariableControl<ModelType> variableControl, @Nullable
+	String nameOfContainer);
 
 	/**
 	 * Changes the {@link ControlTypes} of the registered {@link SliderModel} ({@code slider})
 	 * to {@code type} if possible. If not possible it will do nothing.
 	 * 
 	 * @param variableControl
-	 *            A {@link #register(SliderModel, Type, String) registered}
+	 *            A
+	 *            {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
 	 *            {@link VariableControl}.
 	 * @param type
 	 *            The <b>new</b> {@link ControlTypes} of the {@code slider}.
@@ -183,9 +181,9 @@ public interface ControlsHandler<ModelType> {
 
 	/**
 	 * @return The possible component positions.
-	 * @see #setContainer(JComponent, Type, String)
+	 * @see #setContainer(JComponent, SplitType, String)
 	 */
-	public Set<Pair<Type, String>> findContainers();
+	public Set<Pair<SplitType, String>> findContainers();
 
 	/**
 	 * Selects a {@link JComponent} if exists with the proper properties.
@@ -196,10 +194,10 @@ public interface ControlsHandler<ModelType> {
 	 *            A name of the container. May be {@code null}.
 	 * @return The {@link JComponent} associated to {@code containerType} and
 	 *         {@code nameOfContainer}, or {@code null} if it is not
-	 *         {@link #setContainer(JComponent, Type, String) set} before.
+	 *         {@link #setContainer(JComponent, SplitType, String) set} before.
 	 */
 	public @Nullable
-	JComponent getContainer(final Type containerType, @Nullable
+	JComponent getContainer(final SplitType containerType, @Nullable
 	final String nameOfContainer);
 
 	/**
@@ -224,12 +222,13 @@ public interface ControlsHandler<ModelType> {
 	public void removeChangeListener(final ChangeListener changeListener);
 
 	/**
-	 * Changes the two {@link VariableControl}s.
+	 * Changes the two {@link VariableControl}s. They must be associated with
+	 * different {@link SplitType}s.
 	 * 
 	 * @param first
 	 *            A {@link VariableControl}.
 	 * @param second
-	 *            Another {@link VariableControl}. May be {@code null}.
+	 *            Another {@link VariableControl}.
 	 * @return Indicates whether the change has done ({@code true}) or not ({@code false}).
 	 */
 	public boolean exchangeControls(final VariableControl<ModelType> first,

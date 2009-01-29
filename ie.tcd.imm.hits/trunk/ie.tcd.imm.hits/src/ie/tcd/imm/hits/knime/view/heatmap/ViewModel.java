@@ -466,7 +466,13 @@ public class ViewModel implements ActionListener {
 		/** The mean of the values based on the free parameters. */
 		Mean,
 		/** The standard deviation of the values based on the free parameters. */
-		StandardDeviation;
+		StandardDeviation,
+		/** The MAD of the values based on the free parameters. */
+		MedianAbsoluteDeviation,
+		/** The minimum of the values based on the free parameters. */
+		Minimum,
+		/** The maximum of the values based on the free parameters. */
+		Maximum;
 	}
 
 	/**
