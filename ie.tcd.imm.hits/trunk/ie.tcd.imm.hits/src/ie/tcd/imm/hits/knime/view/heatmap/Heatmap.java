@@ -360,6 +360,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					}
 				}
 			}
+		} else
+		{
+			array = (double[]) scores;
 		}
 		final int fp = firstSelection == null ? 0
 				: firstSelection.intValue() - 1;
