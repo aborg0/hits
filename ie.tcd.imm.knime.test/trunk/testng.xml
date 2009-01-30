@@ -11,4 +11,7 @@
       <class name="ie.tcd.imm.hits.common.TestFormat"/>
     </classes>
   </test>
+  <listeners>
+  	<listener class-name="org.fest.swing.testng.ScreenshotOnFailureListener"/>
+  </listeners>
 </suite>

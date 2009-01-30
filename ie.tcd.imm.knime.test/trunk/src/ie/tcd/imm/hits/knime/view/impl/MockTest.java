@@ -172,6 +172,7 @@ public class MockTest {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(600, 600);
 		frame.setVisible(true);
+		window.focus();
 	}
 
 	/**

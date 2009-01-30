@@ -96,7 +96,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link ComboBoxControl}.
 	 */
-	@Test(timeOut = 1000)
+	@Test(timeOut = 2000)
 	@GUITest
 	public void comboBox() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
@@ -116,7 +116,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link SliderControl}.
 	 */
-	@Test(timeOut = 1000)
+	@Test(timeOut = 2000)
 	@GUITest
 	public void slider() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
