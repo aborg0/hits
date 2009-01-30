@@ -43,14 +43,15 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 	 * An action to change to another {@link SplitType type} of container.
 	 */
 	private class ChangeAction extends AbstractAction {
+		private static final long serialVersionUID = -3091085849327364628L;
 
-		private final SplitType primarySplit;
+		private final SplitType splitType;
 
 		/**
-		 * @param primarySplit
+		 * @param splitType
 		 */
-		public ChangeAction(final SplitType primarySplit) {
-			this.primarySplit = primarySplit;
+		public ChangeAction(final SplitType splitType) {
+			this.splitType = splitType;
 		}
 
 		/*
@@ -60,8 +61,10 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			// TODO Auto-generated method stub
-
+			getControlsHandler().exchangeControls(
+					VariableControlWithMenu.this,
+					getControlsHandler().getVariableControlsAt(splitType)
+							.iterator().next());
 		}
 
 	}
@@ -182,6 +185,11 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		changeType.add(toPrimary);
 		toPrimary.setMnemonic(KeyEvent.VK_P);
 		toPrimary.setText("to primary");
+		final JMenuItem toSecondary = new JMenuItem(new ChangeAction(
+				SplitType.SeconderSplit));
+		changeType.add(toSecondary);
+		toSecondary.setMnemonic(KeyEvent.VK_S);
+		toSecondary.setText("to secondary");
 		popup.add(changeType);
 		final MouseAdapter popupListener = new MouseAdapter() {
 			/*

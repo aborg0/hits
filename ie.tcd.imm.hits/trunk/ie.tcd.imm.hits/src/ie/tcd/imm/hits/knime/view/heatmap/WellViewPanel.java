@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 
 import java.awt.Color;
@@ -77,7 +76,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		final List<ParameterModel> primerParameters = model.getMain()
 				.getPrimerParameters();
 		final Collection<SliderModel> sliders = model.getMain()
-				.getArrangementModel().getSliders().get(Type.Splitter);
+				.getArrangementModel().getSliderModels();// .getSliders().get(Type.Splitter);
 		final int primerParamCount = Math.max(1, selectValueCount(
 				primerParameters, sliders));
 		final int secCount = Math.max(1, selectValueCount(model.getMain()

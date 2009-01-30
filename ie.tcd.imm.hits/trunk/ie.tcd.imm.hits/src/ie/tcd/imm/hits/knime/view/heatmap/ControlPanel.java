@@ -121,6 +121,21 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
+		 * @return The actual {@link SliderModel}s.
+		 */
+		public Set<SliderModel> getSliderModels() {
+			final Set<SliderModel> ret = new HashSet<SliderModel>();
+
+			for (final Map.Entry<Type, Collection<SliderModel>> entry : sliders
+					.entrySet()) {
+				for (final SliderModel sliderModel : entry.getValue()) {
+					ret.add(sliderModel);
+				}
+			}
+			return ret;
+		}
+
+		/**
 		 * Updates the sliders based on the new {@link ParameterModel}s.
 		 * 
 		 * @param possibleParameters

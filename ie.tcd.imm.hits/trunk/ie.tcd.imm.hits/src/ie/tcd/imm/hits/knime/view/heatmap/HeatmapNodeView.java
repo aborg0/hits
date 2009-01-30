@@ -436,9 +436,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -447,20 +447,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
+					 * Collections .<ParameterModel>
+					 * emptyList()
+					 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
+					 * Collections.<ParameterModel>
+					 * emptyList()
+					 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -843,6 +843,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 	private final VolatileModel volatileModel = new VolatileModel();
 
+	private ChangeListener changeListenerForControlsHandler;
+
 	/**
 	 * Creates a new view.
 	 * 
@@ -972,7 +974,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		setCurrentViewModel(currentViewModel);
 		controlsHandler.setContainer(heatmapPanel.controlPanel,
 				SplitType.SingleSelect, PositionConstants.upper.name());
-		controlsHandler.addChangeListener(new ChangeListener() {
+		changeListenerForControlsHandler = new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				if (e instanceof ArrangementEvent) {
@@ -981,7 +983,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 							event.getNewArrangement()));
 				}
 			}
-		});
+		};
+		controlsHandler.addChangeListener(changeListenerForControlsHandler);
 	}
 
 	/**

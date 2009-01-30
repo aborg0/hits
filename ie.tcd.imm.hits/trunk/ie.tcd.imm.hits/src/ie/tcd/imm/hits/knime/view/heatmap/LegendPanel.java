@@ -3,7 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
@@ -187,7 +186,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			final Rectangle bounds = getBounds();
 			final int radius = Math.min(bounds.width, bounds.height) / 2;
 			final Collection<SliderModel> sliders = getModel().getMain()
-					.getArrangementModel().getSliders().get(Type.Splitter);
+					.getArrangementModel().getSliderModels();// .getSliders().get(Type.Splitter);
 			final int primaryCount = selectValueCount(getModel().getMain()
 					.getPrimerParameters(), sliders);
 			final int secundaryCount = selectValueCount(getModel().getMain()
