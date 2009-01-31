@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,24 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ColourSelector extends JPanel {
+	/**
+	 * The possible ranges of an interval.
+	 */
+	static enum RangeType {
+		/** The minimum value. */
+		min,
+		/** The maximum value */
+		max,
+		/** The median value */
+		median,
+		/** The mean/average value */
+		average,
+		/** The standard deviation value */
+		stdev,
+		/** The median absolute deviation value */
+		mad;
+	}
+
 	/** The default {@link Model} for real valued parameters. */
 	public static final Model DEFAULT_MODEL = new Model(-2.0, Double
 			.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW, Color.RED);
@@ -681,7 +700,8 @@ public class ColourSelector extends JPanel {
 			add(new JButton());
 			for (final String parameter : parameters) {
 				final DoubleValueSelector doubleValueSelector = new DoubleValueSelector();
-				doubleValueSelector.setModel(DEFAULT_MODEL);
+				doubleValueSelector.setModel(parent.model.getModel(parameter,
+						stat));
 				doubleValueSelector.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
@@ -711,7 +731,8 @@ public class ColourSelector extends JPanel {
 		doublePanel = new JPanel();
 		doublePanel.setLayout(new GridLayout(0, 1));
 		doublePanel.setBorder(new TitledBorder("Colours for heatmap values"));
-		update(parameters, stats);
+		update(parameters, stats, Collections
+				.<String, Map<StatTypes, Map<RangeType, Double>>> emptyMap());
 		add(doublePanel);
 	}
 
@@ -726,7 +747,8 @@ public class ColourSelector extends JPanel {
 	 *            Some {@link StatTypes}.
 	 */
 	public void update(final Iterable<String> parameters,
-			final Iterable<StatTypes> stats) {
+			final Iterable<StatTypes> stats,
+			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ranges) {
 		doublePanel.removeAll();
 		final JPanel titles = new JPanel();
 		titles.setLayout(new GridLayout(1, 0));
@@ -736,11 +758,6 @@ public class ColourSelector extends JPanel {
 			titles.add(new JLabel(parameter));
 		}
 		doublePanel.add(titles);
-		for (final StatTypes stat : stats) {
-			if (!stat.isDiscrete()) {
-				doublePanel.add(new Line(this, stat, parameters));
-			}
-		}
 		for (final String parameter : parameters) {
 			if (!model.models.containsKey(parameter)) {
 				model.models.put(parameter, new EnumMap<StatTypes, Model>(
@@ -749,8 +766,25 @@ public class ColourSelector extends JPanel {
 			final Map<StatTypes, Model> map = model.models.get(parameter);
 			for (final StatTypes stat : stats) {
 				if (!map.containsKey(stat)) {
-					map.put(stat, DEFAULT_MODEL);
+					final Map<StatTypes, Map<RangeType, Double>> possMap = ranges
+							.get(parameter);
+					if (possMap == null || !possMap.containsKey(stat)) {
+						map.put(stat, DEFAULT_MODEL);
+					} else {
+						final Map<RangeType, Double> rangeMap = possMap
+								.get(stat);
+						map.put(stat, new Model(rangeMap.get(RangeType.min)
+								.doubleValue(), rangeMap.get(RangeType.median),
+								rangeMap.get(RangeType.max).doubleValue(),
+								DEFAULT_MODEL.getDown(), DEFAULT_MODEL
+										.getMiddle(), DEFAULT_MODEL.getUp()));
+					}
 				}
+			}
+		}
+		for (final StatTypes stat : stats) {
+			if (!stat.isDiscrete()) {
+				doublePanel.add(new Line(this, stat, parameters));
 			}
 		}
 	}

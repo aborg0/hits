@@ -1,9 +1,11 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.RangeType;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
@@ -29,8 +31,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,10 +60,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.RowKey;
@@ -436,9 +432,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -447,20 +443,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
+													 * Collections .<ParameterModel>
+													 * emptyList()
+													 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
 					defaultParamModel, defaultParamModel, defaultParamModel),
 					Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel)/*
-					 * Collections .<ParameterModel>
-					 * emptyList()
-					 */, Arrays.asList(defaultParamModel, defaultParamModel,
+												 * Collections .<ParameterModel>
+												 * emptyList()
+												 */, Arrays.asList(defaultParamModel, defaultParamModel,
 							defaultParamModel, defaultParamModel)/*
-					 * Collections.<ParameterModel>
-					 * emptyList()
-					 */, true));
+																	 * Collections.<ParameterModel>
+																	 * emptyList()
+																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -1029,8 +1025,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				case experimentName:
 				case normalisation:
 				case metaStatType:
-				case plate:
 					controlType = ControlTypes.ComboBox;
+					splitType = SplitType.SingleSelect;
+					break;
+				case plate:
+					controlType = ControlTypes.Slider;
 					splitType = SplitType.SingleSelect;
 					break;
 				case parameter:
@@ -1055,17 +1054,147 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					throw new UnsupportedOperationException("Not supported: "
 							+ type(model));
 				}
-				controlsHandler.register(model, splitType,
-						getDefaultPosition(entry.getKey()), controlType);
+				controlsHandler
+						.register(
+								model,
+								splitType,
+								splitType == SplitType.SeconderSplit ? PositionConstants.secondary
+										.name()
+										: getDefaultPosition(entry.getKey()),
+								controlType);
 				model.addActionListener(volatileModel);
 			}
 		}
 		heatmapPanel.setModel(nodeModel);
 		colourSelector.update(nodeModel.getModelBuilder().getSpecAnalyser()
 				.getParameters(), nodeModel.getModelBuilder().getSpecAnalyser()
-				.getStatistics());
+				.getStatistics(), findRanges(nodeModel.getModelBuilder()));
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
+	}
+
+	/**
+	 * @param modelBuilder
+	 * @return
+	 */
+	private Map<String, Map<StatTypes, Map<RangeType, Double>>> findRanges(
+			final ModelBuilder modelBuilder) {
+		final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
+		final Map<String, Map<StatTypes, List<Double>>> vals = new HashMap<String, Map<StatTypes, List<Double>>>();
+		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scoresEntry : modelBuilder
+				.getScores().entrySet()) {
+			for (final Entry<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> expEntry : scoresEntry
+					.getValue().entrySet()) {
+				for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : expEntry
+						.getValue().entrySet()) {
+					for (final Entry<String, Map<StatTypes, double[]>> paramEntry : plateEntry
+							.getValue().entrySet()) {
+						if (!ret.containsKey(paramEntry.getKey())) {
+							ret
+									.put(
+											paramEntry.getKey(),
+											new EnumMap<StatTypes, Map<RangeType, Double>>(
+													StatTypes.class));
+							vals.put(paramEntry.getKey(),
+									new EnumMap<StatTypes, List<Double>>(
+											StatTypes.class));
+						}
+						for (final Entry<StatTypes, double[]> statEntry : paramEntry
+								.getValue().entrySet()) {
+							final Map<StatTypes, Map<RangeType, Double>> map = ret
+									.get(paramEntry.getKey());
+							if (!map.containsKey(statEntry.getKey())) {
+								map.put(statEntry.getKey(),
+										new EnumMap<RangeType, Double>(
+												RangeType.class));
+								vals.get(paramEntry.getKey()).put(
+										statEntry.getKey(),
+										new ArrayList<Double>());
+							}
+							final List<Double> list = vals.get(
+									paramEntry.getKey())
+									.get(statEntry.getKey());
+							for (final double val : statEntry.getValue()) {
+								if (!Double.isNaN(val)
+										&& !Double.isInfinite(val)) {
+									list.add(Double.valueOf(val));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for (final Entry<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicatesEntry : modelBuilder
+				.getReplicates().entrySet()) {
+			for (final Entry<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> expEntry : replicatesEntry
+					.getValue().entrySet()) {
+				for (final Entry<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> plateEntry : expEntry
+						.getValue().entrySet()) {
+					for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> replicateEntry : plateEntry
+							.getValue().entrySet()) {
+						for (final Entry<String, Map<StatTypes, double[]>> paramEntry : replicateEntry
+								.getValue().entrySet()) {
+
+							if (!ret.containsKey(paramEntry.getKey())) {
+								ret
+										.put(
+												paramEntry.getKey(),
+												new EnumMap<StatTypes, Map<RangeType, Double>>(
+														StatTypes.class));
+								vals.put(paramEntry.getKey(),
+										new EnumMap<StatTypes, List<Double>>(
+												StatTypes.class));
+							}
+							for (final Entry<StatTypes, double[]> statEntry : paramEntry
+									.getValue().entrySet()) {
+								final Map<StatTypes, Map<RangeType, Double>> map = ret
+										.get(paramEntry.getKey());
+								if (!map.containsKey(statEntry.getKey())) {
+									map.put(statEntry.getKey(),
+											new EnumMap<RangeType, Double>(
+													RangeType.class));
+									vals.get(paramEntry.getKey()).put(
+											statEntry.getKey(),
+											new ArrayList<Double>());
+								}
+								final List<Double> list = vals.get(
+										paramEntry.getKey()).get(
+										statEntry.getKey());
+								for (final double val : statEntry.getValue()) {
+									if (!Double.isNaN(val)
+											&& !Double.isInfinite(val)) {
+										list.add(Double.valueOf(val));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for (final Entry<String, Map<StatTypes, List<Double>>> entry : vals
+				.entrySet()) {
+			for (final Entry<StatTypes, List<Double>> subEntry : entry
+					.getValue().entrySet()) {
+				final List<Double> values = subEntry.getValue();
+				Collections.sort(values);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.min,
+						values.size() > 0 ? values.get(0) : Double.NaN);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.max,
+						values.size() > 0 ? values.get(values.size() - 1)
+								: Double.NaN);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.median,
+						values.size() > 0 ? (values.size() % 2 == 1 ? values
+								.get(values.size() / 2) : (values.get(values
+								.size() / 2) + values
+								.get(values.size() / 2 - 1)) / 2) : Double.NaN);
+			}
+		}
+		return ret;
 	}
 
 	/**
@@ -1102,24 +1231,24 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	protected void onClose() {
 		// TODO things to do when closing the view
 		if (getNodeModel().isSaveSettings()) {
-			try {
-				final JAXBContext context = JAXBContext
-						.newInstance(ViewModel.class);
-				final Marshaller marshaller = context.createMarshaller();
-				final FileOutputStream os = new FileOutputStream(new File(
-						getNodeModel().getInternDir(),
-						HeatmapNodeModel.SAVE_SETTINGS_FILE_NAME));
-				try {
-					// FIXME it is not working: no 0-arg constructor.
-					marshaller.marshal(currentViewModel, os);
-				} finally {
-					os.close();
-				}
-			} catch (final JAXBException e) {
-				logger.info("Unable to save state.", e);
-			} catch (final IOException e) {
-				logger.info("Unable to save state.", e);
-			}
+			// try {
+			// final JAXBContext context = JAXBContext
+			// .newInstance(ViewModel.class);
+			// final Marshaller marshaller = context.createMarshaller();
+			// final FileOutputStream os = new FileOutputStream(new File(
+			// getNodeModel().getInternDir(),
+			// HeatmapNodeModel.SAVE_SETTINGS_FILE_NAME));
+			// try {
+			// // FIXME it is not working: no 0-arg constructor.
+			// marshaller.marshal(currentViewModel, os);
+			// } finally {
+			// os.close();
+			// }
+			// } catch (final JAXBException e) {
+			// logger.info("Unable to save state.", e);
+			// } catch (final IOException e) {
+			// logger.info("Unable to save state.", e);
+			// }
 		}
 	}
 
@@ -1136,16 +1265,16 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		final File settingsFile = new File(getNodeModel().getInternDir(),
 				HeatmapNodeModel.SAVE_SETTINGS_FILE_NAME);
 		if (getNodeModel().isSaveSettings() && settingsFile.canRead()) {
-			try {
-				final JAXBContext context = JAXBContext
-						.newInstance(ViewModel.class);
-				final Unmarshaller unmarshaller = context.createUnmarshaller();
-				unmarshaller.setSchema(null);
-				currentViewModel = ViewModel.class.cast(unmarshaller
-						.unmarshal(settingsFile));
-			} catch (final JAXBException e) {
-				logger.info("Unable to load state.", e);
-			}
+			// try {
+			// final JAXBContext context = JAXBContext
+			// .newInstance(ViewModel.class);
+			// final Unmarshaller unmarshaller = context.createUnmarshaller();
+			// unmarshaller.setSchema(null);
+			// currentViewModel = ViewModel.class.cast(unmarshaller
+			// .unmarshal(settingsFile));
+			// } catch (final JAXBException e) {
+			// logger.info("Unable to load state.", e);
+			// }
 		}
 		modelChanged();
 	}

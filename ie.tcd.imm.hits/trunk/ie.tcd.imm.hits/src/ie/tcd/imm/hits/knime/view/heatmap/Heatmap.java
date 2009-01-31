@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,32 +236,50 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = modelBuilder
 				.getScores();
 		// ENH use BDB
-		findColourValues(Format._96, colors, scores, colourModel,
-				firstParamSlider, null, secondParamSlider, null, Arrays.asList(
-						new Pair<SliderModel, List<?>>(experimentSlider,
-								experimentPos.get(ZERO)),
+		final List<Pair<SliderModel, List<?>>> scorePairs = Arrays
+				.asList(new Pair<SliderModel, List<?>>(experimentSlider,
+						experimentPos.get(ZERO)),
 						new Pair<SliderModel, List<?>>(normalisationSlider,
 								normalisationPos.get(ZERO)),
 						new Pair<SliderModel, List<?>>(plateSlider, platePos
 								.get(ZERO)), new Pair<SliderModel, List<?>>(
 								parameterSlider, parameterPos.get(ZERO)),
 						new Pair<SliderModel, List<?>>(statSlider, statPos
-								.get(ZERO))));
+								.get(ZERO)));
+		if (secondParamSlider.equals(replicateSlider)) {
+			for (int i = replicateSlider.getSelections().size(); i-- > 0;) {
+				findColourValues(Format._96, colors, scores, colourModel,
+						firstParamSlider, null, 0, secondParamSlider, null, i,
+						scorePairs, 0);
+			}
+		} else if (firstParamSlider.equals(replicateSlider)) {
+			for (int i = replicateSlider.getSelections().size(); i-- > 0;) {
+				findColourValues(Format._96, colors, scores, colourModel,
+						firstParamSlider, null, i, secondParamSlider, null, i,
+						scorePairs, 0);
+			}
+		} else {
+			findColourValues(Format._96, colors, scores, colourModel,
+					firstParamSlider, null, 0, secondParamSlider, null, 0,
+					scorePairs, 0);
+		}
 		final Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates = modelBuilder
 				.getReplicates();
-		findColourValues(Format._96, colors, scores, colourModel,
-				firstParamSlider, null, secondParamSlider, null, Arrays.asList(
-						new Pair<SliderModel, List<?>>(experimentSlider,
-								experimentPos.get(ZERO)),
-						new Pair<SliderModel, List<?>>(normalisationSlider,
-								normalisationPos.get(ZERO)),
-						new Pair<SliderModel, List<?>>(plateSlider, platePos
-								.get(ZERO)), new Pair<SliderModel, List<?>>(
-								replicateSlider, replicatePos.get(ZERO)),
-						new Pair<SliderModel, List<?>>(parameterSlider,
-								parameterPos.get(ZERO)),
-						new Pair<SliderModel, List<?>>(statSlider, statPos
-								.get(ZERO))));
+		findColourValues(Format._96, colors, replicates, colourModel,
+				firstParamSlider, null, 0, secondParamSlider, null, 0, Arrays
+						.asList(new Pair<SliderModel, List<?>>(
+								experimentSlider, experimentPos.get(ZERO)),
+								new Pair<SliderModel, List<?>>(
+										normalisationSlider, normalisationPos
+												.get(ZERO)),
+								new Pair<SliderModel, List<?>>(plateSlider,
+										platePos.get(ZERO)),
+								new Pair<SliderModel, List<?>>(replicateSlider,
+										replicatePos.get(ZERO)),
+								new Pair<SliderModel, List<?>>(parameterSlider,
+										parameterPos.get(ZERO)),
+								new Pair<SliderModel, List<?>>(statSlider,
+										statPos.get(ZERO))), 0);
 		// exp, norm, plate, col
 		final Map<String, Map<String, Map<Integer, Color[]>>> colours = modelBuilder
 				.getColours();
@@ -294,9 +311,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		for (int i = rows * cols; i-- > 0;) {
 			final String l = InfoParser.parse(experimentPos.get(ZERO),
 					normalisationPos.get(ZERO), viewModel.getLabelPattern(), /*
-																				 * plate +
-																				 * 1
-																				 */
+					 * plate +
+					 * 1
+					 */
 					platePos.get(ZERO), i / 12, i % 12, nodeModel);
 			wells[i].setLabels(l);
 		}
@@ -313,39 +330,43 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	private void findColourValues(final Format format, final Color[][] colors,
 			final Object scores, final ColourModel colourModel,
 			final SliderModel firstParamSlider, final Integer firstSelection,
-			final SliderModel secondParamSlider, final Integer secondSelection,
-			final List<Pair<SliderModel, List<?>>> pairs) {
+			final int firstIndex, final SliderModel secondParamSlider,
+			final Integer secondSelection, final int secondIndex,
+			final List<Pair<SliderModel, List<?>>> pairs, final int pairIndex) {
 		final int firstParamCount = firstParamSlider == null ? 1
 				: firstParamSlider.getSelections().size();
 		double[] array = null;
-		if (pairs.size() > 0) {
+		if (pairs.size() > pairIndex) {
 			Map<?, ?> map = (Map<?, ?>) scores;
-			int i = 0;
-			for (final Iterator<Pair<SliderModel, List<?>>> it = pairs
-					.iterator(); it.hasNext(); ++i) {
-				final Pair<SliderModel, List<?>> pair = it.next();
+
+			for (int i = pairIndex; i < pairs.size(); ++i) {
+				final Pair<SliderModel, List<?>> pair = pairs.get(i);
 				final SliderModel sliderModel = pair.getLeft();
 				final List<?> selectedValues = pair.getRight();
 				if (map == null) {
 					return;
 				}
 				if (sliderModel == firstParamSlider) {
+					int j = 0;
 					for (final Integer selected : sliderModel.getSelections()) {
 						findColourValues(format, colors, map.get(sliderModel
 								.getValueMapping().get(selected).getRight()),
-								colourModel, firstParamSlider, selected,
-								secondParamSlider, secondSelection, pairs
-										.subList(i + 1, pairs.size()));
+								colourModel, firstParamSlider, selected, j,
+								secondParamSlider, secondSelection,
+								secondIndex, pairs, i + 1);
+						++j;
 					}
 					return;
 				}
 				if (sliderModel == secondParamSlider) {
+					int j = 0;
 					for (final Integer selected : sliderModel.getSelections()) {
 						findColourValues(format, colors, map.get(sliderModel
 								.getValueMapping().get(selected).getRight()),
 								colourModel, firstParamSlider, firstSelection,
-								secondParamSlider, selected, pairs.subList(
-										i + 1, pairs.size()));
+								firstIndex, secondParamSlider, selected, j,
+								pairs, i + 1);
+						++j;
 					}
 					return;
 				} else {
@@ -353,27 +374,60 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					final Object obj = map.get(sliderModel.getValueMapping()
 							.get(sliderModel.getSelections().iterator().next())
 							.getRight());
-					if (it.hasNext()) {
+					if (i < pairs.size() - 1) {
 						map = (Map<?, ?>) obj;
 					} else {
 						array = (double[]) obj;
 					}
 				}
 			}
-		} else
-		{
+		} else {
 			array = (double[]) scores;
 		}
-		final int fp = firstSelection == null ? 0
-				: firstSelection.intValue() - 1;
-		final int sp = secondSelection == null ? 0
-				: secondSelection.intValue() - 1;
-		final Model model = ColourSelector.DEFAULT_MODEL;// colourModel.getModel("Cell
+		SliderModel paramSlider = null;
+		SliderModel statSlider = null;
+		for (final Pair<SliderModel, List<?>> pair : pairs) {
+			switch (pair.getLeft().getParameters().get(0).getType()) {
+			case parameter:
+				paramSlider = pair.getLeft();
+				break;
+			case metaStatType:
+				statSlider = pair.getLeft();
+				break;
+			default:
+				break;
+			}
+		}
+		final Model model0 = colourModel
+				.getModel(
+						(String) (paramSlider.getSelections().size() == 1 ? paramSlider
+								.getValueMapping().get(
+										paramSlider.getSelections().iterator()
+												.next()).getRight()
+								: firstParamSlider == paramSlider ? firstParamSlider
+										.getValueMapping().get(firstSelection)
+										.getRight()
+										: secondParamSlider.getValueMapping()
+												.get(secondSelection)
+												.getRight()),
+						(StatTypes) (statSlider.getSelections().size() == 1 ? statSlider
+								.getValueMapping().get(
+										statSlider.getSelections().iterator()
+												.next()).getRight()
+								: firstParamSlider == statSlider ? firstParamSlider
+										.getValueMapping().get(firstSelection)
+										.getRight()
+										: secondParamSlider.getValueMapping()
+												.get(secondSelection)
+												.getRight()));// ColourSelector.DEFAULT_MODEL;//
+		// colourModel.getModel("Cell
 		// Elongation",
 		// StatTypes.score);
+		final Model model = model0 == null ? ColourSelector.DEFAULT_MODEL
+				: model0;
 		if (array != null) {
 			for (int p = format.getCol() * format.getRow(); p-- > 0;) {
-				colors[p][sp * firstParamCount + fp] = VisualUtils
+				colors[p][secondIndex * firstParamCount + firstIndex] = VisualUtils
 						.colourOf(array[p], model.getDown(), model
 								.getMiddleVal() == null ? null : model
 								.getMiddle(), model.getUp(),
