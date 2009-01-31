@@ -691,11 +691,11 @@ public class ControlsHandlerKNIMEFactory implements
 			}
 			break;
 		case SeconderSplit:
-			secondaryParams.add(firstSlider.getParameters().iterator().next());
+			secondaryParams.add(secondSlider.getParameters().iterator().next());
 			switch (secondPos.getLeft()) {
 			case PrimarySplit:
-				primaryParams.add(secondSlider.getParameters().iterator()
-						.next());
+				primaryParams
+						.add(firstSlider.getParameters().iterator().next());
 				break;
 			case SingleSelect:
 				primaryParams.addAll(arrangement.getPrimerParameters());
@@ -716,9 +716,9 @@ public class ControlsHandlerKNIMEFactory implements
 					+ firstPos.getLeft());
 		}
 		deregister(firstSlider);
+		deregister(secondSlider);
 		register(firstSlider, secondPos.getLeft(), secondPos.getRight(), second
 				.getType());
-		deregister(secondSlider);
 		register(secondSlider, firstPos.getLeft(), firstPos.getRight(), first
 				.getType());
 		// final Map<Type, SliderModel> newArrangement = new HashMap<Type,
