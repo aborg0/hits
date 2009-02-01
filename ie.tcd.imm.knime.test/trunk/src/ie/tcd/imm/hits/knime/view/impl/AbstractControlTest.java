@@ -109,7 +109,7 @@ public abstract class AbstractControlTest {
 			p.add(panel);
 		}
 		window = new FrameFixture(robot, frame);
-		frame.setSize(120, 100);
+		frame.setSize(200, 200);
 		frame.setVisible(true);
 		window.focus();
 	}

@@ -57,7 +57,7 @@ public class ControlTests extends AbstractControlTest {
 				.toggleButton(VALUE_2);
 		toggleButtonXY.requireEnabled();
 		toggleButtonXY.requireSelected();
-		window.toggleButton(VALUE_2).click();
+		toggleButtonXY.click();
 		Assert.assertEquals(slider2.getSelections(), Collections
 				.singleton(Integer.valueOf(1)));
 		window.toggleButton(VALUE_1).click();
