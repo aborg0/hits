@@ -685,6 +685,8 @@ public class ControlsHandlerKNIMEFactory implements
 				break;
 			case SingleSelect:
 				secondaryParams.addAll(arrangement.getSeconderParameters());
+				firstSlider.selectSingle(firstSlider.getSelections().iterator()
+						.next());
 				break;
 			default:
 				break;
@@ -699,6 +701,8 @@ public class ControlsHandlerKNIMEFactory implements
 				break;
 			case SingleSelect:
 				primaryParams.addAll(arrangement.getPrimerParameters());
+				firstSlider.selectSingle(firstSlider.getSelections().iterator()
+						.next());
 				break;
 			default:
 				break;
@@ -715,6 +719,15 @@ public class ControlsHandlerKNIMEFactory implements
 			throw new UnsupportedOperationException("Not supported type: "
 					+ firstPos.getLeft());
 		}
+		final List<ParameterModel> newAdditionalParams = new ArrayList<ParameterModel>();
+		final ShapeModel shapeModel = new ShapeModel(arrangement
+				.getArrangementModel(), primaryParams, secondaryParams,
+				newAdditionalParams, arrangement.isDrawBorder(), arrangement
+						.isDrawPrimaryBorders(), arrangement
+						.isDrawSecondaryBorders(), arrangement
+						.isDrawAdditionalBorders());
+		arrangement = shapeModel;
+		notifyChangeListeners(new ArrangementEvent(this, shapeModel));
 		deregister(firstSlider);
 		deregister(secondSlider);
 		register(firstSlider, secondPos.getLeft(), secondPos.getRight(), second
@@ -724,14 +737,6 @@ public class ControlsHandlerKNIMEFactory implements
 		// final Map<Type, SliderModel> newArrangement = new HashMap<Type,
 		// SliderModel>();
 		// final ArrangementModel newArrModel = new ArrangementModel();
-		final List<ParameterModel> newAdditionalParams = new ArrayList<ParameterModel>();
-		final ShapeModel shapeModel = new ShapeModel(arrangement
-				.getArrangementModel(), primaryParams, secondaryParams,
-				newAdditionalParams, arrangement.isDrawBorder(), arrangement
-						.isDrawPrimaryBorders(), arrangement
-						.isDrawSecondaryBorders(), arrangement
-						.isDrawAdditionalBorders());
-		notifyChangeListeners(new ArrangementEvent(this, shapeModel));
 		return true;
 	}
 
