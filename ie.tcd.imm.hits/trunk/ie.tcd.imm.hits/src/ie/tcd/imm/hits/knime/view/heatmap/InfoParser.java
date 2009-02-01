@@ -234,100 +234,197 @@ public class InfoParser {
 					final StatTypes statTypes = StatTypes.valueOf(code);
 					final List<String> parameters = new ArrayList<String>();
 					if (statTypes.isUseReplicates()) {
-						final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicates = model
-								.getModelBuilder().getReplicates().get(
-										experiments.get(0)).get(
-										normalisations.get(0)).get(
-										Integer.valueOf(plates.get(0)));// FIXME
-						if (replicates != null) {
-							for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> replEntry : replicates
-									.entrySet()) {
-								final Integer replicate = replEntry.getKey();
-								final Map<String, Map<StatTypes, double[]>> paramMap = replEntry
-										.getValue();
-								if (paramMap != null) {
-									if (parameters.isEmpty()) {
-										parameters.addAll(paramMap.keySet());
-										if (additionalParams == null) {
-											sb.append("<th>");
-											for (final String string : parameters) {
-												sb.append("<td>")
-														.append(string).append(
-																"</td>");
-											}
-											sb.append("</th>\n");
-										}
-									}
-									if (additionalParams == null) {
-										sb.append("<tr><td>").append(replicate)
-												.append("</td>");
-									}
-									// TODO else
-									for (final String parameter : parameters) {
+						for (final String experiment : experiments) {
+							for (final String normalisation : normalisations) {
+								for (final Integer plate : plates) {
 
-										final Map<StatTypes, double[]> stats = paramMap
-												.get(parameter);
-										if (stats != null) {
-											final double[] ds = stats
-													.get(statTypes);
-											if (additionalParams == null) {
-												sb.append("<td>").append(
-														ds[row * 12 + col])
-														.append("</td>");
+									final Map<Integer, Map<String, Map<StatTypes, double[]>>> replicates = model
+											.getModelBuilder().getReplicates()
+											.get(experiment).get(normalisation)
+											.get(plate);
+									if (replicates != null) {
+										for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> replEntry : replicates
+												.entrySet()) {
+											final Integer replicate = replEntry
+													.getKey();
+											final Map<String, Map<StatTypes, double[]>> paramMap = replEntry
+													.getValue();
+											if (paramMap != null) {
+												if (parameters.isEmpty()) {
+													parameters.addAll(paramMap
+															.keySet());
+													if (additionalParams == null) {
+														sb.append("<th>");
+														for (final String string : parameters) {
+															sb
+																	.append(
+																			"<td>")
+																	.append(
+																			string)
+																	.append(
+																			"</td>");
+														}
+														if (experiments.size() > 1) {
+															sb
+																	.append(
+																			"<td>")
+																	.append(
+																			"experiment")
+																	.append(
+																			"</td>");
+														}
+														if (normalisations
+																.size() > 1) {
+															sb
+																	.append(
+																			"<td>")
+																	.append(
+																			"normalisation")
+																	.append(
+																			"</td>");
+														}
+														if (plates.size() > 1) {
+															sb
+																	.append(
+																			"<td>")
+																	.append(
+																			"plate")
+																	.append(
+																			"</td>");
+														}
+														sb.append("</th>\n");
+													}
+												}
+												if (additionalParams == null) {
+													sb.append("<tr><td>")
+															.append(replicate)
+															.append("</td>");
+												}
+												// TODO else
+												for (final String parameter : parameters) {
+
+													final Map<StatTypes, double[]> stats = paramMap
+															.get(parameter);
+													if (stats != null) {
+														final double[] ds = stats
+																.get(statTypes);
+														if (additionalParams == null) {
+															sb
+																	.append(
+																			"<td>")
+																	.append(
+																			ds[row
+																					* 12
+																					+ col])
+																	.append(
+																			"</td>");
+														}
+														// TODO else handle
+														// additionalParams
+													}
+												}
+												if (experiments.size() > 1) {
+													sb.append("<td>").append(
+															experiment).append(
+															"</td>");
+												}
+												if (normalisations.size() > 1) {
+													sb.append("<td>").append(
+															normalisation)
+															.append("</td>");
+												}
+												if (plates.size() > 1) {
+													sb.append("<td>").append(
+															plate).append(
+															"</td>");
+												}
+												if (additionalParams == null) {
+													sb.append("</tr>\n");
+												}
+												// TODO else
 											}
-											// TODO else handle additionalParams
 										}
 									}
-									if (additionalParams == null) {
-										sb.append("</tr>\n");
-									}
-									// TODO else
 								}
 							}
-
 						}
 					} else// Does not depend on replicates
 					{
-						final Map<String, Map<StatTypes, double[]>> map = model
-								.getModelBuilder().getScores().get(
-										experiments.get(0)).get(
-										normalisations.get(0)).get(
-										Integer.valueOf(plates.get(0)));// FIXME
-						if (map != null) {
-							if (parameters.isEmpty()) {
-								parameters.addAll(map.keySet());
-								if (additionalParams == null) {
-									sb.append("<th>");
-									for (final String param : parameters) {
-										sb.append("<td>");
-										sb.append(param);
-										sb.append("</td>");
+						for (final String experiment : experiments) {
+							for (final String normalisation : normalisations) {
+								for (final Integer plate : plates) {
+									final Map<String, Map<StatTypes, double[]>> map = model
+											.getModelBuilder().getScores().get(
+													experiment).get(
+													normalisation).get(plate);// FIXME
+									if (map != null) {
+										if (parameters.isEmpty()) {
+											parameters.addAll(map.keySet());
+											if (additionalParams == null) {
+												sb.append("<th>");
+												for (final String param : parameters) {
+													sb.append("<td>");
+													sb.append(param);
+													sb.append("</td>");
+												}
+												if (experiments.size() > 1) {
+													sb.append("<td>").append(
+															"experiment")
+															.append("</td>");
+												}
+												if (normalisations.size() > 1) {
+													sb.append("<td>").append(
+															"normalisation")
+															.append("</td>");
+												}
+												if (plates.size() > 1) {
+													sb.append("<td>").append(
+															"plate").append(
+															"</td>");
+												}
+												sb.append("</th>\n");
+											}
+										}
+										if (additionalParams == null) {
+											sb.append("<tr><td></td>");
+										}
+										for (final String param : parameters) {
+											final Map<StatTypes, double[]> stats = map
+													.get(param);
+											if (stats != null) {
+												final double[] values = stats
+														.get(statTypes);
+												if (additionalParams == null) {
+													sb.append("<td>").append(
+															values[row * 12
+																	+ col])
+															.append("</td>");
+												}
+											} else {
+												if (additionalParams == null) {
+													sb.append("<td></td>");
+												}
+											}
+										}
+										if (experiments.size() > 1) {
+											sb.append("<td>")
+													.append(experiment).append(
+															"</td>");
+										}
+										if (normalisations.size() > 1) {
+											sb.append("<td>").append(
+													normalisation).append(
+													"</td>");
+										}
+										if (plates.size() > 1) {
+											sb.append("<td>").append(plate)
+													.append("</td>");
+										}
+										if (additionalParams == null) {
+											sb.append("</tr>\n");
+										}
 									}
-									sb.append("</th>\n");
 								}
-							}
-							if (additionalParams == null) {
-								sb.append("<tr><td></td>");
-							}
-							for (final String param : parameters) {
-								final Map<StatTypes, double[]> stats = map
-										.get(param);
-								if (stats != null) {
-									final double[] values = stats
-											.get(statTypes);
-									if (additionalParams == null) {
-										sb.append("<td>").append(
-												values[row * 12 + col]).append(
-												"</td>");
-									}
-								} else {
-									if (additionalParams == null) {
-										sb.append("<td></td>");
-									}
-								}
-							}
-							if (additionalParams == null) {
-								sb.append("</tr>\n");
 							}
 						}
 					}

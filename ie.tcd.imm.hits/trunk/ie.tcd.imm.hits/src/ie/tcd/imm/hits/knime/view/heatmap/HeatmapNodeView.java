@@ -33,7 +33,6 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -439,24 +438,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
 					.<ParameterModel> emptyList(), true));
-	private final ViewModel currentViewModel_orig = new ViewModel(Format._96,
-			Shape.Circle, new ViewModel.OverviewModel(Collections
-					.<ParameterModel> emptyList(), Collections
-					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
-			new ViewModel.ShapeModel(new ArrangementModel(), Arrays.asList(
-					defaultParamModel, defaultParamModel, defaultParamModel),
-					Arrays.asList(defaultParamModel, defaultParamModel,
-							defaultParamModel)/*
-												 * Collections .<ParameterModel>
-												 * emptyList()
-												 */, Arrays.asList(defaultParamModel, defaultParamModel,
-							defaultParamModel, defaultParamModel)/*
-																	 * Collections.<ParameterModel>
-																	 * emptyList()
-																	 */, true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -977,6 +958,15 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					final ArrangementEvent event = (ArrangementEvent) e;
 					setCurrentViewModel(new ViewModel(getCurrentViewModel(),
 							event.getNewArrangement()));
+					for (final EnumMap<Shape, ViewModel> shapes : possibleViewModels
+							.values()) {
+						for (final Entry<Shape, ViewModel> shapeEntry : shapes
+								.entrySet()) {
+							shapeEntry.setValue(new ViewModel(shapeEntry
+									.getValue(), event.getNewArrangement()));
+						}
+
+					}
 				}
 			}
 		};
