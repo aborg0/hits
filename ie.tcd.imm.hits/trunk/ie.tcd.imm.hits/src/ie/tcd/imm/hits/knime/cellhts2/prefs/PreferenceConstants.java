@@ -1,5 +1,7 @@
 package ie.tcd.imm.hits.knime.cellhts2.prefs;
 
+import ie.tcd.imm.hits.util.Displayable;
+
 /**
  * Constant definitions for plug-in preferences
  */

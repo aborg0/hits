@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs.ui;
 
-import ie.tcd.imm.hits.knime.cellhts2.prefs.Displayable;
+import ie.tcd.imm.hits.util.Displayable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

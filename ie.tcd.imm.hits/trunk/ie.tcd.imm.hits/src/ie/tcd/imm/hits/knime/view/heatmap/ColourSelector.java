@@ -3,6 +3,9 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import ie.tcd.imm.hits.knime.util.VisualUtils;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceConstants;
+import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
+import ie.tcd.imm.hits.util.Displayable;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,19 +53,35 @@ public class ColourSelector extends JPanel {
 	/**
 	 * The possible ranges of an interval.
 	 */
-	static enum RangeType {
+	public static enum RangeType implements Displayable {
 		/** The minimum value. */
-		min,
+		min("Minimum"),
 		/** The maximum value */
-		max,
+		max("Maximum"),
 		/** The median value */
-		median,
+		median("Median"),
 		/** The mean/average value */
-		average,
+		average("Average or Mean"),
 		/** The standard deviation value */
-		stdev,
+		stdev("Standard Deviation"),
 		/** The median absolute deviation value */
-		mad;
+		mad("Median Absolute Deviation");
+
+		private final String displayText;
+
+		private RangeType(final String displayText) {
+			this.displayText = displayText;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ie.tcd.imm.hits.util.Displayable#getDisplayText()
+		 */
+		@Override
+		public String getDisplayText() {
+			return displayText;
+		}
 	}
 
 	/** The default {@link Model} for real valued parameters. */
@@ -752,6 +771,9 @@ public class ColourSelector extends JPanel {
 		doublePanel.removeAll();
 		final JPanel titles = new JPanel();
 		titles.setLayout(new GridLayout(1, 0));
+		final Color defaultLowColor = getColour(ColourPreferenceConstants.DOWN_COLOUR);// DEFAULT_MODEL.getDown();
+		final Color defaultMiddleColor = getColour(ColourPreferenceConstants.MIDDLE_COLOUR);// DEFAULT_MODEL.getMiddle();
+		final Color defaultHighColor = getColour(ColourPreferenceConstants.UP_COLOUR);// DEFAULT_MODEL.getUp();
 		titles.add(new JLabel("Statistics"));
 		titles.add(new JLabel(""));
 		for (final String parameter : parameters) {
@@ -773,11 +795,35 @@ public class ColourSelector extends JPanel {
 					} else {
 						final Map<RangeType, Double> rangeMap = possMap
 								.get(stat);
-						map.put(stat, new Model(rangeMap.get(RangeType.min)
-								.doubleValue(), rangeMap.get(RangeType.median),
-								rangeMap.get(RangeType.max).doubleValue(),
-								DEFAULT_MODEL.getDown(), DEFAULT_MODEL
-										.getMiddle(), DEFAULT_MODEL.getUp()));
+						final double defaultLowValue = rangeMap
+								.get(
+										RangeType
+												.valueOf(ImporterNodePlugin
+														.getDefault()
+														.getPreferenceStore()
+														.getString(
+																ColourPreferenceConstants.DOWN_VALUE)))
+								.doubleValue();
+						final Double defaultMiddleValue = rangeMap
+								.get(RangeType
+										.valueOf(ImporterNodePlugin
+												.getDefault()
+												.getPreferenceStore()
+												.getString(
+														ColourPreferenceConstants.MIDDLE_VALUE)));
+						final double defaultHighValue = rangeMap
+								.get(
+										RangeType
+												.valueOf(ImporterNodePlugin
+														.getDefault()
+														.getPreferenceStore()
+														.getString(
+																ColourPreferenceConstants.UP_VALUE)))
+								.doubleValue();
+						map.put(stat, new Model(defaultLowValue,
+								defaultMiddleValue, defaultHighValue,
+								defaultLowColor, defaultMiddleColor,
+								defaultHighColor));
 					}
 				}
 			}
@@ -787,6 +833,23 @@ public class ColourSelector extends JPanel {
 				doublePanel.add(new Line(this, stat, parameters));
 			}
 		}
+	}
+
+	/**
+	 * @param upColour
+	 * @return
+	 */
+	private Color getColour(final String key) {
+		final String rgbString = ImporterNodePlugin.getDefault()
+				.getPreferenceStore().getString(key);
+		final int r = Integer.parseInt(rgbString.substring(0, rgbString
+				.indexOf(',')));
+		final int g = Integer.parseInt(rgbString.substring(rgbString
+				.indexOf(',') + 1, rgbString.lastIndexOf(',')));
+		final int b = Integer.parseInt(rgbString.substring(rgbString
+				.lastIndexOf(',') + 1));
+		final float[] hsb = Color.RGBtoHSB(r, g, b, null);
+		return Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
 	}
 
 	/**

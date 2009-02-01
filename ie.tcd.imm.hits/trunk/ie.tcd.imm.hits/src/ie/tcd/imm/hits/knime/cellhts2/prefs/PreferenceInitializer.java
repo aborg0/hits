@@ -8,6 +8,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
  * Class used to initialize default preference values.
+ * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
