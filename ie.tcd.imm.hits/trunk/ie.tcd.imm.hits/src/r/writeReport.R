@@ -44,8 +44,21 @@ writeHTMLtable = function(x, url, con,
   for(i in 1:nr)
 #     cat("<TR>", paste(sprintf("<TD BGCOLOR=\"%s\" align=center>%s</TD>", colors[2*(i%%2)+(1:nc)%%2+1], x[i,]), collapse=""),
 #         "</TR>\n", sep="", file=con)
-    cat("<TR>", paste(sprintf("<TD BGCOLOR=\"%s\">%s</TD>", colors[2*(i%%2)+(1)%%2+1], x[i,1]), collapse=""), paste(sprintf("<TD BGCOLOR=\"%s\" align=center>%s</TD>", colors[2*(i%%2)+(2:nc)%%2+1], x[i,-1]), collapse=""),
+	if (is.null(extra))
+	{
+		cat("<TR>",
+			paste(sprintf("<TD BGCOLOR=\"%s\">%s</TD>", colors[2*(i%%2)+(1)%%2+1], x[i,1]), collapse=""),
+			paste(sprintf("<TD BGCOLOR=\"%s\" align=center>%s</TD>", colors[2*(i%%2)+(2:nc)%%2+1], x[i,-1]), collapse=""),
         "</TR>\n", sep="", file=con)
+	} else
+	{
+		cat("<TR>", paste(sprintf("<TD BGCOLOR=\"%s\">%s</TD>", colors[2*(i%%2)+(1)%%2+1], x[i,1]), collapse=""), sep="", file=con)
+		for (j in 1:(nc-1))
+		{
+			cat(sprintf("<TD BGCOLOR=\"%s\" align=center>%s</TD>", colors[2*(i%%2)+(j)%%2+1], x[i,-1][[j]]), file=con)
+		}
+		cat("<TR>\n", file=con)
+	}
 
   cat("</TABLE>\n", file=con)
   if(center) cat("</CENTER>\n", file=con)

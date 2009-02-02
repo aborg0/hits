@@ -139,14 +139,12 @@ QMbyPlate <- function(platedat, pdim, name, basePath, subPath, genAnno, mt,
     }
    qm = rbind(qm, data.frame(metric=I("Repeatability standard deviation"), value=cc1, comment=I(comm)))
    qm = rbind(qm, data.frame(metric=I(sprintf("Spearman rank correlation %s", ifelse(maxRep==2,"","(min - max)"))), value=cc2, comment=I(comm)))
-
+   
    if (exists("qmplate")) qmplate <- cbind(qmplate, value=qm$value, comment=qm$comment) else qmplate = qm
-
     ## store data in qmsummary 
     qmsummary[[ch]] = qm$value
     names(qmsummary[[sprintf("Channel %d", ch)]]) = qm$metric 
   } # for ch 
-
   qmplate[is.na(qmplate)] <- I("--")
   writeHTMLtable(qmplate, con=con, center=TRUE, extra=channels)
 
@@ -301,8 +299,6 @@ QMbyPlate <- function(platedat, pdim, name, basePath, subPath, genAnno, mt,
  
     } else {## if nrRep
       plotTable[count + 1, ch+1] = sprintf("<CENTER>%d replicate(s): scatterplot omitted</CENTER>\n", nrRep)
-#	    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#		print(platedat[,,whHasData[[ch]][i],ch])
 	  tableOfPlots = "<!--Something starts here, the JS diagrams.-->";
 	  #matrixOfData = matrix(ncol = nrRep, nrow=nrRep)
 	  for (i in 1:nrRep)
@@ -312,7 +308,6 @@ QMbyPlate <- function(platedat, pdim, name, basePath, subPath, genAnno, mt,
 		  {
 			  #matrixOfData[i][j] = 
 			  dataString = paste("var d = [",  paste("[", platedat[,,whHasData[[ch]][i],ch], ", ", platedat[,,whHasData[[ch]][j],ch], "]", sep="", collapse=","), "];\n", sep="")
-#			  print(dataString)
 			  tableOfPlots = paste(tableOfPlots,
 				"<td><script id=\"source\" language=\"javascript\" type=\"text/javascript\">\n$(function () {", dataString,
 			  "$.plot($(\"#placeholder\"), [\n        {\n            data: d,\n            points: { show: true}\n        },", "});\n</script></td>", sep="")
