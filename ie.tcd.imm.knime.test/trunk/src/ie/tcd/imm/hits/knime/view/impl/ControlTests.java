@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
+import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
@@ -43,9 +44,11 @@ public class ControlTests extends AbstractControlTest {
 	@GUITest
 	public void buttons() {
 		final JPanel view1 = (JPanel) controlsHandler.getComponent(slider1,
-				ControlTypes.Buttons).getView();
+				ControlTypes.Buttons, SelectionType.MultipleAtLeastOne)
+				.getView();
 		final JPanel view2 = (JPanel) controlsHandler.getComponent(slider2,
-				ControlTypes.Buttons).getView();
+				ControlTypes.Buttons, SelectionType.MultipleAtLeastOne)
+				.getView();
 		addViews(view1, view2);
 
 		final JToggleButtonFixture toggleButton0 = window.toggleButton(VALUE_0);
@@ -80,10 +83,11 @@ public class ControlTests extends AbstractControlTest {
 	@GUITest
 	public void list() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
-				.getComponent(slider1, ControlTypes.List);
+				.getComponent(slider1, ControlTypes.List,
+						SelectionType.MultipleAtLeastOne);
 		final JPanel view1 = (JPanel) component0.getView();
 		final VariableControl<?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.List);
+				slider2, ControlTypes.List, SelectionType.MultipleAtLeastOne);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JListFixture list = window.list(ControlsHandlerKNIMEFactory
@@ -100,10 +104,11 @@ public class ControlTests extends AbstractControlTest {
 	@GUITest
 	public void comboBox() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
-				.getComponent(slider1, ControlTypes.ComboBox);
+				.getComponent(slider1, ControlTypes.ComboBox,
+						SelectionType.Single);
 		final JPanel view1 = (JPanel) component0.getView();
 		final VariableControl<?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.ComboBox);
+				slider2, ControlTypes.ComboBox, SelectionType.Single);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JComboBoxFixture comboBox = window
@@ -120,10 +125,11 @@ public class ControlTests extends AbstractControlTest {
 	@GUITest
 	public void slider() {
 		final VariableControl<? extends SettingsModel> component0 = controlsHandler
-				.getComponent(slider1, ControlTypes.Slider);
+				.getComponent(slider1, ControlTypes.Slider,
+						SelectionType.Single);
 		final JPanel view1 = (JPanel) component0.getView();
 		final VariableControl<?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.Slider);
+				slider2, ControlTypes.Slider, SelectionType.Single);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JSliderFixture slider = window.slider(ControlsHandlerKNIMEFactory
