@@ -22,6 +22,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -897,17 +900,31 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				volatileModel);
 		upperSplit.setTopComponent(heatmapPanel);
 		legendPanel = new LegendPanel(false, getCurrentViewModel());
-		legendPanel.setPreferredSize(new Dimension(200, 200));
+		legendPanel.setPreferredSize(new Dimension(250, 250));
+		legendPanel.setMinimumSize(new Dimension(200, 200));
 		showColorsLegend.addActionListener(legendPanel);
 		showTooltipsLegend.addActionListener(legendPanel);
-		upperSplit.setBottomComponent(legendPanel);
+		final GridBagLayout gridBagLayout = new GridBagLayout();
+		final JPanel rightPanel = new JPanel(gridBagLayout);
+		rightPanel.add(legendPanel);
+		final GridBagConstraints legendConstraint = new GridBagConstraints();
+		legendConstraint.gridy = 0;
+		legendConstraint.gridheight = 4;
+		final JScrollPane scrollPane = new JScrollPane(rightPanel);
+		scrollPane.getViewport().setPreferredSize(new Dimension(250, 600));
+		gridBagLayout.addLayoutComponent(legendPanel, legendConstraint);
+		// scrollPane.setPreferredSize(new Dimension(250, 800));
+		upperSplit.setBottomComponent(scrollPane);
 		upperSplit.setOneTouchExpandable(true);
-		heatmapPanel.setPreferredSize(new Dimension(600, 400));
+		// heatmapPanel.setPreferredSize(new Dimension(600, 800));
 		final JTabbedPane bottomTabs = new JTabbedPane();
 		mainSplit.setBottomComponent(bottomTabs);
 		settingsPanel = new SettingsPanel();
-		bottomTabs.setPreferredSize(new Dimension(600, 200));
-		bottomTabs.add("Controls", new JScrollPane(controlPanel));
+		// bottomTabs.setPreferredSize(new Dimension(600, 200));
+		final JScrollPane controlScrollPane = new JScrollPane(controlPanel);
+		// controlScrollPane.getViewport().setPreferredSize(
+		// new Dimension(controlScrollPane.getPreferredSize().width, 200));
+		bottomTabs.add("Controls", controlScrollPane);
 		final ViewModel[] models = new ViewModel[Shape.values().length
 				* Format.values().length];
 		{
@@ -951,6 +968,29 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		setCurrentViewModel(currentViewModel);
 		controlsHandler.setContainer(heatmapPanel.controlPanel,
 				SplitType.SingleSelect, PositionConstants.upper.name());
+		final JPanel rightPrim = new JPanel(new FlowLayout());
+		final JPanel rightSec = new JPanel(new FlowLayout());
+		final JPanel rightOther = new JPanel();
+		rightOther.setLayout(new GridLayout(0, 1));
+		rightPanel.add(rightPrim);
+		final GridBagConstraints primConstaints = new GridBagConstraints();
+		primConstaints.gridy = 4;
+		gridBagLayout.addLayoutComponent(rightPrim, primConstaints);
+		rightPanel.add(rightSec);
+		final GridBagConstraints secContstraints = new GridBagConstraints();
+		secContstraints.gridy = 5;
+		gridBagLayout.addLayoutComponent(rightSec, secContstraints);
+		final GridBagConstraints otherContraints = new GridBagConstraints();
+		otherContraints.gridy = 6;
+		rightPanel.add(rightOther);
+		gridBagLayout.addLayoutComponent(rightOther, otherContraints);
+
+		controlsHandler.setContainer(rightPrim, SplitType.PrimarySplit,
+				PositionConstants.sidebarPrimary.name());
+		controlsHandler.setContainer(rightSec, SplitType.SeconderSplit,
+				PositionConstants.sidebarSecondary.name());
+		controlsHandler.setContainer(rightOther, SplitType.SingleSelect,
+				PositionConstants.sidebarOther.name());
 		changeListenerForControlsHandler = new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
@@ -970,7 +1010,14 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 		};
+		// rightPanel.setPreferredSize(new Dimension(200, 800));
+		// heatmapPanel.setPreferredSize(new Dimension(heatmapPanel
+		// .getPreferredSize().width, 800));
+		// upperSplit.setPreferredSize(new Dimension(
+		// upperSplit.getPreferredSize().width, 800));
 		controlsHandler.addChangeListener(changeListenerForControlsHandler);
+		mainSplit.setDividerLocation(500);
+		upperSplit.setDividerLocation(650);
 	}
 
 	/**
@@ -1024,7 +1071,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					break;
 				case parameter:
 					splitType = SplitType.PrimarySplit;
-					controlType = ControlTypes.Buttons;
+					controlType = ControlTypes.List;
 					break;
 				case replicate:
 					splitType = SplitType.SeconderSplit;
@@ -1048,7 +1095,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						.register(
 								model,
 								splitType,
-								splitType == SplitType.SeconderSplit ? PositionConstants.secondary
+								splitType == SplitType.SeconderSplit ? PositionConstants.sidebarSecondary
 										.name()
 										: getDefaultPosition(entry.getKey()),
 								controlType);
@@ -1203,11 +1250,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	private String getDefaultPosition(final Type type) {
 		switch (type) {
 		case Hidden:
-			return PositionConstants.control.name();
+			return PositionConstants.sidebarOther.name();
 		case Selector:
 			return PositionConstants.upper.name();
 		case Splitter:
-			return PositionConstants.primary.name();
+			return PositionConstants.sidebarPrimary.name();
 		default:
 			throw new UnsupportedOperationException("Not supported type: "
 					+ type);
