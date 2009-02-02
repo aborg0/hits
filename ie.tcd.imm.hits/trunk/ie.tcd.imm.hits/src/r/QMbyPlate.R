@@ -269,7 +269,7 @@ QMbyPlate <- function(platedat, pdim, name, basePath, subPath, genAnno, mt,
   cat("<BR>\n", file=con)
 
   plotTable <- data.frame(matrix(data = NA, nrow = 0, ncol = nrChannel + 1))
-  names(plotTable) = c("", paste("Channel", 1:nrChannel, sep=" "))
+  names(plotTable) = c("", channels)
 
   plsiz = 4
   for (ch in 1:nrChannel) {
