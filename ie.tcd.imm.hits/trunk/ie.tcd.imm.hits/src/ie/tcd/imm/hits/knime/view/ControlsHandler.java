@@ -3,6 +3,7 @@ package ie.tcd.imm.hits.knime.view;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
@@ -35,11 +36,15 @@ public interface ControlsHandler<ModelType> {
 	 *            The slider which the control belongs to.
 	 * @param controlType
 	 *            The type of the control.
+	 * @param selectionType
+	 *            The {@link SelectionType} for the returned
+	 *            {@link VariableControl}.
 	 * @return The associated component in the proper form.
 	 */
 	@Deprecated
 	public VariableControl<? extends ModelType> getComponent(
-			SliderModel slider, ControlTypes controlType);
+			final SliderModel slider, final ControlTypes controlType,
+			final SelectionType selectionType);
 
 	/**
 	 * Registers the {@link VariableControl} associated to {@code model} to the
@@ -75,8 +80,10 @@ public interface ControlsHandler<ModelType> {
 	 * @see #deregister(SliderModel)
 	 * @see #setContainer(JComponent, SplitType, String)
 	 */
-	public boolean register(SliderModel model, SplitType splitType, @Nullable
-	String nameOfContainer, ControlTypes preferredControlType);
+	public boolean register(final SliderModel model, final SplitType splitType,
+			@Nullable
+			final String nameOfContainer,
+			final ControlTypes preferredControlType);
 
 	/**
 	 * Removes all {@link VariableControl}s associated to the {@code model}.

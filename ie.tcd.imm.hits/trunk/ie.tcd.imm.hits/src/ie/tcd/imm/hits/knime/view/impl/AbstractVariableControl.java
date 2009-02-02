@@ -182,13 +182,13 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((controlHandler == null) ? 0 : controlHandler.hashCode());
-		result = prime * result + ((panel == null) ? 0 : panel.hashCode());
-		result = prime * result
-				+ ((selectionType == null) ? 0 : selectionType.hashCode());
+		// final int prime = 31;
+		final int result = 1;
+		// result = prime * result
+		// + ((controlHandler == null) ? 0 : controlHandler.hashCode());
+		// result = prime * result + ((panel == null) ? 0 : panel.hashCode());
+		// result = prime * result
+		// + ((selectionType == null) ? 0 : selectionType.hashCode());
 		return result;
 	}
 

@@ -29,8 +29,18 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	private final boolean isSelectable;
 	private ViewModel model;
 	private final Color[] sampleColors = new Color[] {
-			Color.BLUE/* new Color(30, 30, 255, 70) */, Color.GREEN,
-			Color.RED, Color.ORANGE, Color.PINK, Color.CYAN, Color.MAGENTA };
+			// Color.BLUE/* new Color(30, 30, 255, 70) */, Color.GREEN,
+			/*
+			 * Color.RED, Color.ORANGE, Color.PINK, Color.CYAN, Color.MAGENTA
+			 * Color.LIGHT_GRAY, Color.YELLOW
+			 */
+			Color.getHSBColor(0.2f, 0.7f, .95f),
+			Color.getHSBColor(0.2f, 0.7f, .9f),
+			Color.getHSBColor(0.2f, 0.7f, .85f),
+			Color.getHSBColor(0.2f, 0.7f, .8f),
+			Color.getHSBColor(0.2f, 0.7f, .75f),
+			Color.getHSBColor(0.2f, 0.7f, .7f),
+			Color.getHSBColor(0.2f, 0.7f, .65f) };
 	private final Color borderColor = Color.BLACK;
 	private Color[] colors;
 	private String[] labels;
