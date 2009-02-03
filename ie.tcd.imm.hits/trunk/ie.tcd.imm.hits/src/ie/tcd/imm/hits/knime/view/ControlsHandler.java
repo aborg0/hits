@@ -39,12 +39,14 @@ public interface ControlsHandler<ModelType> {
 	 * @param selectionType
 	 *            The {@link SelectionType} for the returned
 	 *            {@link VariableControl}.
+	 * @param splitType
+	 *            The split behaviour. Necessary for the correct popup menu.
 	 * @return The associated component in the proper form.
 	 */
 	@Deprecated
 	public VariableControl<? extends ModelType> getComponent(
 			final SliderModel slider, final ControlTypes controlType,
-			final SelectionType selectionType);
+			final SelectionType selectionType, SplitType splitType);
 
 	/**
 	 * Registers the {@link VariableControl} associated to {@code model} to the

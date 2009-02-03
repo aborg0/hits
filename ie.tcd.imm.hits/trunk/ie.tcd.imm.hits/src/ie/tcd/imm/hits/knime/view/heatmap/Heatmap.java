@@ -122,9 +122,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final Collection<SliderModel> sliders = viewModel.getMain()
 				.getArrangementModel().getSliders().get(Type.Selector);
 		final int currentPlate = (sliders.size() > 0 ? /*
-														 * sliderPositions.get(
-														 * sliders.iterator().next()).intValue()
-														 */sliders.iterator().next().getSelections().iterator().next() : 1) - 1;
+		 * sliderPositions.get(
+		 * sliders.iterator().next()).intValue()
+		 */sliders.iterator().next().getSelections().iterator().next() : 1) - 1;
 		final boolean[] hiliteValues = volatileModel
 				.getHiliteValues(currentPlate);
 		final boolean[] selections = volatileModel
@@ -246,7 +246,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 								parameterSlider, parameterPos.get(ZERO)),
 						new Pair<SliderModel, List<?>>(statSlider, statPos
 								.get(ZERO)));
-		if (secondParamSlider.equals(replicateSlider)) {
+		if (secondParamSlider != null
+				&& secondParamSlider.equals(replicateSlider)) {
 			for (int i = replicateSlider.getSelections().size(); i-- > 0;) {
 				findColourValues(Format._96, colors, scores, colourModel,
 						firstParamSlider, null, 0, secondParamSlider, null, i,
@@ -311,9 +312,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		for (int i = rows * cols; i-- > 0;) {
 			final String l = InfoParser.parse(experimentPos.get(ZERO),
 					normalisationPos.get(ZERO), viewModel.getLabelPattern(), /*
-					 * plate +
-					 * 1
-					 */
+																				 * plate +
+																				 * 1
+																				 */
 					platePos.get(ZERO), i / 12, i % 12, nodeModel);
 			wells[i].setLabels(l);
 		}
@@ -670,10 +671,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 									break;
 								case _384:
 									colors[i / 12 * cols + i % 12][/*
-																	 * (replicateEntry
-																	 * .getKey().intValue() -
-																	 * 1)
-																	 */replicateValue * paramCount + param] = colorI;
+									 * (replicateEntry
+									 * .getKey().intValue() -
+									 * 1)
+									 */replicateValue * paramCount + param] = colorI;
 								default:
 									break;
 								}
@@ -854,8 +855,32 @@ public class Heatmap extends JComponent implements HiLiteListener {
 							}
 						}
 						source.setSelected(!oldSelection);
-						volatileModel.setSelection(plate, source
-								.getPositionOnPlate(), source.isSelected());
+						if (plate == -1) {
+							final Collection<Number> selectedPlates = new ArrayList<Number>();
+							for (final SliderModel slider : viewModel.getMain()
+									.getArrangementModel().getSliderModels()) {
+								if (slider.getParameters().iterator().next()
+										.getType() == StatTypes.plate) {
+									final Set<Integer> selections = slider
+											.getSelections();
+									for (final Integer integer : selections) {
+										selectedPlates.add((Number) slider
+												.getValueMapping().get(integer)
+												.getRight());
+									}
+									break;
+								}
+							}
+							for (final Number selectedPlate : selectedPlates) {
+								volatileModel.setSelection(selectedPlate
+										.intValue() - 1, source
+										.getPositionOnPlate(), source
+										.isSelected());
+							}
+						} else {
+							volatileModel.setSelection(plate, source
+									.getPositionOnPlate(), source.isSelected());
+						}
 						repaint();
 					}
 				});

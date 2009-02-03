@@ -28,7 +28,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-class ButtonsControl extends VariableControlWithMenu {
+class ButtonsControl extends AbstractVariableControl {
 	/**
 	 * The listener for the buttons.
 	 */

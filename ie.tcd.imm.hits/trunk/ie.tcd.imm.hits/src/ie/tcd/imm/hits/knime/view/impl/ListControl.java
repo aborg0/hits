@@ -35,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class ListControl extends VariableControlWithMenu {
+class ListControl extends AbstractVariableControl {
 	/**
 	 * Constructs a {@link ListControl}.
 	 * 

@@ -434,9 +434,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
 					.<ParameterModel> emptyList(), /*
-													 * Collections .<ParameterModel>
-													 * emptyList()
-													 */Collections.singletonList(plateParamModel)),
+			 * Collections .<ParameterModel>
+			 * emptyList()
+			 */Collections.singletonList(plateParamModel)),
 			new ViewModel.ShapeModel(new ArrangementModel(), Collections
 					.singletonList(parameterParamModel), Collections
 					.singletonList(replicateParamModel), Collections
@@ -453,6 +453,10 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 		}
 	}
+	private final VolatileModel volatileModel = new VolatileModel();
+
+	private ChangeListener changeListenerForControlsHandler;
+
 	private final ControlPanel controlPanel = new ControlPanel(this);
 
 	/** This class is responsible to hold the changing parameters. */
@@ -820,10 +824,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			this.colourModel = colourModel;
 		}
 	}
-
-	private final VolatileModel volatileModel = new VolatileModel();
-
-	private ChangeListener changeListenerForControlsHandler;
 
 	/**
 	 * Creates a new view.

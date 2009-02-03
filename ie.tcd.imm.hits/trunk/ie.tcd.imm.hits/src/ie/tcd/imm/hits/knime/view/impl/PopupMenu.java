@@ -5,16 +5,15 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
@@ -27,18 +26,21 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.knime.core.node.defaultnodesettings.SettingsModel;
-
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * This is a {@link VariableControl} with some menu to convert to another type,
- * or make it to an another {@link SliderModel} position.
+ * A popup menu for the {@link AbstractVariableControl}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <ModelType>
+ *            The type of the associated model.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-abstract class VariableControlWithMenu extends AbstractVariableControl {
+public class PopupMenu<ModelType> implements MouseListener {
+	private final JPopupMenu popup;
+	private final ControlsHandler<ModelType> controlsHandler;
+	private final VariableControl<ModelType> control;
+
 	/**
 	 * An action to change to another {@link SplitType type} of container.
 	 */
@@ -61,15 +63,11 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			getControlsHandler().exchangeControls(
-					VariableControlWithMenu.this,
-					getControlsHandler().getVariableControlsAt(splitType)
-							.iterator().next());
+			controlsHandler.exchangeControls(control, controlsHandler
+					.getVariableControlsAt(splitType).iterator().next());
 		}
 
 	}
-
-	private static final long serialVersionUID = -3325790267603732617L;
 
 	private class MoveAction extends AbstractAction {
 		private static final long serialVersionUID = -701281759726333944L;
@@ -89,8 +87,7 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			getControlsHandler().move(VariableControlWithMenu.this,
-					position.getRight());
+			controlsHandler.move(control, position.getRight());
 		}
 
 	}
@@ -108,24 +105,17 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			getControlsHandler().changeControlType(
-					VariableControlWithMenu.this, controlTypes);
+			controlsHandler.changeControlType(control, controlTypes);
 		}
 	}
 
-	/**
-	 * @param model
-	 * @param selectionType
-	 * @param controlsHandler
-	 * @param changeListener
-	 *            The {@link ChangeListener} associated to the {@code model}.
-	 */
-	public VariableControlWithMenu(final SettingsModelListSelection model,
-			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler,
-			final ChangeListener changeListener) {
-		super(model, selectionType, controlsHandler, changeListener);
-		final JPopupMenu popup = new JPopupMenu("Change behaviour");
+	public PopupMenu(final VariableControl<ModelType> control,
+			final SplitType split,
+			final ControlsHandler<ModelType> controlsHandler) {
+		super();
+		this.control = control;
+		this.controlsHandler = controlsHandler;
+		popup = new JPopupMenu("Change behaviour");
 		final JMenu menuCompat = new JMenu();
 		menuCompat.setText("Change appearance");
 		menuCompat.setMnemonic(KeyEvent.VK_A);
@@ -149,14 +139,14 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		final JMenu moveMenu = new JMenu();
 		moveMenu.setText("Move to");
 		moveMenu.setMnemonic(KeyEvent.VK_M);
-		final Set<Pair<SplitType, String>> containers = getControlsHandler()
+		final Set<Pair<SplitType, String>> containers = this.controlsHandler
 				.findContainers();
 		for (final Pair<SplitType, String> pair : containers) {
-			if (pair.getRight() != null) {
+			if (pair.getRight() != null && pair.getLeft() == split) {
 				final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
-				posMenu.setText(pair.getRight() + " [" + pair.getLeft() + "]");
+				posMenu.setText(pair.getRight());
 				posMenu.getModel().addChangeListener(new ChangeListener() {
-					private final JComponent container = getControlsHandler()
+					private final JComponent container = PopupMenu.this.controlsHandler
 							.getContainer(pair.getLeft(), pair.getRight());
 					private final Color origBackground = container == null ? null
 							: container.getBackground();
@@ -182,43 +172,74 @@ abstract class VariableControlWithMenu extends AbstractVariableControl {
 		changeType.setMnemonic(KeyEvent.VK_C);
 		final JMenuItem toPrimary = new JMenuItem(new ChangeAction(
 				SplitType.PrimarySplit));
-		changeType.add(toPrimary);
+		if (split != SplitType.PrimarySplit) {
+			changeType.add(toPrimary);
+		}
 		toPrimary.setMnemonic(KeyEvent.VK_P);
 		toPrimary.setText("to primary");
 		final JMenuItem toSecondary = new JMenuItem(new ChangeAction(
 				SplitType.SeconderSplit));
-		changeType.add(toSecondary);
+		if (split != SplitType.SeconderSplit) {
+			changeType.add(toSecondary);
+		}
 		toSecondary.setMnemonic(KeyEvent.VK_S);
 		toSecondary.setText("to secondary");
 		popup.add(changeType);
-		final MouseAdapter popupListener = new MouseAdapter() {
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
-			 */
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				showPopup(e);
-			}
+	}
 
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
-			 */
-			@Override
-			public void mouseReleased(final MouseEvent e) {
-				showPopup(e);
-			}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mouseClicked(final MouseEvent e) {
+		// Do nothing
+	}
 
-			private void showPopup(final MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					popup.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
-		};
-		getComponentPanel().addMouseListener(popupListener);
-		getPanel().addMouseListener(popupListener);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mouseEntered(final MouseEvent e) {
+		// Do nothing
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mouseExited(final MouseEvent e) {
+		// Do nothing
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mousePressed(final MouseEvent e) {
+		showPopup(e);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mouseReleased(final MouseEvent e) {
+		showPopup(e);
+	}
+
+	private void showPopup(final MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			popup.show(e.getComponent(), e.getX(), e.getY());
+		}
 	}
 }

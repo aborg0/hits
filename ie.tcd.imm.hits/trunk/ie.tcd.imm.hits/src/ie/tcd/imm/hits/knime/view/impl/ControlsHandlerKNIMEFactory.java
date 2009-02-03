@@ -120,7 +120,7 @@ public class ControlsHandlerKNIMEFactory implements
 	@Override
 	public VariableControl<SettingsModel> getComponent(
 			final SliderModel slider, final ControlTypes controlType,
-			final SelectionType selectionType) {
+			final SelectionType selectionType, final SplitType split) {
 		if (!cache.containsKey(slider)) {
 			final String name = createName(slider);
 			final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
@@ -166,7 +166,7 @@ public class ControlsHandlerKNIMEFactory implements
 					name, vals, selected);
 			final VariableControl<SettingsModel> control = createControl(
 					slider, controlType, settingsModelListSelection,
-					selectionType);
+					selectionType, split);
 			cache.put(slider, control);
 		}
 		return cache.get(slider);
@@ -200,11 +200,11 @@ public class ControlsHandlerKNIMEFactory implements
 	private VariableControl<SettingsModel> createControl(
 			final SliderModel slider, final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
-			final SelectionType selectionType) {
+			final SelectionType selectionType, final SplitType split) {
 		final ChangeListener changeListener = createChangeListener(slider,
 				settingsModelListSelection);
 		return createControl(controlType, settingsModelListSelection,
-				changeListener, selectionType);
+				changeListener, selectionType, split);
 	}
 
 	/**
@@ -269,23 +269,28 @@ public class ControlsHandlerKNIMEFactory implements
 	private VariableControl<SettingsModel> createControl(
 			final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
-			final ChangeListener changeListener, final SelectionType selection) {
+			final ChangeListener changeListener, final SelectionType selection,
+			final SplitType split) {
+		final VariableControl<SettingsModel> ret;
 		switch (controlType) {
 		case Buttons:
-			return new ButtonsControl(settingsModelListSelection, selection,
+			ret = new ButtonsControl(settingsModelListSelection, selection,
 					this, changeListener);
+			break;
 		case List:
-			return new ListControl(settingsModelListSelection, selection, this,
+			ret = new ListControl(settingsModelListSelection, selection, this,
 					changeListener);
+			break;
 		case ComboBox:
-			return new ComboBoxControl(settingsModelListSelection, selection,
+			ret = new ComboBoxControl(settingsModelListSelection, selection,
 					this, changeListener);
+			break;
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
-
 		case Slider:
-			return new SliderControl(settingsModelListSelection, selection,
+			ret = new SliderControl(settingsModelListSelection, selection,
 					this, changeListener);
+			break;
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
 			// if (!cache.containsKey(slider)) {
@@ -303,6 +308,14 @@ public class ControlsHandlerKNIMEFactory implements
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
 		}
+		final PopupMenu<SettingsModel> popupMenu = new PopupMenu<SettingsModel>(
+				ret, split, this);
+		((AbstractVariableControl) ret).getPanel().addMouseListener(popupMenu);
+		ret.getView().addMouseListener(popupMenu);
+		for (final Component comp : ret.getView().getComponents()) {
+			comp.addMouseListener(popupMenu);
+		}
+		return ret;
 	}
 
 	/*
@@ -352,16 +365,16 @@ public class ControlsHandlerKNIMEFactory implements
 				.getModel();
 		settingsModel.removeChangeListener(removedVariableControl
 				.getModelChangeListener());
+		final SplitType splitType = controlToSplit.get(removedVariableControl);
+		assert splitType != null;
 		final VariableControl<SettingsModel> control = createControl(type,
 				settingsModel, createChangeListener(slider, settingsModel),
-				removedVariableControl.getSelectionType());
+				removedVariableControl.getSelectionType(), splitType);
 		cache.put(slider, control);
 		component.add(control.getView(), originalPosition);
 		component.revalidate();
 		addToMap(map, control);
 		controlToComponent.put(control, component);
-		final SplitType splitType = controlToSplit.get(removedVariableControl);
-		assert splitType != null;
 		controlToSplit.put(control, splitType);
 		final Map<VariableControl<SettingsModel>, Boolean> map2 = splitToControls
 				.get(splitType);
@@ -521,7 +534,7 @@ public class ControlsHandlerKNIMEFactory implements
 		final VariableControl<SettingsModel> variableControl = getComponent(
 				model, controlType,
 				modelType == SplitType.SingleSelect ? SelectionType.Single
-						: SelectionType.MultipleAtLeastOne);
+						: SelectionType.MultipleAtLeastOne, modelType);
 		if (variableControl == null) {
 			return false;
 		}

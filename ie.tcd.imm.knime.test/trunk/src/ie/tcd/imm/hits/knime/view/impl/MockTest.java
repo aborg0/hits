@@ -257,13 +257,12 @@ public class MockTest {
 				(JPanel) experimentCombobox.target.getParent().getParent());
 		final JPopupMenuFixture popupMenu = panelFixture
 				.showPopupMenuAt(new Point(0, 0));
-		popupMenu.menuItemWithPath("Move to",
-				UPPER_RIGHT + " [" + SplitType.SingleSelect + "]").click();
+		popupMenu.menuItemWithPath("Move to", UPPER_RIGHT).click();
 		experimentCombobox.requireVisible();
 		final JPopupMenuFixture popupMenu2 = panelFixture
 				.showPopupMenuAt(new Point(0, 0));
 		final JMenuItemFixture toSlider = popupMenu2.menuItemWithPath(
-				"Move to", LOWER + " [" + SplitType.SingleSelect + "]");
+				"Move to", LOWER);
 		toSlider.click();
 		try {
 			window.panel(UPPER_RIGHT).panel(getSliderName(experimentSlider));
