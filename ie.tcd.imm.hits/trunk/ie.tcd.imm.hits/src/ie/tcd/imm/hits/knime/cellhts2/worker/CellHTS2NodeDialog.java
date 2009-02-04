@@ -163,12 +163,12 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelFilterString(
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
 						new String[] { /*
-						 * ImporterNodeModel.PLATE_COL_NAME,
-						 * ImporterNodeModel.REPLICATE_COL_NAME,
-						 * ImporterNodeModel.WELL_COL_NAME,
-						 * ImporterNodeModel.GENE_ID_COL_NAME,
-						 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
-						 */}), 0, DoubleValue.class);
+										 * ImporterNodeModel.PLATE_COL_NAME,
+										 * ImporterNodeModel.REPLICATE_COL_NAME,
+										 * ImporterNodeModel.WELL_COL_NAME,
+										 * ImporterNodeModel.GENE_ID_COL_NAME,
+										 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
+										 */}), 0, DoubleValue.class);
 		final ColumnFilterPanel columnsFilter = (ColumnFilterPanel) parametersDialog
 				.getComponentPanel().getComponent(0);
 		final JPanel includePanel = (JPanel) columnsFilter.getComponent(1);
@@ -179,21 +179,21 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final JPanel buttonPanel = (JPanel) buttonPanel2.getComponent(0);
 		final JButton upButton = new JButton("^");
 		upButton.setMaximumSize(new Dimension(125, 10));
-		buttonPanel.add(upButton);
+		// buttonPanel.add(upButton);
 		final DefaultListModel includeListModel = (DefaultListModel) includeList
 				.getModel();
-		upButton.addActionListener(new SelectionMoverActionListener(
-				includeList, includeListModel, -1,
-				(SettingsModelFilterString) parametersDialog.getModel()));
-		buttonPanel.add(new JPanel());
+		upButton
+				.addActionListener(new SelectionMoverActionListener(
+						includeList, includeListModel, -1, parametersDialog
+								.getModel()));
+		// buttonPanel.add(new JPanel());
 
 		final JButton downButton = new JButton("v");
 		downButton.setMaximumSize(new Dimension(125, 10));
-		buttonPanel.add(downButton);
+		// buttonPanel.add(downButton);
 		downButton.addActionListener(new SelectionMoverActionListener(
-				includeList, includeListModel, 1,
-				(SettingsModelFilterString) parametersDialog.getModel()));
-		buttonPanel.add(new JPanel());
+				includeList, includeListModel, 1, parametersDialog.getModel()));
+		// buttonPanel.add(new JPanel());
 
 		parametersDialog.setIncludeTitle("Selected parameters for analysis");
 		parametersDialog
