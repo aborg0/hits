@@ -86,7 +86,6 @@ class ButtonsControl extends AbstractVariableControl {
 		}
 	}
 
-	private static final long serialVersionUID = -1720492776562820263L;
 	private static final boolean INCLUDE_INDICATOR = true;
 
 	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();

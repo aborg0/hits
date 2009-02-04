@@ -28,8 +28,6 @@ import org.knime.core.node.port.PortObjectSpec;
  */
 abstract class AbstractVariableControl extends DialogComponent implements
 		VariableControl<SettingsModel> {
-	private static final long serialVersionUID = 4731533247697627529L;
-
 	private final JToolBar panel = new JToolBar();
 
 	private final SelectionType selectionType;

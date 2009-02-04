@@ -32,8 +32,6 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 class ComboBoxControl extends AbstractVariableControl {
-	private static final long serialVersionUID = -9025497242849755048L;
-
 	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
 
 	/**

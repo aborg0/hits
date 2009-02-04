@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.util.swing;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 
-import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -21,7 +20,7 @@ import javax.swing.event.ChangeListener;
  * @param <ModelType>
  *            The type of the model used inside.
  */
-public interface VariableControl<ModelType> extends Serializable {
+public interface VariableControl<ModelType> {
 
 	/**
 	 * The supported control types.

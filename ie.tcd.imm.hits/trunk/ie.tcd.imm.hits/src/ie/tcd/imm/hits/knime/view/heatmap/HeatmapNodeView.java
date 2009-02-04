@@ -207,71 +207,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		private void internalSetModel() {
 			heatmapsPanel.removeAll();
 			heatmaps.clear();
-			final OverviewModel overview = model.getOverview();
-			// final List<ParameterModel> choiceModel =
-			// overview.getChoiceModel();
-			// TODO use the proper value assigned to
 			final Map<Type, Collection<SliderModel>> sliders = model.getMain()
 					.getArrangementModel().getSliders();
-			final int allChoiceCount = volatileModel.count(StatTypes.plate);
-			final int selectorCount = possibleValueCount(sliders
-					.get(Type.Selector));
 			Container currentContainer = heatmapsPanel;
-			final Collection<SliderModel> possSelectors = model.getMain()
-					.getArrangementModel().getSliders().get(Type.Selector);
-			// for (final SliderModel selector : possSelectors) {
-			// final Color[] possColors = new Color[] { Color.DARK_GRAY,
-			// Color.LIGHT_GRAY };
-			// final SliderModel selectorSlider = possSelectors.size() > 0 ?
-			// possSelectors
-			// .iterator().next()
-			// : null;
-			// final int sliderPos = !volatileModel.getSliderPositions()
-			// .containsKey(selectorSlider) ? 1 : volatileModel
-			// .getSliderPositions().get(selectorSlider).intValue();
-			// final JSlider slider = new JSlider(SwingConstants.HORIZONTAL,
-			// 1, allChoiceCount, sliderPos);
-			// slider.setMinorTickSpacing(1);
-			// slider.setMajorTickSpacing(5);
-			// slider.setSnapToTicks(true);
-			// slider.setPaintLabels(true);
-			// final Dictionary<Integer, JComponent> labels = new
-			// Hashtable<Integer, JComponent>();
-			// final Set<ParameterModel> paramSet = new
-			// HashSet<ParameterModel>();
-			// for (final Entry<Integer, Pair<ParameterModel, Object>> entry :
-			// selector
-			// .getValueMapping().entrySet()) {
-			// final JLabel label = new JLabel(entry.getValue().getRight()
-			// .toString());
-			// final ParameterModel key = entry.getValue().getLeft();
-			// paramSet.add(key);
-			// label.setBackground(possColors[paramSet.size()
-			// % possColors.length]);
-			// labels.put(entry.getKey(), label);
-			// }
-			// slider.setLabelTable(labels);
-			// slider.setBorder(new TitledBorder(selector.getParameters().get(
-			// 0).getShortName()));
-			// // if (allChoiceCount > 1) {
-			// currentContainer.setLayout(new BorderLayout());
-			// final JToolBar toolbar = new JToolBar(selectorSlider
-			// .getParameters().iterator().next().getShortName());
-			// toolbar.setFloatable(true);
-			// toolbar.add(slider);
-			// currentContainer.add(toolbar, BorderLayout.NORTH);
-			// currentContainer.add(currentContainer = new JPanel(),
-			// BorderLayout.CENTER);
-			// slider.addChangeListener(new ChangeListener() {
-			// @Override
-			// public void stateChanged(final ChangeEvent e) {
-			// final int selected = slider.getModel().getValue();
-			// volatileModel.setSliderPosition(selectorSlider, Integer
-			// .valueOf(selected));
-			// setModel(dataModel);
-			// }
-			// });
-			// }
 			final int rowCount = Math.max(1, possibleValueCount(sliders
 					.get(Type.ScrollVertical)));
 			final int colCount = Math.max(1, possibleValueCount(sliders
@@ -301,10 +239,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 			currentContainer.setLayout(new GridLayout(rowCount, colCount));
 
-			// final Map<Object, Map<Object, Heatmap>> currentHeatMaps =
-			// heatmaps
-			// .get(allChoiceCount > 1 ? Integer.valueOf(slider.getModel()
-			// .getValue() - 1) : null);
 			for (int i = 0; i < rowCount; ++i) {
 				final Integer iVal = Integer.valueOf(i);
 				if (!heatmaps.containsKey(iVal)) {
@@ -326,8 +260,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		private int possibleValueCount(final Collection<SliderModel> sliders) {
 			int allCount = 0;
 			for (final SliderModel slider : sliders) {
-				// assert choice.getAggregateType() == null;
-				// assert choice.getType().isDiscrete() : choice;
 				allCount += slider.getSelections().size();
 			}
 			return allCount;
@@ -349,7 +281,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		private void setModel(final HeatmapNodeModel nodeModel,
 				final VolatileModel volatileModel) {
-			// FIXME the heatmaps should need only the selected values.
 			volatileModel.addActionListener(this);
 			this.dataModel = nodeModel;
 			for (final Map.Entry<Integer, Map<Integer, Heatmap>> rowEntry : heatmaps
@@ -422,10 +353,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		defaultParamModel.setEndColor(Color.GREEN);
 		defaultParamModel.setStartColor(Color.RED);
 		defaultParamModel.setMiddleColor(Color.BLACK);
-		// defaultParamModel.setValueCount(3);
-		// plateParamModel.setValueCount(8);
-		// parameterParamModel.setValueCount(3);
-		// replicateParamModel.setValueCount(3);
 	}
 
 	private final EnumMap<Format, EnumMap<Shape, ViewModel>> possibleViewModels = new EnumMap<Format, EnumMap<Shape, ViewModel>>(
@@ -433,14 +360,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	private ViewModel currentViewModel = new ViewModel(Format._96,
 			Shape.Circle, new ViewModel.OverviewModel(Collections
 					.<ParameterModel> emptyList(), Collections
-					.<ParameterModel> emptyList(), /*
-			 * Collections .<ParameterModel>
-			 * emptyList()
-			 */Collections.singletonList(plateParamModel)),
-			new ViewModel.ShapeModel(new ArrangementModel(), Collections
-					.singletonList(parameterParamModel), Collections
-					.singletonList(replicateParamModel), Collections
-					.<ParameterModel> emptyList(), true));
+					.<ParameterModel> emptyList(), Collections
+					.singletonList(plateParamModel)), new ViewModel.ShapeModel(
+					new ArrangementModel(), Collections
+							.singletonList(parameterParamModel), Collections
+							.singletonList(replicateParamModel), Collections
+							.<ParameterModel> emptyList(), true));
 	{
 		for (final Format format : Format.values()) {
 			possibleViewModels.put(format, new EnumMap<Shape, ViewModel>(
@@ -571,14 +496,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 */
 		public void mutateValues(final ArrangementModel arrangementModel,
 				final HeatmapNodeModel nodeModel) {
-			// TODO Auto-generated method stub
 			this.arrangementModel = arrangementModel;
-			// for (final Collection<SliderModel> sliderColl : arrangementModel
-			// .getSliders().values()) {
-			// for (final SliderModel slider : sliderColl) {
-			// setSliderPosition(slider, Integer.valueOf(1));
-			// }
-			// }
 			for (final Entry<Type, Collection<SliderModel>> entry : arrangementModel
 					.getSliders().entrySet()) {
 				switch (entry.getKey()) {
@@ -887,7 +805,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		mainSplit.setTopComponent(upperSplit);
 		mainSplit.setOneTouchExpandable(true);
 
-		// /Init the defaults.
+		// Initialise the defaults.
 		currentViewModel.getMain().getArrangementModel().mutate(
 				nodeModel.getPossibleParameters());
 		volatileModel.mutateValues(currentViewModel.getMain()
@@ -1025,8 +943,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	 */
 	@Override
 	protected void modelChanged() {
-		// TODO retrieve the new model from your nodemodel and
-		// update the view.
+		logger.debug("Model change started.");
 		for (final Entry<Type, Collection<SliderModel>> entry : getVolatileModel().arrangementModel
 				.getSliders().entrySet()) {
 			for (final SliderModel model : entry.getValue()) {
@@ -1108,11 +1025,14 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				.getStatistics(), findRanges(nodeModel.getModelBuilder()));
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
+		logger.debug("Model change successfully finished.");
 	}
 
 	/**
 	 * @param modelBuilder
-	 * @return
+	 *            A {@link ModelBuilder}.
+	 * @return The map containing the {@link RangeType}s for different
+	 *         parameter/statistics types.
 	 */
 	private Map<String, Map<StatTypes, Map<RangeType, Double>>> findRanges(
 			final ModelBuilder modelBuilder) {
@@ -1236,7 +1156,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 	/**
 	 * @param model
-	 * @return
+	 *            A {@link SliderModel}.
+	 * @return The {@link StatTypes} of the first {@link ParameterModel}.
 	 */
 	private StatTypes type(final SliderModel model) {
 		return model.getParameters().iterator().next().getType();
@@ -1373,6 +1294,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		return super.getNodeModel();
 	}
 
+	/**
+	 * @return The {@link ControlsHandler} of the view.
+	 */
 	public ControlsHandler<? extends SettingsModel> getControlsHandler() {
 		return controlsHandler;
 	}

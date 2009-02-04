@@ -371,8 +371,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 		private final ParametersPanel choiceParametersPanel;
 		private final ShapeLegendPanel shapeLegendPanel;
 
-		private ViewModel model;
-
 		/**
 		 * Constructs a {@link LayoutLegendPanel}.
 		 * 
@@ -384,7 +382,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 		 */
 		LayoutLegendPanel(final boolean isSelectable, final ViewModel model) {
 			super();
-			this.model = model;
 			horizontalParametersPanel = new ParametersPanel(isSelectable,
 					model, true, ViewModel.OverviewModel.Places.Columns);
 			verticalParametersPanel = new ParametersPanel(isSelectable, model,
@@ -408,7 +405,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 		 *            The new {@link ViewModel}.
 		 */
 		public void setModel(final ViewModel model) {
-			this.model = model;
 			horizontalParametersPanel.setModel(model);
 			verticalParametersPanel.setModel(model);
 			choiceParametersPanel.setModel(model);
@@ -435,12 +431,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 	public void actionPerformed(final ActionEvent e) {
 		revalidate();
 		repaint();
-	}
-
-	@Override
-	protected void paintComponent(final Graphics g) {
-		// TODO Auto-generated method stub
-		super.paintComponent(g);
 	}
 
 	/**

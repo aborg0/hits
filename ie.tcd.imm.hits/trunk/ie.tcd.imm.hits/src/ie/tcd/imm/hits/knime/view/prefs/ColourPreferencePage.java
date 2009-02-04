@@ -8,10 +8,12 @@ import ie.tcd.imm.hits.util.Displayable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -26,38 +28,60 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ColourPreferencePage extends FieldEditorPreferencePage implements
 		IWorkbenchPreferencePage {
+	/** The default title for this preference page. */
+	static final String DEFAULT_TITLE = "Colour selection for heatmaps";
 
 	/**
+	 * Default constructor for {@link ColourPreferencePage}.
 	 * 
+	 * @see ColourPreferencePage#ColourPreferencePage(int)
 	 */
 	public ColourPreferencePage() {
 		this(GRID);
 	}
 
 	/**
+	 * Constructs {@link ColourPreferencePage} without image and the default
+	 * title.
+	 * 
 	 * @param style
+	 *            The style of the {@link PreferencePage}.
+	 * @see FieldEditorPreferencePage#FieldEditorPreferencePage(int)
+	 * @see ColourPreferencePage#ColourPreferencePage(String, int)
 	 */
 	public ColourPreferencePage(final int style) {
-		this("", style);
-		// TODO Auto-generated constructor stub
+		this(DEFAULT_TITLE, style);
 	}
 
 	/**
+	 * Constructs {@link ColourPreferencePage} without image.
+	 * 
 	 * @param title
+	 *            The title of the {@link PreferencePage}.
 	 * @param style
+	 *            The style of the {@link PreferencePage}.
+	 * @see FieldEditorPreferencePage#FieldEditorPreferencePage(String, int)
+	 * @see ColourPreferencePage#ColourPreferencePage(String, ImageDescriptor,
+	 *      int)
 	 */
 	public ColourPreferencePage(final String title, final int style) {
 		this(title, null, style);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Constructs {@link ColourPreferencePage} with the specified parameters.
+	 * 
 	 * @param title
+	 *            The title of the {@link PreferencePage}.
 	 * @param image
+	 *            The image of the {@link PreferencePage}. May be {@code null}.
 	 * @param style
+	 *            The style of the {@link PreferencePage}.
+	 * @see FieldEditorPreferencePage#FieldEditorPreferencePage(String,
+	 *      ImageDescriptor, int)
 	 */
-	public ColourPreferencePage(final String title,
-			final ImageDescriptor image, final int style) {
+	public ColourPreferencePage(final String title, @Nullable
+	final ImageDescriptor image, final int style) {
 		super(title, image, style);
 		setPreferenceStore(ImporterNodePlugin.getDefault().getPreferenceStore());
 		setDescription("Set the default colour codes for your heatmaps.");
@@ -107,9 +131,14 @@ public class ColourPreferencePage extends FieldEditorPreferencePage implements
 	}
 
 	/**
+	 * Converts the enum options to text.
+	 * 
 	 * @param <EType>
+	 *            The type of the enum.
 	 * @param defaultOptions
-	 * @return
+	 *            The options as enums.
+	 * @return The possible options' {@link Displayable#getDisplayText()} as
+	 *         text.
 	 */
 	private static <EType extends Enum<EType> & Displayable> String[][] createOptions(
 			final EType[] defaultOptions) {

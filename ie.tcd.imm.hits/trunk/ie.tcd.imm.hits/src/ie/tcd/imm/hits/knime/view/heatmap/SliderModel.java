@@ -61,7 +61,7 @@ public class SliderModel implements Serializable {
 
 	private final ControlTypes preferredControlType;
 
-	private Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
+	private final Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
 
 	/**
 	 * Constructs {@link SliderModel}s, with cache.

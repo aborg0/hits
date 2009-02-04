@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.ranking;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -187,6 +188,7 @@ public class RankNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
+		final Format format = Format._96;
 		final ModelBuilder modelBuilder = new ModelBuilder(inData[0]);
 		final SpecAnalyser specAnalyser = modelBuilder.getSpecAnalyser();
 		logger.debug("Ranking the following parameters, and statistics: "
@@ -257,9 +259,9 @@ public class RankNodeModel extends NodeModel {
 						otherValues.put(parameter,
 								new EnumMap<StatTypes, double[]>(
 										StatTypes.class));
-						fillEmpty(modelBuilder, statTypes, sampleValues
+						fillEmpty(format, modelBuilder, statTypes, sampleValues
 								.get(parameter));
-						fillEmpty(modelBuilder, statTypes, otherValues
+						fillEmpty(format, modelBuilder, statTypes, otherValues
 								.get(parameter));
 						for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
 								.getValue().entrySet()) {
@@ -293,7 +295,7 @@ public class RankNodeModel extends NodeModel {
 									for (int i = ds.length; i-- > 0;) {
 										((wellTypes[i] != null && wellTypes[i]
 												.equalsIgnoreCase("sample")) ? samples
-												: others)[96
+												: others)[format.getWellCount()
 												* (plate.intValue() - plateShift)
 												+ i] = ds[i];
 									}
@@ -304,9 +306,9 @@ public class RankNodeModel extends NodeModel {
 							for (final StatTypes stat : statTypes) {
 								if (!stat.isUseReplicates()
 										&& !rankStatMap.containsKey(stat)) {
-									rankStatMap.put(stat,
-											new double[96 * (modelBuilder
-													.getMaxPlate()
+									rankStatMap.put(stat, new double[format
+											.getWellCount()
+											* (modelBuilder.getMaxPlate()
 													- plateShift + 1)]);
 								}
 							}
@@ -343,10 +345,10 @@ public class RankNodeModel extends NodeModel {
 						otherValues.put(parameter,
 								new EnumMap<StatTypes, Map<Integer, double[]>>(
 										StatTypes.class));
-						fillEmptyEachPlate(modelBuilder, statTypes,
+						fillEmptyEachPlate(format, modelBuilder, statTypes,
 								sampleValues.get(parameter));
-						fillEmptyEachPlate(modelBuilder, statTypes, otherValues
-								.get(parameter));
+						fillEmptyEachPlate(format, modelBuilder, statTypes,
+								otherValues.get(parameter));
 						for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> plateEntry : normEntry
 								.getValue().entrySet()) {
 							final Integer plate = plateEntry.getKey();
@@ -392,7 +394,8 @@ public class RankNodeModel extends NodeModel {
 							for (final StatTypes stat : statTypes) {
 								if (!stat.isUseReplicates()) {
 									if (!rankStatMap.containsKey(stat)) {
-										rankStatMap.put(stat, new double[96]);
+										rankStatMap.put(stat, new double[format
+												.getWellCount()]);
 									}
 									final double neutralValue = getNeutralValue(
 											regulationModel.getStringValue(),
@@ -462,11 +465,11 @@ public class RankNodeModel extends NodeModel {
 						otherValues.put(parameter,
 								new EnumMap<StatTypes, Map<Integer, double[]>>(
 										StatTypes.class));
-						fillEmptyReplicate(modelBuilder, statTypes,
+						fillEmptyReplicate(format, modelBuilder, statTypes,
 								sampleValues.get(parameter),
 								grouping == RankingGroups.experiment);
-						fillEmptyReplicate(modelBuilder, statTypes, otherValues
-								.get(parameter),
+						fillEmptyReplicate(format, modelBuilder, statTypes,
+								otherValues.get(parameter),
 								grouping == RankingGroups.experiment);
 						for (final Entry<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> plateEntry : normEntry
 								.getValue().entrySet()) {
@@ -530,9 +533,9 @@ public class RankNodeModel extends NodeModel {
 													.equalsIgnoreCase("sample")) ? samples
 													: others)[(grouping == RankingGroups.experiment ? (replicateEntry
 													.getKey().intValue() - repShift)
-													* (96 * plateCount)
+													* (format.getWellCount() * plateCount)
 													: 0)
-													+ 96
+													+ format.getWellCount()
 													* (plate.intValue() - plateShift)
 													+ i] = ds[i];
 										}
@@ -549,7 +552,8 @@ public class RankNodeModel extends NodeModel {
 										rankStatMap
 												.put(
 														stat,
-														new double[96
+														new double[format
+																.getWellCount()
 																* plateCount
 																* (grouping == RankingGroups.experiment ? modelBuilder
 																		.getMaxReplicate()
@@ -599,11 +603,11 @@ public class RankNodeModel extends NodeModel {
 										parameter,
 										new EnumMap<StatTypes, Map<Integer, Map<Integer, double[]>>>(
 												StatTypes.class));
-						fillEmptyEachPlateReplicate(modelBuilder, statTypes,
-								sampleValues.get(parameter),
+						fillEmptyEachPlateReplicate(format, modelBuilder,
+								statTypes, sampleValues.get(parameter),
 								grouping == RankingGroups.plate);
-						fillEmptyEachPlateReplicate(modelBuilder, statTypes,
-								otherValues.get(parameter),
+						fillEmptyEachPlateReplicate(format, modelBuilder,
+								statTypes, otherValues.get(parameter),
 								grouping == RankingGroups.plate);
 						for (final Entry<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> plateEntry : normEntry
 								.getValue().entrySet()) {
@@ -677,8 +681,11 @@ public class RankNodeModel extends NodeModel {
 															stat,
 															new double[grouping == RankingGroups.plate ? (modelBuilder
 																	.getMaxReplicate()
-																	- repShift + 1) * 96
-																	: 96]);
+																	- repShift + 1)
+																	* format
+																			.getWellCount()
+																	: format
+																			.getWellCount()]);
 										}
 										final double neutralValue = getNeutralValue(
 												regulationModel
@@ -721,9 +728,10 @@ public class RankNodeModel extends NodeModel {
 			}
 			for (final StatTypes stat : getStatTypes()) {
 				for (final String parameter : parameters) {
-					values.add(new DoubleCell(getRank(origRow, experimentIdx,
-							parameter, normMethodIdx, logTransformIdx,
-							normKindIdx, varianceAdjustmentIdx, scoreMethodIdx,
+					values.add(new DoubleCell(getRank(format, origRow,
+							experimentIdx, parameter, normMethodIdx,
+							logTransformIdx, normKindIdx,
+							varianceAdjustmentIdx, scoreMethodIdx,
 							sumMethodIdx, plateIdx, replicateIdx, wellIdx,
 							stat, grouping, plateShift, plateCount, repShift)));
 				}
@@ -806,18 +814,19 @@ public class RankNodeModel extends NodeModel {
 				regulationPattern.length() - 1));
 	}
 
-	private void fillEmpty(final ModelBuilder modelBuilder,
-			final StatTypes[] statTypes, final Map<StatTypes, double[]> map) {
+	private void fillEmpty(final Format format,
+			final ModelBuilder modelBuilder, final StatTypes[] statTypes,
+			final Map<StatTypes, double[]> map) {
 		for (final StatTypes stat : statTypes) {
-			final double[] ds = new double[96 * (modelBuilder.getMaxPlate()
-					- modelBuilder.getMinPlate() + 1)];
+			final double[] ds = new double[format.getWellCount()
+					* (modelBuilder.getMaxPlate() - modelBuilder.getMinPlate() + 1)];
 			Arrays.fill(ds, Double.NaN);
 			map.put(stat, ds);
 		}
 	}
 
-	private void fillEmptyReplicate(final ModelBuilder modelBuilder,
-			final StatTypes[] statTypes,
+	private void fillEmptyReplicate(final Format format,
+			final ModelBuilder modelBuilder, final StatTypes[] statTypes,
 			final Map<StatTypes, Map<Integer, double[]>> map,
 			final boolean replicatesToo) {
 		final int plateCount = modelBuilder.getMaxPlate()
@@ -825,7 +834,7 @@ public class RankNodeModel extends NodeModel {
 		for (final StatTypes stat : statTypes) {
 			final Map<Integer, double[]> subMap = new HashMap<Integer, double[]>();
 			if (replicatesToo) {
-				final double[] ds = new double[96
+				final double[] ds = new double[format.getWellCount()
 						* plateCount
 						* (modelBuilder.getMaxReplicate()
 								- modelBuilder.getMinReplicate() + 1)];
@@ -834,7 +843,8 @@ public class RankNodeModel extends NodeModel {
 			} else {
 				for (int replicate = modelBuilder.getMinReplicate(); replicate <= modelBuilder
 						.getMaxReplicate(); ++replicate) {
-					final double[] ds = new double[96 * plateCount];
+					final double[] ds = new double[format.getWellCount()
+							* plateCount];
 					Arrays.fill(ds, Double.NaN);
 					subMap.put(Integer.valueOf(replicate), ds);
 				}
@@ -846,14 +856,14 @@ public class RankNodeModel extends NodeModel {
 		}
 	}
 
-	private void fillEmptyEachPlate(final ModelBuilder modelBuilder,
-			final StatTypes[] statTypes,
+	private void fillEmptyEachPlate(final Format format,
+			final ModelBuilder modelBuilder, final StatTypes[] statTypes,
 			final Map<StatTypes, Map<Integer, double[]>> map) {
 		for (final StatTypes stat : statTypes) {
 			final Map<Integer, double[]> subMap = new HashMap<Integer, double[]>();
 			for (int plate = modelBuilder.getMinPlate(); plate <= modelBuilder
 					.getMaxPlate(); ++plate) {
-				final double[] ds = new double[96];
+				final double[] ds = new double[format.getWellCount()];
 				Arrays.fill(ds, Double.NaN);
 				subMap.put(Integer.valueOf(plate), ds);
 			}
@@ -862,8 +872,8 @@ public class RankNodeModel extends NodeModel {
 		}
 	}
 
-	private void fillEmptyEachPlateReplicate(final ModelBuilder modelBuilder,
-			final StatTypes[] statTypes,
+	private void fillEmptyEachPlateReplicate(final Format format,
+			final ModelBuilder modelBuilder, final StatTypes[] statTypes,
 			final Map<StatTypes, Map<Integer, Map<Integer, double[]>>> map,
 			final boolean replicatesToo) {
 		for (final StatTypes stat : statTypes) {
@@ -872,15 +882,15 @@ public class RankNodeModel extends NodeModel {
 					.getMaxPlate(); ++plate) {
 				final Map<Integer, double[]> subSubMap = new HashMap<Integer, double[]>();
 				if (replicatesToo) {
-					final double[] ds = new double[96 * (modelBuilder
-							.getMaxReplicate()
-							- modelBuilder.getMinReplicate() + 1)];
+					final double[] ds = new double[format.getWellCount()
+							* (modelBuilder.getMaxReplicate()
+									- modelBuilder.getMinReplicate() + 1)];
 					Arrays.fill(ds, Double.NaN);
 					subSubMap.put(noReplicates, ds);
 				} else {
 					for (int replicate = modelBuilder.getMinReplicate(); replicate <= modelBuilder
 							.getMaxReplicate(); ++replicate) {
-						final double[] ds = new double[96];
+						final double[] ds = new double[format.getWellCount()];
 						Arrays.fill(ds, Double.NaN);
 						subSubMap.put(Integer.valueOf(replicate), ds);
 					}
@@ -894,16 +904,17 @@ public class RankNodeModel extends NodeModel {
 		}
 	}
 
-	private double getRank(final DataRow origRow, final int experimentIdx,
-			final String parameter, final int normMethodIdx,
-			final int logTransformIdx, final int normKindIdx,
-			final int varianceAdjustmentIdx, final int scoreMethodIdx,
-			final int sumMethodIdx, final int plateIdx, final int replicateIdx,
-			final int wellIdx, final StatTypes stat,
-			final RankingGroups grouping, final int plateShift,
-			final int plateCount, final int replicateShift) {
+	private double getRank(final Format format, final DataRow origRow,
+			final int experimentIdx, final String parameter,
+			final int normMethodIdx, final int logTransformIdx,
+			final int normKindIdx, final int varianceAdjustmentIdx,
+			final int scoreMethodIdx, final int sumMethodIdx,
+			final int plateIdx, final int replicateIdx, final int wellIdx,
+			final StatTypes stat, final RankingGroups grouping,
+			final int plateShift, final int plateCount, final int replicateShift) {
 		final int plate = ((IntCell) origRow.getCell(plateIdx)).getIntValue();
 		return getRank(
+				format,
 				((StringCell) origRow.getCell(experimentIdx)).getStringValue(),
 				parameter,
 				ModelBuilder.getNormKey(origRow, normMethodIdx,
@@ -912,16 +923,17 @@ public class RankNodeModel extends NodeModel {
 				plate,
 				replicateIdx >= 0 && stat.isUseReplicates() ? ((IntCell) origRow
 						.getCell(replicateIdx)).getIntValue()
-						: noReplicates.intValue(), ModelBuilder
+						: noReplicates.intValue(), format
 						.convertWellToPosition(((StringCell) origRow
 								.getCell(wellIdx)).getStringValue()), stat,
 				grouping, plateShift, plateCount, replicateShift);
 	}
 
-	private double getRank(final String experiment, final String parameter,
-			final String normKey, final int plate, final int replicate,
-			final int well, final StatTypes stat, final RankingGroups grouping,
-			final int plateShift, final int plateCount, final int replicateShift) {
+	private double getRank(final Format format, final String experiment,
+			final String parameter, final String normKey, final int plate,
+			final int replicate, final int well, final StatTypes stat,
+			final RankingGroups grouping, final int plateShift,
+			final int plateCount, final int replicateShift) {
 		final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> map0 = ranks
 				.get(experiment);
 		if (map0 == null) {
@@ -979,18 +991,20 @@ public class RankNodeModel extends NodeModel {
 		switch (grouping) {
 		case experiment:
 			// TODO replicateShift, plateCount
-			wellPos = stat.isUseReplicates() ? well + (plate - plateShift) * 96
-					+ (replicate - replicateShift) * plateCount * 96 : well
-					+ (plate - plateShift) * 96;
+			wellPos = stat.isUseReplicates() ? well + (plate - plateShift)
+					* format.getWellCount() + (replicate - replicateShift)
+					* plateCount * format.getWellCount() : well
+					+ (plate - plateShift) * format.getWellCount();
 			break;
 		case replicate:
-			wellPos = well + (plate - plateShift) * 96;
+			wellPos = well + (plate - plateShift) * format.getWellCount();
 			break;
 		case plate:
 		case plateAndReplicate:
 			// TODO replicateShift
 			wellPos = stat.isUseReplicates()
-					&& grouping != RankingGroups.plateAndReplicate ? 96
+					&& grouping != RankingGroups.plateAndReplicate ? format
+					.getWellCount()
 					* (replicate - replicateShift) + well : well;
 			break;
 		default:
@@ -1063,7 +1077,6 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.saveSettingsTo(settings);
 		rankPrefix.saveSettingsTo(settings);
 		groupingModel.saveSettingsTo(settings);
-		parametersModel.saveSettingsTo(settings);
 		statisticsModel.saveSettingsTo(settings);
 		parametersModel.saveSettingsTo(settings);
 		regulationModel.saveSettingsTo(settings);
@@ -1079,7 +1092,6 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.loadSettingsFrom(settings);
 		rankPrefix.loadSettingsFrom(settings);
 		groupingModel.loadSettingsFrom(settings);
-		parametersModel.loadSettingsFrom(settings);
 		statisticsModel.loadSettingsFrom(settings);
 		parametersModel.loadSettingsFrom(settings);
 		regulationModel.loadSettingsFrom(settings);
@@ -1095,7 +1107,6 @@ public class RankNodeModel extends NodeModel {
 		wellAnnotationColumn.validateSettings(settings);
 		rankPrefix.validateSettings(settings);
 		groupingModel.validateSettings(settings);
-		parametersModel.validateSettings(settings);
 		statisticsModel.validateSettings(settings);
 		parametersModel.validateSettings(settings);
 		regulationModel.validateSettings(settings);

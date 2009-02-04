@@ -205,8 +205,13 @@ public interface ControlsHandler<ModelType> {
 			final VariableControl<ModelType> second);
 
 	/**
+	 * Finds the handled {@link VariableControl}s with {@link SplitType}:
+	 * {@code splitType}.
+	 * 
 	 * @param splitType
-	 * @return
+	 *            A {@link SplitType}.
+	 * @return The {@link VariableControl}s with {@link SplitType}:
+	 *         {@code splitType}.
 	 */
 	public Set<VariableControl<ModelType>> getVariableControlsAt(
 			SplitType splitType);

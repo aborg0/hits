@@ -1,8 +1,7 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
-import ie.tcd.imm.hits.knime.util.SelectionMoverActionListener;
+import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,18 +12,11 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ButtonModel;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 
 import org.knime.core.data.DoubleValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -41,7 +33,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDoubleBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelDoubleRange;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.util.ColumnFilterPanel;
 import org.rosuda.REngine.REXPLogical;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
@@ -150,9 +141,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(
 						CellHTS2NodeModel.CFGKEY_FOLDER_PATTERN,
 						CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN), "Pattern:");
-		// final JComboBox patternCombobox = (JComboBox) patternDialog
-		// .getComponentPanel().getComponent(1);
-		// patternCombobox.setEditable(true);
 		addDialogComponent(patternDialog);
 		setHorizontalPlacement(false);
 		addDialogComponent(sample);
@@ -162,39 +150,14 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentColumnFilter parametersDialog = new DialogComponentColumnFilter(
 				new SettingsModelFilterString(
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
-						new String[] { /*
-										 * ImporterNodeModel.PLATE_COL_NAME,
-										 * ImporterNodeModel.REPLICATE_COL_NAME,
-										 * ImporterNodeModel.WELL_COL_NAME,
-										 * ImporterNodeModel.GENE_ID_COL_NAME,
-										 * ImporterNodeModel.GENE_ANNOTATION_COL_NAME
-										 */}), 0, DoubleValue.class);
-		final ColumnFilterPanel columnsFilter = (ColumnFilterPanel) parametersDialog
-				.getComponentPanel().getComponent(0);
-		final JPanel includePanel = (JPanel) columnsFilter.getComponent(1);
-		final JList includeList = (JList) ((JScrollPane) includePanel
-				.getComponent(1)).getViewport().getView();
-		final JPanel center = (JPanel) columnsFilter.getComponent(0);
-		final JPanel buttonPanel2 = (JPanel) center.getComponent(1);
-		final JPanel buttonPanel = (JPanel) buttonPanel2.getComponent(0);
-		final JButton upButton = new JButton("^");
-		upButton.setMaximumSize(new Dimension(125, 10));
-		// buttonPanel.add(upButton);
-		final DefaultListModel includeListModel = (DefaultListModel) includeList
-				.getModel();
-		upButton
-				.addActionListener(new SelectionMoverActionListener(
-						includeList, includeListModel, -1, parametersDialog
-								.getModel()));
-		// buttonPanel.add(new JPanel());
-
-		final JButton downButton = new JButton("v");
-		downButton.setMaximumSize(new Dimension(125, 10));
-		// buttonPanel.add(downButton);
-		downButton.addActionListener(new SelectionMoverActionListener(
-				includeList, includeListModel, 1, parametersDialog.getModel()));
-		// buttonPanel.add(new JPanel());
-
+						new String[0]), 0, DoubleValue.class);
+		((SettingsModelFilterString) parametersDialog.getModel())
+				.setExcludeList(new String[] {
+						ImporterNodeModel.PLATE_COL_NAME,
+						ImporterNodeModel.REPLICATE_COL_NAME,
+						ImporterNodeModel.WELL_COL_NAME,
+						ImporterNodeModel.GENE_ID_COL_NAME,
+						ImporterNodeModel.GENE_ANNOTATION_COL_NAME });
 		parametersDialog.setIncludeTitle("Selected parameters for analysis");
 		parametersDialog
 				.setToolTipText("You may select the parameters to analyse.");
@@ -221,28 +184,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						isMultiplicativeDialogModel, fileChooser,
 						patternDialog, parametersDialog);
 			}
-		});
-		includeListModel.addListDataListener(new ListDataListener() {
-
-			@Override
-			public void intervalRemoved(final ListDataEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void intervalAdded(final ListDataEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void contentsChanged(final ListDataEvent e) {
-				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
-			}
-
 		});
 		{
 			updateSample(sample, experimentDialog, normalizationDialog,

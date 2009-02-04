@@ -115,8 +115,6 @@ class ListControl extends AbstractVariableControl {
 		getPanel().add(list);
 	}
 
-	private static final long serialVersionUID = 1095155676370912021L;
-
 	private final JList list = new JList(new DefaultListModel());
 
 	/*

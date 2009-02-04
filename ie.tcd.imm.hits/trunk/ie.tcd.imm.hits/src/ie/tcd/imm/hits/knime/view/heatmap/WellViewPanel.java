@@ -400,6 +400,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 			setToolTipText(labels[0]);
 		}
 		final Point point = e.getPoint();
+		// TODO give better label?
 	}
 
 	/**

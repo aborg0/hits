@@ -109,6 +109,18 @@ public class PopupMenu<ModelType> implements MouseListener {
 		}
 	}
 
+	/**
+	 * Constructs a {@link PopupMenu} and on popup selection click it will be
+	 * popping up.
+	 * 
+	 * @param control
+	 *            A {@link VariableControl}, this will be modified by the popup
+	 *            options.
+	 * @param split
+	 *            This controls the added options.
+	 * @param controlsHandler
+	 *            This should the {@link ControlsHandler} for {@code control}.
+	 */
 	public PopupMenu(final VariableControl<ModelType> control,
 			final SplitType split,
 			final ControlsHandler<ModelType> controlsHandler) {

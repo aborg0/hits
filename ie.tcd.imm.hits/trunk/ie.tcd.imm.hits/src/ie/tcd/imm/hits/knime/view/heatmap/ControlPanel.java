@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
@@ -33,15 +32,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicBorders;
 
@@ -495,7 +491,8 @@ public class ControlPanel extends JPanel {
 
 	private final JPanel primarySliders = new JPanel();
 	private final JPanel secondarySliders = new JPanel();
-	private final JPanel additionalSliders = new JPanel();
+
+	// private final JPanel additionalSliders = new JPanel();
 
 	/**
 	 * Constructs a {@link ControlPanel} for {@code origView} (as parent
@@ -510,7 +507,7 @@ public class ControlPanel extends JPanel {
 		final GridBagLayout gbLayout = new GridBagLayout();
 		setLayout(gbLayout);
 		final GridBagConstraints formatConstraints = new GridBagConstraints();
-		final GridBagConstraints paramSelectConstraints = formatConstraints;
+		// final GridBagConstraints paramSelectConstraints = formatConstraints;
 		paramaterSelection = new ParamaterSelection();
 		// gbLayout.addLayoutComponent(paramaterSelection,
 		// paramSelectConstraints);
@@ -580,12 +577,20 @@ public class ControlPanel extends JPanel {
 		primaryConstraints.gridx = 1;
 		primaryConstraints.gridy = 2;
 		gbLayout.addLayoutComponent(primarySliders, primaryConstraints);
+		{
+			final GridLayout gridBagLayout = new GridLayout(1, 0);
+			primarySliders.setLayout(gridBagLayout);
+		}
 		origView.getControlsHandler().setContainer(primarySliders,
 				SplitType.PrimarySplit, PositionConstants.primary.name());
 		add(primarySliders, primaryConstraints);
 		final GridBagConstraints secondaryConstraints = new GridBagConstraints();
 		secondaryConstraints.gridx = 1;
 		secondaryConstraints.gridy = 3;
+		{
+			final GridLayout gridLayout = new GridLayout(1, 0);
+			secondarySliders.setLayout(gridLayout);
+		}
 		gbLayout.addLayoutComponent(secondarySliders, secondaryConstraints);
 		origView.getControlsHandler().setContainer(secondarySliders,
 				SplitType.SeconderSplit, PositionConstants.secondary.name());
@@ -650,189 +655,6 @@ public class ControlPanel extends JPanel {
 		legendPanel.setViewModel(currentViewModel);
 		view.getVolatileModel().removeActionListener(legendPanel);
 		view.getVolatileModel().addActionListener(legendPanel);
-		final ArrangementModel arrangementModel = currentViewModel.getMain()
-				.getArrangementModel();
-		// Update hidden sliders
-		{
-			final Collection<SliderModel> sliders = arrangementModel
-					.getSliders().get(Type.Hidden);
-			// hiddenSliders.removeAll();
-			final GridBagLayout gridBagLayout = new GridBagLayout();
-			hiddenSliders.setLayout(gridBagLayout);
-			final int[] counts = new int[SliderModel.MAX_INDEPENDENT_FACTORS];
-			// for (final SliderModel slider : sliders) {
-			// final int pos = ++counts[slider.getSubId()];
-			// final GridBagConstraints constraint = new GridBagConstraints();
-			// constraint.gridx = slider.getSubId();
-			// constraint.gridy = pos;
-			// hiddenSliders.add(createSliderComboBox(slider), constraint);
-			// }
-		}
-		{
-			final Collection<SliderModel> sliders = arrangementModel
-					.getSliders().get(Type.Splitter);
-			final List<ParameterModel> primerParameters = currentViewModel
-					.getMain().getPrimerParameters();
-			// primarySliders.removeAll();
-			final GridLayout gridBagLayout = new GridLayout(1, primerParameters
-					.size());
-			primarySliders.setLayout(gridBagLayout);
-			for (final ParameterModel parameterModel : primerParameters) {
-				for (final SliderModel possSlider : sliders) {
-					final List<ParameterModel> parameters = possSlider
-							.getParameters();
-					if (parameters.size() == 1) {
-						final ParameterModel possParameter = parameters
-								.iterator().next();
-						// if (possParameter.getType() ==
-						// parameterModel.getType()) {
-						// primarySliders.add(createSliderModifier(
-						// currentViewModel, possSlider, view
-						// .getVolatileModel()));
-						// }
-					} else {
-						// TODO ??
-					}
-				}
-			}
-		}
-		{
-			final Collection<SliderModel> sliders = arrangementModel
-					.getSliders().get(Type.Splitter);
-			final List<ParameterModel> secondaryParameters = currentViewModel
-					.getMain().getSeconderParameters();
-			// secondarySliders.removeAll();
-			final GridLayout gridLayout = new GridLayout(1, secondaryParameters
-					.size());
-			secondarySliders.setLayout(gridLayout);
-			for (final ParameterModel parameterModel : secondaryParameters) {
-				for (final SliderModel possSlider : sliders) {
-					final List<ParameterModel> parameters = possSlider
-							.getParameters();
-					if (parameters.size() == 1) {
-						final ParameterModel possParameter = parameters
-								.iterator().next();
-						// if (possParameter.getType() ==
-						// parameterModel.getType()) {
-						// secondarySliders.add(createSliderModifier(
-						// currentViewModel, possSlider, view
-						// .getVolatileModel()));
-						// }
-					} else {
-						// TODO ??
-					}
-				}
-			}
-		}
-		// currentViewModel.getMain().getArrangementModel().addListener(
-		// legendPanel);
-	}
-
-	private Component createSliderModifier(final ViewModel viewModel,
-			final SliderModel slider, final VolatileModel volatileModel) {
-		final ArrangementModel arrangementModel = viewModel.getMain()
-				.getArrangementModel();
-		final List<ParameterModel> parameters = slider.getParameters();
-		final JToolBar ret = new JToolBar(parameters.iterator().next()
-				.getShortName());
-		ret.setFloatable(true);
-		if (parameters.size() == 1) {
-			final ParameterModel model = parameters.iterator().next();
-			ret.setBorder(new TitledBorder(model.getShortName()));
-			for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
-					.getValueMapping().entrySet()) {
-				final String val = entry.getValue().getRight().toString();
-				final JToggleButton button = new JToggleButton(val);
-				button.setSelected(slider.getSelections().contains(
-						entry.getKey()));
-				final Integer origKey = entry.getKey();
-				final LinkedHashMap<Integer, Pair<ParameterModel, Object>> originalMap = new LinkedHashMap<Integer, Pair<ParameterModel, Object>>(
-						slider.getValueMapping());
-				button.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						if (button.isSelected()) {
-							for (final Entry<ParameterModel, Collection<SliderModel>> entry : arrangementModel
-									.getMainArrangement().entrySet()) {
-								for (final SliderModel otherSlider : entry
-										.getValue()) {
-									if (otherSlider.equals(slider)) {
-										otherSlider.select(origKey);
-									}
-								}
-							}
-							slider.select(origKey);
-							arrangementModel.addValue(slider, origKey,
-									originalMap.get(origKey));
-						} else {
-							for (final Entry<ParameterModel, Collection<SliderModel>> entry : arrangementModel
-									.getMainArrangement().entrySet()) {
-								for (final SliderModel otherSlider : entry
-										.getValue()) {
-									if (otherSlider.equals(slider)) {
-										otherSlider.deselect(origKey);
-										if (otherSlider.getSelections()
-												.isEmpty()) {
-											otherSlider.select(origKey);
-											button.setSelected(true);
-											return;
-										}
-									}
-								}
-							}
-							slider.deselect(origKey);
-							arrangementModel.removeValue(slider, origKey);
-						}
-						volatileModel
-								.actionPerformed(new ActionEvent(
-										this,
-										(int) (System.currentTimeMillis() & 0xffffffff),
-										"value handling."));
-						viewModel
-								.actionPerformed(new ActionEvent(
-										this,
-										(int) (System.currentTimeMillis() & 0xffffffff),
-										"value handling."));
-						arrangementModel
-								.actionPerformed(new ActionEvent(
-										this,
-										(int) (System.currentTimeMillis() & 0xffffffff),
-										"value handling."));
-					}
-				});
-				ret.add(button);
-			}
-			return ret;
-		}
-		throw new UnsupportedOperationException("Sorry, not supported yet.");
-	}
-
-	private Component createSliderComboBox(final SliderModel slider) {
-		final List<ParameterModel> parameters = slider.getParameters();
-		if (parameters.size() == 1) {
-			final JComboBox combobox = new JComboBox();
-			for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
-					.getValueMapping().entrySet()) {
-				combobox.addItem(entry.getValue().getRight());
-			}
-			combobox.setSelectedIndex(view.getVolatileModel()
-					.getSliderPositions().get(slider).intValue() - 1);
-			// ret.setEditable(false);
-			combobox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					view.getVolatileModel().setSliderPosition(slider,
-							Integer.valueOf(combobox.getSelectedIndex() + 1));
-				}
-			});
-			final JToolBar ret = new JToolBar(slider.getParameters().iterator()
-					.next().getShortName());
-			ret.add(combobox);
-			ret.setFloatable(true);
-			return ret;
-		}
-		throw new UnsupportedOperationException("Sorry, not supported yet.");
-		// return null;
 	}
 
 	private void addBorderButton(final HeatmapNodeView origView,
@@ -906,7 +728,6 @@ public class ControlPanel extends JPanel {
 	}
 
 	private void internalUpdateParameters() {
-		// TODO Auto-generated method stub
 		paramaterSelection.setPossibleValues(view.getCurrentViewModel()
 				.getMain().getArrangementModel().getTypeValuesMap());
 	}

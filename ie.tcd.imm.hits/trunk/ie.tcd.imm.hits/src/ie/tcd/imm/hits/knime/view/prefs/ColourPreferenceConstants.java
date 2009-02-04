@@ -31,9 +31,9 @@ public class ColourPreferenceConstants {
 	/** Key for low values. */
 	public static final String DOWN_VALUE = "ie.tcd.imm.hits.knime.view.prefs.down.value";
 	/** The options for the up value. */
-	public static final RangeType[] DEFAULT_UP_OPTIONS = new RangeType[] { RangeType.max };
+	static final RangeType[] DEFAULT_UP_OPTIONS = new RangeType[] { RangeType.max };
 	/** The options for the medium value. */
-	public static final RangeType[] DEFAULT_MIDDLE_OPTIONS = new RangeType[] { RangeType.median };
+	static final RangeType[] DEFAULT_MIDDLE_OPTIONS = new RangeType[] { RangeType.median };
 	/** The options for the low value. */
-	public static final RangeType[] DEFAULT_DOWN_OPTIONS = new RangeType[] { RangeType.min };
+	static final RangeType[] DEFAULT_DOWN_OPTIONS = new RangeType[] { RangeType.min };
 }

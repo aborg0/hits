@@ -54,7 +54,7 @@ public class ControlsHandlerKNIMEFactory implements
 	/**
 	 * A {@link ChangeEvent} for the model changes of the {@link SliderModel}s.
 	 */
-	public class ArrangementEvent extends ChangeEvent {
+	public static class ArrangementEvent extends ChangeEvent {
 		private static final long serialVersionUID = -7662127679795688559L;
 		private final ShapeModel newArrangement;
 
@@ -111,11 +111,8 @@ public class ControlsHandlerKNIMEFactory implements
 		super();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#getComponent(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
-	 *      ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public VariableControl<SettingsModel> getComponent(
@@ -145,14 +142,7 @@ public class ControlsHandlerKNIMEFactory implements
 			case Slider:
 			case Tab:
 				final Integer sel = selections.iterator().next();
-				// selections.clear();
-				// selections.add(sel);
 				slider.selectSingle(sel);
-				// for (final Integer select : selections) {
-				// if (!select.equals(sel)) {
-				// slider.deselect(select);
-				// }
-				// }
 				break;
 			default:
 				throw new UnsupportedOperationException(
@@ -187,6 +177,8 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	/**
+	 * Creates a {@link VariableControl} for {@code slider} (with popup menu).
+	 * 
 	 * @param slider
 	 *            The {@link SliderModel} containing the possible values, ...
 	 * @param controlType
@@ -195,6 +187,9 @@ public class ControlsHandlerKNIMEFactory implements
 	 *            A {@link SettingsModelListSelection}.
 	 * @param selectionType
 	 *            The {@link SelectionType} of the control.
+	 * @param split
+	 *            The {@link SplitType} of the returned {@link VariableControl}.
+	 *            Only needed for the popup menu.
 	 * @return The control with the proper parameters.
 	 */
 	private VariableControl<SettingsModel> createControl(
@@ -264,6 +259,9 @@ public class ControlsHandlerKNIMEFactory implements
 	 *            The associated {@link ChangeListener}.
 	 * @param selection
 	 *            The {@link SelectionType selection} mode.
+	 * @param split
+	 *            The {@link SplitType} of the new control. Only needed for the
+	 *            popup menu.
 	 * @return The {@link VariableControl} with the desired parameters.
 	 */
 	private VariableControl<SettingsModel> createControl(
@@ -318,11 +316,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#changeControlType(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
-	 *      ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean changeControlType(
@@ -382,6 +377,15 @@ public class ControlsHandlerKNIMEFactory implements
 		return true;
 	}
 
+	/**
+	 * Deregisters a {@code model}.
+	 * 
+	 * @param model
+	 *            A {@link SliderModel}.
+	 * @param splitType
+	 *            A {@link SplitType} for the model.
+	 * @return On success {@code true}, else {@code false}.
+	 */
 	private boolean deregister(final SliderModel model,
 			final SplitType splitType) {
 		final VariableControl<? extends SettingsModel> variableControl = cache
@@ -417,10 +421,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#deregister(ie.tcd.imm.hits.knime.view.heatmap.SliderModel)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean deregister(final SliderModel model) {
@@ -441,11 +443,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return deregister(model, splitType);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#move(ie.tcd.imm.hits.util.swing.VariableControl,
-	 *      java.lang.String)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean move(final VariableControl<SettingsModel> variableControl,
@@ -478,7 +477,8 @@ public class ControlsHandlerKNIMEFactory implements
 
 	/**
 	 * @param variableControl
-	 * @return
+	 *            A handled {@link VariableControl}.
+	 * @return The {@link SplitType} of {@code variableControl}.
 	 */
 	private SplitType getSplitType(
 			final VariableControl<SettingsModel> variableControl) {
@@ -486,8 +486,13 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	/**
+	 * Adds {@code variableControl} with {@link Boolean#TRUE} to {@code map}.
+	 * 
 	 * @param map
+	 *            A map which should contain {@link VariableControl} and
+	 *            {@link Boolean}s.
 	 * @param variableControl
+	 *            A handled {@link VariableControl}.
 	 */
 	private void addToMap(
 			final Map<VariableControl<SettingsModel>, Boolean> map,
@@ -495,12 +500,8 @@ public class ControlsHandlerKNIMEFactory implements
 		map.put(variableControl, Boolean.TRUE);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#register(ie.tcd.imm.hits.knime.view.heatmap.SliderModel,
-	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
-	 *      java.lang.String)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean register(final SliderModel model, final SplitType modelType,
@@ -512,25 +513,6 @@ public class ControlsHandlerKNIMEFactory implements
 		final Map<VariableControl<SettingsModel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
-		// final ControlTypes controlType;
-		// switch (modelType) {
-		// case Hidden:
-		// controlType = ControlTypes.ComboBox;
-		// break;
-		// case Selector:
-		// controlType = ControlTypes.Slider;
-		// break;
-		// case Splitter:
-		// controlType = ControlTypes.Buttons;
-		// break;
-		// case ScrollHorisontal:
-		// case ScrollVertical:
-		// throw new UnsupportedOperationException(
-		// "Scrolls are not supported yet...");
-		// default:
-		// throw new UnsupportedOperationException("Not supported position: "
-		// + modelType);
-		// }
 		final VariableControl<SettingsModel> variableControl = getComponent(
 				model, controlType,
 				modelType == SplitType.SingleSelect ? SelectionType.Single
@@ -572,12 +554,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return component == null ? null : component.get();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#setContainer(javax.swing.JComponent,
-	 *      ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type,
-	 *      java.lang.String)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void setContainer(final JComponent container, final SplitType type,
@@ -591,10 +569,8 @@ public class ControlsHandlerKNIMEFactory implements
 				new WeakHashMap<VariableControl<SettingsModel>, Boolean>());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#findContainers()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Set<Pair<SplitType, String>> findContainers() {
@@ -608,10 +584,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#addChangeListener(javax.swing.event.ChangeListener)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void addChangeListener(final ChangeListener changeListener) {
@@ -634,10 +608,8 @@ public class ControlsHandlerKNIMEFactory implements
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#removeChangeListener(javax.swing.event.ChangeListener)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void removeChangeListener(final ChangeListener changeListener) {
@@ -651,11 +623,8 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#exchangeControls(ie.tcd.imm.hits.util.swing.VariableControl,
-	 *      ie.tcd.imm.hits.util.swing.VariableControl)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean exchangeControls(final VariableControl<SettingsModel> first,
@@ -676,11 +645,6 @@ public class ControlsHandlerKNIMEFactory implements
 		if (firstPos.getLeft() == SplitType.SingleSelect) {
 			return exchangeControls(second, first);
 		}
-		// So first cannot be SingleSelect
-		// final List<ParameterModel> primerParameters = arrangement
-		// .getPrimerParameters();
-		// final List<ParameterModel> seconderParameters = arrangement
-		// .getSeconderParameters();
 		final Set<SliderModel> sliderModels = arrangement.getArrangementModel()
 				.getSliderModels();
 		final SliderModel firstSlider = findSlider(first, sliderModels);
@@ -746,16 +710,18 @@ public class ControlsHandlerKNIMEFactory implements
 				.getType());
 		register(secondSlider, firstPos.getLeft(), firstPos.getRight(), first
 				.getType());
-		// final Map<Type, SliderModel> newArrangement = new HashMap<Type,
-		// SliderModel>();
-		// final ArrangementModel newArrModel = new ArrangementModel();
 		return true;
 	}
 
 	/**
-	 * @param first
+	 * Finds a {@link SliderModel} belonging to {@code control} in
+	 * {@code sliderModels}.
+	 * 
+	 * @param control
+	 *            A handled {@link VariableControl}.
 	 * @param sliderModels
-	 * @return
+	 *            The possible {@link SliderModel}s.
+	 * @return The found {@link SliderModel} or {@code null}.
 	 */
 	private @Nullable
 	SliderModel findSlider(final VariableControl<SettingsModel> control,
@@ -771,6 +737,13 @@ public class ControlsHandlerKNIMEFactory implements
 		return null;
 	}
 
+	/**
+	 * Notifies the added (and still not garbage collected)
+	 * {@link ChangeListener}s.
+	 * 
+	 * @param event
+	 *            A {@link ChangeEvent}.
+	 */
 	private void notifyChangeListeners(final ChangeEvent event) {
 		for (final Iterator<WeakReference<ChangeListener>> it = listeners
 				.iterator(); it.hasNext();) {
@@ -784,6 +757,13 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
+	/**
+	 * Finds the container's position for {@code variableControl}.
+	 * 
+	 * @param variableControl
+	 *            A handled {@link VariableControl}.
+	 * @return The found {@link SplitType} name {@link Pair}, or {@code null}.
+	 */
 	private @Nullable
 	Pair<SplitType, String> getPosition(
 			final VariableControl<SettingsModel> variableControl) {
@@ -820,10 +800,8 @@ public class ControlsHandlerKNIMEFactory implements
 		this.arrangement = arrangement;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ControlsHandler#getVariableControlsAt(ie.tcd.imm.hits.knime.view.SplitType)
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Set<VariableControl<SettingsModel>> getVariableControlsAt(

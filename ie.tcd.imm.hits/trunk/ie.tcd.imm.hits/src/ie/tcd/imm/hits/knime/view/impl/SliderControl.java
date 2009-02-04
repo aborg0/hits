@@ -33,7 +33,6 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 class SliderControl extends AbstractVariableControl {
-	private static final long serialVersionUID = -3901494558881660768L;
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,
 			0, 1, 1));
 

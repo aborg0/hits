@@ -200,9 +200,9 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		executeInner(inData[0], exec);
 		return new BufferedDataTable[] { /*
-		 * (BufferedDataTable) modelBuilder
-		 * .getTable()
-		 */};
+											 * (BufferedDataTable) modelBuilder
+											 * .getTable()
+											 */};
 	}
 
 	private void executeInner(final DataTable table, final ExecutionMonitor exec)
@@ -413,7 +413,8 @@ public class HeatmapNodeModel extends NodeModel {
 		if (getTable() != null) {
 			DataContainer.writeToZip(getTable(), file, exec);
 		} else {
-			file.delete();
+			boolean deleted = file.delete();
+			assert deleted || !deleted;
 		}
 		// Everything written to output ports is saved automatically (data
 		// returned by the execute method, models saved in the saveModelContent,

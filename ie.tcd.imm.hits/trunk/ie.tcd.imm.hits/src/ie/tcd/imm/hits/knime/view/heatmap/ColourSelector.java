@@ -40,6 +40,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.eclipse.jface.preference.ColorSelector;
+
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
@@ -276,7 +278,8 @@ public class ColourSelector extends JPanel {
 		 *            automatically the same as should be between the two
 		 *            extreme colours.
 		 */
-		public void setMiddle(final Color middle) {
+		public void setMiddle(@Nullable
+		final Color middle) {
 			this.middle = middle;
 			repaint();
 		}
@@ -764,6 +767,8 @@ public class ColourSelector extends JPanel {
 	 *            Some parameter names.
 	 * @param stats
 	 *            Some {@link StatTypes}.
+	 * @param ranges
+	 *            The ranges of the parameter/statistics.
 	 */
 	public void update(final Iterable<String> parameters,
 			final Iterable<StatTypes> stats,
@@ -771,9 +776,9 @@ public class ColourSelector extends JPanel {
 		doublePanel.removeAll();
 		final JPanel titles = new JPanel();
 		titles.setLayout(new GridLayout(1, 0));
-		final Color defaultLowColor = getColour(ColourPreferenceConstants.DOWN_COLOUR);// DEFAULT_MODEL.getDown();
-		final Color defaultMiddleColor = getColour(ColourPreferenceConstants.MIDDLE_COLOUR);// DEFAULT_MODEL.getMiddle();
-		final Color defaultHighColor = getColour(ColourPreferenceConstants.UP_COLOUR);// DEFAULT_MODEL.getUp();
+		final Color defaultLowColor = getColour(ColourPreferenceConstants.DOWN_COLOUR);
+		final Color defaultMiddleColor = getColour(ColourPreferenceConstants.MIDDLE_COLOUR);
+		final Color defaultHighColor = getColour(ColourPreferenceConstants.UP_COLOUR);
 		titles.add(new JLabel("Statistics"));
 		titles.add(new JLabel(""));
 		for (final String parameter : parameters) {
@@ -797,28 +802,34 @@ public class ColourSelector extends JPanel {
 								.get(stat);
 						final double defaultLowValue = rangeMap
 								.get(
-										RangeType
-												.valueOf(ImporterNodePlugin
-														.getDefault()
-														.getPreferenceStore()
-														.getString(
-																ColourPreferenceConstants.DOWN_VALUE)))
+										Displayable.Util
+												.findByDisplayText(
+														ImporterNodePlugin
+																.getDefault()
+																.getPreferenceStore()
+																.getString(
+																		ColourPreferenceConstants.DOWN_VALUE),
+														RangeType.values()))
 								.doubleValue();
 						final Double defaultMiddleValue = rangeMap
-								.get(RangeType
-										.valueOf(ImporterNodePlugin
-												.getDefault()
-												.getPreferenceStore()
-												.getString(
-														ColourPreferenceConstants.MIDDLE_VALUE)));
-						final double defaultHighValue = rangeMap
-								.get(
-										RangeType
-												.valueOf(ImporterNodePlugin
+								.get(Displayable.Util
+										.findByDisplayText(
+												ImporterNodePlugin
 														.getDefault()
 														.getPreferenceStore()
 														.getString(
-																ColourPreferenceConstants.UP_VALUE)))
+																ColourPreferenceConstants.MIDDLE_VALUE),
+												RangeType.values()));
+						final double defaultHighValue = rangeMap
+								.get(
+										Displayable.Util
+												.findByDisplayText(
+														ImporterNodePlugin
+																.getDefault()
+																.getPreferenceStore()
+																.getString(
+																		ColourPreferenceConstants.UP_VALUE),
+														RangeType.values()))
 								.doubleValue();
 						map.put(stat, new Model(defaultLowValue,
 								defaultMiddleValue, defaultHighValue,
@@ -836,8 +847,12 @@ public class ColourSelector extends JPanel {
 	}
 
 	/**
-	 * @param upColour
-	 * @return
+	 * @param key
+	 *            A {@link String} in <code>\d{1,3},\d{1,3},\d{1,3}</code>
+	 *            format. The numbers should be between {@code 0} (inclusive)
+	 *            and {@code 255} (inclusive).
+	 * @return The colour belonging to {@code key}.
+	 * @see ColorSelector#getColorValue()
 	 */
 	private Color getColour(final String key) {
 		final String rgbString = ImporterNodePlugin.getDefault()

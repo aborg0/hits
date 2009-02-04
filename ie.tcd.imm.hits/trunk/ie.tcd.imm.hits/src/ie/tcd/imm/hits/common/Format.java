@@ -11,10 +11,12 @@ public enum Format {
 
 	private final int row;
 	private final int col;
+	private final int wellCount;
 
 	private Format(final int row, final int col) {
 		this.row = row;
 		this.col = col;
+		this.wellCount = this.row * this.col;
 	}
 
 	/**
@@ -67,5 +69,12 @@ public enum Format {
 					+ " (" + well + ")");
 		}
 		return rowPos * col + column - 1;
+	}
+
+	/**
+	 * @return The well count associated with this format.
+	 */
+	public int getWellCount() {
+		return wellCount;
 	}
 }
