@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
@@ -229,6 +230,8 @@ public class ViewModel implements ActionListener {
 
 		private final int startAngle = 30;
 
+		private ColourModel colourModel;
+
 		/**
 		 * Constructs a {@link ShapeModel} using the parameters.
 		 * 
@@ -265,6 +268,7 @@ public class ViewModel implements ActionListener {
 			this.drawPrimaryBorders = drawPrimaryBorders;
 			this.drawSecondaryBorders = drawSecondaryBorders;
 			this.drawAdditionalBorders = drawAdditionalBorders;
+			this.colourModel = new ColourModel();
 		}
 
 		/**
@@ -408,6 +412,23 @@ public class ViewModel implements ActionListener {
 		 */
 		public ArrangementModel getArrangementModel() {
 			return arrangementModel;
+		}
+
+		/**
+		 * @return the used {@link ColourModel}.
+		 */
+		public ColourModel getColourModel() {
+			return colourModel;
+		}
+
+		/**
+		 * Sets the new {@link ColourModel} to {@code colourModel}.
+		 * 
+		 * @param colourModel
+		 *            the new {@link ColourModel}.
+		 */
+		public void setColourModel(final ColourModel colourModel) {
+			this.colourModel = colourModel;
 		}
 
 		/**

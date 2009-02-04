@@ -189,7 +189,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 						plateSlider.getSelections().iterator().next())
 				.getRight()).intValue() - 1 : -1;
 		final Color[][] colors = new Color[rows * cols][size];
-		final ColourModel colourModel = volatileModel.getColourModel();
+		final ColourModel colourModel = viewModel.getMain().getColourModel();
 		final ModelBuilder modelBuilder = nodeModel.getModelBuilder();
 		final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = modelBuilder
 				.getScores();
@@ -253,10 +253,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		}
 		for (int i = rows * cols; i-- > 0;) {
 			final String l = InfoParser.parse(experimentPos.get(ZERO),
-					normalisationPos.get(ZERO), viewModel.getLabelPattern(), /*
-					 * plate +
-					 * 1
-					 */
+					normalisationPos.get(ZERO), viewModel.getLabelPattern(), 
 					platePos.get(ZERO), i / 12, i % 12, nodeModel);
 			wells[i].setLabels(l);
 		}

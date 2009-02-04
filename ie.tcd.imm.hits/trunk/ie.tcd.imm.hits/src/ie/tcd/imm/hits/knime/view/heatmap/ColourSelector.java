@@ -800,17 +800,15 @@ public class ColourSelector extends JPanel {
 					} else {
 						final Map<RangeType, Double> rangeMap = possMap
 								.get(stat);
-						final double defaultLowValue = rangeMap
-								.get(
-										Displayable.Util
-												.findByDisplayText(
-														ImporterNodePlugin
-																.getDefault()
-																.getPreferenceStore()
-																.getString(
-																		ColourPreferenceConstants.DOWN_VALUE),
-														RangeType.values()))
-								.doubleValue();
+						final Double defaultLowValue = rangeMap
+								.get(Displayable.Util
+										.findByDisplayText(
+												ImporterNodePlugin
+														.getDefault()
+														.getPreferenceStore()
+														.getString(
+																ColourPreferenceConstants.DOWN_VALUE),
+												RangeType.values()));
 						final Double defaultMiddleValue = rangeMap
 								.get(Displayable.Util
 										.findByDisplayText(
@@ -820,19 +818,21 @@ public class ColourSelector extends JPanel {
 														.getString(
 																ColourPreferenceConstants.MIDDLE_VALUE),
 												RangeType.values()));
-						final double defaultHighValue = rangeMap
-								.get(
-										Displayable.Util
-												.findByDisplayText(
-														ImporterNodePlugin
-																.getDefault()
-																.getPreferenceStore()
-																.getString(
-																		ColourPreferenceConstants.UP_VALUE),
-														RangeType.values()))
-								.doubleValue();
-						map.put(stat, new Model(defaultLowValue,
-								defaultMiddleValue, defaultHighValue,
+						final Double defaultHighValue = rangeMap
+								.get(Displayable.Util
+										.findByDisplayText(
+												ImporterNodePlugin
+														.getDefault()
+														.getPreferenceStore()
+														.getString(
+																ColourPreferenceConstants.UP_VALUE),
+												RangeType.values()));
+						map.put(stat, new Model(
+								defaultLowValue == null ? DEFAULT_MODEL.downVal
+										: defaultLowValue.doubleValue(),
+								defaultMiddleValue,
+								defaultHighValue == null ? DEFAULT_MODEL.upVal
+										: defaultHighValue.doubleValue(),
 								defaultLowColor, defaultMiddleColor,
 								defaultHighColor));
 					}

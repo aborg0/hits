@@ -4,7 +4,6 @@ import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.RangeType;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -431,8 +430,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		/** The actual {@link ArrangementModel} */
 		private ArrangementModel arrangementModel;
 
-		private ColourModel colourModel;
-
 		/**
 		 * This {@link Map} tells that which {@link DataCell} represents which
 		 * row's ids (rowId &Rarr; (plate, position)). The plate and position
@@ -724,23 +721,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 		}
-
-		/**
-		 * @return the used {@link ColourModel}.
-		 */
-		public ColourModel getColourModel() {
-			return colourModel;
-		}
-
-		/**
-		 * Sets the new {@link ColourModel} to {@code colourModel}.
-		 * 
-		 * @param colourModel
-		 *            the new {@link ColourModel}.
-		 */
-		public void setColourModel(final ColourModel colourModel) {
-			this.colourModel = colourModel;
-		}
 	}
 
 	/**
@@ -880,7 +860,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		unHiliteAll.addActionListener(heatmapPanel);
 		unHiliteAll.addActionListener(volatileModel);
 		colourSelector.getModel().addActionListener(heatmapPanel);
-		volatileModel.setColourModel(colourSelector.getModel());
+		currentViewModel.getMain().setColourModel(colourSelector.getModel());
 		volatileModel.addActionListener(legendPanel);
 		volatileModel.addActionListener(legendPanel2);
 		setCurrentViewModel(currentViewModel);
