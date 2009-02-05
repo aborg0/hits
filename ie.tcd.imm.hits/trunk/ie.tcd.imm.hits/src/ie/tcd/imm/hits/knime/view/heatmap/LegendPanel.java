@@ -3,16 +3,23 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.Sample;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
+import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,6 +41,11 @@ import javax.swing.JPanel;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LegendPanel extends JPanel implements ActionListener {
+	private static final long serialVersionUID = 9129522729091802767L;
+	private ViewModel model;
+	private final LayoutLegendPanel layoutLegendPanel;
+	private boolean showColors = true;
+
 	/**
 	 * This panel shows the layout of different parameters.
 	 */
@@ -62,7 +76,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 			super();
 			this.isSelectable = isSelectable;
 			this.model = model;
-			// model.getOverviewModel().
 			this.places = places;
 			internalSetModel();
 			add(label);
@@ -82,9 +95,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 		private void internalSetModel() {
 			switch (places) {
 			case Choices:
-				final List<ParameterModel> choiceModel = model.getOverview()
-						.getChoiceModel();
-				setText(choiceModel);
+				// final List<ParameterModel> choiceModel = model.getOverview()
+				// .getChoiceModel();
+				// setText(choiceModel);
 				break;
 			case Columns:
 				setText(model.getOverview().getRowModel());
@@ -148,17 +161,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 		// }
 	}
 
-	private static final long serialVersionUID = 9129522729091802767L;
-	private ViewModel model;
-	private final LayoutLegendPanel layoutLegendPanel;
-
 	/**
 	 * This class shows a legend of a sample well.
 	 */
 	private static class ShapeLegendPanel extends WellViewPanel {
 		private static final long serialVersionUID = -1068470342510750276L;
 
-		private boolean showColors = true;
 		private boolean showLabels = true;
 
 		private final Color borderColor = Color.BLACK;
@@ -185,14 +193,109 @@ public class LegendPanel extends JPanel implements ActionListener {
 			super.paintComponent(g);
 			final Rectangle bounds = getBounds();
 			final int radius = Math.min(bounds.width, bounds.height) / 2;
+
 			final Collection<SliderModel> sliders = getModel().getMain()
-					.getArrangementModel().getSliderModels();// .getSliders().get(Type.Splitter);
+					.getArrangementModel().getSliderModels();
+			final ColourModel cm = getModel().getMain().getColourModel();
 			final int primaryCount = selectValueCount(getModel().getMain()
 					.getPrimerParameters(), sliders);
 			final int secundaryCount = selectValueCount(getModel().getMain()
 					.getSeconderParameters(), sliders);
 			switch (getModel().getShape()) {
 			case Circle:
+				if (/* showColors */false) {
+					removeAll();
+					final ParameterModel primary = getModel().getMain()
+							.getPrimerParameters().iterator().next();
+					final SliderModel primarySlider = getCurrentSlider(sliders,
+							primary);
+					final ParameterModel secondary = getModel().getMain()
+							.getSeconderParameters().iterator().next();
+					final SliderModel secondarySlider = getCurrentSlider(
+							sliders, secondary);
+					final SliderModel statSlider = SliderModel.findSlider(
+							sliders, StatTypes.metaStatType);
+					final SliderModel paramSlider = SliderModel.findSlider(
+							sliders, StatTypes.parameter);
+					int angle = getModel().getMain().getStartAngle();
+					angle += 180 / primaryCount;
+					switch (primary.getType()) {
+					case metaStatType:
+						switch (secondary.getType()) {
+						case parameter:
+							break;
+						default: {
+							final Set<Integer> paramSelect = paramSlider
+									.getSelections();
+							assert paramSelect.size() == 1;
+							final String param = (String) paramSlider
+									.getValueMapping().get(
+											paramSelect.iterator().next())
+									.getRight();
+							for (final Integer primSelect : primarySlider
+									.getSelections()) {
+								final StatTypes stat = (StatTypes) primarySlider
+										.getValueMapping().get(primSelect)
+										.getRight();
+								final Model m = cm.getModel(param, stat);
+								final Sample sample = Sample.create(true);
+								sample.setBounds(bounds.width
+										/ 2
+										- 40
+										+ (int) (Math.cos(angle / 180.0
+												* Math.PI) * 60), bounds.height
+										/ 2
+										- (int) (Math.sin(angle / 180.0
+												* Math.PI) * 60)/*-bounds.width / 4, bounds.height / 4*/
+								, 20, 50);
+								sample.setModel(m);
+								sample.paintAll(g);
+								angle += 360 / primaryCount;
+							}
+							break;
+						}
+						}
+						break;
+					case parameter:
+						switch (secondary.getType()) {
+						case metaStatType:
+
+							break;
+						default: {
+							final Set<Integer> statSelects = statSlider
+									.getSelections();
+							assert statSelects.size() == 1;
+							final StatTypes stat = (StatTypes) statSlider
+									.getValueMapping().get(
+											statSelects.iterator().next())
+									.getRight();
+							for (final Integer primSelect : primarySlider
+									.getSelections()) {
+								final String param = (String) primarySlider
+										.getValueMapping().get(primSelect)
+										.getRight();
+								final Model m = cm.getModel(param, stat);
+								final Sample sample = Sample.create(true);
+								sample.setModel(m);
+								add(sample);
+								sample.setBounds(bounds.width
+										/ 2
+										- 10
+										+ (int) (Math.cos(angle / 180.0
+												* Math.PI) * 80), bounds.height
+										/ 2
+										- 25
+										- (int) (Math.sin(angle / 180.0
+												* Math.PI) * 80)/*-bounds.width / 4, bounds.height / 4*/
+								, 20, 50);
+								// sample.paintAll(g);
+								angle += 360 / primaryCount;
+							}
+							break;
+						}
+						}
+					}
+				}
 				if (showLabels) {
 					final int startAngle = getModel().getMain().getStartAngle();
 					int angle = startAngle;
@@ -327,35 +430,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 
-		private SliderModel getCurrentSlider(
-				final Collection<SliderModel> sliders,
-				final ParameterModel model) {
-			SliderModel currentSlider = null;
-			for (final SliderModel slider : sliders) {
-				for (final ParameterModel pm : slider.getParameters()) {
-					if (pm.equals(model)) {
-						currentSlider = slider;
-					}
-				}
-			}
-			return currentSlider;
-		}
-
 		/**
 		 * @param showLabels
 		 *            Changes the labels' visibility.
 		 */
 		public void setShowLabels(final boolean showLabels) {
 			this.showLabels = showLabels;
-			repaint();
-		}
-
-		/**
-		 * @param showColors
-		 *            Changes the colourmaps' visibility.
-		 */
-		public void setShowColors(final boolean showColors) {
-			this.showColors = showColors;
 			repaint();
 		}
 	}
@@ -384,11 +464,15 @@ public class LegendPanel extends JPanel implements ActionListener {
 			super();
 			horizontalParametersPanel = new ParametersPanel(isSelectable,
 					model, true, ViewModel.OverviewModel.Places.Columns);
+			horizontalParametersPanel.setOpaque(false);
 			verticalParametersPanel = new ParametersPanel(isSelectable, model,
 					false, ViewModel.OverviewModel.Places.Rows);
+			verticalParametersPanel.setOpaque(false);
 			choiceParametersPanel = new ParametersPanel(isSelectable, model,
 					true, ViewModel.OverviewModel.Places.Choices);
+			choiceParametersPanel.setOpaque(false);
 			shapeLegendPanel = new ShapeLegendPanel(isSelectable, model);
+			shapeLegendPanel.setOpaque(false);
 			shapeLegendPanel.setPreferredSize(new Dimension(200, 200));
 			final BorderLayout layout = new BorderLayout();
 			setLayout(layout);
@@ -424,11 +508,90 @@ public class LegendPanel extends JPanel implements ActionListener {
 		super();
 		this.model = model;
 		layoutLegendPanel = new LayoutLegendPanel(isSelectable, model);
-		add(layoutLegendPanel);
+		layoutLegendPanel.setOpaque(false);
+		setLayout(new LayoutManager() {
+			private final Pattern pattern = Pattern.compile("(\\d+)_(\\d+)");
+
+			@Override
+			public void removeLayoutComponent(final Component comp) {
+				// No need to change.
+			}
+
+			@Override
+			public Dimension preferredLayoutSize(final Container parent) {
+				return new Dimension(250, 250);
+			}
+
+			@Override
+			public Dimension minimumLayoutSize(final Container parent) {
+				return new Dimension(200, 200);
+			}
+
+			@Override
+			public void layoutContainer(final Container parent) {
+				// TODO Auto-generated method stub
+				// Do nothing?
+				// parent.setBounds(11, 11, 200, 200);
+			}
+
+			@Override
+			public void addLayoutComponent(final String name,
+					final Component comp) {
+				if (name != null) {
+					final Matcher matcher = pattern.matcher(name);
+					if (matcher.matches() && showColors) {
+						switch (model.getShape()) {
+						case Circle:
+							final Set<SliderModel> sliders = model.getMain()
+									.getArrangementModel().getSliderModels();
+							final int primaryCount = SliderModel.findSlider(
+									sliders,
+									model.getMain().getPrimerParameters()
+											.iterator().next().getType())
+									.getSelections().size();
+							int angle = model.getMain().getStartAngle();
+							angle += 180 / primaryCount;
+							angle += 360 * Integer.parseInt(matcher.group(1))
+									/ primaryCount;
+							final int x = 100 - 10 + (int) (Math.cos(angle
+									/ 180.0 * Math.PI) * 90);
+
+							final int y = 100 - 10 - (int) (Math.sin(angle
+									/ 180.0 * Math.PI) * 100);
+							final int width = comp.getPreferredSize().width;
+							final int height = comp.getPreferredSize().height;
+							// x = getBoun
+							comp.setBounds(x, y, width, height);
+							break;
+						case Rectangle:
+							break;
+						}
+					} else {
+						comp.setBounds(20, 20,
+								comp.getPreferredSize().width - 40, comp
+										.getPreferredSize().height - 40);
+					}
+				} else {
+					comp.setBounds(0, 0, comp.getPreferredSize().width, comp
+							.getPreferredSize().height);
+				}
+			}
+		});
+		add("legend", layoutLegendPanel);
+	}
+
+	/**
+	 * @param showColors
+	 *            Changes the colourmaps' visibility.
+	 */
+	public void setShowColors(final boolean showColors) {
+		this.showColors = showColors;
+		repaint();
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
+		setViewModel(model);
 		revalidate();
 		repaint();
 	}
@@ -444,6 +607,154 @@ public class LegendPanel extends JPanel implements ActionListener {
 		model = currentViewModel;
 		layoutLegendPanel.setModel(model);
 		model.getMain().getArrangementModel().addListener(this);
-		repaint();
+		for (final Component component : getComponents()) {
+			if (component instanceof Sample) {
+				remove(component);
+			}
+		}
+		if (showColors) {
+			try {
+				final Set<SliderModel> sliders = model.getMain()
+						.getArrangementModel().getSliderModels();
+				final ParameterModel primary = model.getMain()
+						.getPrimerParameters().iterator().next();
+				final SliderModel primarySlider = SliderModel.findSlider(
+						sliders, primary.getType());
+				final ParameterModel secondary = model.getMain()
+						.getSeconderParameters().iterator().next();
+				final SliderModel secondarySlider = SliderModel.findSlider(
+						sliders, secondary.getType());
+				final SliderModel statSlider = SliderModel.findSlider(sliders,
+						StatTypes.metaStatType);
+				final SliderModel paramSlider = SliderModel.findSlider(sliders,
+						StatTypes.parameter);
+				final ColourModel cm = currentViewModel.getMain()
+						.getColourModel();
+				switch (primary.getType()) {
+				case metaStatType:
+					switch (secondary.getType()) {
+					case parameter: {
+						int i = 0;
+						for (final Integer statSelect : primarySlider
+								.getSelections()) {
+							final StatTypes stat = (StatTypes) primarySlider
+									.getValueMapping().get(statSelect)
+									.getRight();
+							int j = 0;
+							for (final Integer paramSelect : secondarySlider
+									.getSelections()) {
+								final String param = (String) secondarySlider
+										.getValueMapping().get(paramSelect)
+										.getRight();
+								addSample(cm, i++, j++, stat, param);
+							}
+						}
+						break;
+					}
+					default: {
+						final Set<Integer> paramSelect = paramSlider
+								.getSelections();
+						assert paramSelect.size() == 1;
+						final String param = (String) paramSlider
+								.getValueMapping().get(
+										paramSelect.iterator().next())
+								.getRight();
+						int i = 0;
+						for (final Integer primSelect : primarySlider
+								.getSelections()) {
+							final StatTypes stat = (StatTypes) primarySlider
+									.getValueMapping().get(primSelect)
+									.getRight();
+							addSample(cm, i++, 0, stat, param);
+						}
+						break;
+					}
+					}
+					break;
+				case parameter:
+					switch (secondary.getType()) {
+					case metaStatType: {
+						int i = 0;
+						for (final Integer paramSelect : primarySlider
+								.getSelections()) {
+							final String param = (String) primarySlider
+									.getValueMapping().get(paramSelect)
+									.getRight();
+							int j = 0;
+							for (final Integer statSelect : secondarySlider
+									.getSelections()) {
+								final StatTypes stat = (StatTypes) secondarySlider
+										.getValueMapping().get(statSelect)
+										.getRight();
+								addSample(cm, i++, j++, stat, param);
+							}
+						}
+						break;
+					}
+					default: {
+						final Set<Integer> statSelects = statSlider
+								.getSelections();
+						assert statSelects.size() == 1;
+						int i = 0;
+						final StatTypes stat = (StatTypes) statSlider
+								.getValueMapping().get(
+										statSelects.iterator().next())
+								.getRight();
+						for (final Integer primSelect : primarySlider
+								.getSelections()) {
+							final String param = (String) primarySlider
+									.getValueMapping().get(primSelect)
+									.getRight();
+							addSample(cm, i++, 0, stat, param);
+						}
+						break;
+					}
+					}
+				}
+			} catch (final Exception e) {
+				// The exceptions are not critical.
+				// logger.error("No", e);// TODO: handle exception
+			}
+		}
+		revalidate();
+	}
+
+	/**
+	 * @param cm
+	 * @param i
+	 * @param j
+	 * @param stat
+	 * @param param
+	 */
+	private void addSample(final ColourModel cm, final int i, final int j,
+			final StatTypes stat, final String param) {
+		final Model m = cm.getModel(param, stat);
+		final Sample sample = Sample.create(true);
+		sample.setPreferredSize(new Dimension(50, 50));
+		sample.setModel(m == null ? ColourSelector.DEFAULT_MODEL : m);
+		add(i + "_" + j, sample);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
+	@Override
+	protected void paintComponent(final Graphics g) {
+		super.paintComponent(g);
+	}
+
+	private static SliderModel getCurrentSlider(
+			final Collection<SliderModel> sliders, final ParameterModel model) {
+		SliderModel currentSlider = null;
+		for (final SliderModel slider : sliders) {
+			for (final ParameterModel pm : slider.getParameters()) {
+				if (pm.equals(model)) {
+					currentSlider = slider;
+				}
+			}
+		}
+		return currentSlider;
 	}
 }

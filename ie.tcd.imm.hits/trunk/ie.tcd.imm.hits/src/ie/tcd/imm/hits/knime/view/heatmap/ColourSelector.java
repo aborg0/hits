@@ -208,8 +208,37 @@ public class ColourSelector extends JPanel {
 							* (bounds.height - i) / bounds.height, super.down,
 							super.middle, super.up, super.downVal,
 							super.middleVal, super.upVal));
-					g.drawLine(0, i, bounds.width, i);
+					g.drawLine(0, i, bounds.width / 3, i);
 				}
+				g.setColor(Color.BLACK);
+				g.drawString(Double
+						.toString(Math.round(super.upVal * 100) / 100.0),
+						bounds.width / 2,
+						getFontMetrics(getFont()).getHeight() * 2 / 3);
+				if (super.middle != null) {
+					g.drawString(Double.toString(Math
+							.round(super.middleVal * 100) / 100.0),
+							bounds.width / 2, bounds.height / 2);
+				}
+				g.drawString(Double
+						.toString(Math.round(super.downVal * 100) / 100.0),
+						bounds.width / 2, bounds.height);
+				g.drawLine(bounds.width / 3, 0, bounds.width / 2 - 2,
+						getFontMetrics(getFont()).getHeight() / 3);
+				if (super.middle != null) {
+					g
+							.drawLine(
+									bounds.width / 3,
+									(int) (bounds.height
+											* (super.upVal - super.middleVal) / (super.upVal - super.downVal)),
+									bounds.width / 2 - 2, bounds.height
+											/ 2
+											- getFontMetrics(getFont())
+													.getHeight() / 3);
+				}
+				g.drawLine(bounds.width / 3, bounds.height,
+						bounds.width / 2 - 2, bounds.height
+								- getFontMetrics(getFont()).getHeight() / 3);
 			}
 		}
 
