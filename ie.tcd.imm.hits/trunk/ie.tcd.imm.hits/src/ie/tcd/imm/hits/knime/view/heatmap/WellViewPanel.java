@@ -344,8 +344,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 *            The {@link SliderModel}s splitting the wells.
 	 * @return The number of different values to represent.
 	 */
-	protected static int selectValueCount(
-			final List<ParameterModel> parameters,
+	public static int selectValueCount(final List<ParameterModel> parameters,
 			final Collection<SliderModel> sliders) {
 		int ret = 0;
 		SliderModel current = null;

@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+
+import javax.annotation.Nullable;
 
 import org.eclipse.swt.widgets.Slider;
 
@@ -322,5 +325,30 @@ public class SliderModel implements Serializable {
 	 */
 	public void addActionListener(final ActionListener actionListener) {
 		listeners.put(actionListener, Boolean.TRUE);
+	}
+
+	/**
+	 * Finds the proper (the first one) {@link SliderModel}, whose first
+	 * {@link ParameterModel}'s type is {@code statType}.
+	 * 
+	 * @param sliders
+	 *            Some {@link SliderModel}s.
+	 * @param statType
+	 *            A {@link StatTypes}.
+	 * @return The first {@link SliderModel} with (first) {@link ParameterModel}
+	 *         with type {@code statType} in {@code sliders}, or {@code null}
+	 *         if not found.
+	 */
+	public static @Nullable
+	SliderModel findSlider(final Iterable<SliderModel> sliders,
+			final StatTypes statType) {
+		for (final SliderModel sliderModel : sliders) {
+			final List<ParameterModel> params = sliderModel.getParameters();
+			if (params.size() > 0
+					&& params.iterator().next().getType() == statType) {
+				return sliderModel;
+			}
+		}
+		return null;
 	}
 }
