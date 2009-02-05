@@ -702,6 +702,7 @@ public class ControlsHandlerKNIMEFactory implements
 						.isDrawPrimaryBorders(), arrangement
 						.isDrawSecondaryBorders(), arrangement
 						.isDrawAdditionalBorders());
+		shapeModel.setColourModel(arrangement.getColourModel());
 		arrangement = shapeModel;
 		notifyChangeListeners(new ArrangementEvent(this, shapeModel));
 		deregister(firstSlider, firstPos.getLeft());

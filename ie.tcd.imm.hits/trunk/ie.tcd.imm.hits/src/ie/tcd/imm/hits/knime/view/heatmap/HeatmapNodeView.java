@@ -900,8 +900,13 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 							.values()) {
 						for (final Entry<Shape, ViewModel> shapeEntry : shapes
 								.entrySet()) {
-							shapeEntry.setValue(new ViewModel(shapeEntry
-									.getValue(), event.getNewArrangement()));
+							final ViewModel viewModel = new ViewModel(
+									shapeEntry.getValue(), event
+											.getNewArrangement());
+							viewModel.getMain().setColourModel(
+									getCurrentViewModel().getMain()
+											.getColourModel());
+							shapeEntry.setValue(viewModel);
 						}
 
 					}
