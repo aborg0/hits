@@ -683,6 +683,7 @@ public class ControlPanel extends JPanel {
 								.isDrawSecondaryBorders(),
 						boolPos == 3 ? checkbox.isSelected() : origShapeModel
 								.isDrawAdditionalBorders());
+				shapeModel.setColourModel(origShapeModel.getColourModel());
 				origView.setCurrentViewModel(new ViewModel(viewModel,
 						shapeModel));
 			}
