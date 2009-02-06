@@ -1,7 +1,5 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
-import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -151,13 +149,13 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelFilterString(
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
 						new String[0]), 0, DoubleValue.class);
-		((SettingsModelFilterString) parametersDialog.getModel())
-				.setExcludeList(new String[] {
-						ImporterNodeModel.PLATE_COL_NAME,
-						ImporterNodeModel.REPLICATE_COL_NAME,
-						ImporterNodeModel.WELL_COL_NAME,
-						ImporterNodeModel.GENE_ID_COL_NAME,
-						ImporterNodeModel.GENE_ANNOTATION_COL_NAME });
+		// ((SettingsModelFilterString) parametersDialog.getModel())
+		// .setExcludeList(new String[] {
+		// ImporterNodeModel.PLATE_COL_NAME,
+		// ImporterNodeModel.REPLICATE_COL_NAME,
+		// ImporterNodeModel.WELL_COL_NAME,
+		// ImporterNodeModel.GENE_ID_COL_NAME,
+		// ImporterNodeModel.GENE_ANNOTATION_COL_NAME });
 		parametersDialog.setIncludeTitle("Selected parameters for analysis");
 		parametersDialog
 				.setToolTipText("You may select the parameters to analyse.");
