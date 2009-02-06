@@ -3,12 +3,12 @@
    <description url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/">
       HiTS official update iste
    </description>
-   <feature url="file://///med177068.college.tcd.ie/Test/features/ie.tcd.imm.hits.feature_0.1.0.jar" id="ie.tcd.imm.hits.feature" version="0.1.0">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.1.0.jar" id="ie.tcd.imm.hits.feature" version="0.1.0">
       <category name="HiTS"/>
    </feature>
-   <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="file://///med177068.college.tcd.ie/Test/plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
-   <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="file://///med177068.college.tcd.ie/Test/plugins/ie.tcd.imm.hits_0.1.0.jar"/>
-   <category-def name="HiTS" label="HiTS">
+   <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
+   <category-def name="HiTS" label="HiTS main">
       <description>
          Contains the nodes, and the non-standard dependencies.
       </description>
