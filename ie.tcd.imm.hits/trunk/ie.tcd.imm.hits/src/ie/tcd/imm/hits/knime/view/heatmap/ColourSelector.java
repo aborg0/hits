@@ -52,6 +52,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ColourSelector extends JPanel {
+	private static final long serialVersionUID = 1927466055122883656L;
+
+	/** The default {@link Model} for real valued parameters. */
+	public static final Model DEFAULT_MODEL = new Model(-2.0, Double
+			.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW, Color.RED);
+
 	/**
 	 * The possible ranges of an interval.
 	 */
@@ -85,11 +91,6 @@ public class ColourSelector extends JPanel {
 			return displayText;
 		}
 	}
-
-	/** The default {@link Model} for real valued parameters. */
-	public static final Model DEFAULT_MODEL = new Model(-2.0, Double
-			.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW, Color.RED);
-	private static final long serialVersionUID = 1927466055122883656L;
 
 	/**
 	 * This is a {@link ColourModel} for each parameter and {@link StatTypes}
@@ -208,37 +209,27 @@ public class ColourSelector extends JPanel {
 							* (bounds.height - i) / bounds.height, super.down,
 							super.middle, super.up, super.downVal,
 							super.middleVal, super.upVal));
-					g.drawLine(0, i, bounds.width / 3, i);
+					g.drawLine(0, i, bounds.width/* / 3 */, i);
 				}
-				g.setColor(Color.BLACK);
-				g.drawString(Double
-						.toString(Math.round(super.upVal * 100) / 100.0),
-						bounds.width / 2,
-						getFontMetrics(getFont()).getHeight() * 2 / 3);
-				if (super.middle != null) {
-					g.drawString(Double.toString(Math
-							.round(super.middleVal * 100) / 100.0),
-							bounds.width / 2, bounds.height / 2);
-				}
-				g.drawString(Double
-						.toString(Math.round(super.downVal * 100) / 100.0),
-						bounds.width / 2, bounds.height);
-				g.drawLine(bounds.width / 3, 0, bounds.width / 2 - 2,
-						getFontMetrics(getFont()).getHeight() / 3);
-				if (super.middle != null) {
-					g
-							.drawLine(
-									bounds.width / 3,
-									(int) (bounds.height
-											* (super.upVal - super.middleVal) / (super.upVal - super.downVal)),
-									bounds.width / 2 - 2, bounds.height
-											/ 2
-											- getFontMetrics(getFont())
-													.getHeight() / 3);
-				}
-				g.drawLine(bounds.width / 3, bounds.height,
-						bounds.width / 2 - 2, bounds.height
-								- getFontMetrics(getFont()).getHeight() / 3);
+				/*
+				 * g.setColor(Color.BLACK); g.drawString(Double
+				 * .toString(Math.round(super.upVal * 100) / 100.0),
+				 * bounds.width / 2, getFontMetrics(getFont()).getHeight() * 2 /
+				 * 3); if (super.middle != null) {
+				 * g.drawString(Double.toString(Math .round(super.middleVal *
+				 * 100) / 100.0), bounds.width / 2, bounds.height / 2); }
+				 * g.drawString(Double .toString(Math.round(super.downVal * 100) /
+				 * 100.0), bounds.width / 2, bounds.height);
+				 * g.drawLine(bounds.width / 3, 0, bounds.width / 2 - 2,
+				 * getFontMetrics(getFont()).getHeight() / 3); if (super.middle !=
+				 * null) { g .drawLine( bounds.width / 3, (int) (bounds.height
+				 * (super.upVal - super.middleVal) / (super.upVal -
+				 * super.downVal)), bounds.width / 2 - 2, bounds.height / 2 -
+				 * getFontMetrics(getFont()) .getHeight() / 3); }
+				 * g.drawLine(bounds.width / 3, bounds.height, bounds.width / 2 -
+				 * 2, bounds.height - getFontMetrics(getFont()).getHeight() /
+				 * 3);
+				 */
 			}
 		}
 
@@ -366,6 +357,18 @@ public class ColourSelector extends JPanel {
 		}
 	}
 
+	// /**
+	// * This class shows the sample of the heatmap legend with the proper
+	// values.
+	// */
+	// public static class SampleWithText extends JPanel {
+	// private static final long serialVersionUID = 8745641973568977951L;
+	//
+	// public void setModel(final Model model) {
+	//
+	// }
+	// }
+	//
 	/**
 	 * This class helps to select the colouring for a double valued parameter.
 	 */

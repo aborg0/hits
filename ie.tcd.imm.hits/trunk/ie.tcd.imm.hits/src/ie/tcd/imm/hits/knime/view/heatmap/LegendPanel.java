@@ -44,7 +44,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 9129522729091802767L;
 	private ViewModel model;
 	private final LayoutLegendPanel layoutLegendPanel;
-	private boolean showColors = true;
+	private boolean showColors = false;
 
 	/**
 	 * This panel shows the layout of different parameters.
