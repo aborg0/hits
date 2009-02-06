@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./INCell.png" type="Source">
+    <name>Importer</name>
+    
+    <shortDescription>
+        Reads the data from (IN Cell Analyzer 1000) xls files, and gene annotations.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro><p>With this node you are able to read the well statistics from a <i>IN Cell Analyzer 1000</i>, and convert it to cellHTS2 readable format.</p><p>The experiments has the following structure: It has <b>plate</b>s with some <b>replicate</b>s for each plates. Each plate has 96, or 384 <b>well</b>s. The wells contain the experimental environment. From each well there can be taken some photographs on predefined positions (<b>field</b>s), which contains the <b>cell</b>s.</p></intro>
+        <option name="Folder of xls files">From this folder will be selected the XLS files.</option>
+        <option name="XLS files">You can select the Excel files belonging to this experiment. They will be used in this (alphabetical) order as the first plate's first replicate, first plate's second replicate, ..., first plate's k replicate; second plate's first replicate, ..., second plate's k replicate; ...; n plate's first replicate, n plate's second replicate, ..., n plate's k replicate.</option>
+        <option name="Well count">Number of wells on each plates.</option>
+        <option name="Plate count">Number of plates in the experiment.</option>
+        <option name="Replicate count">Number of replicates (1, if you have no replicates, 2 if every plate has a pair with the same configuration, ...)</option>
+        <option name="Annotation file">The position of the annotation file. It should contain in the first row the header: Plate	Well	GeneID	GeneSymbol. The other rows are the tab separated values for the plates and wells. Every plate-well pair have to be enumerated in the plate/well order.</option>
+    </fullDescription>
+    
+    <ports>
+        <!--dataIn index="0" name="In-Port name">Description of first input port...</dataIn-->
+        <!-- possibly more ports here-->
+        <dataOut index="0" name="Read data">Here are the data values (maybe with the annotation information).</dataOut>
+        <!--dataOut index="1" name="Gene annotations">The gene annotations on a different outport.</dataOut-->
+        <!--modelIn index="0">Description of first model input port...</modelIn-->
+        <!--modelOut index="0">Description of first model output port...</modelOut-->
+    </ports>    
+    <!--views-->
+        <!--view index="0" name="name of first view">Description of first view...</view-->
+        <!--view index="1" name="name of second view">Description of second view...</view-->
+    <!--/views-->
+</knimeNode>
