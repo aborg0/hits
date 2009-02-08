@@ -343,8 +343,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -564,7 +564,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				exec.checkCanceled();
 				try {
-					annotate(conn, inData[0]);
+					annotate(conn, inData[0], replicateIdx, plateIdx);
 				} catch (final Exception e) {
 					logger.warn("Annotation failed.", e);
 				}
@@ -1145,11 +1145,19 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * inport (if it is present).
 	 * 
 	 * @param conn
+	 *            Connection to <i>Rserve</i>.
 	 * @param dataTable
+	 *            A {@link BufferedDataTable}.
+	 * @param replicateIdx
+	 *            The index of replicate values column in {@code dataTable}.
+	 * @param plateIdx
+	 *            The index of plate values column in {@code dataTable}.
 	 * @throws RserveException
+	 *             Problem with <i>Rserve</i> session.
 	 */
 	private void annotate(final RConnection conn,
-			final BufferedDataTable dataTable) throws RserveException {
+			final BufferedDataTable dataTable, final int replicateIdx,
+			final int plateIdx) throws RserveException {
 		final int lastCol = dataTable.getDataTableSpec().getNumColumns() - 1;
 		conn.voidEval("  nrPlate = max(plate(xn))");
 		if (dataTable.getDataTableSpec().getColumnSpec(lastCol).getType()
@@ -1157,10 +1165,10 @@ public class CellHTS2NodeModel extends NodeModel {
 			final StringBuilder sb = new StringBuilder(
 					"geneIDs=data.frame(Plate=c(");
 			for (final DataRow row : dataTable) {
-				if (((IntCell) row.getCell(1)).getIntValue() == 1) {// first
+				if (((IntCell) row.getCell(replicateIdx)).getIntValue() == 1) {// first
 					// replicate
-					sb.append(((IntCell) row.getCell(0)).getIntValue()).append(
-							", ");
+					sb.append(((IntCell) row.getCell(plateIdx)).getIntValue())
+							.append(", ");
 				}
 			}
 			sb.setLength(sb.length() - 2);
@@ -1180,7 +1188,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				assert c >= 0;
 				for (final DataRow dataRow : dataTable) {
-					if (((IntCell) dataRow.getCell(1)).getIntValue() == 1) {// first
+					if (((IntCell) dataRow.getCell(replicateIdx)).getIntValue() == 1) {// first
 						// replicate
 						sb.append('"').append(
 								((StringCell) dataRow.getCell(colIndex))
@@ -1194,7 +1202,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			sb.append("), GeneSymbol=c(");
 			for (final DataRow row : dataTable) {
-				if (((IntCell) row.getCell(1)).getIntValue() == 1) {// first
+				if (((IntCell) row.getCell(replicateIdx)).getIntValue() == 1) {// first
 					// replicate
 					sb.append('"').append(
 							((StringCell) row.getCell(lastCol))
