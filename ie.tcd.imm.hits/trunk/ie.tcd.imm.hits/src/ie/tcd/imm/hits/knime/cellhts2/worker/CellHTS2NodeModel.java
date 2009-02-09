@@ -2145,15 +2145,20 @@ public class CellHTS2NodeModel extends NodeModel {
 			int repl = 0;
 			for (final List<DataCell> ret : rets) {
 				switch (possibleStatistics) {
-				case GENE_ID:
-					ret
-							.add(new StringCell(((REXPFactor) topTable
-									.get("GeneID")).asStrings()[row]));
+				case GENE_ID: {
+					final REXPFactor geneIDs = (REXPFactor) topTable
+							.get("GeneID");
+					ret.add(geneIDs == null ? DataType.getMissingCell()
+							: new StringCell(geneIDs.asStrings()[row]));
+				}
 					break;
-				case GENE_SYMBOL:
-					ret.add(new StringCell(((REXPFactor) topTable
-							.get("GeneSymbol")).asStrings()[row]));
+				case GENE_SYMBOL: {
+					final REXPFactor geneSymbol = (REXPFactor) topTable
+							.get("GeneSymbol");
+					ret.add(geneSymbol == null ? DataType.getMissingCell()
+							: new StringCell(geneSymbol.asStrings()[row]));
 					break;
+				}
 				case PLATE:
 					ret.add(new IntCell(((REXPInteger) topTable.get("plate"))
 							.asIntegers()[row]));
