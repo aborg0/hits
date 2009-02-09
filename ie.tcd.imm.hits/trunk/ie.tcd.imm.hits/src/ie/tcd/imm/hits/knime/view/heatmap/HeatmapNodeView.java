@@ -774,9 +774,20 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		final JMenu legendMenu = new JMenu("Legend");
 		showColorsLegend = new JCheckBoxMenuItem("Show colors legend", true);
 		legendMenu.add(showColorsLegend);
+		showColorsLegend.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				legendPanel.setShowColors(showColorsLegend.getModel()
+						.isSelected());
+				legendPanel2.setShowColors(showColorsLegend.getModel()
+						.isSelected());
+			}
+
+		});
 		showTooltipsLegend = new JCheckBoxMenuItem("Show tooltips legend", true);
-		legendMenu.add(showTooltipsLegend);
-		// getJMenuBar().add(legendMenu);
+		// legendMenu.add(showTooltipsLegend);
+		getJMenuBar().add(legendMenu);
 
 		final JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				true);

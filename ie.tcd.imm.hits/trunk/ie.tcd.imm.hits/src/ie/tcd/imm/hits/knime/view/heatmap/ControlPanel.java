@@ -15,6 +15,7 @@ import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -565,6 +566,7 @@ public class ControlPanel extends JPanel {
 		legendConstraints.gridx = 4;
 		legendConstraints.gridheight = 7;
 		gbLayout.addLayoutComponent(legendPanel, legendConstraints);
+		legendPanel.setPreferredSize(new Dimension(250, 270));
 		add(legendPanel, legendConstraints);
 		final GridBagConstraints hiddenSlidersConstraints = new GridBagConstraints();
 		hiddenSlidersConstraints.gridx = 1;

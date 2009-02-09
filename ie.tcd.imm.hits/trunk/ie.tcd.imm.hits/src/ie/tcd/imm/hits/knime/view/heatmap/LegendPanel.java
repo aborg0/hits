@@ -4,8 +4,9 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.Sample;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
+import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText.Orientation;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
@@ -44,7 +45,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 9129522729091802767L;
 	private ViewModel model;
 	private final LayoutLegendPanel layoutLegendPanel;
-	private boolean showColors = false;
+	private boolean showColors = true;
 
 	/**
 	 * This panel shows the layout of different parameters.
@@ -196,106 +197,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 			final Collection<SliderModel> sliders = getModel().getMain()
 					.getArrangementModel().getSliderModels();
-			final ColourModel cm = getModel().getMain().getColourModel();
 			final int primaryCount = selectValueCount(getModel().getMain()
 					.getPrimerParameters(), sliders);
 			final int secundaryCount = selectValueCount(getModel().getMain()
 					.getSeconderParameters(), sliders);
 			switch (getModel().getShape()) {
 			case Circle:
-				if (/* showColors */false) {
-					removeAll();
-					final ParameterModel primary = getModel().getMain()
-							.getPrimerParameters().iterator().next();
-					final SliderModel primarySlider = getCurrentSlider(sliders,
-							primary);
-					final ParameterModel secondary = getModel().getMain()
-							.getSeconderParameters().iterator().next();
-					final SliderModel secondarySlider = getCurrentSlider(
-							sliders, secondary);
-					final SliderModel statSlider = SliderModel.findSlider(
-							sliders, StatTypes.metaStatType);
-					final SliderModel paramSlider = SliderModel.findSlider(
-							sliders, StatTypes.parameter);
-					int angle = getModel().getMain().getStartAngle();
-					angle += 180 / primaryCount;
-					switch (primary.getType()) {
-					case metaStatType:
-						switch (secondary.getType()) {
-						case parameter:
-							break;
-						default: {
-							final Set<Integer> paramSelect = paramSlider
-									.getSelections();
-							assert paramSelect.size() == 1;
-							final String param = (String) paramSlider
-									.getValueMapping().get(
-											paramSelect.iterator().next())
-									.getRight();
-							for (final Integer primSelect : primarySlider
-									.getSelections()) {
-								final StatTypes stat = (StatTypes) primarySlider
-										.getValueMapping().get(primSelect)
-										.getRight();
-								final Model m = cm.getModel(param, stat);
-								final Sample sample = Sample.create(true);
-								sample.setBounds(bounds.width
-										/ 2
-										- 40
-										+ (int) (Math.cos(angle / 180.0
-												* Math.PI) * 60), bounds.height
-										/ 2
-										- (int) (Math.sin(angle / 180.0
-												* Math.PI) * 60)/*-bounds.width / 4, bounds.height / 4*/
-								, 20, 50);
-								sample.setModel(m);
-								sample.paintAll(g);
-								angle += 360 / primaryCount;
-							}
-							break;
-						}
-						}
-						break;
-					case parameter:
-						switch (secondary.getType()) {
-						case metaStatType:
-
-							break;
-						default: {
-							final Set<Integer> statSelects = statSlider
-									.getSelections();
-							assert statSelects.size() == 1;
-							final StatTypes stat = (StatTypes) statSlider
-									.getValueMapping().get(
-											statSelects.iterator().next())
-									.getRight();
-							for (final Integer primSelect : primarySlider
-									.getSelections()) {
-								final String param = (String) primarySlider
-										.getValueMapping().get(primSelect)
-										.getRight();
-								final Model m = cm.getModel(param, stat);
-								final Sample sample = Sample.create(true);
-								sample.setModel(m);
-								add(sample);
-								sample.setBounds(bounds.width
-										/ 2
-										- 10
-										+ (int) (Math.cos(angle / 180.0
-												* Math.PI) * 80), bounds.height
-										/ 2
-										- 25
-										- (int) (Math.sin(angle / 180.0
-												* Math.PI) * 80)/*-bounds.width / 4, bounds.height / 4*/
-								, 20, 50);
-								// sample.paintAll(g);
-								angle += 360 / primaryCount;
-							}
-							break;
-						}
-						}
-					}
-				}
 				if (showLabels) {
 					final int startAngle = getModel().getMain().getStartAngle();
 					int angle = startAngle;
@@ -317,37 +224,42 @@ public class LegendPanel extends JPanel implements ActionListener {
 								}
 								g.setColor(Color.WHITE);
 								final Font origFont = g.getFont();
-								g.setFont(origFont.deriveFont(Font.BOLD));
+								g.setFont(origFont.deriveFont(Font.BOLD)
+										.deriveFont(8.5f));
 								g.setColor(borderColor);
+								final int r = 45;
 								g
-										.drawString(
-												model.getShortName(),
+										.drawString(model.getShortName(),
 												bounds.width
 														/ 2
-														- 40
+														- 25
 														+ (int) (Math.cos(angle
 																/ 180.0
-																* Math.PI) * 60),
+																* Math.PI)
+																* radius * .8),
 												bounds.height
 														/ 2
 														- (int) (Math.sin(angle
 																/ 180.0
-																* Math.PI) * 60)/*-bounds.width / 4, bounds.height / 4*/);
+																* Math.PI)
+																* radius * .8)/*-bounds.width / 4, bounds.height / 4*/);
 								g
 										.drawString(
 												entry.getValue().getRight()
 														.toString(),
 												bounds.width
 														/ 2
-														- 40
+														- 25
 														+ (int) (Math.cos(angle
 																/ 180.0
-																* Math.PI) * 60),
+																* Math.PI)
+																* radius * .8),
 												bounds.height
 														/ 2
 														- (int) (Math.sin(angle
 																/ 180.0
-																* Math.PI) * 60 - 15)/*-bounds.width / 4, bounds.height / 4*/);
+																* Math.PI)
+																* radius * .8 - 15)/*-bounds.width / 4, bounds.height / 4*/);
 								g.setFont(origFont);
 								angle += 360 / primaryCount;
 							}
@@ -473,7 +385,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			choiceParametersPanel.setOpaque(false);
 			shapeLegendPanel = new ShapeLegendPanel(isSelectable, model);
 			shapeLegendPanel.setOpaque(false);
-			shapeLegendPanel.setPreferredSize(new Dimension(200, 200));
+			shapeLegendPanel.setPreferredSize(new Dimension(250, 250));
 			final BorderLayout layout = new BorderLayout();
 			setLayout(layout);
 			add(horizontalParametersPanel, BorderLayout.SOUTH);
@@ -540,40 +452,117 @@ public class LegendPanel extends JPanel implements ActionListener {
 				if (name != null) {
 					final Matcher matcher = pattern.matcher(name);
 					if (matcher.matches() && showColors) {
-						switch (model.getShape()) {
+						final int radius = Math.min(getWidth(), getHeight()) / 2;
+						final Set<SliderModel> sliders = LegendPanel.this.model
+								.getMain().getArrangementModel()
+								.getSliderModels();
+						final int primaryCount = SliderModel.findSlider(
+								sliders,
+								LegendPanel.this.model.getMain()
+										.getPrimerParameters().iterator()
+										.next().getType()).getSelections()
+								.size();
+						final int secondaryCount = SliderModel.findSlider(
+								sliders,
+								LegendPanel.this.model.getMain()
+										.getSeconderParameters().iterator()
+										.next().getType()).getSelections()
+								.size();
+						switch (LegendPanel.this.model.getShape()) {
 						case Circle:
-							final Set<SliderModel> sliders = model.getMain()
-									.getArrangementModel().getSliderModels();
-							final int primaryCount = SliderModel.findSlider(
-									sliders,
-									model.getMain().getPrimerParameters()
-											.iterator().next().getType())
-									.getSelections().size();
-							int angle = model.getMain().getStartAngle();
+							int angle = LegendPanel.this.model.getMain()
+									.getStartAngle();
 							angle += 180 / primaryCount;
 							angle += 360 * Integer.parseInt(matcher.group(1))
 									/ primaryCount;
-							final int x = 100 - 10 + (int) (Math.cos(angle
-									/ 180.0 * Math.PI) * 90);
+							final int x = 100 + (int) (Math.cos(angle / 180.0
+									* Math.PI)
+									* radius * .85);
 
-							final int y = 100 - 10 - (int) (Math.sin(angle
-									/ 180.0 * Math.PI) * 100);
-							final int width = comp.getPreferredSize().width;
-							final int height = comp.getPreferredSize().height;
-							// x = getBoun
+							final int y = 100 + 15 - (int) (Math.sin(angle
+									/ 180.0 * Math.PI)
+									* radius * .89);
+							final Orientation orientation = Orientation
+									.values()[(angle - 45) / 90 % 4];
+							final int width = !orientation.isVertical() ? comp
+									.getPreferredSize().width : comp
+									.getPreferredSize().width - 0;
+							final int height = !orientation.isVertical() ? comp
+									.getPreferredSize().height - 15 : comp
+									.getPreferredSize().height;
 							comp.setBounds(x, y, width, height);
+							comp.setPreferredSize(new Dimension(width, height));
+							if (comp instanceof SampleWithText) {
+								final SampleWithText sample = (SampleWithText) comp;
+								sample.setModel(sample.getModel(), orientation);
+							}
 							break;
 						case Rectangle:
+							if (comp instanceof SampleWithText) {
+								final SampleWithText sample = (SampleWithText) comp;
+								final int colWidth = layoutLegendPanel
+										.getWidth()
+										/ primaryCount;
+								final int colHeight = layoutLegendPanel
+										.getHeight()
+										/ secondaryCount;
+								final boolean alternate = colWidth < comp
+										.getPreferredSize().width;
+								final int idx = Integer.parseInt(matcher
+										.group(1));
+								final int idx2 = Integer.parseInt(matcher
+										.group(2));
+								final boolean south = alternate && idx % 2 == 1;
+								comp.setBounds(idx != 0 ? idx * colWidth + 40
+										: 0, idx != 0 ? (south ? getHeight()
+										- comp.getPreferredSize().height * 2
+										/ 3 : 10) : 40 + idx2
+										* Math.max(30, colHeight),
+										idx == 0 ? 40 : Math.max(45,
+												colWidth - 5), idx == 0 ? Math
+												.max(30, colHeight - 3) : 40);
+								sample.setModel(sample.getModel(),
+										idx != 0 ? south ? Orientation.South
+												: Orientation.North
+												: Orientation.West);
+								sample.setPreferredSize(new Dimension(Math.max(
+										45, colWidth - 5), 40));
+							}
 							break;
 						}
 					} else {
-						comp.setBounds(20, 20,
-								comp.getPreferredSize().width - 40, comp
-										.getPreferredSize().height - 40);
+						switch (LegendPanel.this.model.getShape()) {
+						case Circle:
+							comp.setBounds(40, 40,
+									comp.getPreferredSize().width - 80, comp
+											.getPreferredSize().height - 80);
+							break;
+						case Rectangle:
+							// comp.setBounds(40, 40,
+							// comp.getPreferredSize().width - 80, comp
+							// .getPreferredSize().height - 80);
+							// comp.setBounds(0, 50, getWidth(), getHeight() -
+							// 50);
+							break;
+						default:
+							break;
+						}
 					}
 				} else {
-					comp.setBounds(0, 0, comp.getPreferredSize().width, comp
-							.getPreferredSize().height);
+					switch (LegendPanel.this.model.getShape()) {
+					case Circle:
+						comp.setBounds(0, 0, comp.getPreferredSize().width,
+								comp.getPreferredSize().height);
+						// comp.setBounds(80, 60,
+						// comp.getPreferredSize().width - 80, comp
+						// .getPreferredSize().height - 80);
+						break;
+					case Rectangle:
+						comp.setBounds(0, 50, getWidth(), getHeight() - 50);
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		});
@@ -608,10 +597,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 		layoutLegendPanel.setModel(model);
 		model.getMain().getArrangementModel().addListener(this);
 		for (final Component component : getComponents()) {
-			if (component instanceof Sample) {
+			if (component instanceof SampleWithText) {
 				remove(component);
 			}
 		}
+		remove(layoutLegendPanel);
+		add("legend", layoutLegendPanel);
 		if (showColors) {
 			try {
 				final Set<SliderModel> sliders = model.getMain()
@@ -710,6 +701,45 @@ public class LegendPanel extends JPanel implements ActionListener {
 						break;
 					}
 					}
+				default:
+					switch (secondary.getType()) {
+					case metaStatType: {
+						final String param = (String) paramSlider
+								.getValueMapping().get(
+										paramSlider.getSelections().iterator()
+												.next()).getRight();
+						int j = 0;
+						for (final Integer select : statSlider.getSelections()) {
+							final StatTypes stat = (StatTypes) statSlider
+									.getValueMapping().get(select).getRight();
+							addSample(cm, 0, j++, stat, param);
+						}
+						break;
+					}
+					case parameter: {
+						final StatTypes stat = (StatTypes) statSlider
+								.getValueMapping().get(
+										statSlider.getSelections().iterator()
+												.next()).getRight();
+						int j = 0;
+						for (final Integer select : paramSlider.getSelections()) {
+							final String param = (String) paramSlider
+									.getValueMapping().get(select).getRight();
+							addSample(cm, 0, j++, stat, param);
+						}
+						break;
+					}
+					default:
+						addSample(cm, 0, 0, (StatTypes) statSlider
+								.getValueMapping().get(
+										statSlider.getSelections().iterator()
+												.next()).getRight(),
+								(String) paramSlider.getValueMapping().get(
+										paramSlider.getSelections().iterator()
+												.next()).getRight());
+						break;
+					}
+					break;
 				}
 			} catch (final Exception e) {
 				// The exceptions are not critical.
@@ -717,6 +747,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 		revalidate();
+		repaint();
 	}
 
 	/**
@@ -729,21 +760,28 @@ public class LegendPanel extends JPanel implements ActionListener {
 	private void addSample(final ColourModel cm, final int i, final int j,
 			final StatTypes stat, final String param) {
 		final Model m = cm.getModel(param, stat);
-		final Sample sample = Sample.create(true);
+		final SampleWithText sample = new SampleWithText();
 		sample.setPreferredSize(new Dimension(50, 50));
-		sample.setModel(m == null ? ColourSelector.DEFAULT_MODEL : m);
+		sample.setModel(m == null ? ColourSelector.DEFAULT_MODEL : m,
+				Orientation.South);
+		sample.setToolTipText(sample.getModel().getDownVal()
+				+ " -> "
+				+ (sample.getModel().getMiddleVal() == null
+						|| sample.getModel().getMiddle() == null ? "" : sample
+						.getModel().getMiddleVal()
+						+ " -> ") + sample.getModel().getUpVal());
 		add(i + "_" + j, sample);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	@Override
-	protected void paintComponent(final Graphics g) {
-		super.paintComponent(g);
-	}
+	// /*
+	// * (non-Javadoc)
+	// *
+	// * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	// */
+	// @Override
+	// protected void paintComponent(final Graphics g) {
+	// super.paintComponent(g);
+	// }
 
 	private static SliderModel getCurrentSlider(
 			final Collection<SliderModel> sliders, final ParameterModel model) {

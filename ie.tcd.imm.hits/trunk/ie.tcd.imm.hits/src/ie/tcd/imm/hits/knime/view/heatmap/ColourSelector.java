@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.Displayable;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,6 +30,7 @@ import java.util.TreeMap;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
@@ -211,25 +213,6 @@ public class ColourSelector extends JPanel {
 							super.middleVal, super.upVal));
 					g.drawLine(0, i, bounds.width/* / 3 */, i);
 				}
-				/*
-				 * g.setColor(Color.BLACK); g.drawString(Double
-				 * .toString(Math.round(super.upVal * 100) / 100.0),
-				 * bounds.width / 2, getFontMetrics(getFont()).getHeight() * 2 /
-				 * 3); if (super.middle != null) {
-				 * g.drawString(Double.toString(Math .round(super.middleVal *
-				 * 100) / 100.0), bounds.width / 2, bounds.height / 2); }
-				 * g.drawString(Double .toString(Math.round(super.downVal * 100) /
-				 * 100.0), bounds.width / 2, bounds.height);
-				 * g.drawLine(bounds.width / 3, 0, bounds.width / 2 - 2,
-				 * getFontMetrics(getFont()).getHeight() / 3); if (super.middle !=
-				 * null) { g .drawLine( bounds.width / 3, (int) (bounds.height
-				 * (super.upVal - super.middleVal) / (super.upVal -
-				 * super.downVal)), bounds.width / 2 - 2, bounds.height / 2 -
-				 * getFontMetrics(getFont()) .getHeight() / 3); }
-				 * g.drawLine(bounds.width / 3, bounds.height, bounds.width / 2 -
-				 * 2, bounds.height - getFontMetrics(getFont()).getHeight() /
-				 * 3);
-				 */
 			}
 		}
 
@@ -266,6 +249,8 @@ public class ColourSelector extends JPanel {
 		}
 
 		private static final long serialVersionUID = 1230862889150618654L;
+
+		private Model model;
 
 		/**
 		 * Sets the colour for the lower values.
@@ -343,8 +328,8 @@ public class ColourSelector extends JPanel {
 		 * @param model
 		 *            A {@link Model} of colours.
 		 */
-		protected void setModel(
-				final ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model model) {
+		protected void setModel(final Model model) {
+			this.model = model;
 			this.downVal = model.getDownVal();
 			this.middleVal = model.getMiddleVal() == null ? 0.0 : model
 					.getMiddleVal().doubleValue();
@@ -355,20 +340,360 @@ public class ColourSelector extends JPanel {
 			this.up = model.getUp();
 			repaint();
 		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.Component#toString()
+		 */
+		@Override
+		public String toString() {
+			return down.toString()
+					+ " ("
+					+ downVal
+					+ ")-> "
+					+ (middle != null ? middle.toString() + " (" + middleVal
+							+ ")->" : "") + up.toString() + " (" + upVal + ")";
+		}
+
+		/**
+		 * @return
+		 */
+		public Model getModel() {
+			return model;
+		}
 	}
 
-	// /**
-	// * This class shows the sample of the heatmap legend with the proper
-	// values.
-	// */
-	// public static class SampleWithText extends JPanel {
-	// private static final long serialVersionUID = 8745641973568977951L;
-	//
-	// public void setModel(final Model model) {
-	//
-	// }
-	// }
-	//
+	/**
+	 * This class shows the sample of the heatmap legend with the proper values.
+	 */
+	public static class SampleWithText extends JPanel {
+		private static final long serialVersionUID = 8745641973568977951L;
+		private Sample sample;
+		private TextPanel textPanel;
+
+		/**
+		 * Creates the {@link SampleWithText} with {@link FlowLayout}.
+		 */
+		public SampleWithText() {
+			super();
+			setLayout(/* new FlowLayout(FlowLayout.CENTER) */new BoxLayout(
+					this, BoxLayout.X_AXIS));
+		}
+
+		/** The orientation of the sample (text). */
+		public static enum Orientation {
+			/** At the up */
+			North(false),
+			/** Left */
+			West(true),
+			/** Down */
+			South(false),
+			/** Right */
+			East(true);
+			private final boolean isVertical;
+
+			private Orientation(final boolean isVertical) {
+				this.isVertical = isVertical;
+			}
+
+			/**
+			 * @return the isVertical
+			 */
+			public boolean isVertical() {
+				return isVertical;
+			}
+		}
+
+		private final class TextPanel extends JPanel {
+			private static final long serialVersionUID = -8128412170298608805L;
+			private final Orientation orientation;
+			private final double upVal;
+			private final Double middleVal;
+			private final double downVal;
+
+			TextPanel(final Orientation orientation, final double upVal,
+					final Double middleVal, final double downVal) {
+				super();
+				this.orientation = orientation;
+				this.upVal = upVal;
+				this.middleVal = middleVal;
+				this.downVal = downVal;
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+			 */
+			@Override
+			protected void paintComponent(final Graphics g) {
+				// super.paintComponent(g);
+				final Rectangle bounds = getBounds();
+				final String upStr = Double
+						.toString(Math.round(upVal * 100) / 100.0);
+				final String middleStr = middleVal == null ? ""
+						: Double.toString(Math
+								.round(middleVal.doubleValue() * 100) / 100.0);
+				final String downStr = Double.toString(Math
+						.round(downVal * 100) / 100.0);
+				g.setColor(Color.BLACK);
+				g.setFont(g.getFont().deriveFont(8.5f));
+				switch (orientation) {
+				case East:
+					g.drawString(upStr, gap(bounds), getFontMetrics(getFont())
+							.getHeight() * 2 / 3);
+					if (middleVal != null) {
+						g.drawString(middleStr, gap(bounds), bounds.height / 2);
+					}
+					g.drawString(downStr, gap(bounds), bounds.height);
+					g.drawLine(0, 0, gap(bounds) - 2, getFontMetrics(getFont())
+							.getHeight() / 3);
+					if (middleVal != null) {
+						g.drawLine(0, (int) ((upVal - middleVal.doubleValue())
+								/ (upVal - downVal) * bounds.height),
+								gap(bounds) - 2, bounds.height / 2
+										- getFontMetrics(getFont()).getHeight()
+										/ 3);
+					}
+					g.drawLine(0, bounds.height, gap(bounds) - 2, bounds.height
+							- getFontMetrics(getFont()).getHeight() / 3);
+					break;
+				case West: {
+					g.drawString(upStr, 5, getFontMetrics(getFont())
+							.getHeight() * 2 / 3);
+					if (middleVal != null) {
+						g.drawString(middleStr, 5, bounds.height / 2);
+					}
+					g.drawString(downStr, 5, bounds.height);
+					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
+							.getBounds().width + 7, getFontMetrics(getFont())
+							.getHeight() / 3, bounds.width, 0);
+					if (middleVal != null) {
+						g.drawLine(g.getFontMetrics().getStringBounds(
+								middleStr, g).getBounds().width + 7,
+								bounds.height / 2
+										- getFontMetrics(getFont()).getHeight()
+										/ 3, bounds.width,
+								(int) ((upVal - middleVal.doubleValue())
+										/ (upVal - downVal) * bounds.height));
+					}
+					g.drawLine(g.getFontMetrics().getStringBounds(upStr, g)
+							.getBounds().width + 7, bounds.height
+							- getFontMetrics(getFont()).getHeight() / 3,
+							bounds.width, bounds.height);
+					break;
+				}
+				case North: {
+					g.drawString(upStr, bounds.width
+							- g.getFontMetrics().getStringBounds(upStr, g)
+									.getBounds().width, getFontMetrics(
+							getFont()).getHeight() * 2 / 3);
+					if (middleVal != null) {
+						g
+								.drawString(middleStr, bounds.width
+										/ 2
+										- g.getFontMetrics().getStringBounds(
+												middleStr, g).getBounds().width
+										/ 2, bounds.height / 2
+										+ getFontMetrics(getFont()).getHeight()
+										/ 3);
+					}
+					g.drawString(downStr, 0, getFontMetrics(getFont())
+							.getHeight() * 2 / 3);
+					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
+							.getBounds().width / 2, getFontMetrics(getFont())
+							.getHeight() / 3, 0, bounds.height);
+					if (middleVal != null) {
+						g
+								.drawLine(
+										bounds.width / 2,
+										bounds.height
+												/ 2
+												+ getFontMetrics(getFont())
+														.getHeight() / 3,
+										bounds.width
+												- (int) ((upVal - middleVal
+														.doubleValue())
+														/ (upVal - downVal) * bounds.width),
+										bounds.height);
+					}
+					g.drawLine(bounds.width
+							- g.getFontMetrics().getStringBounds(upStr, g)
+									.getBounds().width / 2, getFontMetrics(
+							getFont()).getHeight() * 2 / 3, bounds.width,
+							bounds.height);
+					break;
+				}
+				case South: {
+					g.drawString(upStr, bounds.width
+							- g.getFontMetrics().getStringBounds(upStr, g)
+									.getBounds().width, bounds.height
+							- getFontMetrics(getFont()).getHeight() * 2 / 3);
+					if (middleVal != null) {
+						g
+								.drawString(middleStr, bounds.width
+										/ 2
+										- g.getFontMetrics().getStringBounds(
+												middleStr, g).getBounds().width
+										/ 2, bounds.height / 2
+										- getFontMetrics(getFont()).getHeight()
+										/ 4);
+					}
+					g.drawString(downStr, 0, bounds.height
+							- getFontMetrics(getFont()).getHeight() * 2 / 3);
+					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
+							.getBounds().width / 2, bounds.height
+							- getFontMetrics(getFont()).getHeight() * 4 / 3, 0,
+							0);
+					if (middleVal != null) {
+						g
+								.drawLine(
+										bounds.width / 2,
+										bounds.height
+												/ 2
+												- getFontMetrics(getFont())
+														.getHeight() * 5 / 6,
+										bounds.width
+												- (int) ((upVal - middleVal
+														.doubleValue())
+														/ (upVal - downVal) * bounds.width),
+										0);
+					}
+					g.drawLine(bounds.width
+							- g.getFontMetrics().getStringBounds(upStr, g)
+									.getBounds().width / 2, bounds.height
+							- getFontMetrics(getFont()).getHeight() * 4 / 3,
+							bounds.width, 0);
+					break;
+				}
+				default:
+					break;
+				}
+			}
+
+			/**
+			 * @param bounds
+			 * @return
+			 */
+			private int gap(final Rectangle bounds) {
+				return bounds.width / 3;
+			}
+
+			public Model getModel() {
+				return sample.getModel();
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.awt.Component#toString()
+			 */
+			@Override
+			public String toString() {
+				return "" + downVal + " -> "
+						+ (middleVal != null ? middleVal + " -> " : "") + upVal;
+			}
+		}
+
+		public void setModel(final Model model, final Orientation orientation) {
+			if (sample != null) {
+				remove(sample);
+			}
+			if (textPanel != null) {
+				remove(textPanel);
+			}
+			final int sizeOfBar = 10;
+			switch (orientation) {
+			case East:
+				add(sample = Sample.create(orientation.isVertical()));
+				sample.setPreferredSize(new Dimension(sizeOfBar,
+						getPreferredSize().height));
+				textPanel = new TextPanel(orientation, model.getUpVal(), model
+						.getMiddle() == null ? null : model.getMiddleVal(),
+						model.getDownVal());
+				textPanel.setPreferredSize(new Dimension(
+						getPreferredSize().width - sizeOfBar,
+						getPreferredSize().height));
+				add(textPanel);
+				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+				break;
+			case North:
+				textPanel = new TextPanel(orientation, model.getUpVal(), model
+						.getMiddle() == null ? null : model.getMiddleVal(),
+						model.getDownVal());
+				textPanel.setPreferredSize(new Dimension(
+						getPreferredSize().width, getPreferredSize().height
+								- sizeOfBar));
+				add(textPanel);
+				add(sample = Sample.create(orientation.isVertical()));
+				sample.setPreferredSize(new Dimension(getPreferredSize().width,
+						sizeOfBar));
+				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+				break;
+			case West:
+				textPanel = new TextPanel(orientation, model.getUpVal(), model
+						.getMiddle() == null ? null : model.getMiddleVal(),
+						model.getDownVal());
+				add(textPanel);
+				add(sample = Sample.create(orientation.isVertical()));
+				sample.setPreferredSize(new Dimension(sizeOfBar,
+						getPreferredSize().height));
+				textPanel.setPreferredSize(new Dimension(
+						getPreferredSize().width - sizeOfBar,
+						getPreferredSize().height));
+				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+				break;
+			case South: {
+				textPanel = new TextPanel(orientation, model.getUpVal(), model
+						.getMiddle() == null ? null : model.getMiddleVal(),
+						model.getDownVal());
+				add(sample = Sample.create(orientation.isVertical()));
+				sample.setPreferredSize(new Dimension(getPreferredSize().width,
+						sizeOfBar));
+				add(textPanel);
+				textPanel.setPreferredSize(new Dimension(
+						getPreferredSize().width, getPreferredSize().height
+								- sizeOfBar));
+				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+				break;
+			}
+			default:
+				break;
+			}
+			sample.setModel(model);
+			revalidate();
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+		 */
+		@Override
+		protected void paintComponent(final Graphics g) {
+			// TODO Auto-generated method stub
+			super.paintComponent(g);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.Component#toString()
+		 */
+		@Override
+		public String toString() {
+			return textPanel.orientation.name() + sample;
+		}
+
+		/**
+		 * @return
+		 */
+		public Model getModel() {
+			return sample.getModel();
+		}
+	}
+
 	/**
 	 * This class helps to select the colouring for a double valued parameter.
 	 */
