@@ -45,7 +45,8 @@ public interface Displayable {
 		<EnumType extends Enum<EnumType> & Displayable> EnumType findByDisplayText(
 				final String text, final EnumType... values) {
 			for (final EnumType value : values) {
-				if (text.equals(value.getDisplayText())) {
+				if (text.equals(value.getDisplayText())
+						|| text.equals(value.name())) {
 					return value;
 				}
 			}

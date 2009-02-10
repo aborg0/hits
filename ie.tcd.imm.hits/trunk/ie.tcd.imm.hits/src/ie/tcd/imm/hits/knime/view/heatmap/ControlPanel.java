@@ -657,6 +657,8 @@ public class ControlPanel extends JPanel {
 		legendPanel.setViewModel(currentViewModel);
 		view.getVolatileModel().removeActionListener(legendPanel);
 		view.getVolatileModel().addActionListener(legendPanel);
+		currentViewModel.getMain().getColourModel().addActionListener(
+				legendPanel);
 	}
 
 	private void addBorderButton(final HeatmapNodeView origView,

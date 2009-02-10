@@ -386,6 +386,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	/** This class is responsible to hold the changing parameters. */
 	static class VolatileModel implements Serializable, ActionListener {
 		private static final long serialVersionUID = 6675568415910804477L;
+		/** The prefix for the show colour legend action. */
+		public static final String SHOW_COLOUR_LEGEND_PREFIX = "show colour legend: ";
 
 		/**
 		 * This enum describes the possible strategies to layout the
@@ -439,6 +441,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		/** The {@link HiLiteHandler} used. */
 		private HiLiteHandler hiliteHandler;
+
+		/** The visibility of colour legend property. */
+		private boolean showColourLegend = true;
 
 		/**
 		 * Constructs a {@link VolatileModel}.
@@ -721,6 +726,26 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 		}
+
+		/**
+		 * @return the showColourLegend
+		 */
+		public boolean isShowColourLegend() {
+			return showColourLegend;
+		}
+
+		/**
+		 * @param showColourLegend
+		 *            the showColourLegend to set
+		 */
+		public void setShowColourLegend(final boolean showColourLegend) {
+			if (this.showColourLegend != showColourLegend) {
+				this.showColourLegend = showColourLegend;
+				actionPerformed(new ActionEvent(this, (int) (System
+						.currentTimeMillis() & 0xffffffffL),
+						SHOW_COLOUR_LEGEND_PREFIX + showColourLegend));
+			}
+		}
 	}
 
 	/**
@@ -778,9 +803,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				legendPanel.setShowColors(showColorsLegend.getModel()
-						.isSelected());
-				legendPanel2.setShowColors(showColorsLegend.getModel()
+				// legendPanel.setShowColors(showColorsLegend.getModel()
+				// .isSelected());
+				// legendPanel2.setShowColors(showColorsLegend.getModel()
+				// .isSelected());
+				// controlPanel.setViewModel(currentViewModel);
+				volatileModel.setShowColourLegend(showColorsLegend.getModel()
 						.isSelected());
 			}
 
@@ -859,7 +887,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		showColorsLegend.addActionListener(legendPanel2);
 		showTooltipsLegend.addActionListener(legendPanel2);
 		bottomTabs.add("Legend", legendPanel2);
-		bottomTabs.add("Colours", new JScrollPane(colourSelector));
+		bottomTabs.add("Colours", new JScrollPane(getColourSelector()));
 		setComponent(mainSplit);
 		nodeModel.getInHiLiteHandler(0).addHiLiteListener(
 				heatmapPanel.getHiLiteListener());
@@ -870,8 +898,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		unHiliteSelected.addActionListener(volatileModel);
 		unHiliteAll.addActionListener(heatmapPanel);
 		unHiliteAll.addActionListener(volatileModel);
-		colourSelector.getModel().addActionListener(heatmapPanel);
-		currentViewModel.getMain().setColourModel(colourSelector.getModel());
+		getColourSelector().getModel().addActionListener(heatmapPanel);
+		getColourSelector().getModel().addActionListener(legendPanel);
+		getColourSelector().getModel().addActionListener(legendPanel2);
+		currentViewModel.getMain().setColourModel(
+				getColourSelector().getModel());
 		volatileModel.addActionListener(legendPanel);
 		volatileModel.addActionListener(legendPanel2);
 		setCurrentViewModel(currentViewModel);
@@ -1015,13 +1046,16 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				model.addActionListener(volatileModel);
 			}
 		}
+		getColourSelector().getModel().addActionListener(volatileModel);
+		getColourSelector().update(
+				nodeModel.getModelBuilder().getSpecAnalyser().getParameters(),
+				nodeModel.getModelBuilder().getSpecAnalyser().getStatistics(),
+				findRanges(nodeModel.getModelBuilder()));
 		heatmapPanel.setModel(nodeModel);
-		colourSelector.update(nodeModel.getModelBuilder().getSpecAnalyser()
-				.getParameters(), nodeModel.getModelBuilder().getSpecAnalyser()
-				.getStatistics(), findRanges(nodeModel.getModelBuilder()));
 		table.setDataTable(nodeModel.getTable());
 		table.setHiLiteHandler(nodeModel.getInHiLiteHandler(0));
 		logger.debug("Model change successfully finished.");
+		getColourSelector().getModel().notifyListeners();
 	}
 
 	/**
@@ -1295,5 +1329,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	 */
 	public ControlsHandler<? extends SettingsModel> getControlsHandler() {
 		return controlsHandler;
+	}
+
+	/**
+	 * @return the colourSelector
+	 */
+	public ColourSelector getColourSelector() {
+		return colourSelector;
 	}
 }

@@ -177,6 +177,13 @@ public class ColourSelector extends JPanel {
 			}
 			return null;
 		}
+
+		/**
+		 * 
+		 */
+		void notifyListeners() {
+			fireModelChanged();
+		}
 	}
 
 	/**

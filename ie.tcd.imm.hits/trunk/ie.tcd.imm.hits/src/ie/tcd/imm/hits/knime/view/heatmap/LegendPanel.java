@@ -8,6 +8,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
 import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText.Orientation;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
@@ -227,7 +228,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 								g.setFont(origFont.deriveFont(Font.BOLD)
 										.deriveFont(8.5f));
 								g.setColor(borderColor);
-								final int r = 45;
 								g
 										.drawString(model.getShortName(),
 												bounds.width
@@ -580,6 +580,11 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
+		if (e.getActionCommand().startsWith(
+				VolatileModel.SHOW_COLOUR_LEGEND_PREFIX)) {
+			setShowColors(Boolean.parseBoolean(e.getActionCommand().substring(
+					VolatileModel.SHOW_COLOUR_LEGEND_PREFIX.length())));
+		}
 		setViewModel(model);
 		revalidate();
 		repaint();
