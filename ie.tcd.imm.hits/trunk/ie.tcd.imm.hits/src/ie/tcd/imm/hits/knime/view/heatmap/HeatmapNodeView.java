@@ -22,9 +22,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsAdapter;
@@ -32,8 +35,13 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,21 +52,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -83,9 +109,297 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
+	/**
+	 * An action to save all possible views of plates in the experiment.
+	 */
+	public class ExportAllAction extends AbstractAction {
+		private static final long serialVersionUID = 7782954593253996267L;
+		/** The default action description. */
+		public static final String EXPORT_ALL = "Export all...";
+
+		/**
+		 * Creates the action with value of {@link #EXPORT_ALL} default
+		 * description ({@value #EXPORT_ALL}).
+		 * 
+		 * @see ExportAllAction#ExportAllAction(String)
+		 */
+		public ExportAllAction() {
+			this(EXPORT_ALL);
+		}
+
+		/**
+		 * @param name
+		 *            The description of the action.
+		 * @see AbstractAction#AbstractAction(String)
+		 */
+		public ExportAllAction(final String name) {
+			super(name);
+		}
+
+		/**
+		 * @param name
+		 *            The description of the action.
+		 * @param icon
+		 *            The {@link Icon} associated to the {@link ExportAllAction}
+		 *            instance.
+		 */
+		public ExportAllAction(final String name, final Icon icon) {
+			super(name, icon);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final JDialog dialog = new JDialog((Frame) null,
+					"Image export parameters", true);
+			final JFileChooser fileChooser = new JFileChooser();
+			final Container contentPane = dialog.getContentPane();
+			// final SpringLayout springLayout = new SpringLayout();
+			// contentPane.setLayout(springLayout);
+			contentPane.setLayout(new FlowLayout());
+			final JLabel fileNameLabel = new JLabel("Destination folder: ");
+			contentPane.add(fileNameLabel);
+			final JTextField fileName = new JTextField(fileChooser
+					.getSelectedFile() == null ? "" : fileChooser
+					.getSelectedFile().getAbsolutePath(), 22);
+			contentPane.add(fileName);
+			contentPane.add(new JButton(new AbstractAction("Browse") {
+				private static final long serialVersionUID = 5781557115110972194L;
+
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					final int res = fileChooser.showOpenDialog(dialog);
+					switch (res) {
+					case JFileChooser.APPROVE_OPTION:
+						fileName.setText(fileChooser.getSelectedFile()
+								.getAbsolutePath());
+						break;
+					default:
+						// Ignore cancel or error
+						break;
+					}
+				}
+			}));
+			// springLayout.addLayoutComponent(fileChooser, new Constraints());
+			final JLabel x = new JLabel("width: ");
+			contentPane.add(x);
+			final JSpinner width = new JSpinner(new SpinnerNumberModel(800,
+					200, 20000, 100));
+			contentPane.add(width);
+			final JLabel y = new JLabel("height: ");
+			contentPane.add(y);
+			final JSpinner height = new JSpinner(new SpinnerNumberModel(600,
+					200, 20000, 100));
+			contentPane.add(height);
+			final JButton okButton = new JButton("OK");
+			final boolean[] ok = new boolean[1];
+			okButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					ok[0] = true;
+					dialog.setVisible(false);
+					dialog.dispose();
+				}
+			});
+			contentPane.add(okButton);
+			dialog.setPreferredSize(new Dimension(400, 400));
+			dialog.pack();
+			while (true) {
+				dialog.setVisible(true);
+				if (ok[0]) {
+					if (fileName.getText().isEmpty()) {
+						JOptionPane
+								.showMessageDialog(
+										dialog,
+										"No folder specified for the result images. Please select one.",
+										"No folder specified",
+										JOptionPane.WARNING_MESSAGE);
+						dialog.setVisible(true);
+						continue;
+					}
+					final int w = ((Integer) width.getModel().getValue())
+							.intValue(), h = ((Integer) height.getModel()
+							.getValue()).intValue();
+					final List<ParameterModel> primerParameters = getCurrentViewModel()
+							.getMain().getPrimerParameters();
+					final List<ParameterModel> seconderParameters = getCurrentViewModel()
+							.getMain().getSeconderParameters();
+					final Set<SliderModel> sliderModels = getCurrentViewModel()
+							.getMain().getArrangementModel().getSliderModels();
+					final List<SliderModel> others = new ArrayList<SliderModel>(
+							sliderModels.size());
+					final Map<StatTypes, Integer> origSelections = new EnumMap<StatTypes, Integer>(
+							StatTypes.class);
+					for (final SliderModel sliderModel : sliderModels) {
+						if ((primerParameters.get(0).getType() != sliderModel
+								.getParameters().get(0).getType())
+								&& (seconderParameters.size() == 0 || seconderParameters
+										.get(0).getType() != sliderModel
+										.getParameters().get(0).getType())) {
+							others.add(sliderModel);
+							assert sliderModel.getSelections().size() == 1 : sliderModel
+									.getSelections();
+							origSelections.put(sliderModel.getParameters().get(
+									0).getType(), sliderModel.getSelections()
+									.iterator().next());
+						}
+					}
+					final JFrame frame = new JFrame();
+					final JScrollPane scrollPane = new JScrollPane();
+					frame.getContentPane().add(scrollPane);
+					scrollPane.getViewport()
+							.setPreferredSize(
+									new Dimension(((Number) width.getModel()
+											.getValue()).intValue(),
+											((Number) height.getModel()
+													.getValue()).intValue()));
+					frame.pack();
+					final boolean[] stopped = new boolean[1];
+					frame.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosing(final WindowEvent e) {
+							stopped[0] = true;
+						}
+					});
+					frame.setVisible(true);
+					boolean madeDirs = new File(fileName.getText()).mkdirs();
+					assert madeDirs || !madeDirs;
+					final Callable<Boolean> worker = new Callable<Boolean>() {
+						@Override
+						public Boolean call() throws Exception {
+							saveImages(stopped, scrollPane, w, h, fileName
+									.getText(), others, 0);
+							SwingUtilities.invokeAndWait(new Runnable() {
+								@Override
+								public void run() {
+									frame.dispose();
+								}
+							});
+							return Boolean.valueOf(!stopped[0]);
+						}
+					};
+					executor.submit(worker);
+					break;
+				} else {
+					break;
+				}
+			}
+		}
+
+		/**
+		 * Saves the images with all possible different parameter values.
+		 * 
+		 * @param stopped
+		 *            The stopped pointer
+		 * @param scrollPane
+		 *            The scrollpane for the drawing.
+		 * @param w
+		 *            The width of the image.
+		 * @param h
+		 *            The height of the image.
+		 * @param folderName
+		 *            The name of the destination folder.
+		 * @param others
+		 *            The non-primary, non-secondary {@link SliderModel}s.
+		 * @param actual
+		 *            The actually modified {@link SliderModel} in
+		 *            {@code others}.
+		 */
+		private void saveImages(final boolean[] stopped,
+				final JScrollPane scrollPane, final int w, final int h,
+				final String folderName, final List<SliderModel> others,
+				final int actual) {
+			if (stopped[0]) {
+				return;
+			}
+			if (actual < others.size()) {
+				final SliderModel slider = others.get(actual);
+				final Integer original = slider.getSelections().iterator()
+						.next();
+				for (final Integer key : slider.getValueMapping().keySet()) {
+					if (!stopped[0]) {
+						slider.selectSingle(key);
+						saveImages(stopped, scrollPane, w, h, folderName,
+								others, actual + 1);
+					}
+				}
+				slider.selectSingle(original);
+				// if (actual == 0) {
+				// getCurrentViewModel()
+				// .getMain()
+				// .getArrangementModel()
+				// .actionPerformed(
+				// new ActionEvent(
+				// this,
+				// (int) (System.currentTimeMillis() & 0xffffffffL),
+				// "refresh"));
+				// }
+			} else {
+				final BufferedImage bi = new BufferedImage(w, h,
+						ColorSpace.TYPE_RGB);
+				final Graphics2D g = bi.createGraphics();
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							final HeatmapPanel hp = new HeatmapPanel(
+									HeatmapNodeView.this.getCurrentViewModel(),
+									HeatmapNodeView.this.getNodeModel(),
+									HeatmapNodeView.this.getVolatileModel());
+							scrollPane.setViewportView(hp.heatmapsPanel);
+							scrollPane.getViewport().setPreferredSize(
+									new Dimension(w, h));
+							scrollPane.getViewport().setMinimumSize(
+									new Dimension(w, h));
+							scrollPane.getViewport().setMaximumSize(
+									new Dimension(w, h));
+							// hp.heatmapsPanel.setVisible(true);
+							hp.setModel(getNodeModel());
+							hp.heatmapsPanel.setSize(w, h);
+							hp.heatmapsPanel.setBounds(0, 0, w, h);
+							scrollPane.getViewport().paintComponents(g);
+						}
+					});
+				} catch (final InterruptedException e1) {
+					JOptionPane.showMessageDialog(null, "Interrupted",
+							"Interrupted", JOptionPane.ERROR_MESSAGE);
+				} catch (final InvocationTargetException e1) {
+					JOptionPane.showMessageDialog(null, "Interrupted",
+							"Interrupted", JOptionPane.ERROR_MESSAGE);
+				}
+				try {
+					final StringBuilder fileName = new StringBuilder(folderName);
+					fileName.append(File.separatorChar);
+					for (final SliderModel sliderModel : others) {
+						fileName.append(sliderModel.getParameters().get(0)
+								.getShortName());
+						fileName.append("-").append(
+								sliderModel.getValueMapping().get(
+										sliderModel.getSelections().iterator()
+												.next()).getRight().toString()
+										.replaceAll("[^\\d\\w]+", "_")).append(
+								" ");
+					}
+					fileName.append(".png");
+					ImageIO.write(bi, "png", new File(fileName.toString()));
+				} catch (final IOException e1) {
+					JOptionPane.showMessageDialog(HeatmapNodeView.this
+							.getComponent(), "File save failed: "
+							+ e1.getMessage());
+				}
+			}
+		}
+	}
+
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(HeatmapNodeView.class);
 
+	private static final ExecutorService executor = new ThreadPoolExecutor(1,
+			1, 1000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
 	private final LegendPanel legendPanel;
 	private final LegendPanel legendPanel2;
 	// private final JTable infoTable = new JTable(1, 1);
@@ -388,6 +702,10 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		private static final long serialVersionUID = 6675568415910804477L;
 		/** The prefix for the show colour legend action. */
 		public static final String SHOW_COLOUR_LEGEND_PREFIX = "show colour legend: ";
+		/** The prefix for the show only HiLites action. */
+		public static final String SHOW_ONLY_HILITES_PREFIX = "show only HiLites: ";
+		/** The prefix for the show HiLites action. */
+		public static final String SHOW_HILITES_PREFIX = "show HiLites: ";
 
 		/**
 		 * This enum describes the possible strategies to layout the
@@ -417,6 +735,12 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		/** The strategy to find the {@link #magnification} value. */
 		private MagnificationStrategy magStrategy;
+
+		/** Shows the hiliting background. */
+		private boolean showHiLites = true;
+
+		/** Shows only the hilited wells (if any). */
+		private boolean showOnlyHiLites = false;
 
 		/** The plate's row and column positions at the upper left corner. */
 		private int leftX, upperY;
@@ -746,6 +1070,50 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						SHOW_COLOUR_LEGEND_PREFIX + showColourLegend));
 			}
 		}
+
+		/**
+		 * @return Whether or not show the HiLite background.
+		 */
+		public boolean isShowHiLites() {
+			return showHiLites;
+		}
+
+		/**
+		 * Sets the showHiLites property to {@code showHiLites}.
+		 * 
+		 * @param showHiLites
+		 *            The new value of showHiLites property.
+		 */
+		public void setShowHiLites(final boolean showHiLites) {
+			if (showHiLites != this.showHiLites) {
+				this.showHiLites = showHiLites;
+				actionPerformed(new ActionEvent(this, (int) (System
+						.currentTimeMillis() & 0xffffffffL),
+						SHOW_HILITES_PREFIX + showHiLites));
+			}
+		}
+
+		/**
+		 * @return if {@code true} only the HiLited values are shown.
+		 */
+		public boolean isShowOnlyHiLites() {
+			return showOnlyHiLites;
+		}
+
+		/**
+		 * Sets the showOnlyHiLites property to {@code showOnlyHiLites}.
+		 * 
+		 * @param showOnlyHiLites
+		 *            The new value of showOnlyHiLites property.
+		 */
+		public void setShowOnlyHiLites(final boolean showOnlyHiLites) {
+			if (showOnlyHiLites != this.showOnlyHiLites) {
+				this.showOnlyHiLites = showOnlyHiLites;
+				actionPerformed(new ActionEvent(this, (int) (System
+						.currentTimeMillis() & 0xffffffffL),
+						SHOW_ONLY_HILITES_PREFIX + showOnlyHiLites));
+			}
+		}
 	}
 
 	/**
@@ -758,9 +1126,23 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		super(nodeModel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
 		showHilite = new JCheckBoxMenuItem("Show HiLite visuals", true);
+		showHilite.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				getVolatileModel().setShowHiLites(
+						showHilite.getModel().isSelected());
+			}
+		});
 		// hiliteMenu.add(showHilite);
 		showOnlyHilited = new JCheckBoxMenuItem("Show only HiLited values",
 				false);
+		showOnlyHilited.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				getVolatileModel().setShowOnlyHiLites(
+						showOnlyHilited.getModel().isSelected());
+			}
+		});
 		// hiliteMenu.add(showOnlyHilited);
 		// hiliteMenu.add(new JMenuItem());
 		hiliteSelected = new JMenuItem(HiLiteHandler.HILITE_SELECTED);
@@ -769,6 +1151,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		hiliteMenu.add(unHiliteSelected);
 		unHiliteAll = new JMenuItem(HiLiteHandler.CLEAR_HILITE);
 		hiliteMenu.add(unHiliteAll);
+		final JMenu fileMenu = getJMenuBar().getMenu(0);
+		final Action exportAllAction = new ExportAllAction();
+		fileMenu.add(new JMenuItem(exportAllAction));
 		getJMenuBar().add(hiliteMenu);
 		table.getContentTable().addMouseListener(new MouseAdapter() {
 
@@ -803,15 +1188,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				// legendPanel.setShowColors(showColorsLegend.getModel()
-				// .isSelected());
-				// legendPanel2.setShowColors(showColorsLegend.getModel()
-				// .isSelected());
-				// controlPanel.setViewModel(currentViewModel);
 				volatileModel.setShowColourLegend(showColorsLegend.getModel()
 						.isSelected());
 			}
-
 		});
 		showTooltipsLegend = new JCheckBoxMenuItem("Show tooltips legend", true);
 		// legendMenu.add(showTooltipsLegend);
@@ -1175,7 +1554,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 								: Double.NaN);
 				ret.get(entry.getKey()).get(subEntry.getKey()).put(
 						RangeType.median,
-						values.size() > 0 ? (values.size() % 2 == 1 ? values
+						values.size() > 0 ? (values.size() % 2 != 0 ? values
 								.get(values.size() / 2) : (values.get(values
 								.size() / 2) + values
 								.get(values.size() / 2 - 1)) / 2) : Double.NaN);

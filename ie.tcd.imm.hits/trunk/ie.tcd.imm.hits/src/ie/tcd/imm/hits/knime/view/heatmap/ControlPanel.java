@@ -528,6 +528,7 @@ public class ControlPanel extends JPanel {
 		rectangle = new JRadioButton("rectangle", true);
 		shapeGroup.add(circle);
 		shapeGroup.add(rectangle);
+		shapeGroup.setSelected(rectangle.getModel(), true);
 		shapePanel.add(circle);
 		shapePanel.add(rectangle);
 		shapePanel.setBorder(new TitledBorder(

@@ -364,7 +364,7 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * @return
+		 * @return The associate {@link Model}.
 		 */
 		public Model getModel() {
 			return model;
@@ -419,6 +419,18 @@ public class ColourSelector extends JPanel {
 			private final Double middleVal;
 			private final double downVal;
 
+			/**
+			 * Constructs the text for a {@link Sample}.
+			 * 
+			 * @param orientation
+			 *            The orientation of the {@link TextPanel}.
+			 * @param upVal
+			 *            The high value.
+			 * @param middleVal
+			 *            The middle value or {@code null}.
+			 * @param downVal
+			 *            The low value.
+			 */
 			TextPanel(final Orientation orientation, final double upVal,
 					final Double middleVal, final double downVal) {
 				super();
@@ -581,12 +593,17 @@ public class ColourSelector extends JPanel {
 
 			/**
 			 * @param bounds
-			 * @return
+			 *            The bounds of the whole {@link TextPanel}.
+			 * @return The gap between the {@link TextPanel} and the
+			 *         {@link Sample}.
 			 */
 			private int gap(final Rectangle bounds) {
 				return bounds.width / 3;
 			}
 
+			/**
+			 * @return The associated model to the sample.
+			 */
 			public Model getModel() {
 				return sample.getModel();
 			}
@@ -603,6 +620,14 @@ public class ColourSelector extends JPanel {
 			}
 		}
 
+		/**
+		 * Updates the model of this legend.
+		 * 
+		 * @param model
+		 *            A colour {@link Model}.
+		 * @param orientation
+		 *            The new {@link Orientation} of the {@link SampleWithText}.
+		 */
 		public void setModel(final Model model, final Orientation orientation) {
 			if (sample != null) {
 				remove(sample);
@@ -672,21 +697,9 @@ public class ColourSelector extends JPanel {
 			revalidate();
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-		 */
-		@Override
-		protected void paintComponent(final Graphics g) {
-			// TODO Auto-generated method stub
-			super.paintComponent(g);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.awt.Component#toString()
+		/**
+		 * @return debug information about the orientation and the colour
+		 *         {@link Model}.
 		 */
 		@Override
 		public String toString() {
@@ -694,7 +707,7 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * @return
+		 * @return The associated colour {@link Model}.
 		 */
 		public Model getModel() {
 			return sample.getModel();

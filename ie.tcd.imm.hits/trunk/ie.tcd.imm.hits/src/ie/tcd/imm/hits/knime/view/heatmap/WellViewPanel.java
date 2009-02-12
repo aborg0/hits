@@ -86,7 +86,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		final List<ParameterModel> primerParameters = model.getMain()
 				.getPrimerParameters();
 		final Collection<SliderModel> sliders = model.getMain()
-				.getArrangementModel().getSliderModels();// .getSliders().get(Type.Splitter);
+				.getArrangementModel().getSliderModels();
 		final int primerParamCount = Math.max(1, selectValueCount(
 				primerParameters, sliders));
 		final int secCount = Math.max(1, selectValueCount(model.getMain()
