@@ -11,9 +11,14 @@ import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 import ie.tcd.imm.hits.util.Pair;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -95,8 +102,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeModel extends NodeModel {
 
-	// the logger instance
-	private static final NodeLogger logger = NodeLogger
+	/** the logger instance */
+	static final NodeLogger logger = NodeLogger
 			.getLogger(CellHTS2NodeModel.class);
 
 	/** Configuration key for the experiment name */
@@ -317,8 +324,12 @@ public class CellHTS2NodeModel extends NodeModel {
 					.createSpec(), new DataColumnSpecCreator("Z' factor",
 					DoubleCell.TYPE).createSpec());
 
+	private static final String OUT_DIRS = "outdirs.txt";
+
 	private static DataTableSpec outputFolderSpec = new DataTableSpec(
 			new DataColumnSpecCreator("folder", StringCell.TYPE).createSpec());
+
+	private Map<String, String> outDirs;
 
 	// private final SettingsModelBoolean useTCDCellHTS2ExtensionsModel = new
 	// SettingsModelBoolean(
@@ -528,7 +539,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 			}
 			final String[] normMethods = computeNormMethods();
-			final Map<String, String> outDirs = computeOutDirs(normMethods);
+			outDirs = computeOutDirs(normMethods);
 			double completed = 0.01;
 			// logger.debug(conn.eval("table(wellAnno(x))"));
 			logger.debug(conn.eval("state(x)"));
@@ -1796,6 +1807,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		// TODO Code executed on reset.
 		// Models build during execute are cleared here.
 		// Also data handled in load/saveInternals will be erased here.
+		outDirs.clear();
 	}
 
 	/**
@@ -2402,7 +2414,32 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-
+		final File file = new File(internDir, OUT_DIRS);
+		if (file.canRead()) {
+			final FileInputStream fis = new FileInputStream(file);
+			try {
+				final InputStreamReader reader = new InputStreamReader(fis);
+				try {
+					final BufferedReader br = new BufferedReader(reader);
+					try {
+						if (outDirs == null) {
+							outDirs = new TreeMap<String, String>();
+						}
+						String line;
+						while ((line = br.readLine()) != null) {
+							final String[] parts = line.split("\"");
+							outDirs.put(parts[1], parts[3]);
+						}
+					} finally {
+						br.close();
+					}
+				} finally {
+					reader.close();
+				}
+			} finally {
+				fis.close();
+			}
+		}
 		// TODO load internal data.
 		// Everything handed to output ports is loaded automatically (data
 		// returned by the execute method, models loaded in loadModelContent,
@@ -2419,13 +2456,38 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+		final File file = new File(internDir, OUT_DIRS);
+		final FileOutputStream fos = new FileOutputStream(file);
+		try {
+			final OutputStreamWriter writer = new OutputStreamWriter(fos,
+					"UTF-8");
+			try {
+				for (final Entry<String, String> entry : outDirs.entrySet()) {
+					writer.append('"').append(entry.getKey()).append('"')
+							.append('\t').append('"').append(entry.getValue())
+							.append('"').append('\n');
+				}
+			} finally {
+				writer.close();
+			}
 
+		} finally {
+			fos.close();
+		}
 		// TODO save internal models.
 		// Everything written to output ports is saved automatically (data
 		// returned by the execute method, models saved in the saveModelContent,
 		// and user settings saved through saveSettingsTo - is all taken care
 		// of). Save here only the other internals that need to be preserved
 		// (e.g. data used by the views).
+	}
 
+	/**
+	 * @return the outDirs (A {@link Map} with keys from the {@code normMethods},
+	 *         and values as folder names (absolute, or relative).)
+	 * @see #computeOutDirs(String[], String, String, List, String, boolean)
+	 */
+	public Map<String, String> getOutDirs() {
+		return new HashMap<String, String>(outDirs);
 	}
 }

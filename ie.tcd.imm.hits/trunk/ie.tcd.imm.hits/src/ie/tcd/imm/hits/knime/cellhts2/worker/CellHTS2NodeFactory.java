@@ -25,7 +25,7 @@ public class CellHTS2NodeFactory extends NodeFactory<CellHTS2NodeModel> {
 	 */
 	@Override
 	public int getNrNodeViews() {
-		return 0;
+		return 1;
 	}
 
 	/**
@@ -34,8 +34,7 @@ public class CellHTS2NodeFactory extends NodeFactory<CellHTS2NodeModel> {
 	@Override
 	public NodeView<CellHTS2NodeModel> createNodeView(final int viewIndex,
 			final CellHTS2NodeModel nodeModel) {
-		throw new IndexOutOfBoundsException();
-		// return new CellHTS2NodeView(nodeModel);
+		return new CellHTS2NodeView(nodeModel);
 	}
 
 	/**
