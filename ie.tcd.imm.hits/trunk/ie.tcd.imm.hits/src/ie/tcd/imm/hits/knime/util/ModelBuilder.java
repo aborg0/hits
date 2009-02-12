@@ -22,10 +22,12 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.IntCell;
@@ -534,8 +536,11 @@ public class ModelBuilder {
 			colourValues.get(plate)[well] = table.getDataTableSpec()
 					.getRowColor(dataRow).getColor();
 			for (final Entry<String, Integer> entry : stringIndices.entrySet()) {
-				textColumns.get(entry.getKey())[well] = ((StringValue) dataRow
-						.getCell(entry.getValue().intValue())).getStringValue();
+				final DataCell cell = dataRow.getCell(entry.getValue()
+						.intValue());
+				textColumns.get(entry.getKey())[well] = cell == DataType
+						.getMissingCell() ? "" : ((StringValue) cell)
+						.getStringValue();
 			}
 			keyToPlateAndPosition.put(dataRow.getKey().getString(),
 					new Pair<Integer, Integer>(plate, Integer.valueOf(well)));
