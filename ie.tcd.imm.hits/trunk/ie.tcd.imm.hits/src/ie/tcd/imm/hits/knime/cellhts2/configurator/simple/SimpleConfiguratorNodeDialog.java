@@ -36,7 +36,7 @@ public class SimpleConfiguratorNodeDialog extends DefaultNodeSettingsPane {
 						SimpleConfiguratorNodeModel.CFGKEY_PLATE_CONFIG,
 						SimpleConfiguratorNodeModel.DEFAULT_PLATE_CONFIG),
 				SimpleConfiguratorNodeModel.CFGKEY_PLATE_CONFIG,
-				"Plateconf.txt", ".txt");
+				"Plateconf.txt|PlateConf.txt", ".txt|.TXT", "");
 		plateConf.setBorderTitle("Plate configuration file:");
 		plateConf.setToolTipText("The plate configuration file.");
 		addDialogComponent(plateConf);
@@ -45,7 +45,7 @@ public class SimpleConfiguratorNodeDialog extends DefaultNodeSettingsPane {
 						SimpleConfiguratorNodeModel.CFGKEY_DESCRIPTION_FILE,
 						SimpleConfiguratorNodeModel.DEFAULT_DESCRIPTION),
 				SimpleConfiguratorNodeModel.CFGKEY_DESCRIPTION_FILE,
-				"Description.txt", ".txt");
+				"Description.txt|description.txt", ".txt|.TXT");
 		description.setBorderTitle("Description file:");
 		description.setToolTipText("The description file of the experiment.");
 		addDialogComponent(description);

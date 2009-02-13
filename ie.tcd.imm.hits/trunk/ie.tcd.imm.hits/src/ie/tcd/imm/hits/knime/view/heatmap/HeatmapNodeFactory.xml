@@ -8,17 +8,18 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Shows the heatmap of the plates. It has many options to customise of the view.</intro>
+        <intro>Shows the heatmap of the plates. It has many options to customise of the view.<p/>
         
-        On the first tab of controls (<em>Controls</em>) you may influence the appearance of the wells.<p/>
-        The second tab (<em>Info controls</em>) allows you to set modify the tooltips, the description of the wells.<p/>
-        The third tab (<em>Info</em>) shows information about the last clicked well, below that you may see the input table. The latter can be filtered by the hilited values. (<b>Hint:</b> try right click on it.)<p/>
-        The forth tab (<em>Settings</em>) will allow you to save or load your preferred settings. This is currently not working.<p/>
-        The last tab (<em>Colours</em>) makes it possible to modify the automatically selected colours/ranges.<p/>
-        The sidebar allows you to select which heatmap you want to see. You can adjust the parameter values to your needs. You may change the position of the control (right click/<em>Move to</em>), or change its appearance (right click/<em>Change appearance</em>. You can also influence the division of the circles/rectangles (right click/<em>Change type</em>). (The <b>primary</b> for the circles is the division anti-clockwise, the <b>secondary</b> is the radial. The <b>primary</b> for the rectangles is splits the rectangle in the <em>X</em> axis, while the <b>secondary</b> splits by the <em>Y</em> axis.)<p/>
+        On the first tab of controls (<i>Controls</i>) you may influence the appearance of the wells.<p/>
+        The second tab (<i>Info controls</i>) allows you to set modify the tooltips, the description of the wells.<p/>
+        The third tab (<i>Info</i>) shows information about the last clicked well, below that you may see the input table. The latter can be filtered by the hilited values. (<b>Hint:</b> try right click on it.)<p/>
+        The forth tab (<i>Settings</i>) will allow you to save or load your preferred settings. This is currently not working.<p/>
+        The last tab (<i>Colours</i>) makes it possible to modify the automatically selected colours/ranges.<p/>
+        The sidebar allows you to select which heatmap you want to see. You can adjust the parameter values to your needs. You may change the position of the control (right click/<i>Move to</i>), or change its appearance (right click/<i>Change appearance</i>. You can also influence the division of the circles/rectangles (right click/<i>Change type</i>). (The <b>primary</b> for the circles is the division anti-clockwise, the <b>secondary</b> is the radial. The <b>primary</b> for the rectangles is splits the rectangle in the <i>X</i> axis, while the <b>secondary</b> splits by the <i>Y</i> axis.)<p/>
         From the menu you can influence the HiLite.<p/>
-        There is an option to export the heatmaps in <code>png</code> file format from the file menu. Select <em>Export all...</em> for this option.<p/>
-        You may turn on or off the colour legend in the <em>Legend</em> menu.
+        There is an option to export the heatmaps in <pre>png</pre> file format from the file menu. Select <i>Export all...</i> for this option.<p/>
+        You may turn on or off the colour legend in the <i>Legend</i> menu.
+        </intro>
         <!--option name="short name of first option (like in the dialog)">description of first option</option>
         <option name="short name of second option (like in the dialog)">description of second option</option-->
     </fullDescription>

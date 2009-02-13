@@ -2,7 +2,6 @@ package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +13,8 @@ import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -37,6 +38,43 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @NotThreadSafe
 @DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
+	/**
+	 * Shows the selected file in the browser.
+	 */
+	private static final class ShowInBrowserAction extends AbstractAction {
+		private static final long serialVersionUID = 3726816134663712521L;
+		/** The file to show. */
+		private final String rootFile;
+
+		/**
+		 * @param name
+		 *            The name of the {@link Action}.
+		 * @param rootFile
+		 *            The URI of the file to show.
+		 */
+		private ShowInBrowserAction(final String name, final String rootFile) {
+			super(name);
+			this.rootFile = rootFile;
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			try {
+				Desktop.getDesktop().browse(new URI(rootFile));
+			} catch (final IOException e1) {
+				JOptionPane.showMessageDialog(null, "Unable to launch: "
+						+ e1.getMessage(), "Problem with launch",
+						JOptionPane.ERROR_MESSAGE);
+				CellHTS2NodeModel.logger.error("Launch problem", e1);
+			} catch (final URISyntaxException e1) {
+				JOptionPane.showMessageDialog(null, "Unable to launch: "
+						+ e1.getMessage(), "Problem with launch",
+						JOptionPane.ERROR_MESSAGE);
+				CellHTS2NodeModel.logger.error("Launch problem", e1);
+			}
+		}
+	}
+
 	private final JTabbedPane mainTabs = new JTabbedPane();
 
 	/**
@@ -75,34 +113,11 @@ public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 		final JSplitPane splitPane = new JSplitPane();
 		final String rootFile = "file:/" + outputDir.replaceAll(" ", "%20")
 				+ "/index.html";
-		final JButton browse = new JButton(
-				new AbstractAction("Show in Browser") {
-					private static final long serialVersionUID = 3726816134663712521L;
-
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						try {
-							Desktop.getDesktop().browse(new URI(rootFile));
-						} catch (final IOException e1) {
-							JOptionPane.showMessageDialog(null,
-									"Unable to launch: " + e1.getMessage(),
-									"Problem with launch",
-									JOptionPane.ERROR_MESSAGE);
-							CellHTS2NodeModel.logger
-									.error("Launch problem", e1);
-						} catch (final URISyntaxException e1) {
-							JOptionPane.showMessageDialog(null,
-									"Unable to launch: " + e1.getMessage(),
-									"Problem with launch",
-									JOptionPane.ERROR_MESSAGE);
-							CellHTS2NodeModel.logger
-									.error("Launch problem", e1);
-						}
-					}
-				});
+		final JButton browse = new JButton(new ShowInBrowserAction(
+				"Show in Browser", rootFile));
 		final JPanel rightPanel = new JPanel();
 		rightPanel.add(browse);
-		rightPanel.setLayout(new FlowLayout());
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
 		splitPane.setRightComponent(rightPanel);
 		try {
 			final JEditorPane overview = new JEditorPane(rootFile);
@@ -115,12 +130,15 @@ public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 				if (!part.exists()) {
 					break;
 				}
-				final JEditorPane plateView = new JEditorPane("file:/"
+				final String platePath = "file:/"
 						+ outputDir.replaceAll(" ", "%20") + "/" + plate
-						+ "/index.html");
+						+ "/index.html";
+				final JEditorPane plateView = new JEditorPane(platePath);
 				plateView.setEditable(false);
 				subTabbedPane.add(String.valueOf(plate), new JScrollPane(
 						plateView));
+				rightPanel.add(new JButton(new ShowInBrowserAction(String
+						.valueOf(plate), platePath)));
 				++plate;
 			}
 			splitPane.setLeftComponent(subTabbedPane);
@@ -133,8 +151,9 @@ public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 							"Problem with showing this result. See the error log for details."));
 			CellHTS2NodeModel.logger.error("Show problem", e1);
 		}
-		final JScrollPane ret = new JScrollPane(splitPane);
-		return ret;
+		// final JScrollPane ret = new JScrollPane(splitPane);
+		splitPane.setDividerLocation(800);
+		return splitPane;
 	}
 
 	/**

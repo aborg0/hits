@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.util;
 
+import ie.tcd.imm.hits.util.FilenameFilterWrapper;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -104,6 +106,23 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 				}
 				return false;
 			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Object#toString()
+			 */
+			@Override
+			public String toString() {
+				final StringBuilder ret = new StringBuilder();
+				for (final String extension : extensions) {
+					ret.append("*").append(extension).append("; ");
+				}
+				if (ret.length() > 2) {
+					ret.setLength(ret.length() - "; ".length());
+				}
+				return ret.toString();
+			}
 		};
 		dirNameComboBox.setPreferredSize(new Dimension(320, dirNameComboBox
 				.getPreferredSize().height));
@@ -119,13 +138,18 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			public void actionPerformed(final ActionEvent e) {
 				final String selectedDir = getCurrentSelection();
 				final JFileChooser fileChooser = new JFileChooser(selectedDir);
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				fileChooser
+						.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				fileChooser.setFileFilter(new FilenameFilterWrapper(
+						possibleExtensions, true));
 				fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
 				final int returnVal = fileChooser.showDialog(
 						getComponentPanel().getParent(), null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					final String newDir = fileChooser.getSelectedFile()
-							.getAbsoluteFile().toString();
+					final File selectedFile = fileChooser.getSelectedFile();
+					final String newDir = (selectedFile.isDirectory() ? selectedFile
+							: selectedFile.getParentFile()).getAbsoluteFile()
+							.toString();
 					dirNameComboBox.removeItem(newDir);
 					dirNameComboBox.addItem(newDir);
 					dirNameComboBox.setSelectedItem(newDir);

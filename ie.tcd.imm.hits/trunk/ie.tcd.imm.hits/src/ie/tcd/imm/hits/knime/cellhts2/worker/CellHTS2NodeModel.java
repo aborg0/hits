@@ -354,8 +354,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			 * "127.0.0.1", 1099, 10000
+			 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -2439,6 +2439,8 @@ public class CellHTS2NodeModel extends NodeModel {
 			} finally {
 				fis.close();
 			}
+		} else {
+			outDirs = new TreeMap<String, String>();
 		}
 		// TODO load internal data.
 		// Everything handed to output ports is loaded automatically (data
