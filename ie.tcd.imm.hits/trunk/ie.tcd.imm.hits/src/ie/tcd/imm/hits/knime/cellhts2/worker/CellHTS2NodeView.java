@@ -2,7 +2,9 @@ package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -72,30 +75,55 @@ public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 		final JSplitPane splitPane = new JSplitPane();
 		final String rootFile = "file:/" + outputDir.replaceAll(" ", "%20")
 				+ "/index.html";
-		splitPane.setRightComponent(new JButton(new AbstractAction(
-				"Show in Browser") {
-			private static final long serialVersionUID = 3726816134663712521L;
+		final JButton browse = new JButton(
+				new AbstractAction("Show in Browser") {
+					private static final long serialVersionUID = 3726816134663712521L;
 
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI(rootFile));
-				} catch (final IOException e1) {
-					JOptionPane.showMessageDialog(null, "Unable to launch: "
-							+ e1.getMessage(), "Problem with launch",
-							JOptionPane.ERROR_MESSAGE);
-					CellHTS2NodeModel.logger.error("Launch problem", e1);
-				} catch (final URISyntaxException e1) {
-					JOptionPane.showMessageDialog(null, "Unable to launch: "
-							+ e1.getMessage(), "Problem with launch",
-							JOptionPane.ERROR_MESSAGE);
-					CellHTS2NodeModel.logger.error("Launch problem", e1);
-				}
-			}
-		}));
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						try {
+							Desktop.getDesktop().browse(new URI(rootFile));
+						} catch (final IOException e1) {
+							JOptionPane.showMessageDialog(null,
+									"Unable to launch: " + e1.getMessage(),
+									"Problem with launch",
+									JOptionPane.ERROR_MESSAGE);
+							CellHTS2NodeModel.logger
+									.error("Launch problem", e1);
+						} catch (final URISyntaxException e1) {
+							JOptionPane.showMessageDialog(null,
+									"Unable to launch: " + e1.getMessage(),
+									"Problem with launch",
+									JOptionPane.ERROR_MESSAGE);
+							CellHTS2NodeModel.logger
+									.error("Launch problem", e1);
+						}
+					}
+				});
+		final JPanel rightPanel = new JPanel();
+		rightPanel.add(browse);
+		rightPanel.setLayout(new FlowLayout());
+		splitPane.setRightComponent(rightPanel);
 		try {
-			splitPane.setLeftComponent(new JScrollPane(
-					new JEditorPane(rootFile)));
+			final JEditorPane overview = new JEditorPane(rootFile);
+			overview.setEditable(false);
+			final JTabbedPane subTabbedPane = new JTabbedPane();
+			subTabbedPane.add("Main", new JScrollPane(overview));
+			int plate = 1;
+			while (true) {
+				final File part = new File(outputDir + File.separator + plate);
+				if (!part.exists()) {
+					break;
+				}
+				final JEditorPane plateView = new JEditorPane("file:/"
+						+ outputDir.replaceAll(" ", "%20") + "/" + plate
+						+ "/index.html");
+				plateView.setEditable(false);
+				subTabbedPane.add(String.valueOf(plate), new JScrollPane(
+						plateView));
+				++plate;
+			}
+			splitPane.setLeftComponent(subTabbedPane);
 		} catch (final IOException e1) {
 			// JOptionPane.showMessageDialog(null, "Unable to show: "
 			// + e1.getMessage(), "Problem with show",
