@@ -462,12 +462,14 @@ public class LegendPanel extends JPanel implements ActionListener {
 										.getPrimerParameters().iterator()
 										.next().getType()).getSelections()
 								.size();
-						final int secondaryCount = SliderModel.findSlider(
-								sliders,
-								LegendPanel.this.model.getMain()
-										.getSeconderParameters().iterator()
-										.next().getType()).getSelections()
-								.size();
+						final int secondaryCount = LegendPanel.this.model
+								.getMain().getSeconderParameters().isEmpty() ? 1
+								: SliderModel.findSlider(
+										sliders,
+										LegendPanel.this.model.getMain()
+												.getSeconderParameters()
+												.iterator().next().getType())
+										.getSelections().size();
 						switch (LegendPanel.this.model.getShape()) {
 						case Circle:
 							int angle = LegendPanel.this.model.getMain()
@@ -475,13 +477,15 @@ public class LegendPanel extends JPanel implements ActionListener {
 							angle += 180 / primaryCount;
 							angle += 360 * Integer.parseInt(matcher.group(1))
 									/ primaryCount;
+							final int second = Integer.parseInt(matcher
+									.group(2)) + 1;
 							final int x = 100 + (int) (Math.cos(angle / 180.0
 									* Math.PI)
-									* radius * .85);
+									* radius / second * .85);
 
 							final int y = 100 + 15 - (int) (Math.sin(angle
 									/ 180.0 * Math.PI)
-									* radius * .89);
+									* radius / second * .89);
 							final Orientation orientation = Orientation
 									.values()[(angle - 45) / 90 % 4];
 							final int width = !orientation.isVertical() ? comp
@@ -513,14 +517,27 @@ public class LegendPanel extends JPanel implements ActionListener {
 								final int idx2 = Integer.parseInt(matcher
 										.group(2));
 								final boolean south = alternate && idx % 2 == 1;
-								comp.setBounds(idx != 0 ? idx * colWidth + 40
-										: 0, idx != 0 ? (south ? getHeight()
-										- comp.getPreferredSize().height * 2
-										/ 3 : 10) : 40 + idx2
-										* Math.max(30, colHeight),
-										idx == 0 ? 40 : Math.max(45,
-												colWidth - 5), idx == 0 ? Math
-												.max(30, colHeight - 3) : 40);
+								comp
+										.setBounds(
+												idx != 0 ? idx * colWidth + 40
+														: 0,
+												idx != 0 ? (south && idx2 == 0 ? getHeight()
+														- comp
+																.getPreferredSize().height
+														* 2 / 3
+														: 10)
+														+ (idx2 > 0 ? idx2
+																* colHeight : 0)
+														: 40
+																+ idx2
+																* Math
+																		.max(
+																				30,
+																				colHeight),
+												idx == 0 ? 40 : Math.max(45,
+														colWidth - 5),
+												idx == 0 ? Math.max(30,
+														colHeight - 3) : 40);
 								sample.setModel(sample.getModel(),
 										idx != 0 ? south ? Orientation.South
 												: Orientation.North
@@ -607,7 +624,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 		remove(layoutLegendPanel);
-		add("legend", layoutLegendPanel);
 		if (showColors) {
 			try {
 				final Set<SliderModel> sliders = model.getMain()
@@ -617,9 +633,11 @@ public class LegendPanel extends JPanel implements ActionListener {
 				final SliderModel primarySlider = SliderModel.findSlider(
 						sliders, primary.getType());
 				final ParameterModel secondary = model.getMain()
-						.getSeconderParameters().iterator().next();
+						.getSeconderParameters().size() == 0 ? null : model
+						.getMain().getSeconderParameters().iterator().next();
 				final SliderModel secondarySlider = SliderModel.findSlider(
-						sliders, secondary.getType());
+						sliders, secondary == null ? StatTypes.experimentName
+								: secondary.getType());
 				final SliderModel statSlider = SliderModel.findSlider(sliders,
 						StatTypes.metaStatType);
 				final SliderModel paramSlider = SliderModel.findSlider(sliders,
@@ -628,7 +646,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 						.getColourModel();
 				switch (primary.getType()) {
 				case metaStatType:
-					switch (secondary.getType()) {
+					switch (secondary == null ? StatTypes.experimentName
+							: secondary.getType()) {
 					case parameter: {
 						int i = 0;
 						for (final Integer statSelect : primarySlider
@@ -642,8 +661,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 								final String param = (String) secondarySlider
 										.getValueMapping().get(paramSelect)
 										.getRight();
-								addSample(cm, i++, j++, stat, param);
+								addSample(cm, i, j++, stat, param);
 							}
+							++i;
 						}
 						break;
 					}
@@ -668,7 +688,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					}
 					break;
 				case parameter:
-					switch (secondary.getType()) {
+					switch (secondary == null ? StatTypes.experimentName
+							: secondary.getType()) {
 					case metaStatType: {
 						int i = 0;
 						for (final Integer paramSelect : primarySlider
@@ -682,8 +703,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 								final StatTypes stat = (StatTypes) secondarySlider
 										.getValueMapping().get(statSelect)
 										.getRight();
-								addSample(cm, i++, j++, stat, param);
+								addSample(cm, i, j++, stat, param);
 							}
+							++i;
 						}
 						break;
 					}
@@ -707,7 +729,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					}
 					}
 				default:
-					switch (secondary.getType()) {
+					switch (secondary == null ? StatTypes.experimentName
+							: secondary.getType()) {
 					case metaStatType: {
 						final String param = (String) paramSlider
 								.getValueMapping().get(
@@ -748,9 +771,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 				}
 			} catch (final Exception e) {
 				// The exceptions are not critical.
-				// logger.error("No", e);// TODO: handle exception
 			}
 		}
+		add("legend", layoutLegendPanel);
 		revalidate();
 		repaint();
 	}
@@ -766,6 +789,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 			final StatTypes stat, final String param) {
 		final Model m = cm.getModel(param, stat);
 		final SampleWithText sample = new SampleWithText();
+		sample.setOpaque(false);
 		sample.setPreferredSize(new Dimension(50, 50));
 		sample.setModel(m == null ? ColourSelector.DEFAULT_MODEL : m,
 				Orientation.South);
