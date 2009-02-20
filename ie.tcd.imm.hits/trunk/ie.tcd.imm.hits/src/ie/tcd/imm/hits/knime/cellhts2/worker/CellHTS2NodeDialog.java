@@ -1,7 +1,7 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import ie.tcd.imm.hits.knime.cellhts2.worker.DialogComponentFormula.SettingsWrapper;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.ButtonModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -22,6 +19,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentDoubleRange;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentLabel;
 import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
@@ -52,6 +50,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
+	private DialogComponentFormula normFormula;
+	private DialogComponentFormula summariseFormula;
+	private DialogComponentFormula scoreFormula;
+
 	/**
 	 * New pane for configuring CellHTS2 node dialog.
 	 */
@@ -76,8 +78,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				"Normalisation method: ",
 				checkLocFit() ? CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_LOCFIT
 						: CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
-		final JComboBox normalizationCombobox = (JComboBox) normalizationDialog
-				.getComponentPanel().getComponent(1);
 		normalizationDialog
 				.setToolTipText("The normalization method for the parameters. (For \"Z score\" select mean or median, and also some kind of variance adjust.)");
 		addDialogComponent(normalizationDialog);
@@ -87,8 +87,6 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_IS_MULTIPLICATIVE_NORMALISATION,
 						CellHTS2NodeModel.DEFAULT_IS_MULTIPLICATIVE_NORMALISATION),
 				"multiplicative?");
-		final ButtonModel isMultiplicativeDialogModel = ((JCheckBox) isMultiplicativeDialog
-				.getComponentPanel().getComponent(0)).getModel();
 		isMultiplicativeDialog
 				.setToolTipText("Using the additive, or the multiplicative normalization.");
 		addDialogComponent(isMultiplicativeDialog);
@@ -104,17 +102,27 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SCALE,
 						CellHTS2NodeModel.POSSIBLE_SCALE[0]),
 				"Variance adjustment: ", CellHTS2NodeModel.POSSIBLE_SCALE);
+		setHorizontalPlacement(true);
 		varianceScaleDialog
 				.setToolTipText("Plate-specific variance adjustment");
 		addDialogComponent(varianceScaleDialog);
+		final DialogComponentLabel normHelpDialog = new DialogComponentLabel(
+				"Formula overview");
+		addDialogComponent(normHelpDialog);
 		closeCurrentGroup();
 		createNewGroup("Replicate summary");
+		setHorizontalPlacement(true);
 		final DialogComponentStringSelection scoreDialog = new DialogComponentStringSelection(
 				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SCORE,
 						CellHTS2NodeModel.POSSIBLE_SCORE[1]), "Score: ",
 				CellHTS2NodeModel.POSSIBLE_SCORE);
 		scoreDialog.setToolTipText("Scoring of replicates.");
 		addDialogComponent(scoreDialog);
+		final DialogComponentLabel scoreHelpDialog = new DialogComponentLabel(
+				"Formula overview");
+		addDialogComponent(scoreHelpDialog);
+		setHorizontalPlacement(false);
+		setHorizontalPlacement(true);
 		final DialogComponentStringSelection summarizeReplicatesDialog = new DialogComponentStringSelection(
 				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SUMMARISE,
 						CellHTS2NodeModel.POSSIBLE_SUMMARISE[0]),
@@ -123,6 +131,9 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		summarizeReplicatesDialog
 				.setToolTipText("Summarize the replicates with this method.");
 		addDialogComponent(summarizeReplicatesDialog);
+		final DialogComponentLabel summariseHelpDialog = new DialogComponentLabel(
+				"Formula overview");
+		addDialogComponent(summariseHelpDialog);
 		closeCurrentGroup();
 		createNewGroup("Result directory");
 		final DialogComponentFileChooser fileChooser = new DialogComponentFileChooser(
@@ -175,57 +186,93 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				"Aspect ratio of images", .1);
 		aspectRationDialog.getModel().setEnabled(false);
 		addDialogComponent(aspectRationDialog);
+		createNewTab("Help");
+		normFormula = new DialogComponentFormula(new SettingsWrapper(
+				normalizationDialog.getModel(), isMultiplicativeDialog
+						.getModel(), logDialog.getModel(), varianceScaleDialog
+						.getModel()));
+		normFormula.setHelpComponent(normHelpDialog);
+		addDialogComponent(normFormula);
+		scoreFormula = new DialogComponentFormula(new SettingsWrapper(
+				scoreDialog.getModel()));
+		scoreFormula.setHelpComponent(scoreHelpDialog);
+		addDialogComponent(scoreFormula);
+		summariseFormula = new DialogComponentFormula(new SettingsWrapper(
+				summarizeReplicatesDialog.getModel()));
+		summariseFormula.setHelpComponent(summariseHelpDialog);
+		addDialogComponent(summariseFormula);
 		parametersDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
+						(SettingsModelBoolean) isMultiplicativeDialog
+								.getModel(), fileChooser, patternDialog,
+						parametersDialog);
 			}
 		});
 		{
 			updateSample(sample, experimentDialog, normalizationDialog,
-					isMultiplicativeDialogModel, fileChooser, patternDialog,
-					parametersDialog);
+					(SettingsModelBoolean) isMultiplicativeDialog.getModel(),
+					fileChooser, patternDialog, parametersDialog);
 		}
 		patternDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
+						(SettingsModelBoolean) isMultiplicativeDialog
+								.getModel(), fileChooser, patternDialog,
+						parametersDialog);
 			}
 		});
-		normalizationCombobox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
-			}
-		});
-		isMultiplicativeDialogModel.addChangeListener(new ChangeListener() {
+		normalizationDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
+						(SettingsModelBoolean) isMultiplicativeDialog
+								.getModel(), fileChooser, patternDialog,
+						parametersDialog);
 			}
 		});
+		isMultiplicativeDialog.getModel().addChangeListener(
+				new ChangeListener() {
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						updateSample(sample, experimentDialog,
+								normalizationDialog,
+								(SettingsModelBoolean) isMultiplicativeDialog
+										.getModel(), fileChooser,
+								patternDialog, parametersDialog);
+					}
+				});
 		experimentDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
+						(SettingsModelBoolean) isMultiplicativeDialog
+								.getModel(), fileChooser, patternDialog,
+						parametersDialog);
 			}
 		});
 		fileChooser.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				updateSample(sample, experimentDialog, normalizationDialog,
-						isMultiplicativeDialogModel, fileChooser,
-						patternDialog, parametersDialog);
+						(SettingsModelBoolean) isMultiplicativeDialog
+								.getModel(), fileChooser, patternDialog,
+						parametersDialog);
+			}
+		});
+		logDialog.getModel().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				if (((SettingsModelBoolean) logDialog.getModel())
+						.getBooleanValue()) {
+					isMultiplicativeDialog.getModel().setEnabled(false);
+					((SettingsModelBoolean) isMultiplicativeDialog.getModel())
+							.setBooleanValue(true);
+				} else {
+					isMultiplicativeDialog.getModel().setEnabled(true);
+				}
 			}
 		});
 	}
@@ -253,7 +300,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 	private void updateSample(final DialogComponentMultiLineString sample,
 			final DialogComponentString experimentDialog,
 			final DialogComponentStringSelection normalizationDialog,
-			final ButtonModel isMultiplicativeDialogModel,
+			final SettingsModelBoolean isMultiplicativeDialogModel,
 			final DialogComponentFileChooser fileChooser,
 			final DialogComponentString patternDialog,
 			final DialogComponentColumnFilter parametersDialog) {
@@ -278,7 +325,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						outdir.endsWith("/") ? outdir : outdir + "/",
 						paramList, ((SettingsModelString) experimentDialog
 								.getModel()).getStringValue(),
-						isMultiplicativeDialogModel.isSelected());
+						isMultiplicativeDialogModel.getBooleanValue());
 		for (final String dir : dirs.values()) {
 			sb.append(dir.replace('/', File.separatorChar).trim()).append('\n');
 		}
@@ -286,5 +333,8 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 			sb.setLength(sb.length() - 1);
 		}
 		((SettingsModelString) sample.getModel()).setStringValue(sb.toString());
+		normFormula.updateComponent();
+		summariseFormula.updateComponent();
+		scoreFormula.updateComponent();
 	}
 }

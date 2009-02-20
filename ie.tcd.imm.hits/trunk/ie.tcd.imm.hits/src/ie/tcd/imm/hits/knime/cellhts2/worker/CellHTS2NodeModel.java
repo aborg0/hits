@@ -1894,6 +1894,11 @@ public class CellHTS2NodeModel extends NodeModel {
 						SimpleConfiguratorNodeModel.DESC_VALUE_COL_NAME)) {
 			throw new InvalidSettingsException("Wrong input name on third port");
 		}
+		if (logTransformModel.getBooleanValue()
+				&& !isMultiplicativeModel.getBooleanValue()) {
+			throw new InvalidSettingsException(
+					"Additive normalisation with logarithm transformation is not supported!");
+		}
 		// TODO check the screen.log format.
 		final DataTableSpec sumTableSpec = new DataTableSpec(
 				computeTopTableSpec(inSpecs[0], false));
