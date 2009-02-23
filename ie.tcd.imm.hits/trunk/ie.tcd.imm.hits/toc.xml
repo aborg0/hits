@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="HiTS Table of Contents">
+	<topic label="Introduction"  href="help/intro.xhtml">
+		<anchor id="Introduction"/>
+		<topic label="Concepts" href="help/concepts.xhtml">
+			<anchor id="Concepts"/>
+		</topic>
+	</topic> 
+	<topic label="Features" href="help/features.xhtml">
+		<anchor id="Features"/>
+		<topic label="Read input data from IN Cell Analyzer 1000 xls files" href="help/INCellAnalyzer1000xls.xhtml">
+			<anchor id="INCellAnalyser1000xls"/>
+		</topic>
+		<topic label="Read plate configuration" href="help/plateConfig.xhtml">
+			<anchor id="PlateConfig"/>
+		</topic>
+		<topic label="Analyse data" href="help/cellHTS2.xhtml">
+			<anchor id="CellHTS2"/>
+		</topic>
+	</topic>
+	<topic label="Usage scenarios" href="help/usage.xhtml">
+		<anchor id="Usage"/>
+		<topic label="Preparations">
+			<anchor id="UseCasePreparations"/>
+		</topic>
+		<topic label="Data visualisation">
+			<anchor id="UseCaseDataVisualisation"/>
+		</topic>
+		<topic label="Hit selection by rank">
+			<anchor id="UseCaseSelectionByRank"/>
+		</topic>
+		<topic label="Hit selection by cut-off points">
+			<anchor id="UseCaseSelectionByCutoff"/>
+		</topic>
+		<topic label="Hit selection by interquartile range">
+			<anchor id="UseCaseSelectionByIQR"/>
+		</topic>
+		<topic label="Hit selection using clustering">
+			<anchor id="UseCaseSelectionByClustering"/>
+		</topic>
+		<topic label="Export data">
+			<anchor id="UseCaseExportData"/>
+		</topic>
+		<topic/>
+	</topic>
+	<topic label="References" href="help/references.xhtml">
+		<anchor id="References"/>
+	</topic>
+	<topic label="Acknowledgement" href="help/acknowledgement.xhtml">
+		<anchor id="Acknowledgement"/>
+	</topic>
+	<include path="footer.xhtml/copyright"/>
+</toc>
