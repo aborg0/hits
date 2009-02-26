@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
+import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.io.BufferedReader;
@@ -286,7 +287,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			CFGKEY_SCORE_RANGE, DEFAULT_SCORE_RANGE_MIN,
 			DEFAULT_SCORE_RANGE_MAX);
 
-	private final SettingsModelDoubleBounded scoreResolutionModel = new SettingsModelDoubleBounded(
+	private final SettingsModelDoubleBounded aspectRatioModel = new SettingsModelDoubleBounded(
 			CFGKEY_ASPECT_RATIO, DEFAULT_ASPECT_RATIO, 0.1, 200);
 
 	private static final DataTableSpec configurationSpec = new DataTableSpec(
@@ -622,7 +623,7 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ "   imageScreenArgs = list(zrange=c("
 										+ zRange
 										+ "), ar="
-										+ scoreResolutionModel.getDoubleValue()
+										+ aspectRatioModel.getDoubleValue()
 										+ "), map=TRUE, outdir=\""
 										+ outDir
 										+ "\"" + additionalParams + ")");
@@ -686,8 +687,17 @@ public class CellHTS2NodeModel extends NodeModel {
 										.singletonList(values), false, false,
 								stats, null, parametersModel.getIncludeList(),
 								additionalColumns);
-						scores.addRowToTable(new DefaultRow(String
-								.valueOf(rowStart + row), values));
+						scores.addRowToTable(new DefaultRow(Misc.addTrailing(
+								((REXPInteger) topTable.asList().get("plate"))
+										.asIntegers()[row], 3)
+								+ "_"
+								+ ((REXPString) topTable.asList().get("well"))
+										.asStrings()[row]
+								+ (normMethods.length > 1 ? "_" + normalize
+										: "")
+
+						// String.valueOf(rowStart + row)
+								, values));
 						if (row % 50 == 0) {
 							exec.checkCanceled();
 						}
@@ -711,8 +721,18 @@ public class CellHTS2NodeModel extends NodeModel {
 								parametersModel.getIncludeList(),
 								additionalColumns);
 						for (int repl = 0; repl < replicateCount; ++repl) {
-							replicates.addRowToTable(new DefaultRow((row + 1)
-									+ "_" + (repl + 1), rows.get(repl)));
+							replicates.addRowToTable(new DefaultRow(Misc
+									.addTrailing(((REXPInteger) topTable
+											.asList().get("plate"))
+											.asIntegers()[row], 3)
+									+ "_"
+									+ ((REXPString) topTable.asList().get(
+											"well")).asStrings()[row]
+									// (row + 1)
+									+ "_"
+									+ (repl + 1)
+									+ (normMethods.length > 1 ? "_" + normalize
+											: ""), rows.get(repl)));
 						}
 						if (row % 50 == 0) {
 							exec.checkCanceled();
@@ -891,14 +911,22 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ plate]));
 					values.add(new DoubleCell(corrCoeffMax[param * plateCount
 							+ plate]));
-					values
-							.add(new DoubleCell(
-									((REXPDouble) allZFactor.asList().get(0))
-											.asDoubles()[replicateCount * param
-											+ repl]));
-					aggregate.addRowToTable(new DefaultRow(normalise + "_"
-							+ (plate + 1) + "_" + (repl + 1) + "_" + param,
-							values));
+					final Object possZFactor = allZFactor.asList().get(0);
+					if (possZFactor instanceof REXPDouble) {
+						final REXPDouble zfactors = (REXPDouble) possZFactor;
+						values.add(new DoubleCell(
+								zfactors.asDoubles()[replicateCount * param
+										+ repl]));
+					} else {
+						values.add(DataType.getMissingCell());
+					}
+					aggregate.addRowToTable(new DefaultRow(Misc.addTrailing(
+							(plate + 1), 3)
+							+ "_"
+							+ (repl + 1)
+							+ "_"
+							+ parameters.get(param)
+							+ "_" + normalise, values));
 				}
 			}
 		}
@@ -1675,9 +1703,12 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
+	 * Read a table's content and generates an R command from it.
 	 * 
 	 * @param table
+	 *            A {@link DataTable}.
 	 * @param varName
+	 *            The name of the variable in R session..
 	 * @return A {@link String} representing the command to add the data to the
 	 *         R session. It uses R syntax.
 	 */
@@ -1807,7 +1838,9 @@ public class CellHTS2NodeModel extends NodeModel {
 		// TODO Code executed on reset.
 		// Models build during execute are cleared here.
 		// Also data handled in load/saveInternals will be erased here.
-		outDirs.clear();
+		if (outDirs != null) {
+			outDirs.clear();
+		}
 	}
 
 	/**
@@ -2366,7 +2399,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		summariseModel.saveSettingsTo(settings);
 		outputDirModel.saveSettingsTo(settings);
 		scoreRange.saveSettingsTo(settings);
-		scoreResolutionModel.saveSettingsTo(settings);
+		aspectRatioModel.saveSettingsTo(settings);
 		// useTCDCellHTS2ExtensionsModel.saveSettingsTo(settings);
 	}
 
@@ -2387,7 +2420,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		summariseModel.loadSettingsFrom(settings);
 		outputDirModel.loadSettingsFrom(settings);
 		scoreRange.loadSettingsFrom(settings);
-		scoreResolutionModel.loadSettingsFrom(settings);
+		aspectRatioModel.loadSettingsFrom(settings);
 		// useTCDCellHTS2ExtensionsModel.loadSettingsFrom(settings);
 	}
 
@@ -2408,7 +2441,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		summariseModel.validateSettings(settings);
 		outputDirModel.validateSettings(settings);
 		scoreRange.validateSettings(settings);
-		scoreResolutionModel.validateSettings(settings);
+		aspectRatioModel.validateSettings(settings);
 		// useTCDCellHTS2ExtensionsModel.validateSettings(settings);
 	}
 

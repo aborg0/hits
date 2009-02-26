@@ -11,6 +11,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -80,13 +81,18 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 		// useTCDExtensionsFieldEditor.getPreferenceName()),
 		// getFieldEditorParent());
 
-		addField(new ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics>(
+		final ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics> columnSelectionFieldEditor = new ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics>(
 				PreferenceConstants.RESULT_COL_ORDER,
 				"&Column order:",
 				getFieldEditorParent(),
 				Arrays
 						.<PreferenceConstants.PossibleStatistics> asList(PreferenceConstants.PossibleStatistics
-								.values())));
+								.values()));
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(
+				columnSelectionFieldEditor
+						.getListControl(getFieldEditorParent()),
+				"columnSelection");
+		addField(columnSelectionFieldEditor);
 	}
 
 	/*

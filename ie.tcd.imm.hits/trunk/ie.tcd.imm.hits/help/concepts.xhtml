@@ -276,23 +276,36 @@ groups by default, but you can choose per <span class="physPlate">physical
 plate</span>s too for Z scores.</p>
 <p>The summarisation of replicate values are computed by each <span
 	class="plate">plate group</span>s of individual wells.</p>
+<p>When <a href="#log">log</a> transform selected the additive normalisation will be used.</p>
 <h3><a name="log"></a>log</h3>
 <p>Simple 2 based logarithm.</p>
+<h3><a name="additive">additive normalisation</a></h3>
+<p>In case of average like normalisation methods (mean, median, shorth, negatives) the aggregated value is subtracted from each value. Its natural point (no change value to the reference) is <samp>0</samp>.</p>
+<h3><a name="multiplicative">multiplicative normalisation</a></h3>
+<p>In case of average like normalisation methods (mean, median, shorth, negatives) each value is divided by the aggregated value. Its natural point (no change value to the reference) is <samp>1</samp>.</p>
 <h3><a name="POC">percent of controls (% of controls, POC)</a></h3>
 <p><img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/POC.false.false.noadjustment.png" /></p>
 <h3><a name="NPI">normalised percent inhibition (NPI)</a></h3>
-<p><img
+<p>Normalisation: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/NPI.false.false.noadjustment.png" /></p>
+<p>Scoring: <img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/NPI.false.false.noadjustment.png" /></p>
 <h3><a name="zscore">Z score</a></h3>
-<p>It is the by plate variance adjustment with additive <a
-	href="#median">median</a> normalisation.</p>
+<p>The robust version is the by plate variance adjustment with additive <a
+	href="#median">median</a> normalisation: <img src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.false.false.byplate.png"/></p>
+<p>When scoring: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/zscore.png" /></p>
 <h3><a name="median"></a>median</h3>
-<p><img
+<p>Additive: <img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.false.false.noadjustment.png" /></p>
+<p>Multiplicative: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.true.false.noadjustment.png" /></p>
 <h3><a name="mean"></a>mean (average, &#x3BC;)</h3>
-<p><img
+<p>Additive: <img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/mean.false.false.noadjustment.png" /></p>
+<p>Multiplicative: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/mean.true.false.noadjustment.png" /></p>
 <h3><a name="mad"></a>median absolute deviation (MAD)</h3>
 <p>1.4826*median(|{sample values}-median({sample values})|)</p>
 <p>The multiplication with the 1.4826 value is necessary to get a <a
@@ -302,18 +315,20 @@ plate</span>s too for Z scores.</p>
 <table>
 	<tr>
 		<td>&#x221A;</td>
-		<td style="border-top-style: solid; border-top-width: thin">&#x3BC;(values-&#x3BC;(values))<sup>2</sup></td>
+		<td style="border-top-style: solid; border-top-width: thin">&#x3BC;((values-&#x3BC;(values))<sup>2</sup>)</td>
 	</tr>
 </table>
 <p></p>
 <h3><a name="shorth">shorth</a></h3>
-<p></p>
+<p>The shorth is the shortest interval that covers half of the values in x. This function calculates the mean of the x values that lie in the shorth. (From R help for shorth.) For more information see: <a href="http://lshorth.r-forge.r-project.org/TheShorthPlot.pdf">The Shorth Plot</a></p>
+<p><img src="comparisonOfMethods.png" alt="Comparison of different methods on skewed random data"/></p>
 <h3><a name="Bscore">B score</a></h3>
-<p></p>
+<p>For further information see: <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a>'s 11.2.3 paragraph (Appendix: Normalization methods implemented
+in cellHTS2 package/Non-controls-based normalization/B score method)</p>
 <h3><a name="loess">loess</a></h3>
-<p></p>
+<p>For more information see this wikipedia article: <a href="http://en.wikipedia.org/wiki/Local_regression">Local regression</a> (<a href="http://en.wikipedia.org/w/index.php?title=Local_regression&amp;oldid=251673034">stable</a>)</p>
 <h3><a name="locfit">locfit</a></h3>
-<p></p>
+<p>For more information see the description of locfit R package: <a href="http://cran.r-project.org/web/packages/locfit/locfit.pdf">The locfit package</a></p>
 <h3><a name="min">minimum (min)</a></h3>
 <p><img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/min.png" /></p>
@@ -329,6 +344,6 @@ plate</span>s too for Z scores.</p>
 <h3><a name="rms">root mean squares</a></h3>
 <p><img
 	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/rms.png" /> <!--img src="http://hits.googlecode.com/svn/!svn/bc/161/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/src/ie/tcd/imm/hits/knime/cellhts2/worker/res/rms.png"/--></p>
-<include path="ie.tcd.imm.hits/help/footer.xhtml/copyright" />
+<!-- <include path="ie.tcd.imm.hits/help/footer.xhtml/copyright" /> -->
 </body>
 </html>

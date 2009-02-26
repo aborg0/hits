@@ -1,5 +1,7 @@
 package ie.tcd.imm.hits.knime.xls;
 
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,11 +59,11 @@ public class ImporterNodeModel extends NodeModel {
 			.getLogger(ImporterNodeModel.class);
 
 	/** The plate column name in the result table. */
-	public static final String PLATE_COL_NAME = "Plate";
+	public static final String PLATE_COL_NAME = ModelBuilder.PLATE_COLUMN;
 	/** The replicate column name in the result table. */
-	public static final String REPLICATE_COL_NAME = "replicate";
+	public static final String REPLICATE_COL_NAME = ModelBuilder.REPLICATE_COLUMN;
 	/** The well column name in the result table. */
-	public static final String WELL_COL_NAME = "well";
+	public static final String WELL_COL_NAME = "Well";
 	/** The gene id column name in the result table. */
 	public static final String GENE_ID_COL_NAME = "GeneID";
 	/** The gene annotation column name in the result table. */

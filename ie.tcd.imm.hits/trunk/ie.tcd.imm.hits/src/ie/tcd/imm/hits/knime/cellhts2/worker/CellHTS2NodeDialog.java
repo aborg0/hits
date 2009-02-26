@@ -177,7 +177,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_SCORE_RANGE,
 						CellHTS2NodeModel.DEFAULT_SCORE_RANGE_MIN,
 						CellHTS2NodeModel.DEFAULT_SCORE_RANGE_MAX), -200, 200,
-				.1, "Score Range:");
+				.1, "Score range:");
 		addDialogComponent(scoreRangeDialog);
 		final DialogComponentNumber aspectRationDialog = new DialogComponentNumber(
 				new SettingsModelDoubleBounded(

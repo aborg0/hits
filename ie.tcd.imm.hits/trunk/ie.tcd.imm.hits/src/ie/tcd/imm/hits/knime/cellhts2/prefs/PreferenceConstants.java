@@ -19,13 +19,13 @@ public class PreferenceConstants {
 		MEAN_OR_DIFF("mean or diff", "diffOrMean", Multiplicity.CHANNELS,
 				Type.Real),
 		/** plate value (from {@code 1}) */
-		PLATE("plate", Multiplicity.SINGLE, Type.Int),
+		PLATE("Plate", "plate", Multiplicity.SINGLE, Type.Int),
 		/** Position on plate (from {@code 1}) */
-		POSITION("position", Multiplicity.SINGLE, Type.Int),
+		POSITION("Position", "position", Multiplicity.SINGLE, Type.Int),
 		/** replicate value (from {@code 1}) */
-		REPLICATE("replicate", Multiplicity.SINGLE, Type.Int),
+		REPLICATE("Replicate", "replicate", Multiplicity.SINGLE, Type.Int),
 		/** Well value */
-		WELL("well", Multiplicity.SINGLE, Type.Strings),
+		WELL("Well", "well", Multiplicity.SINGLE, Type.Strings),
 		/** score values */
 		SCORE("score", Multiplicity.CHANNELS, Type.Real),
 		/** well annotations */
@@ -35,12 +35,12 @@ public class PreferenceConstants {
 		FINAL_WELL_ANNOTATION("final well annotation", "finalWellAnno",
 				Multiplicity.CHANNELS, Type.Strings),
 		/** The gene id */
-		GENE_ID("gene id", "geneID", Multiplicity.SINGLE, Type.Int),
+		GENE_ID("Gene id", "geneID", Multiplicity.SINGLE, Type.Int),
 		/** The gene symbols */
-		GENE_SYMBOL("gene symbol", "geneSymbol", Multiplicity.SINGLE,
+		GENE_SYMBOL("Gene symbol", "geneSymbol", Multiplicity.SINGLE,
 				Type.Strings),
 		/** The gene annotations */
-		GENE_ANNOTATION("gene annotation", "geneAnnotation"),
+		GENE_ANNOTATION("Gene annotation", "geneAnnotation"),
 		/** The normalised values */
 		NORMALISED("normalised", "norm", Multiplicity.CHANNELS_AND_REPLICATES,
 				Type.Real),

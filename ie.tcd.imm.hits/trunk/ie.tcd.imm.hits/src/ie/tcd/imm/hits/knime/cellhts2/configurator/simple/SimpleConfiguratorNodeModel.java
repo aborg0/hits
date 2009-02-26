@@ -1,5 +1,7 @@
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
+import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,17 +47,17 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 	// .getLogger(SimpleConfiguratorNodeModel.class);
 
 	/** Column name of values */
-	public static final String DESC_VALUE_COL_NAME = "Value";
+	public static final String DESC_VALUE_COL_NAME = "value";
 	/** Column name of keys */
-	public static final String DESC_KEY_COL_NAME = "Key";
+	public static final String DESC_KEY_COL_NAME = "key";
 	/** Column name of groups */
-	public static final String DESC_GROUP_COL_NAME = "Group";
+	public static final String DESC_GROUP_COL_NAME = "group";
 	/** Column name of content */
 	public static final String CONTENT_COL_NAME = "Content";
 	/** Column name of wells */
-	public static final String WELL_COL_NAME = "Well";
+	public static final String WELL_COL_NAME = ImporterNodeModel.WELL_COL_NAME;
 	/** Column name of plates */
-	public static final String PLATE_COL_NAME = "Plate";
+	public static final String PLATE_COL_NAME = ImporterNodeModel.PLATE_COL_NAME;
 
 	/** Configuration key for the plate configuration file parameter */
 	static final String CFGKEY_PLATE_CONFIG = "ie.tcd.imm.hits.knime.cellhts2.configurator.simple.plateconfig";
@@ -205,8 +207,8 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 									+ descConfFile.getAbsolutePath());
 						}
 						descConfContainer
-								.addRowToTable(new DefaultRow(new RowKey(
-										String.valueOf(i)), new StringCell(
+								.addRowToTable(new DefaultRow(new RowKey(String
+										.valueOf(i)), new StringCell(
 										currentGroup == null ? ""
 												: currentGroup),
 										new StringCell(line.substring(0,

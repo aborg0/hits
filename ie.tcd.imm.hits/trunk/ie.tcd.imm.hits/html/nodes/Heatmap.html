@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for Heatmap</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>Heatmap</h1>
+<p>Shows the heatmap of the plates. It has many options to customise of the view.<p/>
+        
+        On the first tab of controls (<i>Controls</i>) you may influence the appearance of the wells.<p/>
+        The second tab (<i>Info controls</i>) allows you to set modify the tooltips, the description of the wells.<p/>
+        The third tab (<i>Info</i>) shows information about the last clicked well, below that you may see the input table. The latter can be filtered by the hilited values. (<b>Hint:</b> try right click on it.)<p/>
+        The forth tab (<i>Settings</i>) will allow you to save or load your preferred settings. This is currently not working.<p/>
+        The last tab (<i>Colours</i>) makes it possible to modify the automatically selected colours/ranges.<p/>
+        The sidebar allows you to select which heatmap you want to see. You can adjust the parameter values to your needs. You may change the position of the control (right click/<i>Move to</i>), or change its appearance (right click/<i>Change appearance</i>. You can also influence the division of the circles/rectangles (right click/<i>Change type</i>). (The <b>primary</b> for the circles is the division anti-clockwise, the <b>secondary</b> is the radial. The <b>primary</b> for the rectangles is splits the rectangle in the <i>X</i> axis, while the <b>secondary</b> splits by the <i>Y</i> axis.)<p/>
+        From the menu you can influence the HiLite.<p/>
+        There is an option to export the heatmaps in <pre>png</pre> file format from the file menu. Select <i>Export all...</i> for this option.<p/>
+        You may turn on or off the colour legend in the <i>Legend</i> menu.
+        </p>
+<h2>Ports</h2>
+<dl>
+<dt>Input Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>An output of CellHTS2 node.</td>
+</tr>
+</table>
+</dd>
+</dl>
+<h2>Views</h2>
+<dl>
+<dt>heatmap</dt>
+<dd>Shows the heatmap in many ways.</dd>
+</dl>
+</body>
+</html>
