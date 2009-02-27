@@ -84,7 +84,7 @@ a:visited{
 <p>
 <p>Generates (static) heatmaps, quality reports related to the normalised data.</p>
         <p>The results are presented in the selected output directory.</p>
-        <p>Detailed description: <a href="../help/cellHTS2.xhtml">cellHTS2 node</a>
+        <p>Detailed description: <a href="../../help/cellHTS2.xhtml">cellHTS2 node</a>
 </p>
         </p>
 <h2>Dialog Options</h2>
@@ -94,23 +94,22 @@ a:visited{
 <dt>normalization</dt>
 <dd>
 <p>The normalisation method for the parameters. (For "Z-score" select mean or median, and also some kind of variance adjust.)</p>
-        <p>The meaning of possible values:
+        <p>The meaning of possible values:</p>
         <ul>
           <li>every - generates all possible normalisations to different sub-folders</li>
           <li>median - the relative signal of each well compared to the median of the sample wells in the plate</li>
           <li>Bscore - row and column biases within each plate are explicitly corrected for by fitting a two-way median polish to the raw data in a per-plate fashion</li>
           <li>POC - normalise each raw measurements relative to the average of within-plate _positive_ controls</li>
           <li>negatives - normalise each raw measurements relative to the average of within-plate _negative_ controls</li>
-          <li>NPI - Normalised percent inhibition, (?pos ? x)/(?pos ? ?neg)</li>
+          <li>NPI - Normalised percent inhibition, (mean(pos) - x)/(mean(pos) - mean(neg))</li>
           <li>mean - per-plate average intensity on sample wells</li>
           <li>shorth - the midpoint of the shorth of the per-plate distribution of values on sample wells</li>
           <li>locfit - the locfit value of the samples on each plate</li>
           <li>loess - the local regression value of the samples on each plate</li>
         </ul>
-</p>
-</dd>
+        </dd>
 <dt>multiplicative?</dt>
-<dd>Using the additive, or the multiplicative normalisation. If checked: multiplicative, else additive. (For example: additive: x-?, versus multiplicative: x/?)</dd>
+<dd>Using the additive, or the multiplicative normalisation. If checked: multiplicative, else additive. (For example: additive: x-mean, versus multiplicative: x/mean)</dd>
 <dt>log transform?</dt>
 <dd>Transforms the normalised data to the logarithmic scale if checked.</dd>
 <dt>Variance adjustment</dt>
@@ -121,10 +120,10 @@ a:visited{
         <ul>
         <li>none - do not score and summarise the replicates</li>
         <li>zscore - use the robust z score method (x-median)/MAD</li>
-        <li>NPI - Normalised percent inhibition, (?pos ? x)/(?pos ? ?neg)</li>
+        <li>NPI - Normalised percent inhibition, (mean(pos) - x)/(mean(pos) - mean(neg))</li>
         <li>zscoreByPlate - use the robust z score method (x-median)/MAD for each plate</li>
-        <li>zscoreNonRobust - use the non-robust z score method (x-?)/?</li>
-        <li>zscoreNonRobustByPlate - use the non-robust z score method (x-?)/? for each plate</li>
+        <li>zscoreNonRobust - use the non-robust z score method (x-mean)/sd</li>
+        <li>zscoreNonRobustByPlate - use the non-robust z score method (x-mean)/sd for each plate</li>
         </ul>
 </p>
 </dd>
