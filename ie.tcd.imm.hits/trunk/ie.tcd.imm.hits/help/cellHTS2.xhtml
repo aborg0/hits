@@ -7,6 +7,8 @@
 <title>cellHTS2 node</title>
 </head>
 <body>
+<h1><a name="overview">cellHTS2 node overview</a></h1>
+<p>This node is able to perform various normalisations on your input data. The <a href="../html/nodes/CellHTS2.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p> 
 <h1><a name="input">Input data</a></h1>
 <h2><a name="input1">First data port</a></h2>
 <p>This is the raw data from the experiment for each plate.</p>
@@ -16,6 +18,7 @@
 <p>The <samp>well</samp> column has to be text (<em>S</em>tring) type, also mandatory. The values must follow this format: A capital letter from <samp>A</samp> to <samp>H</samp> followed by a number from <samp>1</samp> to <samp>12</samp>. (Sorry currently only 96 well plates are supported.) Must not contain missing values (<samp>?</samp>). It should contain every possible combination (all of the 96) for every plate-replicate pair.</p>
 <p>Some (at least one) column with floating point numeric (<em>D</em>ouble) type. These will be the parameters. Must not contain missing values (<samp>?</samp>).</p>
 <p>There may be other text (<em>S</em>tring) type columns. Two of them will be treated specially: <samp>GeneID</samp> and <samp>GeneSymbol</samp> (must be present or absent simultaneously). These will be present in the output to help identify the content of the wells. These may contain missing values.</p>
+<p><span class="hint">The <a href="INCellAnalyzer1000xls.xhtml">Importer node</a>'s result is compatible with this port.</span></p>
 <p><span class="hint">You may rearrange the input (especially the parameters) columns to influence to order of the results.</span> You can use <em>Column Resorter</em> node for this task.</p>
 <h2><a name="input2">Second data port</a></h2>
 <p>This should contain the plate configuration data. For more information: For more information check the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a> Screen configuration: annotating the plate re-
@@ -44,6 +47,7 @@ sults/Format of the screen log file (Section 4.2.)</p>
 <p><samp>Well</samp> text (<em>S</em>tring) type. Well reference.</p>
 <p><samp>Flag</samp> text (<em>S</em>tring) type. Flag type.</p>
 <p><samp>Comment</samp> text (<em>S</em>tring) type. Comment for flagging.</p>
+<p><span class="hint">You may use a <a href="PLUGINS_ROOT/org.knime.base/html/nodes/File_Reader.html">File Reader</a> to have a node with the proper columns, but without content.</span></p>
 <h1><a name="output">Result data</a></h1>
 <h2><a name="output1">summarised values</a></h2>
 <p>These are the replicate independent (summarised) statistics. The order of columns the the selection of columns is described on <a href="settings.xhtml#colOrder">this page</a>.</p>

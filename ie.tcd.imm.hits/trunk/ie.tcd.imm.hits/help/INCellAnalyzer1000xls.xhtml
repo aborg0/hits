@@ -3,10 +3,48 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" href="basic.css"/>
+<title>IN Cell Analyzer 1000 xls importer node</title>
 </head>
 <body>
-
-<include path="ie.tcd.imm.hits/help/footer.xhtml/copyright"/>
+<h1><a name="overview">Importer node overview</a></h1>
+<p>With this node you can read IN Cell Analyzer 1000 data in xls
+format. The <a href="html/nodes/Importer.html">node description</a> contains the basics, this page shows the details.</p>
+<h1><a name="configuration">Configuration</a></h1>
+<p><img src="InCellAnalyzer1000xlsImporterConfigure.png" /></p>
+<p>In the folder of xls files select the <b>folder</b> of xls files.
+Using the [Browse] button you may select an xls file too, it will
+practically select the folder of it.</p>
+<p>You can rearrange the files in the xls list using the [^] and [v]
+buttons.</p>
+<p><span class="hint">It is <b>important</b> to select the xls files you want to analyse. By default none of them is selected.</span></p>
+<p>The files are group by the <em>Replicate count</em> to create the
+replicates. So if you have 3 replicates, then the forth xls file will
+belong to the second plate group and the first replicate group.</p>
+<p>You have to select the proper <em>Well count</em> and also the <em>Plate
+count</em>.</p>
+<p>Optionally you can select an <a href="#formatannot">annotation file</a> to have the data and your annotation together.</p>
+<h1><a name="formatxls">Expected xls file format</a></h1>
+<p>There must be a (the second) sheet with name: <samp>Summary by wells</samp>.</p>
+<p>The first column should contain the well identifiers in format: <samp>A - 1</samp> from the 4<sup>th</sup> row.</p>
+<p>The header of the data is obtained from the second row, from the 3<sup>rd</sup> column.</p>
+<p>The data starts from 4<sup>th</sup> row in the 3<sup>rd</sup> column.</p>
+<h1><a name="formatannotation">Expected annotation file format</a></h1>
+<p>This is a tab separated file with <samp>Plate</samp>, <samp>Well</samp>, <samp>GeneID</samp>, <samp>GeneSymbol</samp> header.</p>
+<p>The plate numbering should start from <samp>1</samp>.</p>
+<p>The format of values in the <samp>Well</samp> column is like: <samp>A01</samp>.</p>
+<p>For more information consult the <a href="">cellHTS2 complete manual</a>, Probe annotation section.</p>
+<p><span class="hint">If there are more annotation than input data, then you will get an error.</span></p>
+<h1><a name="output">Output</a></h1>
+<h3>Structure</h3>
+<ul>
+	<li><a href="settings.xhtml#plate">Plate</a></li>
+	<li><a href="settings.xhtml#replicate">Replicate</a></li>
+	<li><a href="settings.xhtml#well">Well</a></li>
+	<li>Parameters - floating point number (<em>D</em>ouble) type, every parameter column in the <a href="#formatxls">xls file</a> will be present here in the same order.</li>
+	<li><a href="settings.xhtml#geneId">GeneID</a> - optional, only if <a href="#formatannotation">annotation file</a> is selected</li>
+	<li><a href="settings.xhtml#geneSymbol">GeneSymbol</a> - optional, only if <a href="#formatannotation">annotation file</a> is selected</li>
+</ul>
+<include path="ie.tcd.imm.hits/help/footer.xhtml/copyright" />
 </body>
 </html>

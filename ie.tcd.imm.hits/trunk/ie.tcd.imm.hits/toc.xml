@@ -25,7 +25,7 @@
 		<topic label="Read input data from IN Cell Analyzer 1000 xls files" href="help/INCellAnalyzer1000xls.xhtml">
 			<anchor id="INCellAnalyser1000xls"/>
 		</topic>
-		<topic label="Read plate configuration" href="help/plateConfig.xhtml">
+		<topic label="Read plate configuration" href="help/simplePlateConfig.xhtml">
 			<anchor id="PlateConfig"/>
 		</topic>
 		<topic label="Analyse data" href="help/cellHTS2.xhtml">
@@ -87,6 +87,12 @@
 			<topic label="Appendix" href="help/cellHTS2.xhtml#formulae">
 				<anchor id="cellHTS2formulae"/>
 			</topic>
+		</topic>
+		<topic label="Visualise data" href="help/heatmap.xhtml">
+			<anchor id="heatmap"/>
+		</topic>
+		<topic label="Add ranking" href="help/rank.xhtml">
+			<anchor id="rank"/>
 		</topic>
 	</topic>
 	<topic label="Usage scenarios" href="help/usage.xhtml">

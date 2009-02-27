@@ -54,7 +54,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(wellAnnotationName);
 		final DialogComponentString rankPrefix = new DialogComponentString(
 				new SettingsModelString(RankNodeModel.CFGKEY_RANK_PREFIX,
-						RankNodeModel.CFGKEY_RANK_PREFIX), "rank prefix");
+						RankNodeModel.CFGKEY_RANK_PREFIX), "Rank prefix");
 		addDialogComponent(rankPrefix);
 		final DialogComponentStringSelection rankingGroups = new DialogComponentStringSelection(
 				new SettingsModelString(RankNodeModel.CFGKEY_RANKING_GROUPS,
