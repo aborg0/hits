@@ -65,7 +65,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(rankingGroups);
 		final ArrayList<String> possStats = new ArrayList<String>(6);
 		for (final StatTypes statTypes : new StatTypes[] { StatTypes.score,
-				StatTypes.normalized, StatTypes.median, StatTypes.meanOrDiff,
+				StatTypes.normalised, StatTypes.median, StatTypes.meanOrDiff,
 				StatTypes.raw, StatTypes.rawPerMedian }) {
 			possStats.add(statTypes.name());
 		}
@@ -103,7 +103,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 				final ArrayList<String> possStats = new ArrayList<String>(6);
 				final EnumSet<StatTypes> stats = specAnalyser.getStatistics();
 				for (final StatTypes statTypes : new StatTypes[] {
-						StatTypes.score, StatTypes.normalized,
+						StatTypes.score, StatTypes.normalised,
 						StatTypes.median, StatTypes.meanOrDiff, StatTypes.raw,
 						StatTypes.rawPerMedian }) {
 					if (stats.contains(statTypes)) {

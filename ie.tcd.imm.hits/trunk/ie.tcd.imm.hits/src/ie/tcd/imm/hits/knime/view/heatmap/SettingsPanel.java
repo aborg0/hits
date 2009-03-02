@@ -25,10 +25,14 @@ public class SettingsPanel extends JPanel {
 	public SettingsPanel() {
 		super();
 		final JPanel panel = new JPanel();
+		list.setEnabled(false);
 		panel.add(list);
+		load.setEnabled(false);
 		panel.add(load);
+		delete.setEnabled(false);
 		panel.add(delete);
+		save.setEnabled(false);
+		panel.add(save);
 		add(panel);
-		add(save);
 	}
 }

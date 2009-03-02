@@ -171,7 +171,7 @@ public class ControlPanel extends JPanel {
 					break;
 				case meanOrDiff:
 				case median:
-				case normalized:
+				case normalised:
 				case raw:
 				case rawPerMedian:
 				case score:

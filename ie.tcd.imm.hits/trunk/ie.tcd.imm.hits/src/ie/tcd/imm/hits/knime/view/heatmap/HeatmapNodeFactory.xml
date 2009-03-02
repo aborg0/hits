@@ -19,6 +19,7 @@
         From the menu you can influence the HiLite.<p/>
         There is an option to export the heatmaps in <pre>png</pre> file format from the file menu. Select <i>Export all...</i> for this option.<p/>
         You may turn on or off the colour legend in the <i>Legend</i> menu.
+        Further <a href="../../help/heatmap.xhtml">details</a>.
         </intro>
         <!--option name="short name of first option (like in the dialog)">description of first option</option>
         <option name="short name of second option (like in the dialog)">description of second option</option-->

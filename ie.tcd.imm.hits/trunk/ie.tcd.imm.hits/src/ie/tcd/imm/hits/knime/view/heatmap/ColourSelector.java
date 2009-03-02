@@ -777,7 +777,9 @@ public class ColourSelector extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final Color newColour = JColorChooser.showDialog(parent,
 						"Select the color for " + text, button.getBackground());
-				parent.setModel(new Model(parent.model, pos, newColour));
+				if (newColour != null) {
+					parent.setModel(new Model(parent.model, pos, newColour));
+				}
 			}
 		}
 

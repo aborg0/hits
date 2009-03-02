@@ -50,7 +50,7 @@ public class HeatmapNodeModel extends NodeModel {
 	/** Configuration key for the save settings option. */
 	static final String CFGKEY_SAVE_SETTINGS = "ie.tcd.imm.hits.knime.view.heatmap.settings";
 	/** Default value for the save settings option. */
-	static final boolean DEFAULT_SAVE_SETTINGS = true;
+	static final boolean DEFAULT_SAVE_SETTINGS = false;
 
 	private final SettingsModelBoolean saveSettingsModel = new SettingsModelBoolean(
 			CFGKEY_SAVE_SETTINGS, DEFAULT_SAVE_SETTINGS);
@@ -79,7 +79,7 @@ public class HeatmapNodeModel extends NodeModel {
 		/** The mean or the diff of replicates */
 		meanOrDiff(false, true, false),
 		/** The normalised values (each replicates) */
-		normalized(true, true, false),
+		normalised(true, true, false),
 		/** The raw value divided by the (plate, replicate) median */
 		rawPerMedian(true, true, false),
 		/** Ranking using the replicate value */
@@ -160,12 +160,12 @@ public class HeatmapNodeModel extends NodeModel {
 		public static final List<StatTypes> replicateTypes = Collections
 				.unmodifiableList(Arrays.asList(new StatTypes[] {
 						StatTypes.raw, StatTypes.rawPerMedian,
-						StatTypes.normalized, StatTypes.rankReplicates }));
+						StatTypes.normalised, StatTypes.rankReplicates }));
 		static {
 			final EnumMap<StatTypes, PossibleStatistics> map = new EnumMap<StatTypes, PossibleStatistics>(
 					StatTypes.class);
 			map.put(StatTypes.score, PossibleStatistics.SCORE);
-			map.put(StatTypes.normalized, PossibleStatistics.NORMALISED);
+			map.put(StatTypes.normalised, PossibleStatistics.NORMALISED);
 			map.put(StatTypes.median, PossibleStatistics.MEDIAN);
 			map.put(StatTypes.meanOrDiff, PossibleStatistics.MEAN_OR_DIFF);
 			map.put(StatTypes.raw, PossibleStatistics.RAW);
@@ -253,7 +253,7 @@ public class HeatmapNodeModel extends NodeModel {
 				Collections.singletonList("raw"), Collections
 						.<String> emptyList()));
 		possibleParameters.add(new ParameterModel("normalized",
-				StatTypes.normalized, null, Collections
+				StatTypes.normalised, null, Collections
 						.singletonList("normalized"), Collections
 						.<String> emptyList()));
 		possibleParameters.add(new ParameterModel(

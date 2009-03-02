@@ -28,7 +28,7 @@ public class InfoControl extends JPanel {
 			+ "${"
 			+ StatTypes.score.name()
 			+ "}</table>\n<table>${"
-			+ StatTypes.normalized.name() + "}</table>\n</html>";
+			+ StatTypes.normalised.name() + "}</table>\n</html>";
 
 	private final JButton updateButton = new JButton("update");
 	private final JTextArea text = new JTextArea(DEFAULT_PATTERN, 20, 100);

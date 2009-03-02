@@ -23,9 +23,11 @@ public class HeatmapNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	protected HeatmapNodeDialog() {
 		super();
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				HeatmapNodeModel.CFGKEY_SAVE_SETTINGS,
-				HeatmapNodeModel.DEFAULT_SAVE_SETTINGS),
-				"Save settings of changes."));
+		final DialogComponentBoolean saveSettings = new DialogComponentBoolean(
+				new SettingsModelBoolean(HeatmapNodeModel.CFGKEY_SAVE_SETTINGS,
+						HeatmapNodeModel.DEFAULT_SAVE_SETTINGS),
+				"Save settings of changes.");
+		saveSettings.getModel().setEnabled(false);
+		addDialogComponent(saveSettings);
 	}
 }

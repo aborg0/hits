@@ -1182,7 +1182,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		});
 
 		final JMenu legendMenu = new JMenu("Legend");
-		showColorsLegend = new JCheckBoxMenuItem("Show colors legend", true);
+		showColorsLegend = new JCheckBoxMenuItem("Show colours legend", true);
 		legendMenu.add(showColorsLegend);
 		showColorsLegend.addActionListener(new ActionListener() {
 
@@ -1402,7 +1402,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					break;
 				case meanOrDiff:
 				case median:
-				case normalized:
+				case normalised:
 				case otherEnumeration:
 				case otherNumeric:
 				case rankNonReplicates:

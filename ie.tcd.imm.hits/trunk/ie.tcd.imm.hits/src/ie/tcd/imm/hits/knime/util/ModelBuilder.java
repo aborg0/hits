@@ -231,8 +231,8 @@ public class ModelBuilder {
 					continue;
 				}
 				if (specName.startsWith(NORMALISED_START)) {
-					statistics.add(StatTypes.normalized);
-					indices.get(StatTypes.normalized).put(
+					statistics.add(StatTypes.normalised);
+					indices.get(StatTypes.normalised).put(
 							specName.substring(NORMALISED_START.length()),
 							Integer.valueOf(idx));
 					continue;
