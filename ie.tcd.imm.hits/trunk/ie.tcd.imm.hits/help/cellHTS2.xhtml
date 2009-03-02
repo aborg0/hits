@@ -188,7 +188,7 @@ the positive and negative controls (on that specific plate for that parameter)</
 <p><img src="cellHTS2Options.png"/></p>
 <h2>log transformation</h2>
 <p>This optional transformation computes the 2 based logarithm of each value. If selected you must select the multiplicative normalisation, but practically an additive will be performed on the transformed data.</p>
-<h2>Normalisation method</h2>
+<h2><a name="normalisation">Normalisation method</a></h2>
 <p>The first step (after the optional log transformation) of the normalisation is made by physical plates.
 The possible values are:</p>
 <ul>
@@ -205,7 +205,7 @@ The possible values are:</p>
 </ul>
 <p>The following step is also optional. You can adjust (divide) the values by the variance (<a href="concepts.xhtml#mad">median absolute deviation, MAD</a>) of the actual <em>sample</em> values.</p>
 <p><span class="hint">Use <em>median</em> with <em>by plate</em> variance adjustment to get robust <a href="concepts.xhtml#zscore">zscore</a> normalisation.</span></p>
-<h2>Scoring</h2>
+<h2><a name="score">Scoring</a></h2>
 <p>The scoring (default) is done by replicate groups (if you treat them as different experiments you may say experiment-wide). Possible options:</p>
 <ul>
 <li>none - no scoring and summarisation</li>
