@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -803,8 +804,8 @@ public class ColourSelector extends JPanel {
 
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				final Double value = ((Double) ((JSpinner) e.getSource())
-						.getModel().getValue());
+				final Double value = ((Double) ((SpinnerModel) e.getSource())
+						.getValue());
 				parent.setModel(new Model(parent.model, pos, value));
 			}
 
@@ -1007,7 +1008,8 @@ public class ColourSelector extends JPanel {
 			up
 					.setPreferredSize(new Dimension(40,
 							up.getPreferredSize().height));
-			up.addChangeListener(new ValueListener(this, Positions.Up));
+			up.getModel().addChangeListener(
+					new ValueListener(this, Positions.Up));
 			add(up, upConstraint);
 			final GridBagConstraints middleConstraint = new GridBagConstraints();
 			middleConstraint.gridx = 1;
@@ -1017,7 +1019,8 @@ public class ColourSelector extends JPanel {
 			final GridBagConstraints downConstraint = new GridBagConstraints();
 			downConstraint.gridx = 1;
 			downConstraint.gridy = 2;
-			down.addChangeListener(new ValueListener(this, Positions.Down));
+			down.getModel().addChangeListener(
+					new ValueListener(this, Positions.Down));
 			down.setPreferredSize(up.getPreferredSize());
 			add(down, downConstraint);
 			final GridBagConstraints upButtonConstraint = new GridBagConstraints();
