@@ -6,10 +6,10 @@ Bundle-Vendor: TCD
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: importer.jar
 Bundle-Version: 0.1.1
-Bundle-Localization: plugin
 Bundle-Name: HiTS extensions for KNIME Workbench
-Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
+Bundle-Localization: plugin
 Bundle-ManifestVersion: 2
+Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

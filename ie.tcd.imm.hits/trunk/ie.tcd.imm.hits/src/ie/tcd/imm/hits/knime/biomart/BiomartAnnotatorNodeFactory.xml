@@ -8,7 +8,9 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Adds some annotations from the BioMart databases using the biomaRt R package. There must be a running RServe instance (on default port) on the machine running R.</intro>
+        <intro>Adds some annotations from the BioMart databases using the biomaRt R package. There must be a running RServe instance (on default port) on the machine running R.
+        Details <a href="../../help/biomaRt.xhtml">here</a>.
+        </intro>
         
         
         <option name="biomaRt database">The database to use</option>

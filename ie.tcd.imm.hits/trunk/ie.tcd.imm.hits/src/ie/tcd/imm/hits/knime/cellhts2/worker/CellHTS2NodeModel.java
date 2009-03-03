@@ -355,8 +355,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
-			 * "127.0.0.1", 1099, 10000
-			 */);
+									 * "127.0.0.1", 1099, 10000
+									 */);
 		} catch (final RserveException e) {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
@@ -896,14 +896,20 @@ public class CellHTS2NodeModel extends NodeModel {
 					values.add(new IntCell(plate + 1));
 					values.add(new IntCell(repl + 1));
 					values.add(new StringCell(parameters.get(param)));
-					final double[] range = ((REXPDouble) dynRanges.asList()
-							.get(0)).asDoubles();
-					values.add(new DoubleCell(range[param
-							* (replicateCount + 1) * plateCount + repl
-							* plateCount + plate]));
-					values.add(new DoubleCell(range[param * plateCount
-							* (replicateCount + 1) + replicateCount
-							* plateCount + plate]));
+					final Object possDynRange = dynRanges.asList().get(0);
+					if (possDynRange instanceof REXPDouble) {
+						final REXPDouble dynRangesExp = (REXPDouble) possDynRange;
+						final double[] range = dynRangesExp.asDoubles();
+						values.add(new DoubleCell(range[param
+								* (replicateCount + 1) * plateCount + repl
+								* plateCount + plate]));
+						values.add(new DoubleCell(range[param * plateCount
+								* (replicateCount + 1) + replicateCount
+								* plateCount + plate]));
+					} else {
+						values.add(DataType.getMissingCell());
+						values.add(DataType.getMissingCell());
+					}
 					values.add(new DoubleCell(((REXPDouble) repMeasures
 							.asList().get("repStDev")).asDoubles()[param
 							* plateCount + plate]));

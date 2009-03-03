@@ -97,28 +97,30 @@
 	</topic>
 	<topic label="Usage scenarios" href="help/usage.xhtml">
 		<anchor id="Usage"/>
-		<topic label="Preparations">
-			<anchor id="UseCasePreparations"/>
+		<topic label="Initial steps" href="help/usage.xhtml#common">
+			<anchor id="UseCaseCommon"/>
 		</topic>
-		<topic label="Data visualisation">
+		<topic label="Data visualisation" href="help/usage.xhtml#visual">
 			<anchor id="UseCaseDataVisualisation"/>
 		</topic>
-		<topic label="Hit selection by rank">
+		<topic label="Hit selection by rank" href="help/usage.xhtml#rank">
 			<anchor id="UseCaseSelectionByRank"/>
 		</topic>
-		<topic label="Hit selection by cut-off points">
+		<topic label="Hit selection by cut-off points" href="help/usage.xhtml#cutoff">
 			<anchor id="UseCaseSelectionByCutoff"/>
 		</topic>
-		<topic label="Hit selection by interquartile range">
+		<topic label="Hit selection by interquartile range" href="help/usage.xhtml#iqr">
 			<anchor id="UseCaseSelectionByIQR"/>
 		</topic>
-		<topic label="Hit selection using clustering">
+		<topic label="Clustering" href="help/usage.xhtml#clustering">
 			<anchor id="UseCaseSelectionByClustering"/>
 		</topic>
-		<topic label="Export data">
+		<topic label="Export data" href="help/usage.xhtml#export">
 			<anchor id="UseCaseExportData"/>
 		</topic>
-		<topic/>
+		<topic label="Compare with other experiments" href="help/usage.xhtml#compare">
+			<anchor id="UseCaseCompare"/>
+		</topic>
 	</topic>
 	<topic label="References" href="help/references.xhtml">
 		<anchor id="References"/>
