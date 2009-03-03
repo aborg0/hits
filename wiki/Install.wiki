@@ -1,3 +1,4 @@
+#summary Describes the installation steps
 #labels Featured
 = Installation instructions =
 
