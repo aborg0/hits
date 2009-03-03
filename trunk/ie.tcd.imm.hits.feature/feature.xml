@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.feature"
       label="HiTS main feature"
-      version="0.1.0"
+      version="0.1.1"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.feature">
 
@@ -12,11 +12,16 @@ KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It de
    </description>
 
    <copyright>
-      Gabor Bakos, Trinity College Dublin, Institute of Molecular Medicine; bakosg@tcd.ie
+      ® Copyright 2009 Trinity College Dublin. All rights reserved.
+For other copyright information check the Rserve, cellHTS2, POI projects.
    </copyright>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0.html">
-      Apache Licence, Version 2.0
+      The main part of the HiTS project has applied licence: Apache 2.0 licence.
+cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending cellHTS2 functionality also licensed under this licence).
+KNIME licence: Aladdin Free Public License, or commercial depending on your model.
+Rserve licence: GNU GPL
+POI licence: Apache 2.0 licence
    </license>
 
    <url>
