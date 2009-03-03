@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ie.tcd.imm.hits.feature"
+      label="HiTS main feature"
+      version="0.1.1"
+      provider-name="TCD"
+      colocation-affinity="ie.tcd.imm.hits.feature">
+
+   <description url="http://code.google.com/p/hits/">
+      HiTS - High Throughput Screening
+KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It depends on Rserve.
+   </description>
+
+   <copyright>
+      ® Copyright 2009 Trinity College Dublin. All rights reserved.
+For other copyright information check the Rserve, cellHTS2, POI projects.
+   </copyright>
+
+   <license url="http://www.apache.org/licenses/LICENSE-2.0.html">
+      The main part of the HiTS project has applied licence: Apache 2.0 licence.
+cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending cellHTS2 functionality also licensed under this licence).
+KNIME licence: Aladdin Free Public License, or commercial depending on your model.
+Rserve licence: GNU GPL
+POI licence: Apache 2.0 licence
+   </license>
+
+   <url>
+      <update label="HiTS official update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
+      <discovery label="HiTS" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.knime.workbench.core"/>
+      <import plugin="org.knime.workbench.repository"/>
+      <import plugin="org.knime.base"/>
+      <import plugin="org.eclipse.ui"/>
+   </requires>
+
+   <plugin
+         id="ie.tcd.imm.hits"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="ie.tcd.imm.hits.3rdparty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
