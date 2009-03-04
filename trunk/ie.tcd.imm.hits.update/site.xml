@@ -6,8 +6,12 @@
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.1.0.jar" id="ie.tcd.imm.hits.feature" version="0.1.0">
       <category name="HiTS"/>
    </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.1.1.jar" id="ie.tcd.imm.hits.feature" version="0.1.1">
+      <category name="HiTS"/>
+   </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.1.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.1.jar"/>
    <category-def name="HiTS" label="HiTS main">
       <description>
          Contains the nodes, and the non-standard dependencies.
