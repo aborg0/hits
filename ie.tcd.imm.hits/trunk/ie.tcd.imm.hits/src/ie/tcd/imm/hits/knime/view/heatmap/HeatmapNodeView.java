@@ -4,7 +4,6 @@ import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.RangeType;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
@@ -15,6 +14,8 @@ import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

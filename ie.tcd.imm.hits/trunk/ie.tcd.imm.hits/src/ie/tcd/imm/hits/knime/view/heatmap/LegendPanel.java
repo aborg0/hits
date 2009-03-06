@@ -3,15 +3,18 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.SampleWithText.Orientation;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
+import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
+import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
+import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText.Orientation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,6 +37,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -787,19 +791,31 @@ public class LegendPanel extends JPanel implements ActionListener {
 	 */
 	private void addSample(final ColourModel cm, final int i, final int j,
 			final StatTypes stat, final String param) {
-		final Model m = cm.getModel(param, stat);
-		final SampleWithText sample = new SampleWithText();
-		sample.setOpaque(false);
-		sample.setPreferredSize(new Dimension(50, 50));
-		sample.setModel(m == null ? ColourSelector.DEFAULT_MODEL : m,
-				Orientation.South);
-		sample.setToolTipText(sample.getModel().getDownVal()
-				+ " -> "
-				+ (sample.getModel().getMiddleVal() == null
-						|| sample.getModel().getMiddle() == null ? "" : sample
-						.getModel().getMiddleVal()
-						+ " -> ") + sample.getModel().getUpVal());
-		add(i + "_" + j, sample);
+		final ColourComputer m = cm.getModel(param, stat);
+		final ColourFactory<? extends ColourComputer> factory = FactoryRegistry
+				.getInstance().getFactory(m);
+		@SuppressWarnings("unchecked")
+		// We know it is compatible
+		final ColourLegend<ColourComputer> legend = (ColourLegend<ColourComputer>) factory
+				.createLegend();
+		legend.setModel(m, Orientation.South);
+		if (legend instanceof JComponent) {
+			final JComponent sample = (JComponent) legend;
+			// final SampleWithText sample = new SampleWithText();
+			sample.setOpaque(false);
+			sample.setPreferredSize(new Dimension(50, 50));
+			// legend.setModel(m == null ? factory.getDefaultModel() : m,
+			// Orientation.South);
+			sample.setToolTipText(m.getTooltip()
+			// sample.getModel().getDownVal()
+					// + " -> "
+					// + (sample.getModel().getMiddleVal() == null
+					// || sample.getModel().getMiddle() == null ? ""
+					// : sample.getModel().getMiddleVal() + " -> ")
+					// + sample.getModel().getUpVal()
+					);
+			add(i + "_" + j, sample);
+		}
 	}
 
 	// /*

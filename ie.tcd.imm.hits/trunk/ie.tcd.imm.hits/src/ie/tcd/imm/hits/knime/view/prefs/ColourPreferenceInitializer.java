@@ -3,8 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.view.prefs;
 
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.RangeType;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

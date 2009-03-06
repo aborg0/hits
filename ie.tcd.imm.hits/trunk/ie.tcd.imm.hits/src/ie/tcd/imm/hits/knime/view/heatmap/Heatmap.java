@@ -5,14 +5,14 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
-import ie.tcd.imm.hits.knime.util.VisualUtils;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -253,7 +253,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		}
 		for (int i = rows * cols; i-- > 0;) {
 			final String l = InfoParser.parse(experimentPos.get(ZERO),
-					normalisationPos.get(ZERO), viewModel.getLabelPattern(), 
+					normalisationPos.get(ZERO), viewModel.getLabelPattern(),
 					platePos.get(ZERO), i / 12, i % 12, nodeModel);
 			wells[i].setLabels(l);
 		}
@@ -364,41 +364,31 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				break;
 			}
 		}
-		final Model model0 = colourModel
-				.getModel(
-						(String) (paramSlider.getSelections().size() == 1 ? paramSlider
-								.getValueMapping().get(
-										paramSlider.getSelections().iterator()
-												.next()).getRight()
-								: firstParamSlider == paramSlider ? firstParamSlider
-										.getValueMapping().get(firstSelection)
-										.getRight()
-										: secondParamSlider.getValueMapping()
-												.get(secondSelection)
-												.getRight()),
-						(StatTypes) (statSlider.getSelections().size() == 1 ? statSlider
-								.getValueMapping().get(
-										statSlider.getSelections().iterator()
-												.next()).getRight()
-								: firstParamSlider == statSlider ? firstParamSlider
-										.getValueMapping().get(firstSelection)
-										.getRight()
-										: secondParamSlider.getValueMapping()
-												.get(secondSelection)
-												.getRight()));
-		final Model model = model0 == null ? ColourSelector.DEFAULT_MODEL
+		final ColourComputer model0 = colourModel.getModel(
+				(String) (paramSlider.getSelections().size() == 1 ? paramSlider
+						.getValueMapping().get(
+								paramSlider.getSelections().iterator().next())
+						.getRight()
+						: firstParamSlider == paramSlider ? firstParamSlider
+								.getValueMapping().get(firstSelection)
+								.getRight() : secondParamSlider
+								.getValueMapping().get(secondSelection)
+								.getRight()), (StatTypes) (statSlider
+						.getSelections().size() == 1 ? statSlider
+						.getValueMapping().get(
+								statSlider.getSelections().iterator().next())
+						.getRight()
+						: firstParamSlider == statSlider ? firstParamSlider
+								.getValueMapping().get(firstSelection)
+								.getRight() : secondParamSlider
+								.getValueMapping().get(secondSelection)
+								.getRight()));
+		final ColourComputer model = model0 == null ? ColourSelector.DEFAULT_MODEL
 				: model0;
 		if (array != null) {
 			for (int p = format.getCol() * format.getRow(); p-- > 0;) {
-				colors[p][secondIndex * firstParamCount + firstIndex] = VisualUtils
-						.colourOf(array[p], model.getDown(), model
-								.getMiddleVal() == null ? null : model
-								.getMiddle(), model.getUp(),
-								model.getDownVal(),
-								model.getMiddleVal() == null ? 0.0 : model
-										.getMiddleVal().doubleValue(), model
-										.getUpVal());
-
+				colors[p][secondIndex * firstParamCount + firstIndex] = model
+						.compute(array[p]);
 			}
 		}
 	}

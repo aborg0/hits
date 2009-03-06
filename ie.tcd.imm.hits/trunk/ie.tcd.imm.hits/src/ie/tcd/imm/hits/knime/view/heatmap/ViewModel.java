@@ -4,10 +4,10 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

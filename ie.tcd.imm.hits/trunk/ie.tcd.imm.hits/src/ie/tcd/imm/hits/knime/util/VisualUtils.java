@@ -42,9 +42,10 @@ public class VisualUtils {
 	 *            The "up" value. Must be finite.
 	 * @return The {@link Color} belonging for {@code d}.
 	 */
-	public static Color colourOf(final double d, final Color blue, @Nullable
-	final Color black, final Color red, final double low, final double mid,
-			final double high) {
+	public final static Color colourOf(final double d, final Color blue,
+			@Nullable
+			final Color black, final Color red, final double low,
+			final double mid, final double high) {
 		if (d < low) {
 			return blue;
 		}

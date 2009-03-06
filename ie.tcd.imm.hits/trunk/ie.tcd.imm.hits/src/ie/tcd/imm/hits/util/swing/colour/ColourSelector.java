@@ -1,7 +1,6 @@
-package ie.tcd.imm.hits.knime.view.heatmap;
+package ie.tcd.imm.hits.util.swing.colour;
 
 import ie.tcd.imm.hits.knime.util.VisualUtils;
-import ie.tcd.imm.hits.knime.view.heatmap.ColourSelector.DoubleValueSelector.Model;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceConstants;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
@@ -17,6 +16,8 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -33,6 +34,7 @@ import javax.annotation.Nullable;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -57,9 +59,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class ColourSelector extends JPanel {
 	private static final long serialVersionUID = 1927466055122883656L;
 
-	/** The default {@link Model} for real valued parameters. */
-	public static final Model DEFAULT_MODEL = new Model(-2.0, Double
-			.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW, Color.RED);
+	/** The default {@link ContinuousModel} for real valued parameters. */
+	public static final ContinuousModel DEFAULT_MODEL = new ContinuousModel(
+			-2.0, Double.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW,
+			Color.RED);
 
 	/**
 	 * The possible ranges of an interval.
@@ -101,27 +104,31 @@ public class ColourSelector extends JPanel {
 	 */
 	public static class ColourModel implements Serializable {
 		private static final long serialVersionUID = -6758031469463423849L;
-		private final Map<String, Map<StatTypes, Model>> models = new TreeMap<String, Map<StatTypes, Model>>();
+		private final Map<String, Map<StatTypes, ColourComputer>> models = new TreeMap<String, Map<StatTypes, ColourComputer>>();
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
 		/**
-		 * Sets the {@link Model} for the selected {@code parameter} and
-		 * {@code stat}.
+		 * Sets the {@link ContinuousModel} for the selected {@code parameter}
+		 * and {@code stat}.
+		 * 
+		 * @param <ComputerType>
+		 *            The type of the {@code model}.
 		 * 
 		 * @param parameter
 		 *            A parameter.
 		 * @param stat
 		 *            A {@link StatTypes}.
 		 * @param model
-		 *            The new {@link Model}.
+		 *            The new {@link ColourComputer}.
 		 */
-		protected void setModel(final String parameter, final StatTypes stat,
-				final Model model) {
+		protected <ComputerType extends ColourComputer> void setModel(
+				final String parameter, final StatTypes stat,
+				final ComputerType model) {
 			if (!models.containsKey(parameter)) {
-				models.put(parameter, new EnumMap<StatTypes, Model>(
+				models.put(parameter, new EnumMap<StatTypes, ColourComputer>(
 						StatTypes.class));
 			}
-			final Map<StatTypes, Model> map = models.get(parameter);
+			final Map<StatTypes, ColourComputer> map = models.get(parameter);
 			map.put(stat, model);
 			fireModelChanged();
 		}
@@ -161,18 +168,18 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * Gets the associated {@link Model} for {@code parameter} and
+		 * Gets the associated {@link ColourComputer} for {@code parameter} and
 		 * {@code stat}. It may return {@code null}.
 		 * 
 		 * @param parameter
 		 *            A parameter.
 		 * @param stat
 		 *            A {@link StatTypes} (with non-discrete values).
-		 * @return The associated {@link Model} or {@code null}.
+		 * @return The associated {@link ColourComputer} or {@code null}.
 		 */
 		public @Nullable
-		Model getModel(final String parameter, final StatTypes stat) {
-			final Map<StatTypes, Model> map = models.get(parameter);
+		ColourComputer getModel(final String parameter, final StatTypes stat) {
+			final Map<StatTypes, ColourComputer> map = models.get(parameter);
 			if (map != null) {
 				return map.get(stat);
 			}
@@ -180,9 +187,9 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * 
+		 * Sends an {@link ActionEvent} to the listeners of this model.
 		 */
-		void notifyListeners() {
+		public void notifyListeners() {
 			fireModelChanged();
 		}
 	}
@@ -258,7 +265,7 @@ public class ColourSelector extends JPanel {
 
 		private static final long serialVersionUID = 1230862889150618654L;
 
-		private Model model;
+		private ContinuousModel model;
 
 		/**
 		 * Sets the colour for the lower values.
@@ -334,9 +341,9 @@ public class ColourSelector extends JPanel {
 		 * Sets the model to the samples.
 		 * 
 		 * @param model
-		 *            A {@link Model} of colours.
+		 *            A {@link ContinuousModel} of colours.
 		 */
-		protected void setModel(final Model model) {
+		protected void setModel(final ContinuousModel model) {
 			this.model = model;
 			this.downVal = model.getDownVal();
 			this.middleVal = model.getMiddleVal() == null ? 0.0 : model
@@ -365,9 +372,9 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * @return The associate {@link Model}.
+		 * @return The associate {@link ContinuousModel}.
 		 */
-		public Model getModel() {
+		public ContinuousModel getModel() {
 			return model;
 		}
 	}
@@ -375,7 +382,8 @@ public class ColourSelector extends JPanel {
 	/**
 	 * This class shows the sample of the heatmap legend with the proper values.
 	 */
-	public static class SampleWithText extends JPanel {
+	public static class SampleWithText extends JPanel implements
+			ColourLegend<ContinuousModel> {
 		private static final long serialVersionUID = 8745641973568977951L;
 		private Sample sample;
 		private TextPanel textPanel;
@@ -605,7 +613,7 @@ public class ColourSelector extends JPanel {
 			/**
 			 * @return The associated model to the sample.
 			 */
-			public Model getModel() {
+			public ContinuousModel getModel() {
 				return sample.getModel();
 			}
 
@@ -625,11 +633,12 @@ public class ColourSelector extends JPanel {
 		 * Updates the model of this legend.
 		 * 
 		 * @param model
-		 *            A colour {@link Model}.
+		 *            A colour {@link ContinuousModel}.
 		 * @param orientation
 		 *            The new {@link Orientation} of the {@link SampleWithText}.
 		 */
-		public void setModel(final Model model, final Orientation orientation) {
+		public void setModel(final ContinuousModel model,
+				final Orientation orientation) {
 			if (sample != null) {
 				remove(sample);
 			}
@@ -700,7 +709,7 @@ public class ColourSelector extends JPanel {
 
 		/**
 		 * @return debug information about the orientation and the colour
-		 *         {@link Model}.
+		 *         {@link ContinuousModel}.
 		 */
 		@Override
 		public String toString() {
@@ -708,9 +717,9 @@ public class ColourSelector extends JPanel {
 		}
 
 		/**
-		 * @return The associated colour {@link Model}.
+		 * @return The associated colour {@link ContinuousModel}.
 		 */
-		public Model getModel() {
+		public ContinuousModel getModel() {
 			return sample.getModel();
 		}
 	}
@@ -718,7 +727,8 @@ public class ColourSelector extends JPanel {
 	/**
 	 * This class helps to select the colouring for a double valued parameter.
 	 */
-	public static class DoubleValueSelector extends JPanel {
+	public static class DoubleValueSelector extends JPanel implements
+			ColourControl<ContinuousModel> {
 		private static final long serialVersionUID = -6389541195312535553L;
 
 		private final Sample sample = Sample.create(true);
@@ -731,7 +741,7 @@ public class ColourSelector extends JPanel {
 		private final JButton middleButton = new JButton();
 		private final JButton downButton = new JButton();
 
-		private Model model;
+		private ContinuousModel model;
 
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -779,7 +789,8 @@ public class ColourSelector extends JPanel {
 				final Color newColour = JColorChooser.showDialog(parent,
 						"Select the color for " + text, button.getBackground());
 				if (newColour != null) {
-					parent.setModel(new Model(parent.model, pos, newColour));
+					parent.setModel(new ContinuousModel(parent.getModel(), pos,
+							newColour));
 				}
 			}
 		}
@@ -806,7 +817,8 @@ public class ColourSelector extends JPanel {
 			public void stateChanged(final ChangeEvent e) {
 				final Double value = ((Double) ((SpinnerModel) e.getSource())
 						.getValue());
-				parent.setModel(new Model(parent.model, pos, value));
+				parent.setModel(new ContinuousModel(parent.getModel(), pos,
+						value));
 			}
 
 			@Override
@@ -815,11 +827,11 @@ public class ColourSelector extends JPanel {
 				try {
 					final double val = NumberFormat.getInstance().parse(value)
 							.doubleValue();
-					parent.setModel(new Model(parent.model, pos, val));
+					parent.setModel(new ContinuousModel(parent.getModel(), pos,
+							val));
 				} catch (final ParseException ex) {
-					parent
-							.setModel(new Model(parent.model, pos,
-									(Double) null));
+					parent.setModel(new ContinuousModel(parent.getModel(), pos,
+							(Double) null));
 				}
 			}
 		}
@@ -834,139 +846,6 @@ public class ColourSelector extends JPanel {
 			Middle,
 			/** The right/up position */
 			Up;
-		}
-
-		/**
-		 * The colour model for the double values.
-		 */
-		public static class Model implements Serializable {
-			private static final long serialVersionUID = 8613456651113117411L;
-			private final double downVal, upVal;
-			private @Nullable
-			final Double middleVal;
-			private final Color down, middle, up;
-
-			/**
-			 * Constructs a new {@link Model} with the raw parameters.
-			 * 
-			 * @param downVal
-			 *            down/left value
-			 * @param middleVal
-			 *            middle value, or {@code null}
-			 * @param upVal
-			 *            up/right value
-			 * @param down
-			 *            down colour
-			 * @param middle
-			 *            middle colour
-			 * @param up
-			 *            up colour
-			 */
-			public Model(final double downVal, @Nullable
-			final Double middleVal, final double upVal, final Color down,
-					final Color middle, final Color up) {
-				super();
-				this.downVal = downVal;
-				this.middleVal = middleVal;
-				this.upVal = upVal;
-				this.down = down;
-				this.middle = middle;
-				this.up = up;
-			}
-
-			/**
-			 * Creates a new {@link Model} based on a previous one with possibly
-			 * new {@link Color colour} at {@link Positions position}
-			 * {@code pos}.
-			 * 
-			 * @param model
-			 *            A {@link Model}.
-			 * @param pos
-			 *            A {@link Positions}.
-			 * @param col
-			 *            The new {@link Color}.
-			 */
-			public Model(final Model model, final Positions pos, final Color col) {
-				this(model.getDownVal(), model.getMiddleVal(),
-						model.getUpVal(), pos == Positions.Down ? col : model
-								.getDown(), pos == Positions.Middle ? col
-								: model.getMiddle(), pos == Positions.Up ? col
-								: model.getUp());
-			}
-
-			/**
-			 * Creates a new {@link Model} based on a previous one with possibly
-			 * new {@code value} at {@link Positions position} {@code pos}.
-			 * 
-			 * @param model
-			 *            A {@link Model}.
-			 * @param pos
-			 *            A {@link Positions}.
-			 * @param val
-			 *            The new value.
-			 */
-			public Model(final Model model, final Positions pos, @Nullable
-			final Double val) {
-				this(pos == Positions.Down ? val.doubleValue() : model
-						.getDownVal(), pos == Positions.Middle ? val : model
-						.getMiddleVal(), pos == Positions.Up ? val
-						.doubleValue() : model.getUpVal(), model.getDown(),
-						model.getMiddle(), model.getUp());
-			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public String toString() {
-				return getDownVal() + " (" + getDown() + ") -> "
-						+ getMiddleVal() + " (" + getMiddle() + ") -> "
-						+ getUpVal() + "(" + getUp() + ")";
-			}
-
-			/**
-			 * @return The {@link Color} for the lower value.
-			 */
-			public Color getDown() {
-				return down;
-			}
-
-			/**
-			 * @return The {@link Color} for the middle value. (Maybe
-			 *         {@code null}.)
-			 */
-			public Color getMiddle() {
-				return middle;
-			}
-
-			/**
-			 * @return The {@link Color} for the higher value.
-			 */
-			public Color getUp() {
-				return up;
-			}
-
-			/**
-			 * @return The lower value.
-			 */
-			public double getDownVal() {
-				return downVal;
-			}
-
-			/**
-			 * @return The middle value.
-			 */
-			public @Nullable
-			Double getMiddleVal() {
-				return middleVal;
-			}
-
-			/**
-			 * @return The higher value.
-			 */
-			public double getUpVal() {
-				return upVal;
-			}
 		}
 
 		/**
@@ -996,10 +875,11 @@ public class ColourSelector extends JPanel {
 				final Double middleVal, final double upVal, final Color green,
 				final Color black, final Color red) {
 			super();
-			model = new Model(downVal, middleVal, upVal, green, black, red);
+			setModel(new ContinuousModel(downVal, middleVal, upVal, green,
+					black, red));
 			final GridBagLayout gbl = new GridBagLayout();
 			setLayout(gbl);
-			setModel(model);
+			setModel(getModel());
 			final GridBagConstraints sampleConstraint = new GridBagConstraints();
 			sampleConstraint.gridheight = 3;
 			add(sample, sampleConstraint);
@@ -1014,7 +894,49 @@ public class ColourSelector extends JPanel {
 			final GridBagConstraints middleConstraint = new GridBagConstraints();
 			middleConstraint.gridx = 1;
 			middleConstraint.gridy = 1;
-			middle.addActionListener(new ValueListener(this, Positions.Middle));
+			final ValueListener middleValueListener = new ValueListener(this,
+					Positions.Middle);
+			middle.addActionListener(middleValueListener);
+			// middle.getDocument().addDocumentListener(new DocumentListener() {
+			//
+			// @Override
+			// public void removeUpdate(final DocumentEvent e) {
+			// handle(e);
+			// }
+			//
+			// @Override
+			// public void insertUpdate(final DocumentEvent e) {
+			// handle(e);
+			// }
+			//
+			// @Override
+			// public void changedUpdate(final DocumentEvent e) {
+			// handle(e);
+			// }
+			//
+			// private void handle(final DocumentEvent e) {
+			// if (middle.getText().isEmpty()) {
+			// setModel(new ContinuousModel(getModel(),
+			// Positions.Middle, (Double) null));
+			// }
+			// try {
+			// final Double val = Double.valueOf(middle.getText());
+			// setModel(new ContinuousModel(getModel(),
+			// Positions.Middle, val));
+			// } catch (final NumberFormatException ex) {
+			// // No change.
+			// }
+			// }
+			//
+			// });
+			middle.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(final FocusEvent e) {
+					super.focusLost(e);
+					middleValueListener.actionPerformed(new ActionEvent(middle,
+							0, ""));
+				}
+			});
 			add(middle, middleConstraint);
 			final GridBagConstraints downConstraint = new GridBagConstraints();
 			downConstraint.gridx = 1;
@@ -1046,32 +968,41 @@ public class ColourSelector extends JPanel {
 		 * Changes the model.
 		 * 
 		 * @param model
-		 *            The new {@link Model}.
+		 *            The new {@link ContinuousModel}.
 		 */
-		public void setModel(final Model model) {
+		public void setModel(final ContinuousModel model) {
 			this.model = model;
 			update();
 			fireModelChange();
 		}
 
 		private void update() {
-			down.setValue(Double.valueOf(model.getDownVal()));
-			middle.setText(model.getMiddleVal() == null ? "" : String
-					.valueOf(model.getMiddleVal().doubleValue()));
-			up.setValue(Double.valueOf(model.getUpVal()));
-			sample.setDown(model.getDownVal());
-			sample.setMiddle(model.getMiddleVal() == null ? 0.0 : model
-					.getMiddleVal().doubleValue());
-			sample.setUp(model.getUpVal());
-			sample.setDown(model.getDown());
-			sample.setMiddle(model.getMiddleVal() == null ? null : model
-					.getMiddle());
-			sample.setUp(model.getUp());
-			downButton.setBackground(model.getDown());
-			middleButton.setBackground(model.getMiddle() == null ? Color.BLACK
-					: model.getMiddle());
-			upButton.setBackground(model.getUp());
-			sample.setModel(model);
+			down.setValue(Double.valueOf(getModel().getDownVal()));
+			final String middleText = getModel().getMiddleVal() == null ? ""
+					: String.valueOf(getModel().getMiddleVal().doubleValue());
+			// if (!middle.getText().equals(middleText)) {
+			// SwingUtilities.invokeLater(new Runnable() {
+			// @Override
+			// public void run() {
+			middle.setText(middleText);
+			// }
+			// });
+			// }
+			up.setValue(Double.valueOf(getModel().getUpVal()));
+			sample.setDown(getModel().getDownVal());
+			sample.setMiddle(getModel().getMiddleVal() == null ? 0.0
+					: getModel().getMiddleVal().doubleValue());
+			sample.setUp(getModel().getUpVal());
+			sample.setDown(getModel().getDown());
+			sample.setMiddle(getModel().getMiddleVal() == null ? null
+					: getModel().getMiddle());
+			sample.setUp(getModel().getUp());
+			downButton.setBackground(getModel().getDown());
+			middleButton
+					.setBackground(getModel().getMiddle() == null ? Color.BLACK
+							: getModel().getMiddle());
+			upButton.setBackground(getModel().getUp());
+			sample.setModel(getModel());
 		}
 
 		/**
@@ -1091,6 +1022,13 @@ public class ColourSelector extends JPanel {
 						.currentTimeMillis() & 0xffffffff), "modelReplaced"));
 			}
 		}
+
+		/**
+		 * @return the model
+		 */
+		public ContinuousModel getModel() {
+			return model;
+		}
 	}
 
 	private static final class Line extends JPanel {
@@ -1103,17 +1041,27 @@ public class ColourSelector extends JPanel {
 			add(new JLabel(stat.name()));
 			add(new JButton());
 			for (final String parameter : parameters) {
-				final DoubleValueSelector doubleValueSelector = new DoubleValueSelector();
-				doubleValueSelector.setModel(parent.model.getModel(parameter,
-						stat));
-				doubleValueSelector.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						parent.model.setModel(parameter, stat,
-								((DoubleValueSelector) e.getSource()).model);
-					}
-				});
-				add(doubleValueSelector);
+				final ColourFactory<?> computer = // parent.model
+				FactoryRegistry.getInstance().getFactory(
+						parent.model.getModel(parameter, stat));
+				final ColourControl<?> control = computer.createControl(
+						parent.model, parameter, stat);
+				// final DoubleValueSelector doubleValueSelector = new
+				// DoubleValueSelector();
+				// doubleValueSelector.setModel(parent.model.getModel(parameter,
+				// stat));
+				// doubleValueSelector.addActionListener(new ActionListener() {
+				// @Override
+				// public void actionPerformed(final ActionEvent e) {
+				// parent.model.setModel(parameter, stat,
+				// ((DoubleValueSelector) e.getSource()).model);
+				// }
+				// });
+				// add(doubleValueSelector);
+				if (control instanceof JComponent) {
+					final JComponent component = (JComponent) control;
+					add(component);
+				}
 			}
 		}
 	}
@@ -1169,10 +1117,12 @@ public class ColourSelector extends JPanel {
 		doublePanel.add(titles);
 		for (final String parameter : parameters) {
 			if (!model.models.containsKey(parameter)) {
-				model.models.put(parameter, new EnumMap<StatTypes, Model>(
-						StatTypes.class));
+				model.models
+						.put(parameter, new EnumMap<StatTypes, ColourComputer>(
+								StatTypes.class));
 			}
-			final Map<StatTypes, Model> map = model.models.get(parameter);
+			final Map<StatTypes, ColourComputer> map = model.models
+					.get(parameter);
 			for (final StatTypes stat : stats) {
 				if (!map.containsKey(stat)) {
 					final Map<StatTypes, Map<RangeType, Double>> possMap = ranges
@@ -1209,14 +1159,14 @@ public class ColourSelector extends JPanel {
 														.getString(
 																ColourPreferenceConstants.UP_VALUE),
 												RangeType.values()));
-						map.put(stat, new Model(
-								defaultLowValue == null ? DEFAULT_MODEL.downVal
-										: defaultLowValue.doubleValue(),
-								defaultMiddleValue,
-								defaultHighValue == null ? DEFAULT_MODEL.upVal
-										: defaultHighValue.doubleValue(),
-								defaultLowColor, defaultMiddleColor,
-								defaultHighColor));
+						map.put(stat, new ContinuousModel(
+								defaultLowValue == null ? DEFAULT_MODEL
+										.getDownVal() : defaultLowValue
+										.doubleValue(), defaultMiddleValue,
+								defaultHighValue == null ? DEFAULT_MODEL
+										.getUpVal() : defaultHighValue
+										.doubleValue(), defaultLowColor,
+								defaultMiddleColor, defaultHighColor));
 					}
 				}
 			}
