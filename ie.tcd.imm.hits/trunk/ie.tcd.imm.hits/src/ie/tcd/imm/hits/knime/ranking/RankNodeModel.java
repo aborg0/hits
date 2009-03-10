@@ -7,13 +7,11 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -27,11 +25,12 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.container.AbstractCellFactory;
+import org.knime.core.data.container.CellFactory;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -195,9 +194,6 @@ public class RankNodeModel extends NodeModel {
 				+ specAnalyser.getParameters() + "; "
 				+ specAnalyser.getStatistics());
 		exec.checkCanceled();
-		final DataColumnSpec[] allColSpecs = createColSpecs(inData[0]
-				.getDataTableSpec());
-		final DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
 		final int experimentIdx = specAnalyser.getExperimentIndex();
 		final int normMethodIdx = specAnalyser.getNormMethodIndex();
 		final int logTransformIdx = specAnalyser.getLogTransformIndex();
@@ -425,29 +421,14 @@ public class RankNodeModel extends NodeModel {
 		for (final Entry<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicatesEntry : modelBuilder
 				.getReplicates().entrySet()) {
 			final String experiment = replicatesEntry.getKey();
-			// ranks
-			// .put(
-			// experiment,
-			// new TreeMap<String, Map<String, Map<Integer, Map<Integer,
-			// Map<StatTypes, double[]>>>>>());
 			final Map<String, Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>>> map0 = ranks
 					.get(experiment);
 			for (final String parameter : parameters) {
-				// map0
-				// .put(
-				// parameter,
-				// new TreeMap<String, Map<Integer, Map<Integer, Map<StatTypes,
-				// double[]>>>>());
 				final Map<String, Map<Integer, Map<Integer, Map<StatTypes, double[]>>>> map1 = map0
 						.get(parameter);
 				for (final Entry<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> normEntry : replicatesEntry
 						.getValue().entrySet()) {
 					final String normKey = normEntry.getKey();
-					// map1
-					// .put(
-					// normKey,
-					// new HashMap<Integer, Map<Integer, Map<StatTypes,
-					// double[]>>>());
 					// original values
 					final Map<Integer, Map<Integer, Map<StatTypes, double[]>>> plateMap = map1
 							.get(normKey);
@@ -637,9 +618,6 @@ public class RankNodeModel extends NodeModel {
 									.get(parameter);
 							final Map<StatTypes, Map<Integer, Map<Integer, double[]>>> otherPlateMap = otherValues
 									.get(parameter);
-							// final Map<Integer, Map<String, Map<StatTypes,
-							// double[]>>> replicateValues = plateEntry
-							// .getValue();
 							for (final Entry<Integer, Map<String, Map<StatTypes, double[]>>> repEntry : plateEntry
 									.getValue().entrySet()) {
 
@@ -718,30 +696,32 @@ public class RankNodeModel extends NodeModel {
 				}
 			}
 		}
-		final BufferedDataContainer container = exec
-				.createDataContainer(outputSpec);
-		for (final DataRow origRow : inData[0]) {
-			final List<DataCell> values = new ArrayList<DataCell>(
-					allColSpecs.length);
-			for (final DataCell dataCell : origRow) {
-				values.add(dataCell);
-			}
-			for (final StatTypes stat : getStatTypes()) {
-				for (final String parameter : parameters) {
-					values.add(new DoubleCell(getRank(format, origRow,
-							experimentIdx, parameter, normMethodIdx,
-							logTransformIdx, normKindIdx,
-							varianceAdjustmentIdx, scoreMethodIdx,
-							sumMethodIdx, plateIdx, replicateIdx, wellIdx,
-							stat, grouping, plateShift, plateCount, repShift)));
+		final DataColumnSpec[] newColSpec = createNewColSpec();
+		final CellFactory cellFactory = new AbstractCellFactory(newColSpec) {
+			@Override
+			public DataCell[] getCells(final DataRow row) {
+				final DataCell[] ret = new DataCell[newColSpec.length];
+				int i = 0;
+				for (final StatTypes stat : getStatTypes()) {
+					for (final String parameter : parameters) {
+						ret[i++] = new DoubleCell(getRank(format, row,
+								experimentIdx, parameter, normMethodIdx,
+								logTransformIdx, normKindIdx,
+								varianceAdjustmentIdx, scoreMethodIdx,
+								sumMethodIdx, plateIdx, replicateIdx, wellIdx,
+								stat, grouping, plateShift, plateCount,
+								repShift));
+					}
 				}
+				return ret;
 			}
-			final DataRow newRow = new DefaultRow(origRow.getKey(), values);
-			container.addRowToTable(newRow);
-			exec.checkCanceled();
-		}
-		container.close();
-		final BufferedDataTable out = container.getTable();
+		};
+		final ColumnRearranger outTable = new ColumnRearranger(inData[0]
+				.getDataTableSpec());
+		outTable.append(cellFactory);
+
+		final BufferedDataTable out = exec.createColumnRearrangeTable(
+				inData[0], outTable, exec);
 		return new BufferedDataTable[] { out };
 	}
 
@@ -990,7 +970,6 @@ public class RankNodeModel extends NodeModel {
 		int wellPos;
 		switch (grouping) {
 		case experiment:
-			// TODO replicateShift, plateCount
 			wellPos = stat.isUseReplicates() ? well + (plate - plateShift)
 					* format.getWellCount() + (replicate - replicateShift)
 					* plateCount * format.getWellCount() : well
@@ -1001,7 +980,6 @@ public class RankNodeModel extends NodeModel {
 			break;
 		case plate:
 		case plateAndReplicate:
-			// TODO replicateShift
 			wellPos = stat.isUseReplicates()
 					&& grouping != RankingGroups.plateAndReplicate ? format
 					.getWellCount()
@@ -1031,11 +1009,14 @@ public class RankNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		return new DataTableSpec[] { new DataTableSpec(
-				createColSpecs(inSpecs[0])) };
+		return new DataTableSpec[] { new DataTableSpec(inSpecs[0],
+				new DataTableSpec(createNewColSpec())) };
 	}
 
-	private DataColumnSpec[] createColSpecs(final DataTableSpec dataTableSpec) {
+	/**
+	 * @return The {@link DataColumnSpec} array for the new columns.
+	 */
+	private DataColumnSpec[] createNewColSpec() {
 		final StatTypes[] stats = getStatTypes();
 		final String[] parameters = parametersModel.getStringArrayValue();
 		final DataColumnSpec[] newCols = new DataColumnSpec[stats.length
@@ -1049,15 +1030,7 @@ public class RankNodeModel extends NodeModel {
 						DoubleCell.TYPE).createSpec();
 			}
 		}
-		final DataColumnSpec[] colSpecs = new DataColumnSpec[dataTableSpec
-				.getNumColumns()
-				+ newCols.length];
-		for (int i = dataTableSpec.getNumColumns(); i-- > 0;) {
-			colSpecs[i] = dataTableSpec.getColumnSpec(i);
-		}
-		System.arraycopy(newCols, 0, colSpecs, dataTableSpec.getNumColumns(),
-				newCols.length);
-		return colSpecs;
+		return newCols;
 	}
 
 	private StatTypes[] getStatTypes() {
