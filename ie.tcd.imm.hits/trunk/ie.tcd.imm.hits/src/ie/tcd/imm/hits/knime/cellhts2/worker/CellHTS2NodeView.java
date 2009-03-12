@@ -106,8 +106,11 @@ public class CellHTS2NodeView extends NodeView<CellHTS2NodeModel> {
 	}
 
 	/**
-	 * @param value
-	 * @return
+	 * The view for the result at {@code outputDir}.
+	 * 
+	 * @param outputDir
+	 *            The dir where the result can be found.
+	 * @return The {@link JSplitPane} containing the main tab..
 	 */
 	private Component createMainTab(final String outputDir) {
 		final JSplitPane splitPane = new JSplitPane();

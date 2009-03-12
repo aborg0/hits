@@ -92,6 +92,7 @@ class DialogComponentFormula extends UpdatableComponent implements
 	private final JTextPane detailedDescription = new JTextPane();
 	private final JTextArea generatedDescription = new JTextArea();
 
+	@Nullable
 	private DialogComponent helpDialog;
 
 	/**
@@ -100,6 +101,7 @@ class DialogComponentFormula extends UpdatableComponent implements
 	 */
 	static class SettingsWrapper implements ChangeListener {
 		private final SettingsModel[] models;
+		@Nullable
 		private ChangeListener listener;
 
 		/**

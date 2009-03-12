@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.util;
 
 import java.io.Serializable;
 
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -23,8 +24,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  *            The type of the second/right value.
  */
 @Immutable
-@DefaultAnnotation(Nonnull.class)
-public final class Pair<Left, Right> implements Serializable {
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+public class Pair<Left, Right> implements Serializable {
 	private static final long serialVersionUID = 2771814364666313214L;
 	private final Left left;
 	private final Right right;
@@ -114,4 +115,30 @@ public final class Pair<Left, Right> implements Serializable {
 		return true;
 	}
 
+	public static final class ComparablePair<Left extends Comparable<Left>, Right extends Comparable<Right>>
+			extends Pair<Left, Right> implements
+			Comparable<ComparablePair<Left, Right>> {
+		private static final long serialVersionUID = 8726172643276141148L;
+
+		/**
+		 * Constructs a ComparablePair.
+		 * 
+		 * @param left
+		 *            The left value.
+		 * @param right
+		 *            The right value.
+		 */
+		public ComparablePair(final Left left, final Right right) {
+			super(left, right);
+		}
+
+		@Override
+		public int compareTo(final ComparablePair<Left, Right> o) {
+			final int compareTo = getLeft().compareTo(o.getLeft());
+			if (compareTo != 0) {
+				return compareTo;
+			}
+			return getRight().compareTo(o.getRight());
+		}
+	}
 }
