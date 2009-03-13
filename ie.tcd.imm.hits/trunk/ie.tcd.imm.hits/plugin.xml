@@ -12,8 +12,9 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="ie.tcd.imm.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
    	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.biomart.BiomartAnnotatorNodeFactory" id="ie.tcd.imm.knime.biomart.BiomartAnnotatorNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
-      <node category-path="/HiTS" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
-	</extension>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
+	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory"/>
+    </extension>
 	<extension point="org.knime.product.splashExtension">
     	<splashExtension icon="icons/HiTS.png" id="ie.tcd.imm.hits.splashExtension"/>
 	</extension>
