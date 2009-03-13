@@ -12,33 +12,46 @@ import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * Factory for the controls and the legends.
+ * Factory for the controls and the legends of a {@link ColourComputer} type.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Computer>
+ *            The actual type of {@link ColourComputer}.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ColourFactory<Computer extends ColourComputer> {
 
 	/**
-	 * Should add a listener to the control.
+	 * Creates a control to the {@code computer}.
+	 * <p>
+	 * Should add a listener to the control which updates {@code colourModel}.
 	 * 
-	 * @param stat
-	 * @param parameter
 	 * @param colourModel
+	 *            The parent {@link ColourModel}.
+	 * @param stat
+	 *            The {@link StatTypes} of the control.
+	 * @param parameter
+	 *            The parameter of the control.
+	 * @param computer
+	 *            A {@link ColourComputer}.
 	 * 
-	 * @return
+	 * @return A control for {@code computer} with {@code colourModel} parent at
+	 *         position {@code parameter, stat}.
 	 */
 	public ColourControl<Computer> createControl(ColourModel colourModel,
-			String parameter, StatTypes stat);
+			String parameter, StatTypes stat, Computer computer);
 
-	// public void updateControl(
-	// ColourControl<? extends ColourComputer<This>> control);
+	/**
+	 * Creates a legend to {@code computer}.
+	 * 
+	 * @param computer
+	 *            A {@link ColourComputer}.
+	 * @return The legend of the {@code computer}.
+	 */
+	public ColourLegend<Computer> createLegend(Computer computer);
 
-	public ColourLegend<Computer> createLegend();
-
-	//
-	// public void updateLegend(ColourLegend<? extends ColourComputer<This>>
-	// legend);
-
+	/**
+	 * @return The default model for that type of {@link ColourModel}.
+	 */
 	public Computer getDefaultModel();
 }

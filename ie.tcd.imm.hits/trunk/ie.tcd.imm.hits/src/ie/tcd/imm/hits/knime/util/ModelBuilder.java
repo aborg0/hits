@@ -4,9 +4,13 @@ import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.awt.Color;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -813,5 +817,76 @@ public class ModelBuilder {
 	 */
 	public Map<String, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
 		return Collections.unmodifiableMap(keyToPlateAndPosition);
+	}
+
+	/**
+	 * Computes some statistics of {@code vals} to {@code ret}.
+	 * 
+	 * @param ret
+	 *            The result ranges map.
+	 * @param vals
+	 *            The values to analyse.
+	 */
+	public static void computeStatistics(
+			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret,
+			final Map<String, Map<StatTypes, List<Double>>> vals) {
+		for (final Entry<String, Map<StatTypes, List<Double>>> entry : vals
+				.entrySet()) {
+			for (final Entry<StatTypes, List<Double>> subEntry : entry
+					.getValue().entrySet()) {
+				final List<Double> values = subEntry.getValue();
+				Collections.sort(values);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.min,
+						values.size() > 0 ? values.get(0) : Double.NaN);
+				int n = 0;
+				double sum = 0.0;
+				for (final Double d : values) {
+					if (!d.isNaN()) {
+						++n;
+						sum += d.doubleValue();
+					}
+				}
+				final double median = n > 0 ? (n % 2 != 0 ? values.get(n / 2)
+						: (values.get(n / 2) + values.get(n / 2 - 1)) / 2)
+						: Double.NaN;
+
+				final double maxVal = n > 0 ? values.get(n - 1) : Double.NaN;
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.max, maxVal);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.median, median);
+				final double average = sum / n;
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.average,
+						n == 0 ? Double.NaN : Double.valueOf(average));
+				final MathContext context = new MathContext(10,
+						RoundingMode.HALF_EVEN);
+				BigDecimal sumDiffSquare = new BigDecimal(0.0);
+				final List<Double> diffAbs = new ArrayList<Double>(n);
+				for (final Double d : values) {
+					if (!d.isNaN()) {
+						final double diff = d - average;
+						final BigDecimal diffBig = BigDecimal.valueOf(diff);
+						sumDiffSquare = sumDiffSquare.add(diffBig.multiply(
+								diffBig, context), context);
+						diffAbs.add(Double.valueOf(Math.abs(diff)));
+					}
+				}
+				Collections.sort(diffAbs);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.stdev,
+						n == 0 ? Double.NaN : Double.valueOf(Math
+								.sqrt(sumDiffSquare.doubleValue() / n)));
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.mad,
+						n == 0 ? Double.NaN
+								: Double.valueOf(((n % 2 != 0) ? diffAbs
+										.get(n / 2) : (diffAbs.get(n / 2)
+										.doubleValue() + diffAbs.get(n / 2 - 1)
+										.doubleValue()) / 2) * 1.4826));
+
+			}
+		}
 	}
 }

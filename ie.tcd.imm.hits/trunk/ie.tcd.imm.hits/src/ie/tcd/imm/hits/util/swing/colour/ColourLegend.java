@@ -11,10 +11,24 @@ import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * A legend for a {@link ColourComputer}.
  * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <T>
+ *            The type of the model.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ColourLegend<T extends ColourComputer> {
+	/**
+	 * Sets the actual {@link ColourComputer} and {@link Orientation}.
+	 * 
+	 * @param model
+	 *            The new {@link ColourComputer}.
+	 * @param orientation
+	 *            The new {@link Orientation}.
+	 */
 	public void setModel(T model, Orientation orientation);
+
+	/** @return The actual {@link ColourComputer}. */
+	public T getModel();
 }

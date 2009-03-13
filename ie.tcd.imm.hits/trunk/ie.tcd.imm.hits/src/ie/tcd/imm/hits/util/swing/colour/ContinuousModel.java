@@ -169,14 +169,14 @@ public class ContinuousModel implements Serializable, ColourComputer,
 	@Override
 	public ColourControl<ContinuousModel> createControl(
 			final ColourModel model, final String parameter,
-			final StatTypes stat) {
+			final StatTypes stat, final ContinuousModel computer) {
 		final DoubleValueSelector ret = new DoubleValueSelector();
-		ret.setModel(this);
+		ret.setModel(computer);
 		ret.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final ContinuousModel newModel = ((DoubleValueSelector) e
-						.getSource()).getModel();
+						.getSource()).getColourModel();
 				model.setModel(parameter, stat, newModel);
 				// ret.setModel(newModel);
 			}
@@ -184,15 +184,11 @@ public class ContinuousModel implements Serializable, ColourComputer,
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.util.swing.colour.ColourFactory#createLegend()
-	 */
 	@Override
-	public ColourLegend<ContinuousModel> createLegend() {
+	public ColourLegend<ContinuousModel> createLegend(
+			final ContinuousModel computer) {
 		final SampleWithText sample = new SampleWithText();
-		sample.setModel(this, Orientation.South);
+		sample.setModel(computer, Orientation.South);
 		return sample;
 	}
 

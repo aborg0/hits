@@ -13,7 +13,6 @@ import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
 import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText.Orientation;
 
 import java.awt.BorderLayout;
@@ -500,14 +499,16 @@ public class LegendPanel extends JPanel implements ActionListener {
 									.getPreferredSize().height;
 							comp.setBounds(x, y, width, height);
 							comp.setPreferredSize(new Dimension(width, height));
-							if (comp instanceof SampleWithText) {
-								final SampleWithText sample = (SampleWithText) comp;
+							if (comp instanceof ColourLegend) {
+								@SuppressWarnings("unchecked")
+								final ColourLegend<ColourComputer> sample = (ColourLegend<ColourComputer>) comp;
 								sample.setModel(sample.getModel(), orientation);
 							}
 							break;
 						case Rectangle:
-							if (comp instanceof SampleWithText) {
-								final SampleWithText sample = (SampleWithText) comp;
+							if (comp instanceof ColourLegend) {
+								@SuppressWarnings("unchecked")
+								final ColourLegend<ColourComputer> sample = (ColourLegend<ColourComputer>) comp;
 								final int colWidth = layoutLegendPanel
 										.getWidth()
 										/ primaryCount;
@@ -520,7 +521,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 										.group(1));
 								final int idx2 = Integer.parseInt(matcher
 										.group(2));
-								final boolean south = alternate && idx % 2 == 1;
+								final boolean south = alternate && idx % 2 != 0;
 								comp
 										.setBounds(
 												idx != 0 ? idx * colWidth + 40
@@ -546,7 +547,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 										idx != 0 ? south ? Orientation.South
 												: Orientation.North
 												: Orientation.West);
-								sample.setPreferredSize(new Dimension(Math.max(
+								comp.setPreferredSize(new Dimension(Math.max(
 										45, colWidth - 5), 40));
 							}
 							break;
@@ -623,7 +624,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 		layoutLegendPanel.setModel(model);
 		model.getMain().getArrangementModel().addListener(this);
 		for (final Component component : getComponents()) {
-			if (component instanceof SampleWithText) {
+			if (component instanceof ColourLegend) {
 				remove(component);
 			}
 		}
@@ -792,12 +793,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 	private void addSample(final ColourModel cm, final int i, final int j,
 			final StatTypes stat, final String param) {
 		final ColourComputer m = cm.getModel(param, stat);
-		final ColourFactory<? extends ColourComputer> factory = FactoryRegistry
+		final ColourFactory<ColourComputer> factory = FactoryRegistry
 				.getInstance().getFactory(m);
-		@SuppressWarnings("unchecked")
-		// We know it is compatible
-		final ColourLegend<ColourComputer> legend = (ColourLegend<ColourComputer>) factory
-				.createLegend();
+		final ColourLegend<ColourComputer> legend = factory.createLegend(m);
 		legend.setModel(m, Orientation.South);
 		if (legend instanceof JComponent) {
 			final JComponent sample = (JComponent) legend;

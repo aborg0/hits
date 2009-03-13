@@ -26,5 +26,8 @@ public interface ColourComputer {
 	 */
 	public Color compute(double val);
 
+	/**
+	 * @return The tooltip for that {@link ColourComputer}.
+	 */
 	public String getTooltip();
 }

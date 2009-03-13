@@ -115,6 +115,16 @@ public class Pair<Left, Right> implements Serializable {
 		return true;
 	}
 
+	/**
+	 * Comparable {@link Pair} implementation.
+	 * 
+	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 * 
+	 * @param <Left>
+	 *            The type of the first/left value.
+	 * @param <Right>
+	 *            The type of the second/right value.
+	 */
 	public static final class ComparablePair<Left extends Comparable<Left>, Right extends Comparable<Right>>
 			extends Pair<Left, Right> implements
 			Comparable<ComparablePair<Left, Right>> {

@@ -1540,27 +1540,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 		}
-		for (final Entry<String, Map<StatTypes, List<Double>>> entry : vals
-				.entrySet()) {
-			for (final Entry<StatTypes, List<Double>> subEntry : entry
-					.getValue().entrySet()) {
-				final List<Double> values = subEntry.getValue();
-				Collections.sort(values);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.min,
-						values.size() > 0 ? values.get(0) : Double.NaN);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.max,
-						values.size() > 0 ? values.get(values.size() - 1)
-								: Double.NaN);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.median,
-						values.size() > 0 ? (values.size() % 2 != 0 ? values
-								.get(values.size() / 2) : (values.get(values
-								.size() / 2) + values
-								.get(values.size() / 2 - 1)) / 2) : Double.NaN);
-			}
-		}
+		ModelBuilder.computeStatistics(ret, vals);
 		return ret;
 	}
 

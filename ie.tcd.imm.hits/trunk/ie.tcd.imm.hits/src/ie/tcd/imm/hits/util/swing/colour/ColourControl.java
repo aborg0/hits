@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * Indicator of the controls for {@link ColourComputer}s.
+ * Interface of the controls for {@link ColourComputer}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <T>
@@ -17,5 +17,16 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ColourControl<T extends ColourComputer> {
+	/**
+	 * Changes the actual model.
+	 * 
+	 * @param model
+	 *            The new {@link ColourComputer}.
+	 */
+	public void setModel(T model);
 
+	/**
+	 * @return The actual {@link ColourComputer}.
+	 */
+	public T getColourModel();
 }
