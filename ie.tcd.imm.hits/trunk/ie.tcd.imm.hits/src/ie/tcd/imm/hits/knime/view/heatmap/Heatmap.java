@@ -11,7 +11,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.ComplexModelFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 import java.awt.Color;
@@ -53,8 +53,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	private int plate;
 
 	/**
-	 * Constructs a {@link Heatmap} with the {@code viewModel} and
-	 * {@code dataModel}.
+	 * Constructs a {@link Heatmap} with the {@code viewModel} and {@code
+	 * dataModel}.
 	 * 
 	 * @param viewModel
 	 *            The {@link ViewModel} to constrain the well layout.
@@ -229,12 +229,12 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		assert colours != null;
 		// norm, plate, col
 		final Map<String, Map<Integer, Color[]>> normColors = colours == null ? null
-				: experimentPos.get(ZERO).size() > 0 ? colours
-						.get(experimentPos.get(ZERO).get(0)) : null;
+				: experimentPos.get(Heatmap.ZERO).size() > 0 ? colours
+						.get(experimentPos.get(Heatmap.ZERO).get(0)) : null;
 		if (normColors != null) {
 			final Map<Integer, Color[]> plateColours = normalisationPos.get(
-					ZERO).size() > 0 ? normColors.get(normalisationPos
-					.get(ZERO).get(0)) : null;
+					Heatmap.ZERO).size() > 0 ? normColors.get(normalisationPos
+					.get(Heatmap.ZERO).get(0)) : null;
 			if (plateColours != null) {
 				final Color[] array = plateColours.get(Integer
 						.valueOf(plate + 1));
@@ -252,9 +252,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			wells[i].setColors(colors[i]);
 		}
 		for (int i = rows * cols; i-- > 0;) {
-			final String l = InfoParser.parse(experimentPos.get(ZERO),
-					normalisationPos.get(ZERO), viewModel.getLabelPattern(),
-					platePos.get(ZERO), i / 12, i % 12, nodeModel);
+			final String l = InfoParser.parse(experimentPos.get(Heatmap.ZERO),
+					normalisationPos.get(Heatmap.ZERO), viewModel
+							.getLabelPattern(), platePos.get(Heatmap.ZERO),
+					i / 12, i % 12, nodeModel);
 			wells[i].setLabels(l);
 		}
 	}
@@ -296,10 +297,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	 */
 	private void findColourValues(final Format format, final Color[][] colors,
 			final Object scores, final ColourModel colourModel,
-			final SliderModel firstParamSlider, @Nullable
-			final Integer firstSelection, final int firstIndex,
-			final SliderModel secondParamSlider, @Nullable
-			final Integer secondSelection, final int secondIndex,
+			final SliderModel firstParamSlider,
+			@Nullable final Integer firstSelection, final int firstIndex,
+			final SliderModel secondParamSlider,
+			@Nullable final Integer secondSelection, final int secondIndex,
 			final List<SliderModel> sliderList, final int sliderIndex) {
 		final int firstParamCount = firstParamSlider == null ? 1
 				: firstParamSlider.getSelections().size();
@@ -383,8 +384,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 								.getRight() : secondParamSlider
 								.getValueMapping().get(secondSelection)
 								.getRight()));
-		final ColourComputer model = model0 == null ? ColourSelector.DEFAULT_MODEL
-				: model0;
+		final ColourComputer model = model0 == null ? new ComplexModelFactory()
+				.getDefaultModel() : model0;
 		if (array != null) {
 			for (int p = format.getCol() * format.getRow(); p-- > 0;) {
 				colors[p][secondIndex * firstParamCount + firstIndex] = model
@@ -403,8 +404,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	 *            Some {@link ParameterModel}s. Only the fist will be used.
 	 * @return The {@link SliderModel} with fist
 	 *         {@link SliderModel#getParameters() parameter} same as the first
-	 *         {@code parameters}, or {@code null} if not found in
-	 *         {@code sliderModels}.
+	 *         {@code parameters}, or {@code null} if not found in {@code
+	 *         sliderModels}.
 	 */
 	private @Nullable
 	SliderModel findSlider(final Set<SliderModel> sliderModels,

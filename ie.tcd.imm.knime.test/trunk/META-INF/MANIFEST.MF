@@ -51,4 +51,6 @@ Export-Package: com.apple.mrj,
  org.fest.swing.util,
  org.fest.util,
  org.jdesktop.swinghelper.debug
-Require-Bundle: org.knime.core
+Require-Bundle: org.knime.core,
+ ie.tcd.imm.hits;bundle-version="0.1.2",
+ ie.tcd.imm.hits.3rdparty;bundle-version="0.1.0"

@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.util.swing.colour;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.DoubleValueSelector.Positions;
 import ie.tcd.imm.hits.util.swing.colour.ComplexLegend.ComplexSample;
 
 import java.awt.BorderLayout;
@@ -61,7 +60,7 @@ public class ComplexControl extends JButton implements
 	private static final String NO_TEXT = "\u00a0";
 
 	private ComplexModel model;
-	private ComplexSample sample = ComplexSample.create(true);
+	private final ComplexSample sample = ComplexSample.create(true);
 	private final JCheckBox connectButton;
 
 	private static final class ComplexColourPanel extends JPanel implements
@@ -254,6 +253,7 @@ public class ComplexControl extends JButton implements
 
 		private static abstract class SpinnersCommon extends ListenablePanel
 				implements ActionListener {
+			private static final long serialVersionUID = 6896425032410426881L;
 			private final JSpinner lowSpinner;
 			private final JSpinner highSpinner;
 
@@ -272,9 +272,9 @@ public class ComplexControl extends JButton implements
 						.doubleValue(), Double.NEGATIVE_INFINITY,
 						Double.POSITIVE_INFINITY, .1));
 				((NumberEditor) lowSpinner.getEditor()).getTextField()
-						.setColumns(SPINNER_COLUMNS);
+						.setColumns(ComplexColourPanel.SPINNER_COLUMNS);
 				((NumberEditor) highSpinner.getEditor()).getTextField()
-						.setColumns(SPINNER_COLUMNS);
+						.setColumns(ComplexColourPanel.SPINNER_COLUMNS);
 				lowSpinner.addChangeListener(new ChangeListener() {
 					@Override
 					public void stateChanged(final ChangeEvent e) {
@@ -348,8 +348,9 @@ public class ComplexControl extends JButton implements
 		 * @param pos
 		 *            The position to add new control.
 		 * @param isDiscrete
-		 *            The type of control should be {@link DiscreteControl} ({@code true}),
-		 *            or {@link ContinuousControl} ({@code false}).
+		 *            The type of control should be {@link DiscreteControl} (
+		 *            {@code true}), or {@link ContinuousControl} ({@code false}
+		 *            ).
 		 * @return The add action for that position and type.
 		 */
 		public Action createAddAction(final Spinners<?> spinner,
@@ -618,12 +619,12 @@ public class ComplexControl extends JButton implements
 		super();
 		connectButton = new JCheckBox();
 
-		final Action complexAction = new AbstractAction(NO_TEXT) {
+		final Action complexAction = new AbstractAction(ComplexControl.NO_TEXT) {
 			private static final long serialVersionUID = -5519318869307880427L;
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (NO_TEXT.equals(e.getActionCommand())) {
+				if (ComplexControl.NO_TEXT.equals(e.getActionCommand())) {
 					final ComplexColourPanel ccpanel = new ComplexColourPanel(
 							ComplexControl.this, getColourModel());
 					final JDialog dialog = new JDialog(JOptionPane
@@ -654,7 +655,7 @@ public class ComplexControl extends JButton implements
 						private static final long serialVersionUID = 361372379394476430L;
 
 						@Override
-						public void actionPerformed(ActionEvent e) {
+						public void actionPerformed(final ActionEvent e) {
 							final boolean connect = connectButton.isSelected();
 							ccpanel.connectControls(connect);
 						}
@@ -677,7 +678,7 @@ public class ComplexControl extends JButton implements
 			}
 		};
 		setAction(complexAction);
-		setText(NO_TEXT);
+		setText(ComplexControl.NO_TEXT);
 		setPreferredSize(new Dimension(30, 70));
 		final GridBagLayout gbl = new GridBagLayout();
 		setLayout(gbl);

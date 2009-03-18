@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.util.swing.colour;
 
-import ie.tcd.imm.hits.knime.util.VisualUtils;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceConstants;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
@@ -9,26 +8,18 @@ import ie.tcd.imm.hits.util.JEPHelper;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.DoubleValueSelector.Positions;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.Line.ComplexMetaModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.Serializable;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +36,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -57,14 +47,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
@@ -85,10 +70,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class ColourSelector extends JPanel implements HasMetaModel {
 	private static final long serialVersionUID = 1927466055122883656L;
 
-	/** The default {@link ContinuousModel} for real valued parameters. */
-	public static final ContinuousModel DEFAULT_MODEL = new ContinuousModel(
-			-2.0, Double.valueOf(0.0), 2.0, Color.GREEN, Color.YELLOW,
-			Color.RED);
+	/** The default value for low values */
+	public static Double DEFAULT_LOW = Double.valueOf(-2.0);
+	/** The default value for middle values */
+	public static Double DEFAULT_MID = Double.valueOf(0.0);
+	/** The default value for high values */
+	public static Double DEFAULT_HIGH = Double.valueOf(2.0);
 
 	/**
 	 * The possible ranges of an interval.
@@ -134,7 +121,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 		private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
 		/**
-		 * Sets the {@link ContinuousModel} for the selected {@code parameter}
+		 * Sets the {@link ColourComputer} for the selected {@code parameter}
 		 * and {@code stat}.
 		 * 
 		 * @param <ComputerType>
@@ -221,826 +208,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 	}
 
 	/**
-	 * A sample for the continuous colouring.
-	 */
-	public static abstract class Sample extends JPanel {
-		private Color up = Color.RED;
-
-		private Color down = Color.GREEN;
-		private @Nullable
-		Color middle = Color.BLACK;
-
-		private double upVal = 1.0;
-
-		private double downVal = -1.0, middleVal = 0.0;
-
-		private static final class VerticalSample extends Sample {
-			private static final long serialVersionUID = 9076573632082832266L;
-
-			private VerticalSample() {
-				super();
-				setPreferredSize(new Dimension(20, 50));
-			}
-
-			@Override
-			protected void paintComponent(final Graphics g) {
-				super.paintComponent(g);
-				final Rectangle bounds = getBounds();
-				for (int i = bounds.height; i-- > 0;) {
-					g.setColor(VisualUtils.colourOf(super.downVal
-							+ (super.upVal - super.downVal)
-							* (bounds.height - i) / bounds.height, super.down,
-							super.middle, super.up, super.downVal,
-							super.middleVal, super.upVal));
-					g.drawLine(0, i, bounds.width/* / 3 */, i);
-				}
-			}
-		}
-
-		private static final class HorizontalSample extends Sample {
-			private static final long serialVersionUID = -470116411480038777L;
-
-			private HorizontalSample() {
-				super();
-				setPreferredSize(new Dimension(50, 20));
-			}
-
-			@Override
-			protected void paintComponent(final Graphics g) {
-				super.paintComponent(g);
-				final Rectangle bounds = getBounds();
-				for (int i = bounds.width; i-- > 0;) {
-					g.setColor(VisualUtils.colourOf(super.downVal
-							+ (super.upVal - super.downVal) * i / bounds.width,
-							super.down, super.middle, super.up, super.downVal,
-							super.middleVal, super.upVal));
-					g.drawLine(i, 0, i, bounds.height);
-				}
-			}
-		}
-
-		/**
-		 * @param isVertical
-		 *            The orientation of the {@link Sample}.
-		 * @return A horizontal if not {@code isVertical}, else a vertical
-		 *         {@link Sample}.
-		 */
-		public static Sample create(final boolean isVertical) {
-			return isVertical ? new VerticalSample() : new HorizontalSample();
-		}
-
-		private static final long serialVersionUID = 1230862889150618654L;
-
-		private ContinuousModel model;
-
-		/**
-		 * Sets the colour for the lower values.
-		 * 
-		 * @param down
-		 *            A {@link Color colour} for the lower values.
-		 */
-		public void setDown(final Color down) {
-			this.down = down;
-			repaint();
-		}
-
-		/**
-		 * Sets the value for the lower interval.
-		 * 
-		 * @param downVal
-		 *            The new value for the lower interval.
-		 */
-		public void setDown(final double downVal) {
-			this.downVal = downVal;
-			repaint();
-		}
-
-		/**
-		 * Sets the colour for the middle values.
-		 * 
-		 * @param middle
-		 *            A {@link Color colour} for the middle values. May be
-		 *            {@code null}, which means it is not specified, the
-		 *            automatically the same as should be between the two
-		 *            extreme colours.
-		 */
-		public void setMiddle(@Nullable
-		final Color middle) {
-			this.middle = middle;
-			repaint();
-		}
-
-		/**
-		 * Sets the value for the middle part of the interval.
-		 * 
-		 * @param middleVal
-		 *            The new value for the middle part of the interval.
-		 */
-		public void setMiddle(final double middleVal) {
-			this.middleVal = middleVal;
-			repaint();
-		}
-
-		/**
-		 * Sets the colour for the upper values.
-		 * 
-		 * @param up
-		 *            A {@link Color colour} for the upper values.
-		 */
-		public void setUp(final Color up) {
-			this.up = up;
-			repaint();
-		}
-
-		/**
-		 * Sets the value for the upper interval.
-		 * 
-		 * @param upVal
-		 *            The new value for the upper interval.
-		 */
-		public void setUp(final double upVal) {
-			this.upVal = upVal;
-			repaint();
-		}
-
-		/**
-		 * Sets the model to the samples.
-		 * 
-		 * @param model
-		 *            A {@link ContinuousModel} of colours.
-		 */
-		protected void setModel(final ContinuousModel model) {
-			this.model = model;
-			this.downVal = model.getDownVal();
-			this.middleVal = model.getMiddleVal() == null ? 0.0 : model
-					.getMiddleVal().doubleValue();
-			this.upVal = model.getUpVal();
-			this.down = model.getDown();
-			this.middle = model.getMiddleVal() == null ? null : model
-					.getMiddle();
-			this.up = model.getUp();
-			repaint();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.awt.Component#toString()
-		 */
-		@Override
-		public String toString() {
-			return down.toString()
-					+ " ("
-					+ downVal
-					+ ")-> "
-					+ (middle != null ? middle.toString() + " (" + middleVal
-							+ ")->" : "") + up.toString() + " (" + upVal + ")";
-		}
-
-		/**
-		 * @return The associate {@link ContinuousModel}.
-		 */
-		public ContinuousModel getModel() {
-			return model;
-		}
-	}
-
-	/**
-	 * This class shows the sample of the heatmap legend with the proper values.
-	 */
-	public static class SampleWithText extends JPanel implements
-			ColourLegend<ContinuousModel> {
-		private static final long serialVersionUID = 8745641973568977951L;
-		private Sample sample;
-		private TextPanel textPanel;
-
-		/**
-		 * Creates the {@link SampleWithText} with {@link FlowLayout}.
-		 */
-		public SampleWithText() {
-			super();
-			setLayout(/* new FlowLayout(FlowLayout.CENTER) */new BoxLayout(
-					this, BoxLayout.X_AXIS));
-		}
-
-		/** The orientation of the sample (text). */
-		public static enum Orientation {
-			/** At the up */
-			North(false),
-			/** Left */
-			West(true),
-			/** Down */
-			South(false),
-			/** Right */
-			East(true);
-			private final boolean isVertical;
-
-			private Orientation(final boolean isVertical) {
-				this.isVertical = isVertical;
-			}
-
-			/**
-			 * @return the isVertical
-			 */
-			public boolean isVertical() {
-				return isVertical;
-			}
-		}
-
-		private final class TextPanel extends JPanel {
-			private static final long serialVersionUID = -8128412170298608805L;
-			private final Orientation orientation;
-			private final double upVal;
-			@Nullable
-			private final Double middleVal;
-			private final double downVal;
-
-			/**
-			 * Constructs the text for a {@link Sample}.
-			 * 
-			 * @param orientation
-			 *            The orientation of the {@link TextPanel}.
-			 * @param upVal
-			 *            The high value.
-			 * @param middleVal
-			 *            The middle value or {@code null}.
-			 * @param downVal
-			 *            The low value.
-			 */
-			TextPanel(final Orientation orientation, final double upVal,
-					@Nullable
-					final Double middleVal, final double downVal) {
-				super();
-				this.orientation = orientation;
-				this.upVal = upVal;
-				this.middleVal = middleVal;
-				this.downVal = downVal;
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-			 */
-			@Override
-			protected void paintComponent(final Graphics g) {
-				// super.paintComponent(g);
-				final Rectangle bounds = getBounds();
-				final String upStr = Double
-						.toString(Math.round(upVal * 100) / 100.0);
-				final String middleStr = middleVal == null ? ""
-						: Double.toString(Math
-								.round(middleVal.doubleValue() * 100) / 100.0);
-				final String downStr = Double.toString(Math
-						.round(downVal * 100) / 100.0);
-				g.setColor(Color.BLACK);
-				g.setFont(g.getFont().deriveFont(8.5f));
-				switch (orientation) {
-				case East:
-					g.drawString(upStr, gap(bounds), getFontMetrics(getFont())
-							.getHeight() * 2 / 3);
-					if (middleVal != null) {
-						g.drawString(middleStr, gap(bounds), bounds.height / 2);
-					}
-					g.drawString(downStr, gap(bounds), bounds.height);
-					g.drawLine(0, 0, gap(bounds) - 2, getFontMetrics(getFont())
-							.getHeight() / 3);
-					if (middleVal != null) {
-						g.drawLine(0, (int) ((upVal - middleVal.doubleValue())
-								/ (upVal - downVal) * bounds.height),
-								gap(bounds) - 2, bounds.height / 2
-										- getFontMetrics(getFont()).getHeight()
-										/ 3);
-					}
-					g.drawLine(0, bounds.height, gap(bounds) - 2, bounds.height
-							- getFontMetrics(getFont()).getHeight() / 3);
-					break;
-				case West: {
-					g.drawString(upStr, 5, getFontMetrics(getFont())
-							.getHeight() * 2 / 3);
-					if (middleVal != null) {
-						g.drawString(middleStr, 5, bounds.height / 2);
-					}
-					g.drawString(downStr, 5, bounds.height);
-					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
-							.getBounds().width + 7, getFontMetrics(getFont())
-							.getHeight() / 3, bounds.width, 0);
-					if (middleVal != null) {
-						g.drawLine(g.getFontMetrics().getStringBounds(
-								middleStr, g).getBounds().width + 7,
-								bounds.height / 2
-										- getFontMetrics(getFont()).getHeight()
-										/ 3, bounds.width,
-								(int) ((upVal - middleVal.doubleValue())
-										/ (upVal - downVal) * bounds.height));
-					}
-					g.drawLine(g.getFontMetrics().getStringBounds(upStr, g)
-							.getBounds().width + 7, bounds.height
-							- getFontMetrics(getFont()).getHeight() / 3,
-							bounds.width, bounds.height);
-					break;
-				}
-				case North: {
-					g.drawString(upStr, bounds.width
-							- g.getFontMetrics().getStringBounds(upStr, g)
-									.getBounds().width, getFontMetrics(
-							getFont()).getHeight() * 2 / 3);
-					if (middleVal != null) {
-						g
-								.drawString(middleStr, bounds.width
-										/ 2
-										- g.getFontMetrics().getStringBounds(
-												middleStr, g).getBounds().width
-										/ 2, bounds.height / 2
-										+ getFontMetrics(getFont()).getHeight()
-										/ 3);
-					}
-					g.drawString(downStr, 0, getFontMetrics(getFont())
-							.getHeight() * 2 / 3);
-					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
-							.getBounds().width / 2, getFontMetrics(getFont())
-							.getHeight() / 3, 0, bounds.height);
-					if (middleVal != null) {
-						g
-								.drawLine(
-										bounds.width / 2,
-										bounds.height
-												/ 2
-												+ getFontMetrics(getFont())
-														.getHeight() / 3,
-										bounds.width
-												- (int) ((upVal - middleVal
-														.doubleValue())
-														/ (upVal - downVal) * bounds.width),
-										bounds.height);
-					}
-					g.drawLine(bounds.width
-							- g.getFontMetrics().getStringBounds(upStr, g)
-									.getBounds().width / 2, getFontMetrics(
-							getFont()).getHeight() * 2 / 3, bounds.width,
-							bounds.height);
-					break;
-				}
-				case South: {
-					g.drawString(upStr, bounds.width
-							- g.getFontMetrics().getStringBounds(upStr, g)
-									.getBounds().width, bounds.height
-							- getFontMetrics(getFont()).getHeight() * 2 / 3);
-					if (middleVal != null) {
-						g
-								.drawString(middleStr, bounds.width
-										/ 2
-										- g.getFontMetrics().getStringBounds(
-												middleStr, g).getBounds().width
-										/ 2, bounds.height / 2
-										- getFontMetrics(getFont()).getHeight()
-										/ 4);
-					}
-					g.drawString(downStr, 0, bounds.height
-							- getFontMetrics(getFont()).getHeight() * 2 / 3);
-					g.drawLine(g.getFontMetrics().getStringBounds(downStr, g)
-							.getBounds().width / 2, bounds.height
-							- getFontMetrics(getFont()).getHeight() * 4 / 3, 0,
-							0);
-					if (middleVal != null) {
-						g
-								.drawLine(
-										bounds.width / 2,
-										bounds.height
-												/ 2
-												- getFontMetrics(getFont())
-														.getHeight() * 5 / 6,
-										bounds.width
-												- (int) ((upVal - middleVal
-														.doubleValue())
-														/ (upVal - downVal) * bounds.width),
-										0);
-					}
-					g.drawLine(bounds.width
-							- g.getFontMetrics().getStringBounds(upStr, g)
-									.getBounds().width / 2, bounds.height
-							- getFontMetrics(getFont()).getHeight() * 4 / 3,
-							bounds.width, 0);
-					break;
-				}
-				default:
-					break;
-				}
-			}
-
-			/**
-			 * @param bounds
-			 *            The bounds of the whole {@link TextPanel}.
-			 * @return The gap between the {@link TextPanel} and the
-			 *         {@link Sample}.
-			 */
-			private int gap(final Rectangle bounds) {
-				return bounds.width / 3;
-			}
-
-			/**
-			 * @return The associated model to the sample.
-			 */
-			public ContinuousModel getModel() {
-				return sample.getModel();
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see java.awt.Component#toString()
-			 */
-			@Override
-			public String toString() {
-				return "" + downVal + " -> "
-						+ (middleVal != null ? middleVal + " -> " : "") + upVal;
-			}
-		}
-
-		/**
-		 * Updates the model of this legend.
-		 * 
-		 * @param model
-		 *            A colour {@link ContinuousModel}.
-		 * @param orientation
-		 *            The new {@link Orientation} of the {@link SampleWithText}.
-		 */
-		public void setModel(final ContinuousModel model,
-				final Orientation orientation) {
-			if (sample != null) {
-				remove(sample);
-			}
-			if (textPanel != null) {
-				remove(textPanel);
-			}
-			final int sizeOfBar = 10;
-			switch (orientation) {
-			case East:
-				add(sample = Sample.create(orientation.isVertical()));
-				sample.setPreferredSize(new Dimension(sizeOfBar,
-						getPreferredSize().height));
-				textPanel = new TextPanel(orientation, model.getUpVal(), model
-						.getMiddle() == null ? null : model.getMiddleVal(),
-						model.getDownVal());
-				textPanel.setPreferredSize(new Dimension(
-						getPreferredSize().width - sizeOfBar,
-						getPreferredSize().height));
-				add(textPanel);
-				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-				break;
-			case North:
-				textPanel = new TextPanel(orientation, model.getUpVal(), model
-						.getMiddle() == null ? null : model.getMiddleVal(),
-						model.getDownVal());
-				textPanel.setPreferredSize(new Dimension(
-						getPreferredSize().width, getPreferredSize().height
-								- sizeOfBar));
-				add(textPanel);
-				add(sample = Sample.create(orientation.isVertical()));
-				sample.setPreferredSize(new Dimension(getPreferredSize().width,
-						sizeOfBar));
-				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-				break;
-			case West:
-				textPanel = new TextPanel(orientation, model.getUpVal(), model
-						.getMiddle() == null ? null : model.getMiddleVal(),
-						model.getDownVal());
-				add(textPanel);
-				add(sample = Sample.create(orientation.isVertical()));
-				sample.setPreferredSize(new Dimension(sizeOfBar,
-						getPreferredSize().height));
-				textPanel.setPreferredSize(new Dimension(
-						getPreferredSize().width - sizeOfBar,
-						getPreferredSize().height));
-				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-				break;
-			case South: {
-				textPanel = new TextPanel(orientation, model.getUpVal(), model
-						.getMiddle() == null ? null : model.getMiddleVal(),
-						model.getDownVal());
-				add(sample = Sample.create(orientation.isVertical()));
-				sample.setPreferredSize(new Dimension(getPreferredSize().width,
-						sizeOfBar));
-				add(textPanel);
-				textPanel.setPreferredSize(new Dimension(
-						getPreferredSize().width, getPreferredSize().height
-								- sizeOfBar));
-				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-				break;
-			}
-			default:
-				break;
-			}
-			sample.setModel(model);
-			revalidate();
-		}
-
-		/**
-		 * @return debug information about the orientation and the colour
-		 *         {@link ContinuousModel}.
-		 */
-		@Override
-		public String toString() {
-			return textPanel.orientation.name() + sample;
-		}
-
-		/**
-		 * @return The associated colour {@link ContinuousModel}.
-		 */
-		public ContinuousModel getModel() {
-			return sample.getModel();
-		}
-	}
-
-	/**
-	 * This class helps to select the colouring for a double valued parameter.
-	 */
-	public static class DoubleValueSelector extends ListenablePanel implements
-			ColourControl<ContinuousModel> {
-		private static final long serialVersionUID = -6389541195312535553L;
-
-		private final Sample sample = Sample.create(true);
-		private final JSpinner up = new JSpinner(new SpinnerNumberModel(Double
-				.valueOf(2.0), null, null, Double.valueOf(.1)));
-		private final JTextField middle = new JTextField("0.0", 4);
-		private final JSpinner down = new JSpinner(new SpinnerNumberModel(
-				Double.valueOf(-2.0), null, null, Double.valueOf(.1)));
-		private final JButton upButton = new JButton();
-		private final JButton middleButton = new JButton();
-		private final JButton downButton = new JButton();
-
-		private ContinuousModel model;
-
-		private static final class ButtonListener implements ActionListener,
-				Serializable {
-			private static final long serialVersionUID = 1188532264819715469L;
-			private final DoubleValueSelector parent;
-			private final String text;
-			private final Positions pos;
-			private final JButton button;
-
-			/**
-			 * Constructs a {@link ButtonListener}.
-			 * 
-			 * @param parent
-			 *            The parent {@link DoubleValueSelector}.
-			 * @param pos
-			 *            The position on that.
-			 * @param button
-			 *            The associated button.
-			 */
-			public ButtonListener(final DoubleValueSelector parent,
-					final Positions pos, final JButton button) {
-				this.parent = parent;
-				this.pos = pos;
-				switch (pos) {
-				case Up:
-					text = "upper limit";
-					break;
-				case Middle:
-					text = "middle value";
-					break;
-				case Down:
-					text = "lower limit";
-					break;
-				default:
-					throw new UnsupportedOperationException("Not supported: "
-							+ pos);
-				}
-				this.button = button;
-			}
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Color newColour = JColorChooser.showDialog(parent,
-						"Select the color for " + text, button.getBackground());
-				if (newColour != null) {
-					parent.setModel(new ContinuousModel(
-							parent.getColourModel(), pos, newColour));
-				}
-			}
-		}
-
-		private static class ValueListener implements ChangeListener,
-				ActionListener, Serializable {
-			private static final long serialVersionUID = 4990485633527905794L;
-			private final Positions pos;
-			private final DoubleValueSelector parent;
-
-			/**
-			 * @param parent
-			 * @param pos
-			 *            The position of the component we listen to.
-			 */
-			public ValueListener(final DoubleValueSelector parent,
-					final Positions pos) {
-				super();
-				this.parent = parent;
-				this.pos = pos;
-			}
-
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				final Double value = ((Double) ((SpinnerModel) e.getSource())
-						.getValue());
-				parent.setModel(new ContinuousModel(parent.getColourModel(),
-						pos, value));
-			}
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final String value = ((JTextField) e.getSource()).getText();
-				try {
-					final double val = NumberFormat.getInstance().parse(value)
-							.doubleValue();
-					parent.setModel(new ContinuousModel(
-							parent.getColourModel(), pos, val));
-				} catch (final ParseException ex) {
-					parent.setModel(new ContinuousModel(
-							parent.getColourModel(), pos, (Double) null));
-				}
-			}
-		}
-
-		/**
-		 * The positions of the possible colours.
-		 */
-		public static enum Positions {
-			/** The left/down position */
-			Down,
-			/** The middle position */
-			Middle,
-			/** The right/up position */
-			Up;
-		}
-
-		/**
-		 * Constructs a {@link DoubleValueSelector} with the defaults.
-		 */
-		public DoubleValueSelector() {
-			this(-2.0, 0.0, 2.0, Color.GREEN, Color.BLACK, Color.RED);
-		}
-
-		/**
-		 * Constructs a {@link DoubleValueSelector}.
-		 * 
-		 * @param downVal
-		 *            The down limit.
-		 * @param middleVal
-		 *            The middle value. Maybe {@code null}.
-		 * @param upVal
-		 *            The up limit.
-		 * @param green
-		 *            The colour associated to the down value.
-		 * @param black
-		 *            The colour associated to the middle value.
-		 * @param red
-		 *            The colour associated to the up value.
-		 */
-		public DoubleValueSelector(final double downVal,
-				final Double middleVal, final double upVal, final Color green,
-				final Color black, final Color red) {
-			super();
-			setModel(new ContinuousModel(downVal, middleVal, upVal, green,
-					black, red));
-			final GridBagLayout gbl = new GridBagLayout();
-			setLayout(gbl);
-			setModel(getColourModel());
-			final GridBagConstraints sampleConstraint = new GridBagConstraints();
-			sampleConstraint.gridheight = 3;
-			add(sample, sampleConstraint);
-			final GridBagConstraints upConstraint = new GridBagConstraints();
-			upConstraint.gridx = 1;
-			up
-					.setPreferredSize(new Dimension(40,
-							up.getPreferredSize().height));
-			up.getModel().addChangeListener(
-					new ValueListener(this, Positions.Up));
-			add(up, upConstraint);
-			final GridBagConstraints middleConstraint = new GridBagConstraints();
-			middleConstraint.gridx = 1;
-			middleConstraint.gridy = 1;
-			final ValueListener middleValueListener = new ValueListener(this,
-					Positions.Middle);
-			middle.addActionListener(middleValueListener);
-			// middle.getDocument().addDocumentListener(new DocumentListener() {
-			//
-			// @Override
-			// public void removeUpdate(final DocumentEvent e) {
-			// handle(e);
-			// }
-			//
-			// @Override
-			// public void insertUpdate(final DocumentEvent e) {
-			// handle(e);
-			// }
-			//
-			// @Override
-			// public void changedUpdate(final DocumentEvent e) {
-			// handle(e);
-			// }
-			//
-			// private void handle(final DocumentEvent e) {
-			// if (middle.getText().isEmpty()) {
-			// setModel(new ContinuousModel(getModel(),
-			// Positions.Middle, (Double) null));
-			// }
-			// try {
-			// final Double val = Double.valueOf(middle.getText());
-			// setModel(new ContinuousModel(getModel(),
-			// Positions.Middle, val));
-			// } catch (final NumberFormatException ex) {
-			// // No change.
-			// }
-			// }
-			//
-			// });
-			middle.addFocusListener(new FocusAdapter() {
-				@Override
-				public void focusLost(final FocusEvent e) {
-					super.focusLost(e);
-					middleValueListener.actionPerformed(new ActionEvent(middle,
-							0, ""));
-				}
-			});
-			add(middle, middleConstraint);
-			final GridBagConstraints downConstraint = new GridBagConstraints();
-			downConstraint.gridx = 1;
-			downConstraint.gridy = 2;
-			down.getModel().addChangeListener(
-					new ValueListener(this, Positions.Down));
-			down.setPreferredSize(up.getPreferredSize());
-			add(down, downConstraint);
-			final GridBagConstraints upButtonConstraint = new GridBagConstraints();
-			upButtonConstraint.gridx = 2;
-			add(upButton, upButtonConstraint);
-			upButton.addActionListener(new ButtonListener(this, Positions.Up,
-					upButton));
-			final GridBagConstraints middleButtonConstraint = new GridBagConstraints();
-			middleButtonConstraint.gridx = 2;
-			middleButtonConstraint.gridy = 1;
-			add(middleButton, middleButtonConstraint);
-			middleButton.addActionListener(new ButtonListener(this,
-					Positions.Middle, middleButton));
-			final GridBagConstraints downButtonConstraint = new GridBagConstraints();
-			downButtonConstraint.gridx = 2;
-			downButtonConstraint.gridy = 2;
-			add(downButton, downButtonConstraint);
-			downButton.addActionListener(new ButtonListener(this,
-					Positions.Down, downButton));
-		}
-
-		/**
-		 * Changes the model.
-		 * 
-		 * @param model
-		 *            The new {@link ContinuousModel}.
-		 */
-		public void setModel(final ContinuousModel model) {
-			this.model = model;
-			update();
-			fireModelChange();
-		}
-
-		private void update() {
-			down.setValue(Double.valueOf(getColourModel().getDownVal()));
-			final String middleText = getColourModel().getMiddleVal() == null ? ""
-					: String.valueOf(getColourModel().getMiddleVal()
-							.doubleValue());
-			// if (!middle.getText().equals(middleText)) {
-			// SwingUtilities.invokeLater(new Runnable() {
-			// @Override
-			// public void run() {
-			middle.setText(middleText);
-			// }
-			// });
-			// }
-			up.setValue(Double.valueOf(getColourModel().getUpVal()));
-			sample.setDown(getColourModel().getDownVal());
-			sample.setMiddle(getColourModel().getMiddleVal() == null ? 0.0
-					: getColourModel().getMiddleVal().doubleValue());
-			sample.setUp(getColourModel().getUpVal());
-			sample.setDown(getColourModel().getDown());
-			sample.setMiddle(getColourModel().getMiddleVal() == null ? null
-					: getColourModel().getMiddle());
-			sample.setUp(getColourModel().getUp());
-			downButton.setBackground(getColourModel().getDown());
-			middleButton
-					.setBackground(getColourModel().getMiddle() == null ? Color.BLACK
-							: getColourModel().getMiddle());
-			upButton.setBackground(getColourModel().getUp());
-			sample.setModel(getColourModel());
-		}
-
-		/**
-		 * @return the model
-		 */
-		public ContinuousModel getColourModel() {
-			return model;
-		}
-	}
-
-	/**
 	 * A line of parameters for a statistics.
 	 */
 	static final class Line extends JPanel implements HasMetaModel {
@@ -1091,8 +258,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								GeneralSetter.this, (int) (System
 										.currentTimeMillis() & 0xffffffff),
 								"update"));
-						// Line.this.setModel(ccpanel.mod);
-						// ComplexControl.this.fireActionPerformed(e);
 						ccpanel.connectControls(false);
 						connectButton.setSelected(false);
 						dialog.dispose();
@@ -1113,7 +278,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 					private static final long serialVersionUID = 361372379394476430L;
 
 					@Override
-					public void actionPerformed(ActionEvent e) {
+					public void actionPerformed(final ActionEvent e) {
 						final boolean connect = connectButton.isSelected();
 						ccpanel.connectControls(connect);
 					}
@@ -1144,16 +309,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			/** The default {@link ComplexMetaModel} metamodel. */
 			public static final ComplexMetaModel DEFAULT_META_MODEL;
 			static {
-				// final Map<Pair<String, String>, Pair<Color, Color>> conts =
-				// new
-				// LinkedHashMap<Pair<String, String>, Pair<Color, Color>>();
-				// conts.put(new Pair<String, String>("median+1.5*mad",
-				// "median+2*mad"), new Pair<Color, Color>(Color.BLACK,
-				// Color.RED));
-				// conts.put(new Pair<String, String>("median-2*mad",
-				// "median-1.5*mad"), new Pair<Color, Color>(Color.GREEN,
-				// Color.BLACK));
-
 				final List<Pair<Pair<String, String>, Object>> conts = new LinkedList<Pair<Pair<String, String>, Object>>();
 				conts
 						.add(new Pair<Pair<String, String>, Object>(
@@ -1165,17 +320,8 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								new Pair<String, String>("median-2mad",
 										"median-1.5mad"),
 								new Pair<Color, Color>(Color.GREEN, Color.BLACK)));
-				DEFAULT_META_MODEL = new ComplexMetaModel(/*
-															 * Collections .<Pair<String,
-															 * String>, Color>
-															 * emptyMap(),
-															 */conts);
+				DEFAULT_META_MODEL = new ComplexMetaModel(conts);
 			}
-			// private final Map<Pair<String, String>, Color> discrete = new
-			// LinkedHashMap<Pair<String, String>, Color>();
-			// private final Map<Pair<String, String>, Pair<Color, Color>>
-			// continuous = new LinkedHashMap<Pair<String, String>, Pair<Color,
-			// Color>>();
 			private final List<Pair<Pair<String, String>, Object>> entries = new LinkedList<Pair<Pair<String, String>, Object>>();
 
 			/**
@@ -1187,8 +333,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			 */
 			public ComplexMetaModel(
 					final Collection<? extends Pair<Pair<String, String>, Object>> entries) {
-				// this.discrete.putAll(discrete);
-				// this.continuous.putAll(continuous);
 				this.entries.addAll(entries);
 			}
 
@@ -1405,6 +549,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			 */
 			private static abstract class SpinnersCommon extends
 					ListenablePanel implements ActionListener {
+				private static final long serialVersionUID = -4842029784301291797L;
 				private final JTextField lowTextField;
 				private final JTextField highTextField;
 
@@ -1413,8 +558,8 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 				 */
 				private static class Checker implements DocumentListener {
 					private final JTextField field;
-					private Color orig;
-					private Color error;
+					private final Color orig;
+					private final Color error;
 
 					/**
 					 * Constructs a {@link Checker}.
@@ -1484,7 +629,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 				protected SpinnersCommon(final Pair<String, String> key) {
 					super();
 					lowTextField = new JTextField(key.getLeft(),
-							SPINNER_COLUMNS);
+							ComplexColourPanel.SPINNER_COLUMNS);
 					lowTextField.getDocument().addDocumentListener(
 							new Checker(lowTextField));
 					final ActionListener changeAction = new ActionListener() {
@@ -1495,7 +640,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 					};
 					lowTextField.addActionListener(changeAction);
 					highTextField = new JTextField(key.getRight(),
-							SPINNER_COLUMNS);
+							ComplexColourPanel.SPINNER_COLUMNS);
 					highTextField.getDocument().addDocumentListener(
 							new Checker(highTextField));
 					highTextField.addActionListener(changeAction);
@@ -1553,8 +698,9 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			 * @param pos
 			 *            The position to add new control.
 			 * @param isDiscrete
-			 *            The type of control should be {@link DiscreteControl} ({@code true}),
-			 *            or {@link ContinuousControl} ({@code false}).
+			 *            The type of control should be {@link DiscreteControl}
+			 *            ({@code true}), or {@link ContinuousControl} ({@code
+			 *            false}).
 			 * @return The add action for that position and type.
 			 */
 			public Action createAddAction(final Spinners<?> spinner,
@@ -1645,6 +791,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 
 			/**
 			 * @param model
+			 *            The new {@link ComplexMetaModel}.
 			 */
 			private void setModel(final ComplexMetaModel model) {
 				final boolean bigChange = mod == null
@@ -1654,9 +801,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 					removeAll();
 					spinners.clear();
 					setLayout(new GridLayout(1, 1));
-					// final ComplexSample samp = ComplexSample.create(true);
-					// samp.setModel(mod);
-					// add(samp);
 					final JPanel panel = new JPanel(new GridLayout(0, 1));
 					final Collection<Pair<Pair<String, String>, Object>> entries = new LinkedList<Pair<Pair<String, String>, Object>>(
 							mod.getEntries());
@@ -1720,13 +864,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 
 					@Override
 					public void actionPerformed(final ActionEvent e) {
-						// final NavigableMap<Pair<String, String>, Pair<Color,
-						// Color>> continuous = new TreeMap<Pair<String,
-						// String>, Pair<Color, Color>>(
-						// mod.getContinuous());
-						// final NavigableMap<Pair<String, String>, Color>
-						// discrete = new TreeMap<Pair<String, String>, Color>(
-						// mod.getDiscrete());
 						final LinkedList<Pair<Pair<String, String>, Object>> entries = new LinkedList<Pair<Pair<String, String>, Object>>(
 								mod.getEntries());
 						final ListIterator<Pair<Pair<String, String>, Object>> listIterator = entries
@@ -1738,23 +875,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								listIterator.remove();
 							}
 						}
-						// final Color discreteColour = discrete.get(state
-						// .getLeft());
-						// if (discreteColour != null
-						// && discreteColour.equals(state.getRight())) {
-						// discrete.remove(state.getLeft());
-						// } else {
-						// final Pair<Color, Color> continuousColours =
-						// continuous
-						// .get(state.getLeft());
-						// if (continuousColours != null
-						// && continuousColours.equals(state
-						// .getRight())) {
-						// continuous.remove(state.getLeft());
-						// } else {
-						// assert false;
-						// }
-						// }
 						setModel(new ComplexMetaModel(entries));
 					}
 				}));
@@ -1953,7 +1073,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 						private static final long serialVersionUID = 77194926481962404L;
 
 						@Override
-						public void actionPerformed(ActionEvent e) {
+						public void actionPerformed(final ActionEvent e) {
 							Line.this
 									.setModel(((GeneralSetter) e.getSource()).ccpanel.mod);
 						}
@@ -2016,10 +1136,10 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 						try {
 							final Node lowNode = jep.parse(lowStr);
 							final Node highNode = jep.parse(highStr);
-							final Double lowVal = ((Double) jep
-									.evaluate(lowNode));
-							final Double highVal = ((Double) jep
-									.evaluate(highNode));
+							final Double lowVal = (Double) jep
+									.evaluate(lowNode);
+							final Double highVal = (Double) jep
+									.evaluate(highNode);
 							if (entry.getRight() instanceof Color) {
 								final Color color = (Color) entry.getRight();
 								discs.put(new DefaultInterval<Double>(lowVal,
@@ -2053,8 +1173,8 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 	private final JPanel doublePanel;
 
 	/**
-	 * Creates a {@link ColourSelector} based on {@code parameters} and
-	 * {@code stats}.
+	 * Creates a {@link ColourSelector} based on {@code parameters} and {@code
+	 * stats}.
 	 * 
 	 * @param parameters
 	 *            Some parameter names.
@@ -2125,23 +1245,6 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								line.setModel(metaModel);
 							}
 						}
-						// for (final Pair<Pair<String, String>, Object> entry :
-						// metaModel.entries) {
-						// final String low = entry.getLeft().getLeft();
-						// final String high = entry.getLeft().getRight();
-						// final JEP jep = new JEP();
-						// try {
-						// jep.addVariable("avg", "0");
-						// jep.addVariable("median", .1);
-						// jep.addVariable("mad", 1.1);
-						// jep.addVariable("sd", 1.0);
-						// final Node parse = jep.parse(low);
-						// final double evaluate = ((Double) jep
-						// .evaluate(parse)).doubleValue();
-						// } catch (final org.nfunk.jep.ParseException e1) {
-						// throw new RuntimeException(e1);
-						// }
-						// }
 					}
 				})));
 		for (final String parameter : parameters) {
@@ -2200,9 +1303,8 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								.put(
 										defaultLowValue == null
 												|| defaultMiddleValue == null ? new DefaultInterval<Double>(
-												Double.valueOf(DEFAULT_MODEL
-														.getDownVal()),
-												DEFAULT_MODEL.getMiddleVal(),
+												ColourSelector.DEFAULT_LOW,
+												ColourSelector.DEFAULT_MID,
 												true, false)
 												: new DefaultInterval<Double>(
 														defaultLowValue,
@@ -2214,10 +1316,9 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								.put(
 										defaultHighValue == null
 												|| defaultMiddleValue == null ? new DefaultInterval<Double>(
-												DEFAULT_MODEL.getMiddleVal(),
-												Double.valueOf(DEFAULT_MODEL
-														.getUpVal()), true,
-												false)
+												ColourSelector.DEFAULT_MID,
+												ColourSelector.DEFAULT_HIGH,
+												true, false)
 												: new DefaultInterval<Double>(
 														defaultMiddleValue,
 														defaultHighValue, true,
@@ -2225,17 +1326,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 										new Pair<Color, Color>(
 												defaultMiddleColor,
 												defaultHighColor));
-						map.put(stat,
-						// new ContinuousModel(
-								// defaultLowValue == null ? DEFAULT_MODEL
-								// .getDownVal() : defaultLowValue
-								// .doubleValue(), defaultMiddleValue,
-								// defaultHighValue == null ? DEFAULT_MODEL
-								// .getUpVal() : defaultHighValue
-								// .doubleValue(), defaultLowColor,
-								// defaultMiddleColor, defaultHighColor)
-								// new ComplexModelFactory().getDefaultModel()
-								new ComplexModel(conts, discs));
+						map.put(stat, new ComplexModel(conts, discs));
 					}
 				}
 			}

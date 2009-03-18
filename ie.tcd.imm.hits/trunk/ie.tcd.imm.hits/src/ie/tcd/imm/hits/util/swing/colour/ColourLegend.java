@@ -3,7 +3,6 @@
  */
 package ie.tcd.imm.hits.util.swing.colour;
 
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText.Orientation;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

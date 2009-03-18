@@ -3,7 +3,6 @@
  */
 package ie.tcd.imm.hits.util.swing.colour;
 
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.Line;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.Line.ComplexMetaModel;
 
 import javax.annotation.CheckReturnValue;
@@ -21,5 +20,5 @@ interface HasMetaModel {
 	/**
 	 * @return The actual {@link ComplexMetaModel}.
 	 */
-	public Line.ComplexMetaModel getMetaModel();
+	public ComplexMetaModel getMetaModel();
 }

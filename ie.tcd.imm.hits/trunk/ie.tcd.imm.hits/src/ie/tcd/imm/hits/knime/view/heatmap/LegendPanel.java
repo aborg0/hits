@@ -12,8 +12,8 @@ import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
 import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
+import ie.tcd.imm.hits.util.swing.colour.Orientation;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.SampleWithText.Orientation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -157,13 +157,6 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 			return false;
 		}
-		//
-		// private void actionPerformed() {
-		// for (final ActionListener listener : listeners) {
-		// listener.actionPerformed(new ActionEvent(this, (int) (System
-		// .currentTimeMillis() & 0xffffffffL), ""));
-		// }
-		// }
 	}
 
 	/**
@@ -201,10 +194,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 			final Collection<SliderModel> sliders = getModel().getMain()
 					.getArrangementModel().getSliderModels();
-			final int primaryCount = selectValueCount(getModel().getMain()
-					.getPrimerParameters(), sliders);
-			final int secundaryCount = selectValueCount(getModel().getMain()
-					.getSeconderParameters(), sliders);
+			final int primaryCount = WellViewPanel.selectValueCount(getModel()
+					.getMain().getPrimerParameters(), sliders);
+			final int secundaryCount = WellViewPanel.selectValueCount(
+					getModel().getMain().getSeconderParameters(), sliders);
 			switch (getModel().getShape()) {
 			case Circle:
 				if (showLabels) {
@@ -217,8 +210,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					angle += 180 / primaryCount;
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel currentSlider = getCurrentSlider(
-								sliders, model);
+						final SliderModel currentSlider = LegendPanel
+								.getCurrentSlider(sliders, model);
 						if (currentSlider != null) {
 							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
 									.getValueMapping().entrySet()) {
@@ -277,12 +270,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 								.iterator().next();
 						g.drawString(paramModel.getShortName(), radius / 2,
 								(int) (radius * 1.2));
-						final SliderModel slider = getCurrentSlider(sliders,
-								paramModel);
+						final SliderModel slider = LegendPanel
+								.getCurrentSlider(sliders, paramModel);
 						final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 								.getValueMapping();
-						final int[] radiuses = getRadiuses(radius, slider
-								.getSelections().size());
+						final int[] radiuses = WellViewPanel.getRadiuses(
+								radius, slider.getSelections().size());
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : valueMapping
 								.entrySet()) {
@@ -290,7 +283,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 								g.drawString(entry.getValue().getRight()
 										.toString(), radius / 2 - 30
 										+ radiuses[i], (int) (radius * 1.35)
-										+ (i % 2) * 15);
+										+ i % 2 * 15);
 								++i;
 							}
 						}
@@ -305,8 +298,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					g.setColor(borderColor);
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel slider = getCurrentSlider(sliders,
-								model);
+						final SliderModel slider = LegendPanel
+								.getCurrentSlider(sliders, model);
 						g.drawString(model.getShortName(), 10, 15);
 						int i = 0;
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
@@ -314,7 +307,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 							if (slider.getSelections().contains(entry.getKey())) {
 								g.drawString(entry.getValue().getRight()
 										.toString(), i * bounds.width
-										/ primaryCount, 30 + (i % 2) * 15);
+										/ primaryCount, 30 + i % 2 * 15);
 								++i;
 							}
 						}
@@ -325,14 +318,14 @@ public class LegendPanel extends JPanel implements ActionListener {
 						g.drawString(model.getShortName(), -bounds.height + 5,
 								15);
 						int i = 0;
-						final SliderModel slider = getCurrentSlider(sliders,
-								model);
+						final SliderModel slider = LegendPanel
+								.getCurrentSlider(sliders, model);
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
 								g.drawString(entry.getValue().getRight()
 										.toString(), 5 - (i + 1) * bounds.width
-										/ secundaryCount, 30 + (i % 2) * 15);
+										/ secundaryCount, 30 + i % 2 * 15);
 								++i;
 							}
 						}
@@ -474,7 +467,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 												.iterator().next().getType())
 										.getSelections().size();
 						switch (LegendPanel.this.model.getShape()) {
-						case Circle:
+						case Circle: {
 							int angle = LegendPanel.this.model.getMain()
 									.getStartAngle();
 							angle += 180 / primaryCount;
@@ -497,7 +490,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 							final int height = !orientation.isVertical() ? comp
 									.getPreferredSize().height - 15 : comp
 									.getPreferredSize().height;
-							comp.setBounds(x, y, width, height);
+							comp.setBounds(Math.max(0, Math.min(x, getWidth()
+									- width)), Math.max(0, Math.min(y,
+									getHeight() - height)), width, height);
 							comp.setPreferredSize(new Dimension(width, height));
 							if (comp instanceof ColourLegend) {
 								@SuppressWarnings("unchecked")
@@ -505,7 +500,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 								sample.setModel(sample.getModel(), orientation);
 							}
 							break;
-						case Rectangle:
+						}
+						case Rectangle: {
 							if (comp instanceof ColourLegend) {
 								@SuppressWarnings("unchecked")
 								final ColourLegend<ColourComputer> sample = (ColourLegend<ColourComputer>) comp;
@@ -522,27 +518,23 @@ public class LegendPanel extends JPanel implements ActionListener {
 								final int idx2 = Integer.parseInt(matcher
 										.group(2));
 								final boolean south = alternate && idx % 2 != 0;
-								comp
-										.setBounds(
-												idx != 0 ? idx * colWidth + 40
-														: 0,
-												idx != 0 ? (south && idx2 == 0 ? getHeight()
-														- comp
-																.getPreferredSize().height
-														* 2 / 3
-														: 10)
-														+ (idx2 > 0 ? idx2
-																* colHeight : 0)
-														: 40
-																+ idx2
-																* Math
-																		.max(
-																				30,
-																				colHeight),
-												idx == 0 ? 40 : Math.max(45,
-														colWidth - 5),
-												idx == 0 ? Math.max(30,
-														colHeight - 3) : 40);
+								final int x = idx != 0 ? idx * colWidth + 40
+										: 0;
+								final int y = idx != 0 ? (south && idx2 == 0 ? getHeight()
+										- comp.getPreferredSize().height
+										* 2
+										/ 3
+										: 10)
+										+ (idx2 > 0 ? idx2 * colHeight : 0)
+										: 40 + idx2 * Math.max(30, colHeight);
+								final int width = idx == 0 ? 40 : Math.max(45,
+										colWidth - 5);
+								final int height = idx == 0 ? Math.max(30,
+										colHeight - 3) : 40;
+								comp.setBounds(Math.max(0, Math.min(x,
+										getWidth() - width)), Math.max(0, Math
+										.min(y, getHeight() - height)), width,
+										height);
 								sample.setModel(sample.getModel(),
 										idx != 0 ? south ? Orientation.South
 												: Orientation.North
@@ -551,6 +543,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 										45, colWidth - 5), 40));
 							}
 							break;
+						}
 						}
 					} else {
 						switch (LegendPanel.this.model.getShape()) {
@@ -785,10 +778,15 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 	/**
 	 * @param cm
+	 *            A {@link ColourModel}.
 	 * @param i
+	 *            The main index.
 	 * @param j
+	 *            The secondary index.
 	 * @param stat
+	 *            The {@link StatTypes}.
 	 * @param param
+	 *            The parameter.
 	 */
 	private void addSample(final ColourModel cm, final int i, final int j,
 			final StatTypes stat, final String param) {
@@ -799,32 +797,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 		legend.setModel(m, Orientation.South);
 		if (legend instanceof JComponent) {
 			final JComponent sample = (JComponent) legend;
-			// final SampleWithText sample = new SampleWithText();
 			sample.setOpaque(false);
 			sample.setPreferredSize(new Dimension(50, 50));
-			// legend.setModel(m == null ? factory.getDefaultModel() : m,
-			// Orientation.South);
-			sample.setToolTipText(m.getTooltip()
-			// sample.getModel().getDownVal()
-					// + " -> "
-					// + (sample.getModel().getMiddleVal() == null
-					// || sample.getModel().getMiddle() == null ? ""
-					// : sample.getModel().getMiddleVal() + " -> ")
-					// + sample.getModel().getUpVal()
-					);
+			sample.setToolTipText(m.getTooltip());
 			add(i + "_" + j, sample);
 		}
 	}
-
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	// */
-	// @Override
-	// protected void paintComponent(final Graphics g) {
-	// super.paintComponent(g);
-	// }
 
 	private static SliderModel getCurrentSlider(
 			final Collection<SliderModel> sliders, final ParameterModel model) {

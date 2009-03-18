@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class ListenablePanel extends JPanel {
+	private static final long serialVersionUID = -2228376912399766230L;
 	private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
 	/**

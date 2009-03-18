@@ -22,16 +22,15 @@ public class FactoryRegistry {
 	private static final FactoryRegistry instance = new FactoryRegistry();
 
 	static {
-		instance.registerFactory(ComplexModel.class, new ComplexModelFactory());
-		instance.registerFactory(ContinuousModel.class,
-				ColourSelector.DEFAULT_MODEL);
+		FactoryRegistry.instance.registerFactory(ComplexModel.class,
+				new ComplexModelFactory());
 	}
 
 	/**
 	 * @return The singleton instance.
 	 */
 	public static FactoryRegistry getInstance() {
-		return instance;
+		return FactoryRegistry.instance;
 	}
 
 	private final Map<Class<? extends ColourComputer>, ColourFactory<?>> factories = new HashMap<Class<? extends ColourComputer>, ColourFactory<?>>();

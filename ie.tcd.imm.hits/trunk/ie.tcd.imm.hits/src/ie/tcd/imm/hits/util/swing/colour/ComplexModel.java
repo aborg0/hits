@@ -14,7 +14,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
@@ -37,8 +39,12 @@ public class ComplexModel implements ColourComputer, Serializable {
 	private final NavigableMap<Interval<Double>, Pair<Color, Color>> continuouses;
 
 	/**
+	 * Constructs a {@link ComplexModel}.
+	 * 
 	 * @param continuouses
+	 *            The (linear) gradient changes.
 	 * @param discretes
+	 *            The single colour intervals.
 	 */
 	public ComplexModel(
 			final Map<Interval<Double>, Pair<Color, Color>> continuouses,
@@ -48,11 +54,6 @@ public class ComplexModel implements ColourComputer, Serializable {
 		this.discretes = new TreeMap<Interval<Double>, Color>(discretes);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.util.swing.colour.ColourComputer#compute(double)
-	 */
 	@Override
 	public Color compute(final double val) {
 		final Double dval = Double.valueOf(val);
@@ -74,20 +75,12 @@ public class ComplexModel implements ColourComputer, Serializable {
 		} else {
 			final Entry<Interval<Double>, Pair<Color, Color>> higherEntry = continuouses
 					.higherEntry(valInterval);
-			// if (higherEntry != null
-			// && dval.compareTo(higherEntry.getKey().getHigh()) > 0) {
-			// return higherEntry.getValue().getRight();// Unreachable
-			// }
 			final Entry<Interval<Double>, Pair<Color, Color>> lowerEntry = continuouses
 					.lowerEntry(valInterval);
-			// if (lowerEntry != null
-			// && dval.compareTo(lowerEntry.getKey().getLow()) < 0) {
-			// return lowerEntry.getValue().getLeft();// Unreachable
-			// }
 			if (lowerEntry != null && higherEntry != null) {
-				return (val - lowerEntry.getKey().getHigh().doubleValue() > higherEntry
+				return val - lowerEntry.getKey().getHigh().doubleValue() > higherEntry
 						.getKey().getLow()
-						- val) ? higherEntry.getValue().getLeft() : lowerEntry
+						- val ? higherEntry.getValue().getLeft() : lowerEntry
 						.getValue().getRight();
 			}
 			if (lowerEntry == null && higherEntry != null) {
@@ -101,8 +94,8 @@ public class ComplexModel implements ColourComputer, Serializable {
 	}
 
 	/**
-	 * Selects the proper entry from {@code map} belonging to
-	 * {@code val, valInterval}, or {@code null} if none found.
+	 * Selects the proper entry from {@code map} belonging to {@code val,
+	 * valInterval}, or {@code null} if none found.
 	 * 
 	 * @param <ValType>
 	 *            The value type of {@code map}.
@@ -122,9 +115,9 @@ public class ComplexModel implements ColourComputer, Serializable {
 				.higherEntry(valInterval);
 		final Entry<Interval<Double>, ValType> lower = map
 				.lowerEntry(valInterval);
-		final boolean hasResult = (higher != null && higher.getKey().contains(
-				val))
-				|| (lower != null && lower.getKey().contains(val));
+		final boolean hasResult = higher != null
+				&& higher.getKey().contains(val) || lower != null
+				&& lower.getKey().contains(val);
 
 		if (hasResult) {
 			if (lower != null && lower.getKey().contains(val)) {
@@ -136,15 +129,53 @@ public class ComplexModel implements ColourComputer, Serializable {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.util.swing.colour.ColourComputer#getTooltip()
-	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public String getTooltip() {
-		// FIXME better tooltip!
-		return discretes.keySet() + " | " + continuouses.keySet();
+		final NavigableMap<Interval<Double>, Object> union = new TreeMap<Interval<Double>, Object>();
+		union.putAll(discretes);
+		union.putAll(continuouses);
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		for (final Entry<Interval<Double>, Object> entry : union.entrySet()) {
+			sb
+					.append("<font color=\"#")
+					.append(
+							entry.getValue() instanceof Color ? Integer
+									.toHexString(Integer
+											.reverseBytes(((Color) entry
+													.getValue()).getRGB()) >>> 8)
+									: Integer
+											.toHexString(Integer
+													.reverseBytes(((Pair<Color, Color>) entry
+															.getValue())
+															.getLeft().getRGB()) >>> 8))
+					.append("\">").append(
+							Math.round(entry.getKey().getLow() * 100) / 100.0)
+					.append("</font>").append(
+							entry.getValue() instanceof Color ? "-" : "-&gt;");
+			sb
+					.append("<font color=\"#")
+					.append(
+							entry.getValue() instanceof Color ? Integer
+									.toHexString(Integer
+											.reverseBytes(((Color) entry
+													.getValue()).getRGB()) >>> 8)
+									: Integer
+											.toHexString(Integer
+													.reverseBytes(((Pair<Color, Color>) entry
+															.getValue())
+															.getRight()
+															.getRGB()) >>> 8))
+					.append("\">").append(
+							Math.round(entry.getKey().getHigh() * 100) / 100.0)
+					.append("</font>").append(", ");
+		}
+		if (sb.length() > 0) {
+			sb.setLength(sb.length() - ", ".length());
+		}
+		sb.append("</html>");
+		return sb.toString();
 	}
 
 	/**
@@ -161,11 +192,23 @@ public class ComplexModel implements ColourComputer, Serializable {
 		return Collections.unmodifiableSortedMap(discretes);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	/**
+	 * @return The values appearing in one of the intervals, in ascending order.
+	 *         (Modifiable.)
 	 */
+	protected SortedSet<Double> getValues() {
+		final SortedSet<Double> ret = new TreeSet<Double>();
+		for (final Interval<Double> interval : continuouses.keySet()) {
+			ret.add(interval.getLow());
+			ret.add(interval.getHigh());
+		}
+		for (final Interval<Double> interval : discretes.keySet()) {
+			ret.add(interval.getLow());
+			ret.add(interval.getHigh());
+		}
+		return ret;
+	}
+
 	@Override
 	public String toString() {
 		return discretes + " | " + continuouses;
