@@ -13,6 +13,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,9 +27,11 @@ import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTreeNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPoint;
+import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.property.ColorAttr;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -46,6 +51,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private int[] indices;
 	private ColourModel colourModel;
 	private int cellHeight;
+	private int cellWidth = 20;
+	private final List<String> selectedColumns = new ArrayList<String>();
+	private int maxStringLength;
+	private String[] keys;
 
 	/** Constructs the drawing pane. */
 	public HeatmapDendrogramDrawingPane() {
@@ -58,9 +67,23 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	 */
 	public void setNodeModel(final DendrogramNodeModel nodeModel) {
 		this.nodeModel = nodeModel;
+		maxStringLength = 0;
 		if (this.nodeModel != null) {
 			computeIndices();
+			for (final DataRow row : this.nodeModel.getDataArray(1)) {
+				maxStringLength = Math.max(maxStringLength, getFontMetrics(
+						getFont()).stringWidth(row.getKey().getString()));
+			}
 		}
+		selectedColumns.clear();
+		selectedColumns.addAll(this.nodeModel.getSelectedColumns());
+	}
+
+	/**
+	 * @return The maximal length of {@link RowKey}s in pixels.
+	 */
+	public int getMaxStringLength() {
+		return maxStringLength;
 	}
 
 	private void computeIndices() {
@@ -78,6 +101,17 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	public void setRootNode(final BinaryTree<DendrogramPoint> root) {
 		rootNode = root;
 		super.setRootNode(root);
+		if (rootNode != null) {
+			keys = new String[nodeModel.getDataArray(1).size()];
+			int i = 0;
+			for (final BinaryTreeNode<DendrogramPoint> node : root
+					.getNodes(Traversal.IN)) {
+				if (node.isLeaf()) {
+					keys[i++] = node.getContent().getRows().iterator().next()
+							.getString();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -108,15 +142,15 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 								StatTypes.raw);
 						final Color col = model.compute(val);
 						g.setColor(col);
-
-						g.fillRect(point.x + (i - indices.length) * 20, point.y
-								- (cellHeight) / 2, 20, cellHeight + 1);
+						g.fillRect(point.x + (i - selectedColumns.size())
+								* cellWidth, point.y - cellHeight / 2,
+								cellWidth, cellHeight + 1);
 					}
 				}
 				g.setColor(color);
 				g.drawString(row.getKey().getString(), point.x
-						- indices.length
-						* 20
+						- selectedColumns.size()// indices.length
+						* cellWidth
 						- g.getFontMetrics().stringWidth(
 								row.getKey().getString()), point.y);
 			}
@@ -125,7 +159,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					.isSelected(), node.getContent().isHilite()));
 			if (node.getContent().isSelected() || node.getContent().isHilite()) {
 				((Graphics2D) g).setStroke(new BasicStroke(
-						(lineThickness * BOLD)));
+						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
 			} else {
 				((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
 			}
@@ -150,8 +184,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				// if yes bold line, else normal line
 				if (node.getParent().getContent().isSelected()
 						|| node.getParent().getContent().isHilite()) {
-					((Graphics2D) g).setStroke(new BasicStroke(
-							(lineThickness * BOLD)));
+					((Graphics2D) g)
+							.setStroke(new BasicStroke(
+									(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
 				} else {
 					((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
 				}
@@ -181,5 +216,64 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	 */
 	public void setColourModel(final ColourModel colourModel) {
 		this.colourModel = colourModel;
+	}
+
+	@Override
+	public String getToolTipText(final MouseEvent event) {
+		if (rootNode == null) {
+			return "";
+		}
+		final Point p = event.getPoint();
+		final DataArray dataArray = nodeModel.getDataArray(1);
+		final int startPos = maxStringLength + selectedColumns.size()
+		// dataArray.getDataTableSpec().getNumColumns()
+				* cellWidth;
+		final int allCount = selectedColumns.size();
+		if (p.x < startPos && p.y < getHeight()) {
+			final int idx = allCount - (startPos - p.x + cellWidth - 1)
+					/ cellWidth;
+			final int rowIdx = dataArray.size() - 1 - p.y * dataArray.size()
+					/ getHeight();
+			if (idx < 0) {
+				return keys[rowIdx];
+			}
+			return "<html>"
+					+ selectedColumns.get(idx)
+					+ ": <b>"
+					+ Math.round(((DoubleValue) nodeModel.getDataArray(1)
+							.getRow(nodeModel.getMap().get(keys[rowIdx]))
+							.getCell(indices[idx])).getDoubleValue() * 1000)
+					/ 1000.0 + "</b> (" + keys[rowIdx] + ")</html>";
+		} else {
+			return super.getToolTipText(event);
+		}
+	}
+
+	/**
+	 * @return The width of a cell in the heatmap part.
+	 */
+	public int getCellWidth() {
+		return cellWidth;
+	}
+
+	/**
+	 * @param cellWidth
+	 *            The new cell width in the heatmap part.
+	 */
+	public void setCellWidth(final int cellWidth) {
+		this.cellWidth = cellWidth;
+	}
+
+	/**
+	 * @return The (unmodifiable) {@link List} of selected columns.
+	 */
+	public List<String> getSelectedColumns() {
+		return Collections.unmodifiableList(selectedColumns);
+	}
+
+	@Override
+	public void setLineThickness(final int thickness) {
+		super.setLineThickness(thickness);
+		lineThickness = thickness;
 	}
 }

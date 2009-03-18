@@ -141,15 +141,12 @@ public class ComplexModel implements ColourComputer, Serializable {
 			sb
 					.append("<font color=\"#")
 					.append(
-							entry.getValue() instanceof Color ? Integer
-									.toHexString(Integer
-											.reverseBytes(((Color) entry
-													.getValue()).getRGB()) >>> 8)
-									: Integer
-											.toHexString(Integer
-													.reverseBytes(((Pair<Color, Color>) entry
-															.getValue())
-															.getLeft().getRGB()) >>> 8))
+							Integer
+									.toHexString(entry.getValue() instanceof Color ? ((Color) entry
+											.getValue()).getRGB()
+											: ((Pair<Color, Color>) entry
+													.getValue()).getLeft()
+													.getRGB() & 0xffffff))
 					.append("\">").append(
 							Math.round(entry.getKey().getLow() * 100) / 100.0)
 					.append("</font>").append(
@@ -157,16 +154,12 @@ public class ComplexModel implements ColourComputer, Serializable {
 			sb
 					.append("<font color=\"#")
 					.append(
-							entry.getValue() instanceof Color ? Integer
-									.toHexString(Integer
-											.reverseBytes(((Color) entry
-													.getValue()).getRGB()) >>> 8)
-									: Integer
-											.toHexString(Integer
-													.reverseBytes(((Pair<Color, Color>) entry
-															.getValue())
-															.getRight()
-															.getRGB()) >>> 8))
+							Integer
+									.toHexString(entry.getValue() instanceof Color ? ((Color) entry
+											.getValue()).getRGB()
+											: ((Pair<Color, Color>) entry
+													.getValue()).getRight()
+													.getRGB() & 0xffffff))
 					.append("\">").append(
 							Math.round(entry.getKey().getHigh() * 100) / 100.0)
 					.append("</font>").append(", ");

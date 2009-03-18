@@ -26,15 +26,21 @@ import org.knime.core.node.NodeModel;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * A {@link HierarchicalClusterNodeView} with a ability to save the main content
+ * as a PNG file.
  * 
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class DendrogramNodeView extends HierarchicalClusterNodeView {
 
 	/**
+	 * Adds a menu to the original view.
+	 * 
 	 * @param nodeModel
+	 *            A {@link NodeModel}.
 	 * @param dendrogramPlotter
+	 *            A {@link DendrogramPlotter}.
 	 */
 	public DendrogramNodeView(final NodeModel nodeModel,
 			final DendrogramPlotter dendrogramPlotter) {
@@ -45,11 +51,11 @@ public class DendrogramNodeView extends HierarchicalClusterNodeView {
 			private static final long serialVersionUID = -6981404140757972969L;
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileChooser = new JFileChooser();
+			public void actionPerformed(final ActionEvent e) {
+				final JFileChooser fileChooser = new JFileChooser();
 				switch (fileChooser.showSaveDialog(getComponent())) {
 				case JFileChooser.APPROVE_OPTION:
-					AbstractDrawingPane drawingPane = dendrogramPlotter
+					final AbstractDrawingPane drawingPane = dendrogramPlotter
 							.getDrawingPane();
 					final BufferedImage bi = new BufferedImage(drawingPane
 							.getWidth(), drawingPane.getHeight(),
@@ -60,7 +66,7 @@ public class DendrogramNodeView extends HierarchicalClusterNodeView {
 					drawingPane.paintAll(g);
 					try {
 						ImageIO.write(bi, "png", fileChooser.getSelectedFile());
-					} catch (IOException e1) {
+					} catch (final IOException e1) {
 						throw new RuntimeException(e1);
 					}
 					break;
@@ -69,5 +75,4 @@ public class DendrogramNodeView extends HierarchicalClusterNodeView {
 		});
 		file.add(export);
 	}
-
 }

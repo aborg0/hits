@@ -25,6 +25,7 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -48,14 +49,16 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 			.getLogger(DendrogramNodeModel.class);
 
 	/** Reset should clear it. */
-	private Map<String, Integer> mapOfKeys = new HashMap<String, Integer>();
+	private final Map<String, Integer> mapOfKeys = new HashMap<String, Integer>();
 
-	private Map<String, Map<StatTypes, Map<RangeType, Double>>> ranges = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
+	private final Map<String, Map<StatTypes, Map<RangeType, Double>>> ranges = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
 
 	/**
 	 * The {@link SettingsModelFilterString} for selected columns.
 	 */
 	protected SettingsModelFilterString selectedColumns;
+
+	private BufferedDataTable origData;
 	{
 		try {
 			final Class<?> cls = Class
@@ -81,6 +84,7 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] data,
 			final ExecutionContext exec) throws Exception {
 		final BufferedDataTable[] superResult = super.execute(data, exec);
+		origData = data[0];
 		mapOfKeys.clear();
 		if (selectedColumns.getExcludeList().size() == 0
 				&& selectedColumns.getIncludeList().size() == 0) {
@@ -99,12 +103,14 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
 		fillStats(data[0]);
 		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
-		logger.info("Selected columns: " + selectedColumns.getIncludeList());
+		DendrogramNodeModel.logger.info("Selected columns: "
+				+ selectedColumns.getIncludeList());
 		return superResult;
 	}
 
 	/**
 	 * @param table
+	 *            A table with the original values.
 	 */
 	private void fillStats(final DataTable table) {
 		final Map<String, Map<StatTypes, List<Double>>> vals = new HashMap<String, Map<StatTypes, List<Double>>>();
@@ -133,11 +139,11 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 			}
 		}
 		for (final DataRow row : table) {
-			for (final int index : colIndices) {
-				final DataCell cell = row.getCell(index);
+			for (int i = 0; i < colIndices.length; ++i) {
+				final DataCell cell = row.getCell(colIndices[i]);
 				if (cell instanceof DoubleValue) {
 					final DoubleValue val = (DoubleValue) cell;
-					vals.get(colNames[index]).get(StatTypes.raw).add(
+					vals.get(colNames[i]).get(StatTypes.raw).add(
 							Double.valueOf(val.getDoubleValue()));
 				}
 			}
@@ -174,8 +180,7 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 	}
 
 	/**
-	 * @return The map of the keys to positions ({@code 0}-based);
-	 *         unmodifiable.
+	 * @return The map of the keys to positions ({@code 0}-based); unmodifiable.
 	 */
 	public Map<String, Integer> getMap() {
 		return Collections.unmodifiableMap(mapOfKeys);
@@ -192,6 +197,18 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 			mapOfKeys.put(dataRow.getKey().getString(), Integer.valueOf(i++));
 		}
 		fillStats(dataArray);
+	}
+
+	private static final String CFG_H_CLUST_DATA = "hClustData";
+
+	@Override
+	protected void saveInternals(final File nodeInternDir,
+			final ExecutionMonitor exec) throws IOException,
+			CanceledExecutionException {
+		super.saveInternals(nodeInternDir, exec);
+		final File dataFile = new File(nodeInternDir,
+				DendrogramNodeModel.CFG_H_CLUST_DATA);
+		DataContainer.writeToZip(origData, dataFile, exec);
 	}
 
 	/**
