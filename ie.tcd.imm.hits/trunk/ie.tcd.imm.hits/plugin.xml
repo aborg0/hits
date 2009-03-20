@@ -15,6 +15,19 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
 	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory"/>
     </extension>
+	<extension point="org.knime.workbench.repository.metanode">
+		<PersistedMetaNode
+        workflowDir="metaworkflows/Cluster Columns"
+        name="Cluster Columns"
+        id="ie.tcd.imm.hits.ClusterColumns"
+        category-path="/"
+        after=""
+        icon="icons/HiTS.png"
+        description="Reorganise the columns of a table using a clustering algorithm."
+        expert-flag="false"
+        >
+		</PersistedMetaNode>
+	</extension>
 	<extension point="org.knime.product.splashExtension">
     	<splashExtension icon="icons/HiTS.png" id="ie.tcd.imm.hits.splashExtension"/>
 	</extension>
