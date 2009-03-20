@@ -48,6 +48,12 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 	static final NodeLogger logger = NodeLogger
 			.getLogger(DendrogramNodeModel.class);
 
+	// /** Configuration key for the parameter rearrangement. */
+	// protected static final String CFGKEY_REARRANGE_PARAMETERS =
+	// "ie.tcd.imm.hits.knime.view.dendrogram.rearrangeParameters";
+	// /** Default value of the parameter rearrangement. */
+	// protected static final boolean DEFAULT_REARRANGE_PARAMETERS = true;
+
 	/** Reset should clear it. */
 	private final Map<String, Integer> mapOfKeys = new HashMap<String, Integer>();
 
@@ -57,6 +63,11 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 	 * The {@link SettingsModelFilterString} for selected columns.
 	 */
 	protected SettingsModelFilterString selectedColumns;
+
+	// private final SettingsModelBoolean rearrangeParameters = new
+	// SettingsModelBoolean(
+	// DendrogramNodeModel.CFGKEY_REARRANGE_PARAMETERS,
+	// DendrogramNodeModel.DEFAULT_REARRANGE_PARAMETERS);
 
 	private BufferedDataTable origData;
 	{
@@ -84,10 +95,31 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] data,
 			final ExecutionContext exec) throws Exception {
 		final BufferedDataTable[] superResult = super.execute(data, exec);
+		final List<String> cols = selectedColumns.getIncludeList();
+		// if (rearrangeParameters.getBooleanValue()) {
+		// final HalfDoubleMatrix cache = new HalfDoubleMatrix(cols.size(),
+		// false);
+		// final Names nameOfDistanceFunction = DistanceFunction.Names
+		// .valueOf(new SettingsModelString(
+		// HierarchicalClusterNodeModel.DISTFUNCTION_KEY,
+		// DistanceFunction.Names.values()[0].name())
+		// .getStringValue());
+		// final DistanceFunction distFunc;
+		// switch (nameOfDistanceFunction) {
+		// case Manhattan:
+		// distFunc = ManhattanDist.MANHATTEN_DISTANCE;
+		// break;
+		// case Euclidean:
+		// distFunc = EuclideanDist.EUCLIDEAN_DISTANCE;
+		// break;
+		// default:
+		// throw new UnsupportedOperationException(
+		// "Not supported distance function.");
+		// }
+		// }
 		origData = data[0];
 		mapOfKeys.clear();
-		if (selectedColumns.getExcludeList().size() == 0
-				&& selectedColumns.getIncludeList().size() == 0) {
+		if (selectedColumns.getExcludeList().size() == 0 && cols.size() == 0) {
 			final List<String> incl = new LinkedList<String>();
 			for (final DataColumnSpec colSpec : data[0].getDataTableSpec()) {
 				if (colSpec.getType().isASuperTypeOf(DoubleCell.TYPE)) {
@@ -103,8 +135,7 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
 		fillStats(data[0]);
 		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
-		DendrogramNodeModel.logger.info("Selected columns: "
-				+ selectedColumns.getIncludeList());
+		DendrogramNodeModel.logger.info("Selected columns: " + cols);
 		return superResult;
 	}
 
@@ -164,6 +195,7 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 			throws InvalidSettingsException {
 		super.validateSettings(settings);
 		selectedColumns.validateSettings(settings);
+		// rearrangeParameters.validateSettings(settings);
 	}
 
 	@Override
@@ -171,12 +203,14 @@ public class DendrogramNodeModel extends HierarchicalClusterNodeModel {
 			throws InvalidSettingsException {
 		super.loadValidatedSettingsFrom(settings);
 		selectedColumns.loadSettingsFrom(settings);
+		// rearrangeParameters.loadSettingsFrom(settings);
 	}
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		super.saveSettingsTo(settings);
 		selectedColumns.saveSettingsTo(settings);
+		// rearrangeParameters.saveSettingsTo(settings);
 	}
 
 	/**

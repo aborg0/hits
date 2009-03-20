@@ -5,8 +5,10 @@ package ie.tcd.imm.hits.knime.view.dendrogram;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -38,6 +40,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	private static final long serialVersionUID = -7290110714225915563L;
 	private DendrogramNode rootNode;
+
+	/** The set of selected dendrogram points. */
+	private final Set<DendrogramPoint> selected = new HashSet<DendrogramPoint>();
+	private BinaryTree<DendrogramPoint> tree;
 
 	/**
 	 * @param heatmapDendrogramDrawingPane
@@ -106,8 +112,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			keys.add(new StringCell(rk.getString()));
 		}
 		createNominalYCoordinate(keys);
-		// m_tree = null;
-		final BinaryTree<DendrogramPoint> tree = viewModel();
+		tree = viewModel();
 		((DendrogramDrawingPane) getDrawingPane()).setRootNode(tree);
 		dp.setHeatmapCellHeight((int) getYAxis().getCoordinate()
 				.getUnusedDistBetweenTicks(getDrawingPaneDimension().height));
@@ -230,8 +235,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		final Set<RowKey> keys = new LinkedHashSet<RowKey>();
 		getRowKeys(node, keys);
 		viewNode.getContent().addRows(keys);
-		// viewNode.getContent().setSelected(
-		// m_selected.contains(viewNode.getContent()));
+		viewNode.getContent().setSelected(
+				selected.contains(viewNode.getContent()));
 		viewNode.getContent().setHilite(delegateIsHiLit(keys));
 		if (node.getFirstSubnode() != null) {
 			final BinaryTreeNode<DendrogramPoint> leftNode = createViewModelFor(node
@@ -267,4 +272,48 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 				.getSecondSubnode())) / 2;
 	}
 
+	@Override
+	public void selectElementsIn(final Rectangle selectionRectangle) {
+		for (final BinaryTreeNode<DendrogramPoint> node : tree
+				.getNodes(BinaryTree.Traversal.IN)) {
+			if (selectionRectangle.contains(node.getContent().getPoint())) {
+				selected.add(node.getContent());
+				selectElementsRecursively(node);
+			}
+		}
+		updatePaintModel();
+	}
+
+	private void selectElementsRecursively(
+			final BinaryTreeNode<DendrogramPoint> node) {
+		if (node.isLeaf()) {
+			return;
+		}
+		selected.add(node.getLeftChild().getContent());
+		selectElementsRecursively(node.getLeftChild());
+		selected.add(node.getRightChild().getContent());
+		selectElementsRecursively(node.getRightChild());
+	}
+
+	@Override
+	public void clearSelection() {
+		super.clearSelection();
+		selected.clear();
+	}
+
+	@Override
+	public void hiLiteSelected() {
+		for (final DendrogramPoint p : selected) {
+			delegateHiLite(p.getRows());
+		}
+		updatePaintModel();
+	}
+
+	@Override
+	public void unHiLiteSelected() {
+		for (final DendrogramPoint p : selected) {
+			delegateUnHiLite(p.getRows());
+		}
+		updatePaintModel();
+	}
 }

@@ -1,8 +1,5 @@
 package ie.tcd.imm.hits.knime.view.dendrogram;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -60,30 +57,6 @@ public class DendrogramNodeFactory extends NodeFactory<DendrogramNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		final Constructor<?> ctor;
-		try {
-			final Class<?> cls = Class
-					.forName("org.knime.base.node.mine.cluster.hierarchical.HierarchicalClusterNodeDialog");
-			ctor = cls.getDeclaredConstructors()[0];
-			// ctor = cls
-			// .getConstructor(new Class[0]);
-			ctor.setAccessible(true);
-			// return (NodeDialogPane) cls.newInstance();
-			return (NodeDialogPane) ctor.newInstance();
-		} catch (final SecurityException e) {
-			throw new RuntimeException(e);
-			// } catch (final NoSuchMethodException e) {
-			// throw new RuntimeException(e);
-		} catch (final ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (final IllegalArgumentException e) {
-			throw new RuntimeException(e);
-		} catch (final InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (final IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (final InvocationTargetException e) {
-			throw new RuntimeException(e);
-		}
+		return new DendrogramNodeDialog();
 	}
 }

@@ -123,6 +123,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		final Color backupColor = g.getColor();
 		final List<BinaryTreeNode<DendrogramPoint>> nodes = rootNode
 				.getNodes(BinaryTree.Traversal.IN);
+		final int fontHeight = g.getFontMetrics().getHeight();
 		for (final BinaryTreeNode<DendrogramPoint> node : nodes) {
 			final DendrogramPoint dendroPoint = node.getContent();
 			if (dendroPoint.getRows().size() == 1 && nodeModel != null) {
@@ -152,7 +153,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						- selectedColumns.size()// indices.length
 						* cellWidth
 						- g.getFontMetrics().stringWidth(
-								row.getKey().getString()), point.y);
+								row.getKey().getString()), point.y
+						+ /*
+						 * cellHeight / 2 -
+						 */fontHeight / 3);
 			}
 			// set the correct stroke and color
 			g.setColor(ColorAttr.DEFAULT.getColor(node.getContent()
@@ -160,10 +164,15 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 			if (node.getContent().isSelected() || node.getContent().isHilite()) {
 				((Graphics2D) g).setStroke(new BasicStroke(
 						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
+				if (node.getContent().getRows().size() == 1) {
+					final Point point = node.getContent().getPoint();
+					g.drawRect(point.x - selectedColumns.size() * cellWidth,
+							point.y - cellHeight / 2 + 1, cellWidth
+									* selectedColumns.size(), cellHeight);
+				}
 			} else {
 				((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
 			}
-
 			if (node.getLeftChild() != null || node.getRightChild() != null) {
 				// draw vertical line
 				final Point leftPoint = node.getLeftChild().getContent()
