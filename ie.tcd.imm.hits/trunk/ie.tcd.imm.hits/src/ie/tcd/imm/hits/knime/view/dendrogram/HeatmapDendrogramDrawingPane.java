@@ -55,6 +55,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private final List<String> selectedColumns = new ArrayList<String>();
 	private int maxStringLength;
 	private String[] keys;
+	private boolean directionLeftToRight;
+
+	private int leafX;
+
+	// private boolean directionUpToDown;
 
 	/** Constructs the drawing pane. */
 	public HeatmapDendrogramDrawingPane() {
@@ -123,11 +128,13 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		final Color backupColor = g.getColor();
 		final List<BinaryTreeNode<DendrogramPoint>> nodes = rootNode
 				.getNodes(BinaryTree.Traversal.IN);
+
 		final int fontHeight = g.getFontMetrics().getHeight();
 		for (final BinaryTreeNode<DendrogramPoint> node : nodes) {
 			final DendrogramPoint dendroPoint = node.getContent();
 			if (dendroPoint.getRows().size() == 1 && nodeModel != null) {
 				final Point point = dendroPoint.getPoint();
+				leafX = point.x;
 				final String key = dendroPoint.getRows().iterator().next()
 						.getString();
 				final int index = nodeModel.getMap().get(key).intValue();
@@ -143,20 +150,43 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 								StatTypes.raw);
 						final Color col = model.compute(val);
 						g.setColor(col);
-						g.fillRect(point.x + (i - selectedColumns.size())
-								* cellWidth, point.y - cellHeight / 2,
+						g.fillRect(point.x
+								+ (directionLeftToRight ? (i - selectedColumns
+										.size())
+										* cellWidth : i /*- 1*/
+										* cellWidth), point.y - cellHeight / 2,
 								cellWidth, cellHeight + 1);
 					}
 				}
+
+				final ColorAttr colorAttr = nodeModel.getDataArray(1)
+						.getDataTableSpec().getRowColor(row);
+				if (colorAttr != ColorAttr.DEFAULT) {
+					final Color rowColor = colorAttr.getColor();
+					g.setColor(rowColor);
+					g.fillRect(directionLeftToRight ? point.x
+							- selectedColumns.size() * cellWidth
+							- maxStringLength : leafX + selectedColumns.size()
+							* cellWidth, point.y - cellHeight / 2,
+							maxStringLength, cellHeight + 1);
+					g
+							.setColor(Color.RGBtoHSB(rowColor.getGreen(),
+									rowColor.getGreen(), rowColor.getBlue(),
+									null)[2] < .4f ? Color.WHITE : Color.BLACK);
+				} else {
+					g.setColor(Color.BLACK);
+				}
+				g.drawString(row.getKey().getString(),
+						directionLeftToRight ? point.x
+								- selectedColumns.size()
+								* cellWidth
+								- g.getFontMetrics().stringWidth(
+										row.getKey().getString()) : point.x
+								+ selectedColumns.size() * cellWidth, point.y
+								+ /*
+								 * cellHeight / 2 -
+								 */fontHeight / 3);
 				g.setColor(color);
-				g.drawString(row.getKey().getString(), point.x
-						- selectedColumns.size()// indices.length
-						* cellWidth
-						- g.getFontMetrics().stringWidth(
-								row.getKey().getString()), point.y
-						+ /*
-						 * cellHeight / 2 -
-						 */fontHeight / 3);
 			}
 			// set the correct stroke and color
 			g.setColor(ColorAttr.DEFAULT.getColor(node.getContent()
@@ -234,16 +264,20 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		}
 		final Point p = event.getPoint();
 		final DataArray dataArray = nodeModel.getDataArray(1);
-		final int startPos = maxStringLength + selectedColumns.size()
-		// dataArray.getDataTableSpec().getNumColumns()
-				* cellWidth;
+		final int startPos = directionLeftToRight ? maxStringLength
+				+ selectedColumns.size()
+				// dataArray.getDataTableSpec().getNumColumns()
+				* cellWidth : leafX;
 		final int allCount = selectedColumns.size();
-		if (p.x < startPos && p.y < getHeight()) {
-			final int idx = allCount - (startPos - p.x + cellWidth - 1)
-					/ cellWidth;
+		if (directionLeftToRight && p.x < startPos || !directionLeftToRight
+				&& p.x > startPos && p.y < getHeight()) {
+			final int idx = directionLeftToRight ? allCount
+					- (startPos - p.x + cellWidth - 1) / cellWidth
+					: (p.x - startPos) / cellWidth;
 			final int rowIdx = dataArray.size() - 1 - p.y * dataArray.size()
 					/ getHeight();
-			if (idx < 0) {
+			if (idx < 0 && directionLeftToRight || !directionLeftToRight
+					&& idx >= allCount) {
 				return keys[rowIdx];
 			}
 			return "<html>"
@@ -285,4 +319,20 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		super.setLineThickness(thickness);
 		lineThickness = thickness;
 	}
+
+	/**
+	 * @param directionLeftToRight
+	 *            The new value of indicator of left to right increase field.
+	 */
+	public void setHorizontalDirection(final boolean directionLeftToRight) {
+		this.directionLeftToRight = directionLeftToRight;
+	}
+	//
+	// /**
+	// * @param directionUpToDown
+	// * The new value of the up to down order of values field.
+	// */
+	// public void setVerticalDirection(final boolean directionUpToDown) {
+	// this.directionUpToDown = directionUpToDown;
+	// }
 }
