@@ -90,10 +90,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <ul>
  * <li><code>{e}</code> - experiment name</li>
  * <li><code>{n}</code> - appends the normalisation method</li>
- * <li><code>{p}</code> - adds the parameters separated by the next character
- * if it is not a digit or <code>}</code>. If it is followed by digits it
- * will try to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
+ * <li><code>{p}</code> - adds the parameters separated by the next character if
+ * it is not a digit or <code>}</code>. If it is followed by digits it will try
+ * to create a reasonable abbreviation from it.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*} sign depending on the
  * additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
@@ -130,72 +130,6 @@ public class CellHTS2NodeModel extends NodeModel {
 	static final String[] POSSIBLE_NORMALISATION_METHODS = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
 			"shorth" };
-	private static final Map<String, String> explanationOfNormalisationMethods = new HashMap<String, String>();
-	static {
-		explanationOfNormalisationMethods
-				.put(
-						POSSIBLE_NORMALISATION_METHODS[1],
-						"Plate median normalization involves calculating the relative signal of each\n"
-								+ "well compared to the median of the sample wells in the plate, as shown in\n"
-								+ "Equation (1) and Equation (2). The median is calculated among the m wells\n"
-								+ "containing sample (i. e. , for wells that contain genes of interest) in result file\n"
-								+ "i.\n" + "");
-		explanationOfNormalisationMethods
-				.put(
-						POSSIBLE_NORMALISATION_METHODS[2],
-						"In the B score method, row and column biases within each plate are explicitly\n"
-								+ "corrected for by fitting a two-way median polish to the raw data in a per-\n"
-								+ "plate fashion\n" + "");
-		explanationOfNormalisationMethods
-				.put(
-						POSSIBLE_NORMALISATION_METHODS[3],
-						"Percent of control (POC) is a preprocessing method that tries to correct\n"
-								+ "for plate-to-plate variability by normalizing each kth compound raw mea-\n"
-								+ "surements in the ith result file, xki , relative to the average of within-plate\n"
-								+ "controls. In an antagonist (or inhibition) type assay, it is defined as:\n"
-								+ "                                          xki\n"
-								+ "                                 xPOC =        × 100                       (6)\n"
-								+ "                                         μpos\n"
-								+ "                                  ki\n"
-								+ "                                           i\n"
-								+ "where μpos is the average of the measurements on the positive controls in\n"
-								+ "         i\n"
-								+ "the ith result file (i. e. , for a given plate and replicate).\n"
-								+ "");
-		explanationOfNormalisationMethods
-				.put(
-						POSSIBLE_NORMALISATION_METHODS[4],
-						"                                      consists of scaling the plate measure-\n"
-								+ "ments by the per-plate median of the intensities on the negative controls\n"
-								+ "");
-		explanationOfNormalisationMethods
-				.put(
-						POSSIBLE_NORMALISATION_METHODS[5],
-						"                                                                        nor-\n"
-								+ "malized percent inhibition (NPI) is applied in a per-plate basis to correct\n"
-								+ "for plate effects. For an antagonist assay, this method divides the difference\n"
-								+ "between each measurement in a given result file i (xki ) and the average of\n"
-								+ "the positive controls on that plate (μpos ) by the difference between the av-\n"
-								+ "                                      i\n"
-								+ "erages of the measurements on the positive (μpos ) and the negative controls\n"
-								+ "                                                i\n"
-								+ "(μneg ):\n"
-								+ "  i\n"
-								+ "                                     μpos − xki\n"
-								+ "                             xNPI =    i\n"
-								+ "                                     μpos − μneg\n"
-								+ "                              ki\n"
-								+ "                                      i       i\n"
-								+ "");
-		explanationOfNormalisationMethods.put(
-				POSSIBLE_NORMALISATION_METHODS[6],
-				"             per-plate scaling factor Mi the per-plate average intensity on\n"
-						+ "sample wells\n" + "");
-		explanationOfNormalisationMethods.put(
-				POSSIBLE_NORMALISATION_METHODS[7],
-				"             per-plate scaling factor Mi the per-plate average intensity on\n"
-						+ "sample wells\n" + "");
-	}
 
 	/** Configuration key for multiplicative or additive normalisation */
 	static final String CFGKEY_IS_MULTIPLICATIVE_NORMALISATION = "ie.tcd.imm.hits.knime.cellhts2.is_multiplicative";
@@ -258,25 +192,30 @@ public class CellHTS2NodeModel extends NodeModel {
 			CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]);
 
 	private final SettingsModelBoolean isMultiplicativeModel = new SettingsModelBoolean(
-			CFGKEY_IS_MULTIPLICATIVE_NORMALISATION,
-			DEFAULT_IS_MULTIPLICATIVE_NORMALISATION);
+			CellHTS2NodeModel.CFGKEY_IS_MULTIPLICATIVE_NORMALISATION,
+			CellHTS2NodeModel.DEFAULT_IS_MULTIPLICATIVE_NORMALISATION);
 
 	private final SettingsModelBoolean logTransformModel = new SettingsModelBoolean(
-			CFGKEY_LOG_TRANSFORM, DEFAULT_LOG_TRANSFORM);
+			CellHTS2NodeModel.CFGKEY_LOG_TRANSFORM,
+			CellHTS2NodeModel.DEFAULT_LOG_TRANSFORM);
 	private final SettingsModelString scaleModel = new SettingsModelString(
-			CFGKEY_SCALE, POSSIBLE_SCALE[0]);
+			CellHTS2NodeModel.CFGKEY_SCALE, CellHTS2NodeModel.POSSIBLE_SCALE[0]);
 	private final SettingsModelString scoreModel = new SettingsModelString(
-			CFGKEY_SCORE, POSSIBLE_SCORE[1]);
+			CellHTS2NodeModel.CFGKEY_SCORE, CellHTS2NodeModel.POSSIBLE_SCORE[1]);
 	private final SettingsModelString summariseModel = new SettingsModelString(
-			CFGKEY_SUMMARISE, POSSIBLE_SUMMARISE[0]);
+			CellHTS2NodeModel.CFGKEY_SUMMARISE,
+			CellHTS2NodeModel.POSSIBLE_SUMMARISE[0]);
 	private final SettingsModelString outputDirModel = new SettingsModelString(
-			CFGKEY_OUTPUT_DIR, DEFAULT_OUTPUT_DIR);
+			CellHTS2NodeModel.CFGKEY_OUTPUT_DIR,
+			CellHTS2NodeModel.DEFAULT_OUTPUT_DIR);
 	private final SettingsModelString folderPatternModel = new SettingsModelString(
-			CFGKEY_FOLDER_PATTERN, DEFAULT_FOLDER_PATTERN);
+			CellHTS2NodeModel.CFGKEY_FOLDER_PATTERN,
+			CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN);
 	private final SettingsModelString experimentNameModel = new SettingsModelString(
-			CFGKEY_EXPERIMENT_NAME, DEFAULT_EXPERIMENT_NAME);
+			CellHTS2NodeModel.CFGKEY_EXPERIMENT_NAME,
+			CellHTS2NodeModel.DEFAULT_EXPERIMENT_NAME);
 	private final SettingsModelFilterString parametersModel = new SettingsModelFilterString(
-			CFGKEY_PARAMETERS, new String[0], new String[] {
+			CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0], new String[] {
 					ImporterNodeModel.PLATE_COL_NAME,
 					ImporterNodeModel.REPLICATE_COL_NAME,
 					ImporterNodeModel.WELL_COL_NAME,
@@ -284,11 +223,13 @@ public class CellHTS2NodeModel extends NodeModel {
 					ImporterNodeModel.GENE_ANNOTATION_COL_NAME });
 
 	private final SettingsModelDoubleRange scoreRange = new SettingsModelDoubleRange(
-			CFGKEY_SCORE_RANGE, DEFAULT_SCORE_RANGE_MIN,
-			DEFAULT_SCORE_RANGE_MAX);
+			CellHTS2NodeModel.CFGKEY_SCORE_RANGE,
+			CellHTS2NodeModel.DEFAULT_SCORE_RANGE_MIN,
+			CellHTS2NodeModel.DEFAULT_SCORE_RANGE_MAX);
 
 	private final SettingsModelDoubleBounded aspectRatioModel = new SettingsModelDoubleBounded(
-			CFGKEY_ASPECT_RATIO, DEFAULT_ASPECT_RATIO, 0.1, 200);
+			CellHTS2NodeModel.CFGKEY_ASPECT_RATIO,
+			CellHTS2NodeModel.DEFAULT_ASPECT_RATIO, 0.1, 200);
 
 	private static final DataTableSpec configurationSpec = new DataTableSpec(
 			new DataColumnSpecCreator("Category", StringCell.TYPE).createSpec(),
@@ -358,7 +299,8 @@ public class CellHTS2NodeModel extends NodeModel {
 									 * "127.0.0.1", 1099, 10000
 									 */);
 		} catch (final RserveException e) {
-			logger.fatal("Failed to connect to Rserve, please start again.", e);
+			CellHTS2NodeModel.logger.fatal(
+					"Failed to connect to Rserve, please start again.", e);
 			throw e;
 		}
 		// if (!Rengine.versionCheck()) {
@@ -370,7 +312,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		// final Rengine conn = new Rengine();
 		try {
 			if (!conn.isConnected()) {
-				logger
+				CellHTS2NodeModel.logger
 						.fatal("Not connected to the Rserve, please restart it if possible.");
 				throw new IllegalStateException("No connection to R.");
 			}
@@ -378,11 +320,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			int plateCount = 0;
 			int wellRowCount = 0;
 			int wellColCount = 0;
-			final int plateIdx = getIndex(inData,
+			final int plateIdx = CellHTS2NodeModel.getIndex(inData,
 					ImporterNodeModel.PLATE_COL_NAME);
-			final int replicateIdx = getIndex(inData,
+			final int replicateIdx = CellHTS2NodeModel.getIndex(inData,
 					ImporterNodeModel.REPLICATE_COL_NAME);
-			final int wellIdx = getIndex(inData,
+			final int wellIdx = CellHTS2NodeModel.getIndex(inData,
 					ImporterNodeModel.WELL_COL_NAME);
 			for (final DataRow dataRow : inData[0]) {
 				final int plate = ((IntCell) dataRow.getCell(plateIdx))
@@ -408,9 +350,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			// 1
 			// : 0);
 			final int paramCount = parametersModel.getIncludeList().size();
-			logger.debug(wellRowCount + "x" + wellColCount + "  " + plateCount
-					+ " plate, " + replicateCount + " replicates, "
-					+ paramCount + " channels");
+			CellHTS2NodeModel.logger.debug(wellRowCount + "x" + wellColCount
+					+ "  " + plateCount + " plate, " + replicateCount
+					+ " replicates, " + paramCount + " channels");
 			if (wellCount * replicateCount * plateCount != inData[0]
 					.getRowCount()) {
 				final String errorMessage = "There are wrong number of input rows, please check them:\nfound: "
@@ -424,8 +366,9 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ "*"
 						+ wellColCount
 						+ "="
-						+ (wellCount * replicateCount * plateCount);
-				logger.fatal(errorMessage);
+						+ wellCount
+						* replicateCount * plateCount;
+				CellHTS2NodeModel.logger.fatal(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
 			// final RList list = new RList();
@@ -465,10 +408,10 @@ public class CellHTS2NodeModel extends NodeModel {
 							.getIncludeList()) {
 						final DoubleValue cell = (DoubleValue) dataRow
 								.getCell(paramIndices.get(colName).intValue());
-						rawValues[plate
-								* (replicateCount * paramCount * wellCount)
-								+ replicate * (paramCount * wellCount) + j++
-								* wellCount + well] = cell.getDoubleValue();
+						rawValues[plate * replicateCount * paramCount
+								* wellCount + replicate * paramCount
+								* wellCount + j++ * wellCount + well] = cell
+								.getDoubleValue();
 					}
 				}
 			}
@@ -477,7 +420,8 @@ public class CellHTS2NodeModel extends NodeModel {
 			try {
 				conn.assign("rawInput", rawValues);
 			} catch (final REngineException e) {
-				logger.fatal("Failed to send the raw values to R.", e);
+				CellHTS2NodeModel.logger.fatal(
+						"Failed to send the raw values to R.", e);
 			}
 			exec.setProgress(.001, "Data read.");
 			convertRawInputToCellHTS2(
@@ -501,8 +445,9 @@ public class CellHTS2NodeModel extends NodeModel {
 				addMiame(inData, conn);
 				exec.setProgress(.006, "MIAME information added.");
 			} catch (final Exception e) {
-				logger.warn("Failed to add MIAME information.\n"
-						+ e.getMessage(), e);
+				CellHTS2NodeModel.logger.warn(
+						"Failed to add MIAME information.\n" + e.getMessage(),
+						e);
 			}
 			exec.checkCanceled();
 			boolean newVersion = false;
@@ -532,9 +477,10 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ "source(\"imageScreen.R\")\n"
 							+ "source(\"writeReport.R\")\n" + "");
 					newVersion = true;
-					logger.info("Using the improved version of cellHTS2.");
+					CellHTS2NodeModel.logger
+							.info("Using the improved version of cellHTS2.");
 				} catch (final RserveException e) {
-					logger.warn(
+					CellHTS2NodeModel.logger.warn(
 							"Using the original version of cellHTS2, because a problem has occured: "
 									+ e.getMessage(), e);
 				}
@@ -543,7 +489,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			outDirs = computeOutDirs(normMethods);
 			double completed = 0.01;
 			// logger.debug(conn.eval("table(wellAnno(x))"));
-			logger.debug(conn.eval("state(x)"));
+			CellHTS2NodeModel.logger.debug(conn.eval("state(x)"));
 			exec.checkCanceled();
 			final String additionalParams = newVersion ? ", channels="
 					+ createChannelList(parametersModel.getIncludeList())
@@ -555,7 +501,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					.createDataContainer(new DataTableSpec(computeTopTableSpec(
 							inData[0].getDataTableSpec(), true)));
 			final BufferedDataContainer aggregate = exec
-					.createDataContainer(aggregateValuesSpec);
+					.createDataContainer(CellHTS2NodeModel.aggregateValuesSpec);
 			int rowStart = 1;
 			for (final String normalize : normMethods) {
 				exec.checkCanceled();
@@ -564,21 +510,22 @@ public class CellHTS2NodeModel extends NodeModel {
 					plateConfiguration(inData[1], inData[2], inData[3], conn,
 							wellCount, plateCount, normalize);
 				} catch (final Exception e) {
-					logger.fatal(
+					CellHTS2NodeModel.logger.fatal(
 							"Unable to set the configuration of the plates", e);
 					throw e;
 				}
 				try {
 					normalisePlates(conn, normalize);
 				} catch (final Exception e) {
-					logger.fatal("Problem with normalization step", e);
+					CellHTS2NodeModel.logger.fatal(
+							"Problem with normalization step", e);
 					throw e;
 				}
 				exec.checkCanceled();
 				try {
 					annotate(conn, inData[0], replicateIdx, plateIdx);
 				} catch (final Exception e) {
-					logger.warn("Annotation failed.", e);
+					CellHTS2NodeModel.logger.warn("Annotation failed.", e);
 				}
 				exec.checkCanceled();
 				try {
@@ -586,8 +533,9 @@ public class CellHTS2NodeModel extends NodeModel {
 							aggregate, normalize, parametersModel
 									.getIncludeList());
 				} catch (final Exception e) {
-					logger.warn("Problem querying overall statistics. "
-							+ e.getMessage(), e);
+					CellHTS2NodeModel.logger.warn(
+							"Problem querying overall statistics. "
+									+ e.getMessage(), e);
 				}
 				exec.checkCanceled();
 				final String outDir = outDirs.get(normalize);
@@ -601,7 +549,8 @@ public class CellHTS2NodeModel extends NodeModel {
 								.voidEval("xsc <- scoreReplicates(xn, sign=\"+\", method=\""
 										+ scoreModel.getStringValue() + "\")");
 					} catch (final Exception e) {
-						logger.fatal("scoring the replicates failed", e);
+						CellHTS2NodeModel.logger.fatal(
+								"scoring the replicates failed", e);
 						throw e;
 					}
 					exec.checkCanceled();
@@ -613,7 +562,8 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ (newVersion ? ", method=\"per-channel\""
 												: "") + ")");
 					} catch (final Exception e) {
-						logger.fatal("Summarizing the replicates failed.", e);
+						CellHTS2NodeModel.logger.fatal(
+								"Summarizing the replicates failed.", e);
 						throw e;
 					}
 					try {
@@ -630,7 +580,8 @@ public class CellHTS2NodeModel extends NodeModel {
 						// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
 						exec.checkCanceled();
 					} catch (final Exception e) {
-						logger.fatal("Problem writing the results", e);
+						CellHTS2NodeModel.logger.fatal(
+								"Problem writing the results", e);
 						throw e;
 					}
 					final File tempFile = File.createTempFile("topTable",
@@ -682,8 +633,8 @@ public class CellHTS2NodeModel extends NodeModel {
 						values.add(varianceAdjustmentCell);
 						values.add(scoreCell);
 						values.add(summariseCell);
-						computeTableValue(topTable.asList(), row,
-								replicateCount, Collections
+						CellHTS2NodeModel.computeTableValue(topTable.asList(),
+								row, replicateCount, Collections
 										.singletonList(values), false, false,
 								stats, null, parametersModel.getIncludeList(),
 								additionalColumns);
@@ -716,9 +667,9 @@ public class CellHTS2NodeModel extends NodeModel {
 							values.add(summariseCell);
 							rows.add(values);
 						}
-						computeTableValue(topTable.asList(), row,
-								replicateCount, rows, true, true, stats, null,
-								parametersModel.getIncludeList(),
+						CellHTS2NodeModel.computeTableValue(topTable.asList(),
+								row, replicateCount, rows, true, true, stats,
+								null, parametersModel.getIncludeList(),
 								additionalColumns);
 						for (int repl = 0; repl < replicateCount; ++repl) {
 							replicates.addRowToTable(new DefaultRow(Misc
@@ -752,7 +703,8 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ additionalParams
 										+ ")");
 					} catch (final Exception e) {
-						logger.fatal("Problem writing the results", e);
+						CellHTS2NodeModel.logger.fatal(
+								"Problem writing the results", e);
 						throw e;
 					}
 				}
@@ -772,12 +724,10 @@ public class CellHTS2NodeModel extends NodeModel {
 									+ "\n" + "");
 					writer.append("<table><th><td>method</td></th>");
 					for (final String normMethod : normMethods) {
-						writer.append("<tr><td><abbr title=\"").append(
-								explanationOfNormalisationMethods
-										.get(normMethod)).append("\">").append(
-								normMethod)
-								.append("</abbr></td><td><a href=\"").append(
-										normMethod).append("/index.html\">")
+						writer.append("<tr><td>")
+
+						.append(normMethod).append("</td><td><a href=\"")
+								.append(normMethod).append("/index.html\">")
 								.append(normMethod).append("</a></td></tr>");
 					}
 					writer.append("</table></BODY></HTML>");
@@ -786,8 +736,9 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 			}
 			for (final String normMethod : normMethods) {
-				writePlateList(outDirs.get(normMethod) + File.separatorChar
-						+ "in", plateCount, replicateCount, paramCount);
+				CellHTS2NodeModel.writePlateList(outDirs.get(normMethod)
+						+ File.separatorChar + "in", plateCount,
+						replicateCount, paramCount);
 			}
 			// conn.shutdown();
 			// conn.close();
@@ -796,10 +747,10 @@ public class CellHTS2NodeModel extends NodeModel {
 			replicates.close();
 			aggregate.close();
 			final BufferedDataContainer configuration = exec
-					.createDataContainer(configurationSpec);
+					.createDataContainer(CellHTS2NodeModel.configurationSpec);
 			configuration.close();
 			final BufferedDataContainer outputFolders = exec
-					.createDataContainer(outputFolderSpec);
+					.createDataContainer(CellHTS2NodeModel.outputFolderSpec);
 			{
 				int i = 0;
 				for (final String outFolder : outDirs.values()) {
@@ -991,8 +942,8 @@ public class CellHTS2NodeModel extends NodeModel {
 				writer.close();
 			}
 		} catch (final IOException e) {
-			logger.warn("Unable to write Platelist.txt file to: " + dir + ".",
-					e);
+			CellHTS2NodeModel.logger.warn(
+					"Unable to write Platelist.txt file to: " + dir + ".", e);
 		}
 	}
 
@@ -1004,7 +955,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		final String experiment = experimentNameModel.getStringValue();
 		final boolean isMultiplicative = isMultiplicativeModel
 				.getBooleanValue();
-		return computeOutDirs(normMethods, pattern,
+		return CellHTS2NodeModel.computeOutDirs(normMethods, pattern,
 				baseOutDir.endsWith("/") ? baseOutDir : baseOutDir + "/",
 				params, experiment, isMultiplicative);
 	}
@@ -1164,7 +1115,7 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	private String[] computeNormMethods() {
 		final String normMethod = normMethodModel.getStringValue();
-		return computeNormMethods(normMethod);
+		return CellHTS2NodeModel.computeNormMethods(normMethod);
 	}
 
 	/**
@@ -1175,10 +1126,11 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	static String[] computeNormMethods(final String normMethod) {
 		final String[] normMethods;
-		if (normMethod.equals(POSSIBLE_NORMALISATION_METHODS[0])) {
-			normMethods = new String[POSSIBLE_NORMALISATION_METHODS.length - 1];
-			System.arraycopy(POSSIBLE_NORMALISATION_METHODS, 1, normMethods, 0,
-					normMethods.length);
+		if (normMethod
+				.equals(CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[0])) {
+			normMethods = new String[CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS.length - 1];
+			System.arraycopy(CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS,
+					1, normMethods, 0, normMethods.length);
 		} else {
 			normMethods = new String[] { normMethod };
 		}
@@ -1257,7 +1209,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			sb.setLength(sb.length() - 2);
 			sb.append("))");
-			logger.debug(sb);
+			CellHTS2NodeModel.logger.debug(sb);
 			conn.voidEval(sb.toString());
 			// conn.voidEval("geneIDs=conf");
 			// conn
@@ -1300,8 +1252,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	private void normalisePlates(final RConnection conn, final String normalise)
 			throws RserveException {
 		final String varianceAdjust = scaleModel.getStringValue().equals(
-				POSSIBLE_SCALE[1]) ? "byPlate" : scaleModel.getStringValue()
-				.equals(POSSIBLE_SCALE[2]) ? "byExperiment" : "none";
+				CellHTS2NodeModel.POSSIBLE_SCALE[1]) ? "byPlate"
+				: scaleModel.getStringValue().equals(
+						CellHTS2NodeModel.POSSIBLE_SCALE[2]) ? "byExperiment"
+						: "none";
 		final String normMethod = normalise;
 		final String scaleMethod = isMultiplicativeModel.getBooleanValue() ? "multiplicative"
 				: "additive";
@@ -1343,13 +1297,14 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ "    for (channel in 1:" + paramCount + ") {\n"
 					+ "				start = (plate - 1) * (" + replicateCount
 					* paramCount * wellCount + ") + " + "(replicate -1) * "
-					+ (paramCount * wellCount) + " + (channel - 1) * "
+					+ paramCount * wellCount + " + (channel - 1) * "
 					+ wellCount + " + 1\n" + "      xraw[1:" + wellCount
 					+ ", plate, replicate, channel]=rawInput[start:(start+"
 					+ wellCount + "-1)]}";
-			logger.debug(command);
+			CellHTS2NodeModel.logger.debug(command);
 			conn.voidEval(command);
-			logger.debug(conn.eval("dim(xraw)").toDebugString());
+			CellHTS2NodeModel.logger.debug(conn.eval("dim(xraw)")
+					.toDebugString());
 			createChannelList(parameters);
 			// conn.voidEval(" dat = lapply(seq_len(" + paramCount
 			// + "), function(ch) \n" + " matrix(xraw[,,,ch], ncol="
@@ -1358,17 +1313,19 @@ public class CellHTS2NodeModel extends NodeModel {
 			// + "), sep=\"\")");
 			final String createDat = "  dat = lapply(seq_len(" + paramCount
 					+ "), function(ch) \n" + "    matrix(xraw[,,,ch], ncol="
-					+ replicateCount + ", nrow=" + (wellCount * plateCount)
+					+ replicateCount + ", nrow=" + wellCount * plateCount
 					+ "))\n" + "  names(dat) = " + "paste(\"ch\", seq_len("
 					+ paramCount + "), sep=\"\")"; // + channelsSb;
 			conn.voidEval(createDat);
 		} catch (final RserveException e) {
-			logger.fatal("Problem occured preparing the data.", e);
+			CellHTS2NodeModel.logger.fatal(
+					"Problem occured preparing the data.", e);
 		}
 		try {
 			conn.voidEval("library(\"cellHTS2\")");
 		} catch (final RserveException e) {
-			logger.fatal("Unable to load cellHTS2 library", e);
+			CellHTS2NodeModel.logger
+					.fatal("Unable to load cellHTS2 library", e);
 			throw e;
 		}
 		try {
@@ -1389,7 +1346,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ "         channel = factor(rep(\"_ALL_\", 2L), levels=c(names(dat), \"_ALL_\")),\n"
 					+ "         row.names = c(\"replicate\", \"assay\"),\n"
 					+ "         stringsAsFactors = FALSE))\n";
-			logger.debug(pdataCommand);
+			CellHTS2NodeModel.logger.debug(pdataCommand);
 			conn.voidEval(pdataCommand);
 			conn.voidEval("  dimPlate = c(nrow=" + wellRowCount + ", ncol="
 					+ wellColCount + ")");
@@ -1414,15 +1371,15 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ "      labelDescription = c(\"Plate number\", \"Well ID\", \"Well annotation\"),\n"
 					+ "      row.names = c(\"plate\", \"well\", \"controlStatus\"),\n"
 					+ "         stringsAsFactors = FALSE))";
-			logger.debug(fdataCommand);
+			CellHTS2NodeModel.logger.debug(fdataCommand);
 			conn.voidEval(fdataCommand);
 
 			// conn.eval("Filename = vector(mode=\"character\", length="
 			// + (plateCount * replicateCount * paramCount) + ")");
-			conn.voidEval("Filename = rep(\"test\", "
-					+ (plateCount * replicateCount * paramCount) + ")");
-			conn.voidEval("pd = matrix(nrow="
-					+ (plateCount * replicateCount * paramCount) + ", ncol=3)");
+			conn.voidEval("Filename = rep(\"test\", " + plateCount
+					* replicateCount * paramCount + ")");
+			conn.voidEval("pd = matrix(nrow=" + plateCount * replicateCount
+					* paramCount + ", ncol=3)");
 			conn.voidEval("  intensityFiles = vector(mode=\"list\", length="
 					+ plateCount * replicateCount * paramCount + ")");
 			conn.voidEval("wells_internal=vector(length=" + wellCount + ")\n"
@@ -1442,14 +1399,15 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ paramCount
 					+ ")\n"
 					+ "      Filename[[(pl-1) * "
-					+ (replicateCount * paramCount)
+					+ replicateCount
+					* paramCount
 					+ " + (re - 1) * "
 					+ paramCount
 					+ " + ch]]= paste(paste(\"data\", formatC(pl, flag=\"0\", width=3), re, ch, sep=\"-\"), \"txt\", sep=\".\")";// paste(paste(\"data\",
 			// formatC(pl,
 			// flag=\"0\", width=3), re, ch,
 			// sep=\"-\"), \"txt\", sep=\".\")
-			logger.debug(fillFileNames);
+			CellHTS2NodeModel.logger.debug(fillFileNames);
 			conn.voidEval(fillFileNames);
 			// System.out.println(conn.eval(
 			// "paste(capture.output(print(Filename)),collapse=\"\\n\")")
@@ -1457,28 +1415,29 @@ public class CellHTS2NodeModel extends NodeModel {
 			final String fillPd = "for (pl in 1:" + plateCount + ")"
 					+ "  for (re in 1:" + replicateCount + ")"
 					+ "    for (ch in 1:" + paramCount + ") {"
-					+ "       row = (pl-1) * " + (replicateCount * paramCount)
+					+ "       row = (pl-1) * " + replicateCount * paramCount
 					+ " + (re - 1) * " + paramCount + " + ch\n"
 					+ "      pd[row,1] = pl\n" + "      pd[row,2] = re\n"
 					+ "      pd[row,3] = ch\n"
 					+ "      intensityFiles[[row]]=paste(\"" + experimentName
 					+ "\", wells_internal, xraw[, pl, re, ch])\n" + "}";
-			logger.debug(fillPd);
+			CellHTS2NodeModel.logger.debug(fillPd);
 			conn.voidEval(fillPd);
 
 			conn.voidEval("  names(intensityFiles) = Filename");
-			conn.voidEval("status = rep(\"OK\", "
-					+ (plateCount * replicateCount * paramCount) + ")");
+			conn.voidEval("status = rep(\"OK\", " + plateCount * replicateCount
+					* paramCount + ")");
 			final String createXCommand = "x = new(\"cellHTS\", \n"
 					+ "   assayData = adata,\n"
 					+ "   phenoData = pdata,\n"
 					+ "   featureData = fdata,\n"
 					+ "   plateList = cbind(Filename, status=I(status), data.frame(Plate=pd[,1], Replicate=pd[,2], Channel=pd[,3])),\n"
 					+ "   intensityFiles=intensityFiles)\n";
-			logger.debug(createXCommand);
+			CellHTS2NodeModel.logger.debug(createXCommand);
 			conn.voidEval(createXCommand);
 		} catch (final RserveException e) {
-			logger.fatal("Problem creating the raw object", e);
+			CellHTS2NodeModel.logger
+					.fatal("Problem creating the raw object", e);
 		}
 		// final REXP xExpr = conn.eval("x");
 		// System.out.println(xExpr.toDebugString());
@@ -1498,7 +1457,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			final String errorMessage) throws RserveException {
 		if (!((REXPLogical) conn.eval("validObject(" + objectName + ")"))
 				.isTrue()[0]) {
-			logger.error(errorMessage);
+			CellHTS2NodeModel.logger.error(errorMessage);
 			throw new IllegalStateException(errorMessage);
 		}
 	}
@@ -1521,8 +1480,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
-	 * Sets the plate configuration and makes {@code x}'s state to
-	 * {@code configured}.
+	 * Sets the plate configuration and makes {@code x}'s state to {@code
+	 * configured}.
 	 * 
 	 * @param table
 	 * @param descTable
@@ -1567,7 +1526,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		sb.append(")");
 		conn.voidEval(sb.toString());
 		conn.voidEval("pcontent = tolower(conf$Content)  ## ignore case!");
-		conn.eval("wAnno = factor(rep(NA, " + (plateCount * wellCount)
+		conn.eval("wAnno = factor(rep(NA, " + plateCount * wellCount
 				+ "), levels=unique(pcontent))");
 		conn.voidEval("conf[conf==\"*\"] <- \" *\"");
 		conn
@@ -1609,7 +1568,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			if (screenLogTable.getRowCount() > 0) {
 				final String createScreenLog = readTableTo(screenLogTable,
 						"slog");
-				logger.debug(createScreenLog);
+				CellHTS2NodeModel.logger.debug(createScreenLog);
 				conn.voidEval(createScreenLog);
 				conn
 						.voidEval("		      for(i in c(\"Sample\", \"Channel\")) {\n"
@@ -1633,7 +1592,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			conn.voidEval("x@screenLog = slog");// TODO process screenlog!
 		} catch (final Exception e) {
-			logger
+			CellHTS2NodeModel.logger
 					.warn(
 							"Unable to use the screen log data. Please review your settings related to the screenlog file.",
 							e);
@@ -1724,9 +1683,13 @@ public class CellHTS2NodeModel extends NodeModel {
 		int col = 0;
 		for (final DataColumnSpec spec : table.getDataTableSpec()) {
 			sb.append(spec.getName()).append("=c(");
+			final boolean doubleType = DoubleCell.TYPE.isASuperTypeOf(spec
+					.getType());
 			for (final DataRow row : table) {
 				final DataCell cell = row.getCell(col);
-				if (cell instanceof StringCell) {
+				if (cell.isMissing()) {
+					sb.append(doubleType ? "NA" : "");
+				} else if (cell instanceof StringCell) {
 					final StringCell stringCell = (StringCell) cell;
 					sb.append('"').append(stringCell.getStringValue()).append(
 							'"');
@@ -1799,8 +1762,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param table
 	 * @param strings
 	 * @return A {@link Map} keys of {@code strings}. The values are
-	 *         representing the ({@link StringCell}) last values of the 3<sup>rd</sup>
-	 *         column if in the second there is the key.
+	 *         representing the ({@link StringCell}) last values of the
+	 *         3<sup>rd</sup> column if in the second there is the key.
 	 */
 	private Map<String, String> findValues(final BufferedDataTable table,
 			final String... strings) {
@@ -1891,8 +1854,8 @@ public class CellHTS2NodeModel extends NodeModel {
 					/*
 					 * if (firstIt.hasNext()) { if
 					 * (!spec.getType().equals(DoubleCell.TYPE)) { throw new
-					 * InvalidSettingsException( "Illegal type of parameter"); } }
-					 * else
+					 * InvalidSettingsException( "Illegal type of parameter"); }
+					 * } else
 					 */if (!spec.getType().equals(DoubleCell.TYPE)
 							&& !spec.getType().equals(StringCell.TYPE)) {
 						throw new InvalidSettingsException(
@@ -1944,7 +1907,9 @@ public class CellHTS2NodeModel extends NodeModel {
 		final DataTableSpec repTableSpec = new DataTableSpec(
 				computeTopTableSpec(inSpecs[0], true));
 		return new DataTableSpec[] { sumTableSpec, repTableSpec,
-				aggregateValuesSpec, configurationSpec, outputFolderSpec };
+				CellHTS2NodeModel.aggregateValuesSpec,
+				CellHTS2NodeModel.configurationSpec,
+				CellHTS2NodeModel.outputFolderSpec };
 	}
 
 	private int checkColumn(final DataTableSpec[] inSpecs, final String colName)
@@ -1991,8 +1956,8 @@ public class CellHTS2NodeModel extends NodeModel {
 								.getPreferenceStore()
 								.getString(PreferenceConstants.RESULT_COL_ORDER));
 		final DataColumnSpec[] additionalColumns = selectAdditionalColumns(inputSpecs);
-		computeTableSpec(ret, replicateTable, stats, null, parametersModel
-				.getIncludeList(), additionalColumns);
+		CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats, null,
+				parametersModel.getIncludeList(), additionalColumns);
 		return ret.toArray(new DataColumnSpec[ret.size()]);
 	}
 
@@ -2052,16 +2017,17 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				assert nextEnd > 0 : "missing group end: " + stats;
 				for (final String param : selectedParameters) {
-					computeTableValue(topTable, row, numReplicates, rets,
-							replicateTable, turnReplicates, stats.subList(1,
-									nextEnd), param, selectedParameters,
-							columnSpecs);
+					CellHTS2NodeModel.computeTableValue(topTable, row,
+							numReplicates, rets, replicateTable,
+							turnReplicates, stats.subList(1, nextEnd), param,
+							selectedParameters, columnSpecs);
 				}
 				if (nextEnd + 1 < stats.size()) {
-					computeTableValue(topTable, row, numReplicates, rets,
-							replicateTable, turnReplicates, stats.subList(
-									nextEnd + 1, stats.size()), ch,
-							selectedParameters, columnSpecs);
+					CellHTS2NodeModel.computeTableValue(topTable, row,
+							numReplicates, rets, replicateTable,
+							turnReplicates, stats.subList(nextEnd + 1, stats
+									.size()), ch, selectedParameters,
+							columnSpecs);
 				}
 				break;
 			}
@@ -2074,16 +2040,17 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				assert nextEnd > 0 : "missing group end: " + stats;
 				if (replicateTable) {
-					computeTableValue(topTable, row, numReplicates, rets,
-							replicateTable, turnReplicates, stats.subList(1,
-									nextEnd - 1), ch, selectedParameters,
-							columnSpecs);
+					CellHTS2NodeModel.computeTableValue(topTable, row,
+							numReplicates, rets, replicateTable,
+							turnReplicates, stats.subList(1, nextEnd - 1), ch,
+							selectedParameters, columnSpecs);
 				}
 				if (nextEnd + 1 < stats.size()) {
-					computeTableValue(topTable, row, numReplicates, rets,
-							replicateTable, turnReplicates, stats.subList(
-									nextEnd + 1, stats.size()), ch,
-							selectedParameters, columnSpecs);
+					CellHTS2NodeModel.computeTableValue(topTable, row,
+							numReplicates, rets, replicateTable,
+							turnReplicates, stats.subList(nextEnd + 1, stats
+									.size()), ch, selectedParameters,
+							columnSpecs);
 				}
 				break;
 			default:
@@ -2097,9 +2064,9 @@ public class CellHTS2NodeModel extends NodeModel {
 							.get(columnSpec.getName())).asStrings()[row]));
 				}
 			}
-			computeTableValue(topTable, row, numReplicates, rets,
-					replicateTable, turnReplicates, stats.subList(1, stats
-							.size()), ch, selectedParameters, columnSpecs);
+			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
+					rets, replicateTable, turnReplicates, stats.subList(1,
+							stats.size()), ch, selectedParameters, columnSpecs);
 			break;
 		case CHANNELS:
 			for (final List<DataCell> ret : rets) {
@@ -2134,9 +2101,9 @@ public class CellHTS2NodeModel extends NodeModel {
 					break;
 				}
 			}
-			computeTableValue(topTable, row, numReplicates, rets,
-					replicateTable, turnReplicates, stats.subList(1, stats
-							.size()), ch, selectedParameters, columnSpecs);
+			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
+					rets, replicateTable, turnReplicates, stats.subList(1,
+							stats.size()), ch, selectedParameters, columnSpecs);
 			break;
 		case REPLICATES:
 			if (replicateTable) {
@@ -2158,9 +2125,9 @@ public class CellHTS2NodeModel extends NodeModel {
 				// .getDisplayText(), getType(possibleStatistics))
 				// .createSpec());
 			}
-			computeTableValue(topTable, row, numReplicates, rets,
-					replicateTable, turnReplicates, stats.subList(1, stats
-							.size()), ch, selectedParameters, columnSpecs);
+			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
+					rets, replicateTable, turnReplicates, stats.subList(1,
+							stats.size()), ch, selectedParameters, columnSpecs);
 			break;
 		case CHANNELS_AND_REPLICATES:
 			if (replicateTable) {
@@ -2193,9 +2160,9 @@ public class CellHTS2NodeModel extends NodeModel {
 					// .createSpec());
 				}
 			}
-			computeTableValue(topTable, row, numReplicates, rets,
-					replicateTable, turnReplicates, stats.subList(1, stats
-							.size()), ch, selectedParameters, columnSpecs);
+			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
+					rets, replicateTable, turnReplicates, stats.subList(1,
+							stats.size()), ch, selectedParameters, columnSpecs);
 			break;
 		case SINGLE:
 			int repl = 0;
@@ -2247,9 +2214,9 @@ public class CellHTS2NodeModel extends NodeModel {
 				// .getDisplayText(), getType(possibleStatistics))
 				// .createSpec());
 			}
-			computeTableValue(topTable, row, numReplicates, rets,
-					replicateTable, turnReplicates, stats.subList(1, stats
-							.size()), ch, selectedParameters, columnSpecs);
+			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
+					rets, replicateTable, turnReplicates, stats.subList(1,
+							stats.size()), ch, selectedParameters, columnSpecs);
 			break;
 		default:
 			break;
@@ -2269,8 +2236,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	private static void computeTableSpec(final List<DataColumnSpec> ret,
 			final boolean replicateTable, final List<PossibleStatistics> stats,
-			final @Nullable
-			String ch, final List<String> selectedParameters,
+			final @Nullable String ch, final List<String> selectedParameters,
 			final DataColumnSpec... columnSpecs) {
 		if (stats.isEmpty()) {
 			return;
@@ -2288,13 +2254,14 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				assert nextEnd > 0 : "missing group end: " + stats;
 				for (final String param : selectedParameters) {
-					computeTableSpec(ret, replicateTable, stats.subList(1,
-							nextEnd), param, selectedParameters, columnSpecs);
+					CellHTS2NodeModel.computeTableSpec(ret, replicateTable,
+							stats.subList(1, nextEnd), param,
+							selectedParameters, columnSpecs);
 				}
 				if (nextEnd + 1 < stats.size()) {
-					computeTableSpec(ret, replicateTable, stats.subList(
-							nextEnd + 1, stats.size()), ch, selectedParameters,
-							columnSpecs);
+					CellHTS2NodeModel.computeTableSpec(ret, replicateTable,
+							stats.subList(nextEnd + 1, stats.size()), ch,
+							selectedParameters, columnSpecs);
 				}
 				break;
 			}
@@ -2307,13 +2274,14 @@ public class CellHTS2NodeModel extends NodeModel {
 				}
 				assert nextEnd > 0 : "missing group end: " + stats;
 				if (replicateTable) {
-					computeTableSpec(ret, replicateTable, stats.subList(1,
-							nextEnd - 1), ch, selectedParameters, columnSpecs);
+					CellHTS2NodeModel.computeTableSpec(ret, replicateTable,
+							stats.subList(1, nextEnd - 1), ch,
+							selectedParameters, columnSpecs);
 				}
 				if (nextEnd + 1 < stats.size()) {
-					computeTableSpec(ret, replicateTable, stats.subList(
-							nextEnd + 1, stats.size()), ch, selectedParameters,
-							columnSpecs);
+					CellHTS2NodeModel.computeTableSpec(ret, replicateTable,
+							stats.subList(nextEnd + 1, stats.size()), ch,
+							selectedParameters, columnSpecs);
 				}
 				break;
 			default:
@@ -2324,33 +2292,35 @@ public class CellHTS2NodeModel extends NodeModel {
 			for (final DataColumnSpec columnSpec : columnSpecs) {
 				ret.add(columnSpec);
 			}
-			computeTableSpec(ret, replicateTable, stats
+			CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
 			break;
 		case CHANNELS:
 			ret.add(new DataColumnSpecCreator(ModelBuilder
 					.createPrefix(possibleStatistics)
-					+ ch, getType(possibleStatistics)).createSpec());
-			computeTableSpec(ret, replicateTable, stats
+					+ ch, CellHTS2NodeModel.getType(possibleStatistics))
+					.createSpec());
+			CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
 			break;
 		case REPLICATES:
 			if (replicateTable) {
 				ret.add(new DataColumnSpecCreator(possibleStatistics
-						.getDisplayText(), getType(possibleStatistics))
-						.createSpec());
+						.getDisplayText(), CellHTS2NodeModel
+						.getType(possibleStatistics)).createSpec());
 			}
-			computeTableSpec(ret, replicateTable, stats
+			CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
 			break;
 		case CHANNELS_AND_REPLICATES:
 			ret.add(new DataColumnSpecCreator(ModelBuilder
 					.createPrefix(possibleStatistics)
-					+ ch, getType(possibleStatistics)).createSpec());
-			computeTableSpec(ret, replicateTable, stats
+					+ ch, CellHTS2NodeModel.getType(possibleStatistics))
+					.createSpec());
+			CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
 			break;
@@ -2358,10 +2328,10 @@ public class CellHTS2NodeModel extends NodeModel {
 			if (possibleStatistics != PossibleStatistics.REPLICATE
 					|| replicateTable) {
 				ret.add(new DataColumnSpecCreator(possibleStatistics
-						.getDisplayText(), getType(possibleStatistics))
-						.createSpec());
+						.getDisplayText(), CellHTS2NodeModel
+						.getType(possibleStatistics)).createSpec());
 			}
-			computeTableSpec(ret, replicateTable, stats
+			CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats
 					.subList(1, stats.size()), ch, selectedParameters,
 					columnSpecs);
 			break;
@@ -2458,7 +2428,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		final File file = new File(internDir, OUT_DIRS);
+		final File file = new File(internDir, CellHTS2NodeModel.OUT_DIRS);
 		if (file.canRead()) {
 			final FileInputStream fis = new FileInputStream(file);
 			try {
@@ -2502,7 +2472,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		final File file = new File(internDir, OUT_DIRS);
+		final File file = new File(internDir, CellHTS2NodeModel.OUT_DIRS);
 		final FileOutputStream fos = new FileOutputStream(file);
 		try {
 			final OutputStreamWriter writer = new OutputStreamWriter(fos,
@@ -2529,8 +2499,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
-	 * @return the outDirs (A {@link Map} with keys from the {@code normMethods},
-	 *         and values as folder names (absolute, or relative).)
+	 * @return the outDirs (A {@link Map} with keys from the {@code normMethods}
+	 *         , and values as folder names (absolute, or relative).)
 	 * @see #computeOutDirs(String[], String, String, List, String, boolean)
 	 */
 	public Map<String, String> getOutDirs() {
