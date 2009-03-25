@@ -92,7 +92,13 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 		/** The standard deviation value */
 		stdev("Standard Deviation"),
 		/** The median absolute deviation value */
-		mad("Median Absolute Deviation");
+		mad("Median Absolute Deviation"),
+		/** Q3 - Q1 */
+		iqr("Interquartile Range"),
+		/** The lower, first quartile */
+		q1("First Quartile"),
+		/** The upper, third quartile */
+		q3("Third Quartile");
 
 		private final String displayText;
 
@@ -238,6 +244,15 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 				this.modellable = modellable;
 				this.action = action;
 				setEnabled(action.isEnabled());
+				if (action instanceof AbstractAction) {
+					final AbstractAction a = (AbstractAction) action;
+					for (final Object key : a.getKeys()) {
+						if (key instanceof String) {
+							final String k = (String) key;
+							putValue(k, action.getValue(k));
+						}
+					}
+				}
 			}
 
 			@Override
@@ -1067,9 +1082,9 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			setModel(metaModel);
 			connectButton = new JCheckBox();
 			setLayout(new GridLayout(1, 0));
-			add(new JLabel(stat.name()));
+			// add(new JLabel(stat.name()));
 			final JButton general = new JButton(new GeneralSetter(
-					connectButton, Line.this, new AbstractAction() {
+					connectButton, Line.this, new AbstractAction(stat.name()) {
 						private static final long serialVersionUID = 77194926481962404L;
 
 						@Override
@@ -1224,10 +1239,10 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 				.getColour(ColourPreferenceConstants.MIDDLE_COLOUR);
 		final Color defaultHighColor = ComplexModelFactory
 				.getColour(ColourPreferenceConstants.UP_COLOUR);
-		titles.add(new JLabel("Statistics"));
+		// titles.add(new JLabel("Statistics"));
 		// titles.add(new JLabel(""));
 		titles.add(new JButton(new Line.GeneralSetter(connectNeighbours, this,
-				new AbstractAction("") {
+				new AbstractAction("Statistics") {
 					private static final long serialVersionUID = 3829531426621904766L;
 
 					@Override

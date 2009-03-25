@@ -89,6 +89,17 @@ public class ComplexModel implements ColourComputer, Serializable {
 			if (higherEntry == null && lowerEntry != null) {
 				return lowerEntry.getValue().getRight();
 			}
+			final Entry<Interval<Double>, Color> higherEntryDisc = discretes
+					.higherEntry(valInterval);
+			final Entry<Interval<Double>, Color> lowerEntryDisc = discretes
+					.lowerEntry(valInterval);
+			if (higherEntryDisc != null && lowerEntryDisc != null) {
+				// Do nothing, in the middle parts we do not want colour things.
+			} else if (higherEntryDisc != null) {
+				return higherEntryDisc.getValue();
+			} else if (lowerEntryDisc != null) {
+				return lowerEntryDisc.getValue();
+			}
 		}
 		return Color.BLACK;
 	}

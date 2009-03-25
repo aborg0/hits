@@ -60,7 +60,7 @@ public class ComplexControl extends JButton implements
 	private static final String NO_TEXT = "\u00a0";
 
 	private ComplexModel model;
-	private final ComplexSample sample = ComplexSample.create(true);
+	private final ComplexLegend sample = new ComplexLegend();
 	private final JCheckBox connectButton;
 
 	private static final class ComplexColourPanel extends JPanel implements
@@ -686,8 +686,8 @@ public class ComplexControl extends JButton implements
 		setModel(model);
 		final GridBagConstraints sampleConstraint = new GridBagConstraints();
 		sampleConstraint.fill = GridBagConstraints.VERTICAL;
-		sample.setPreferredSize(new Dimension(30, 70));
-		sample.setMinimumSize(new Dimension(20, 50));
+		sample.setPreferredSize(new Dimension(70, 70));
+		sample.setMinimumSize(new Dimension(60, 50));
 		add(sample, sampleConstraint);
 	}
 
@@ -700,7 +700,8 @@ public class ComplexControl extends JButton implements
 	}
 
 	private void update() {
-		sample.setModel(model);
+		sample.setModel(model, Orientation.East);
+		sample.repaint();
 	}
 
 	@Override
