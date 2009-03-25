@@ -14,6 +14,7 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
 	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory"/>
+   	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly"/>
     </extension>
 	<extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode
