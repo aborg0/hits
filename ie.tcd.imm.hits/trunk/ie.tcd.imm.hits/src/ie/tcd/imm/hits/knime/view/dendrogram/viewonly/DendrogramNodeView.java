@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
@@ -13,20 +14,29 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 
 import org.knime.base.node.mine.cluster.hierarchical.HierarchicalClusterNodeView;
 import org.knime.base.node.viz.plotter.AbstractDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.node.DefaultVisualizationNodeView;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.node.NodeModel;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -41,6 +51,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class DendrogramNodeView extends DefaultVisualizationNodeView {
+
+	private static final String DATA_MENU = "Data";
 
 	private enum ImageType {
 		png, svg;
@@ -149,6 +161,114 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		}
 	}
 
+	private static enum DataOrder {
+		/** no selection, only from second */
+		OnlySecond("Columns from second port (no indication of first)"),
+		/** no selection, only from first */
+		OnlyFirst("Columns only from first port (present in second too)", true),
+		/** first in front, commons are selected */
+		BothButFirstBefore(
+				"Columns only in first in front (all of the columns from second port)"),
+		/** second in front, commons are selected */
+		BothButSecondBefore(
+				"Columns only in second in front (all of the columns from second port)"),
+		/**
+		 * all of them in the order of second, only from second (commons
+		 * selected)
+		 */
+		BothInOrderOfSecond(
+				"Columns from second port (selecting the columns present in first)");
+		private final String name;
+		private final boolean selected;
+
+		private DataOrder(final String name, final boolean initiallySelected) {
+			this.name = name;
+			this.selected = initiallySelected;
+		}
+
+		private DataOrder(final String name) {
+			this(name, false);
+		}
+
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * @return the selected
+		 */
+		public boolean isSelected() {
+			return selected;
+		}
+	}
+
+	private class SelectData extends AbstractAction {
+		private static final long serialVersionUID = -3563827330967746913L;
+		private final HeatmapDendrogramPlotter plotter;
+		private final DataOrder order;
+
+		public SelectData(final String string,
+				final HeatmapDendrogramPlotter plotter, final DataOrder order) {
+			super(string);
+			this.plotter = plotter;
+			this.order = order;
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			if (((AbstractButton) e.getSource()).isSelected()) {
+				final List<String> visibleColumns = new ArrayList<String>();
+				final List<String> selectedColumns = new ArrayList<String>();
+				final DendrogramNodeModel nodeModel = (DendrogramNodeModel) getNodeModel();
+				final DataTableSpec origSpec = nodeModel.getOrigData()
+						.getDataTableSpec();
+				final List<String> origCols = new ArrayList<String>();
+				for (final DataColumnSpec spec : origSpec) {
+					if (spec.getType().isASuperTypeOf(IntCell.TYPE)) {
+						origCols.add(spec.getName());
+					}
+				}
+				final HeatmapDendrogramDrawingPane dp = (HeatmapDendrogramDrawingPane) plotter
+						.getDrawingPane();
+				switch (order) {
+				case BothInOrderOfSecond:
+					visibleColumns.addAll(origCols);
+					selectedColumns.addAll(nodeModel.getSelectedColumns());
+					break;
+				case BothButFirstBefore:
+					visibleColumns.addAll(origCols);
+					visibleColumns.removeAll(nodeModel.getSelectedColumns());
+					visibleColumns.addAll(0, nodeModel.getSelectedColumns());
+					selectedColumns.addAll(nodeModel.getSelectedColumns());
+					break;
+				case BothButSecondBefore:
+					visibleColumns.addAll(origCols);
+					visibleColumns.removeAll(nodeModel.getSelectedColumns());
+					visibleColumns.addAll(nodeModel.getSelectedColumns());
+					selectedColumns.addAll(nodeModel.getSelectedColumns());
+					break;
+				case OnlyFirst:
+					visibleColumns.addAll(nodeModel.getSelectedColumns());
+					if (!origCols.containsAll(visibleColumns)) {
+						visibleColumns.retainAll(origCols);
+					}
+					break;
+				case OnlySecond:
+					visibleColumns.addAll(origCols);
+					break;
+				default:
+					throw new UnsupportedOperationException(order.toString());
+				}
+				dp.setVisibleColumns(visibleColumns);
+				dp.setSelectedColumns(selectedColumns);
+				plotter.updatePaintModel();
+			}
+		}
+	}
+
 	/**
 	 * Adds a menu to the original view.
 	 * 
@@ -167,6 +287,17 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		final JMenuItem exportSVG = new JMenuItem(new SaveAs(
 				"Export view as SVG", heatmapDendrogramPlotter, ImageType.svg));
 		file.add(exportSVG);
+		final JMenu dataMenu = new JMenu(DATA_MENU);
+		final ButtonGroup group = new ButtonGroup();
+		for (final DataOrder order : DataOrder.values()) {
+			final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
+					order.name, order.selected);
+			menuItem.setAction(new SelectData(order.name,
+					heatmapDendrogramPlotter, order));
+			group.add(menuItem);
+			dataMenu.add(menuItem);
+		}
+		getJMenuBar().add(dataMenu);
 	}
 
 	@Override
@@ -174,5 +305,20 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		super.modelChanged();
 		((HeatmapDendrogramPlotter) getComponent())
 				.setRootNode(((DendrogramNodeModel) getNodeModel()).getRoot());
+		final JMenuBar menuBar = getJMenuBar();
+		for (int i = menuBar.getMenuCount(); i-- > 0;) {
+			final JMenu menu = menuBar.getMenu(i);
+			if (DATA_MENU.equals(menu.getText())) {
+				for (final Component c : menu.getMenuComponents()) {
+					if (c instanceof AbstractButton) {
+						final AbstractButton button = (AbstractButton) c;
+						if (button.isSelected()) {
+							button.getAction().actionPerformed(
+									new ActionEvent(button, 0, null));
+						}
+					}
+				}
+			}
+		}
 	}
 }

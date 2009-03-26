@@ -186,9 +186,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		super.setDataProvider(provider);
 		if (provider instanceof DendrogramNodeModel) {
 			final DendrogramNodeModel model = (DendrogramNodeModel) provider;
-			final Iterable<String> selectedColumns = model.getSelectedColumns();
-			((HeatmapDendrogramPlotterProperties) getProperties()).update(
-					selectedColumns, model.getRange());
+			((HeatmapDendrogramPlotterProperties) getProperties()).update(model
+					.getColumns(), model.getRange());
 			((HeatmapDendrogramDrawingPane) getDrawingPane())
 					.setNodeModel(model);
 		}
@@ -206,7 +205,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		}
 		final HeatmapDendrogramDrawingPane dp = (HeatmapDendrogramDrawingPane) getDrawingPane();
 		final int offset = dp.getMaxStringLength()
-				+ dp.getSelectedColumns().size() * dp.getCellWidth();
+				+ dp.getVisibleColumns().size() * dp.getCellWidth();
 
 		final double min = 0;
 		final double max = rootNode.getMaxDistance();
@@ -218,14 +217,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		getXAxis().getCoordinate().setPolicy(
 				directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
 						: DescendingNumericTickPolicyStrategy.ID);
-		// final int offset =
-		// getDataProvider().getDataArray(1).getDataTableSpec()
-		// .getNumColumns()
-		// * ((HeatmapDendrogramDrawingPane) getDrawingPane())
-		// .getCellWidth();
 		getXAxis().setStartTickOffset(offset);
 
-		// getYAxis().setStartTickOffset();
 		final Set<RowKey> rowKeys = new LinkedHashSet<RowKey>();
 		getRowKeys(rootNode, rowKeys);
 		final Set<DataCell> keys = new LinkedHashSet<DataCell>();
@@ -266,8 +259,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		if (getXAxis() == null || getYAxis() == null) {
 			updatePaintModel();
 		}
-		// getYAxis().setPreferredSize(
-		// new Dimension(150, getYAxis().getPreferredSize().height));
 		final BinaryTree<DendrogramPoint> tree = viewModel();
 		((DendrogramDrawingPane) getDrawingPane()).setRootNode(tree);
 		((HeatmapDendrogramDrawingPane) getDrawingPane())
@@ -286,9 +277,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		if (node.isLeaf()) {
 			final RowKey key = getKey(node);
 			ids.add(key);
-			/*
-			 * node.getLeafRowKey()/* .getLeafDataPoint().getKey()
-			 */
 			return;
 		}
 		getRowKeys(node.getFirstSubnode(), ids);
@@ -296,6 +284,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 
 	}
 
+	@Deprecated
 	private RowKey getKey(final DendrogramNode node) {
 		if (node.getLeafDataPoint() != null) {
 			return node.getLeafDataPoint().getKey();
@@ -312,9 +301,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		return key;
 	}
 
-	// @Override
 	public void setRootNode(final DendrogramNode root) {
-		// super.setRootNode(root);
 		rootNode = root;
 	}
 
@@ -339,19 +326,14 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		BinaryTreeNode<DendrogramPoint> viewNode;
 		// distinction between cluster node and leaf:
 		final Dimension dim = getDrawingPaneDimension();
-		// final int height = dim.height - (2 * OFFSET) - (m_dotSize / 2);
 		final int width = dim.width;
 		int x = (int) getXAxis().getCoordinate().calculateMappedValue(
 				new DoubleCell(node.getDist()), width);
 
 		final HeatmapDendrogramDrawingPane dp = (HeatmapDendrogramDrawingPane) getDrawingPane();
 		final int offset = dp.getMaxStringLength()
-				+ dp.getSelectedColumns().size() * dp.getCellWidth();
+				+ dp.getVisibleColumns().size() * dp.getCellWidth();
 
-		// x += getDataProvider().getDataArray(1).getDataTableSpec()
-		// .getNumColumns()
-		// * ((HeatmapDendrogramDrawingPane) getDrawingPane())
-		// .getCellWidth();
 		x += directionLeftToRight ? offset : -offset;
 		int y;
 		DendrogramPoint p;
@@ -442,7 +424,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 
 	@Override
 	public void clearSelection() {
-		// super.clearSelection();
 		selected.clear();
 	}
 

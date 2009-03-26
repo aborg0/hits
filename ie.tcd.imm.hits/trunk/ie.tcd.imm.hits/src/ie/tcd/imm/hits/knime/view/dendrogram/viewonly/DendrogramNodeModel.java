@@ -21,6 +21,7 @@ import org.knime.base.node.mine.cluster.hierarchical.view.ClusterViewNode;
 import org.knime.base.node.util.DataArray;
 import org.knime.base.node.util.DefaultDataArray;
 import org.knime.base.node.viz.plotter.DataProvider;
+import org.knime.base.node.viz.plotter.dendrogram.DendrogramNode;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -29,6 +30,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.container.ContainerTable;
 import org.knime.core.data.container.DataContainer;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -41,6 +43,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.PortUtil;
 
 /**
  * This is the model implementation of Dendrogram. Allows to create dendrogram
@@ -66,7 +69,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	private final Map<String, Map<StatTypes, Map<RangeType, Double>>> ranges = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
 
 	/** The selected columns. */
-	protected List<String> selectedColumns = new ArrayList<String>();
+	private final List<String> selectedColumns = new ArrayList<String>();
 
 	// private final SettingsModelBoolean rearrangeParameters = new
 	// SettingsModelBoolean(
@@ -95,14 +98,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	protected BufferedDataTable[] execute(final PortObject[] data,
 			final ExecutionContext exec) throws Exception {
 		selectedColumns.clear();
-		final DataTableSpec spec = (DataTableSpec) ((ClusterTreeModel) data[0])
-				.getSpec();
-		for (final DataColumnSpec colSpec : spec) {
-			if (colSpec.getType().isASuperTypeOf(colSpec.getType())) {
-				selectedColumns.add(colSpec.getName());
-			}
-		}
-		root = ((ClusterTreeModel) data[0]).getRoot();
+		setTreeModel((ClusterTreeModel) data[0]);
 		// if (rearrangeParameters.getBooleanValue()) {
 		// final HalfDoubleMatrix cache = new HalfDoubleMatrix(cols.size(),
 		// false);
@@ -137,6 +133,18 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 		return new BufferedDataTable[0];
 	}
 
+	private void setTreeModel(final ClusterTreeModel data) {
+		clusterTreeModel = data;
+		final DataTableSpec spec = (DataTableSpec) clusterTreeModel.getSpec();
+		selectedColumns.clear();
+		for (final DataColumnSpec colSpec : spec) {
+			if (colSpec.getType().isASuperTypeOf(colSpec.getType())) {
+				selectedColumns.add(colSpec.getName());
+			}
+		}
+		root = clusterTreeModel.getRoot();
+	}
+
 	/**
 	 * @param table
 	 *            A table with the original values.
@@ -146,11 +154,12 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 		// final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret = new
 		// HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
 		ranges.clear();
-		final int[] colIndices = new int[selectedColumns.size()];
-		final String[] colNames = new String[selectedColumns.size()];
+		final List<String> columns = getColumns();
+		final int[] colIndices = new int[columns.size()];
+		final String[] colNames = new String[columns.size()];
 		{
 			int i = 0;
-			for (final String colName : selectedColumns) {
+			for (final String colName : columns) {
 				colNames[i] = colName;
 				colIndices[i++] = table.getDataTableSpec().findColumnIndex(
 						colName);
@@ -220,9 +229,18 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 			mapOfKeys.put(dataRow.getKey().getString(), Integer.valueOf(i++));
 		}
 		fillStats(origData);
+		final PortObject portObject = PortUtil.readObjectFromFile(new File(
+				nodeInternDir, CFG_H_TREE_DATA), exec);
+		if (portObject instanceof ClusterTreeModel) {
+			setTreeModel(clusterTreeModel = (ClusterTreeModel) portObject);
+		}
 	}
 
 	private static final String CFG_H_CLUST_DATA = "hClustData";
+
+	private static final String CFG_H_TREE_DATA = "hTreeData";
+
+	private ClusterTreeModel clusterTreeModel;
 
 	@Override
 	protected void saveInternals(final File nodeInternDir,
@@ -231,6 +249,8 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 		final File dataFile = new File(nodeInternDir,
 				DendrogramNodeModel.CFG_H_CLUST_DATA);
 		DataContainer.writeToZip(origData, dataFile, exec);
+		PortUtil.writeObjectToFile(clusterTreeModel, new File(nodeInternDir,
+				CFG_H_TREE_DATA), exec);
 	}
 
 	/**
@@ -256,12 +276,31 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 		return origData;
 	}
 
-	public ClusterViewNode getRoot() {
+	/**
+	 * @return The root {@link DendrogramNode}.
+	 */
+	public DendrogramNode getRoot() {
 		return root;
 	}
 
 	@Override
 	public DataArray getDataArray(final int index) {
 		return origData;
+	}
+
+	/**
+	 * @return The compatible columns from the second port.
+	 */
+	public List<String> getColumns() {
+		if (origData == null) {
+			return Collections.<String> emptyList();
+		}
+		final List<String> ret = new ArrayList<String>();
+		for (final DataColumnSpec spec : getOrigData().getDataTableSpec()) {
+			if (DoubleCell.TYPE.isASuperTypeOf(spec.getType())) {
+				ret.add(spec.getName());
+			}
+		}
+		return ret;
 	}
 }

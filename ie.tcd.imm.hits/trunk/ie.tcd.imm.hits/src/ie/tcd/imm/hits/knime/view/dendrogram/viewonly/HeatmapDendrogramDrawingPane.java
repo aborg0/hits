@@ -16,7 +16,6 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.CheckReturnValue;
@@ -50,10 +49,12 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private float lineThickness = 1.0f;
 	private DendrogramNodeModel nodeModel;
 	private int[] indices;
+	private int[] selectedIndices;
 	private ColourModel colourModel;
 	private int cellHeight;
 	private int cellWidth = 20;
 	private final List<String> selectedColumns = new ArrayList<String>();
+	private final List<String> visibleColumns = new ArrayList<String>();
 	private int maxStringLength;
 	private String[] keys;
 	private boolean directionLeftToRight;
@@ -94,12 +95,23 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 
 	private void computeIndices() {
 		final DataTable dataArray = nodeModel.getOrigData();
-		final List<String> selectedColumns = new LinkedList<String>(nodeModel
-				.getSelectedColumns());
-		indices = new int[selectedColumns.size()];
+		indices = new int[visibleColumns.size()];
+		selectedIndices = new int[selectedColumns.size()];
 		int i = 0;
-		for (final String column : selectedColumns) {
+		for (final String column : visibleColumns) {
 			indices[i++] = dataArray.getDataTableSpec().findColumnIndex(column);
+		}
+		i = 0;
+		for (final String selected : selectedColumns) {
+			final int idx = dataArray.getDataTableSpec().findColumnIndex(
+					selected);
+			selectedIndices[i] = -1;
+			for (int j = indices.length; j-- > 0;) {
+				if (indices[j] == idx) {
+					selectedIndices[i++] = j;
+					break;
+				}
+			}
 		}
 	}
 
@@ -147,12 +159,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						final double val = ((DoubleValue) cell)
 								.getDoubleValue();
 						final ColourComputer model = colourModel.getModel(
-								nodeModel.getSelectedColumns().get(i),
-								StatTypes.raw);
+								visibleColumns.get(i), StatTypes.raw);
 						final Color col = model.compute(val);
 						g.setColor(col);
 						g.fillRect(point.x
-								+ (directionLeftToRight ? (i - selectedColumns
+								+ (directionLeftToRight ? (i - visibleColumns
 										.size())
 										* cellWidth : i /*- 1*/
 										* cellWidth), point.y - cellHeight / 2,
@@ -166,8 +177,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					final Color rowColor = colorAttr.getColor();
 					g.setColor(rowColor);
 					g.fillRect(directionLeftToRight ? point.x
-							- selectedColumns.size() * cellWidth
-							- maxStringLength : leafX + selectedColumns.size()
+							- visibleColumns.size() * cellWidth
+							- maxStringLength : leafX + visibleColumns.size()
 							* cellWidth, point.y - cellHeight / 2,
 							maxStringLength, cellHeight + 1);
 					g
@@ -179,11 +190,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				}
 				g.drawString(row.getKey().getString(),
 						directionLeftToRight ? point.x
-								- selectedColumns.size()
+								- visibleColumns.size()
 								* cellWidth
 								- g.getFontMetrics().stringWidth(
 										row.getKey().getString()) : point.x
-								+ selectedColumns.size() * cellWidth, point.y
+								+ visibleColumns.size() * cellWidth, point.y
 								+ /*
 								 * cellHeight / 2 -
 								 */fontHeight / 3);
@@ -197,9 +208,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
 				if (node.getContent().getRows().size() == 1) {
 					final Point point = node.getContent().getPoint();
-					g.drawRect(point.x - selectedColumns.size() * cellWidth,
+					g.drawRect(point.x - visibleColumns.size() * cellWidth,
 							point.y - cellHeight / 2 + 1, cellWidth
-									* selectedColumns.size(), cellHeight);
+									* visibleColumns.size(), cellHeight);
 				}
 			} else {
 				((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
@@ -236,6 +247,16 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 								.getContent().getPoint().y);
 			}
 			((Graphics2D) g).setStroke(backupStroke);
+			g.setColor(ColorAttr.SELECTED);
+			for (final int selectedIndex : selectedIndices) {
+				final int pos = leafX
+						+ (directionLeftToRight ? (selectedIndex - visibleColumns
+								.size())
+								* cellWidth
+								: selectedIndex * cellWidth);
+				g.drawLine(pos, 0, pos, getHeight());
+				g.drawLine(pos + cellWidth, 0, pos + cellWidth, getHeight());
+			}
 			g.setColor(backupColor);
 		}
 	}
@@ -265,11 +286,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		}
 		final Point p = event.getPoint();
 		final DataArray dataArray = nodeModel.getOrigData();
-		final int startPos = directionLeftToRight ? maxStringLength
-				+ selectedColumns.size()
-				// dataArray.getDataTableSpec().getNumColumns()
+		final int allCount = visibleColumns.size();
+		final int startPos = directionLeftToRight ? maxStringLength + allCount
 				* cellWidth : leafX;
-		final int allCount = selectedColumns.size();
 		if (directionLeftToRight && p.x < startPos || !directionLeftToRight
 				&& p.x > startPos && p.y < getHeight()) {
 			final int idx = directionLeftToRight ? allCount
@@ -282,7 +301,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				return keys[rowIdx];
 			}
 			return "<html>"
-					+ selectedColumns.get(idx)
+					+ visibleColumns.get(idx)
 					+ ": <b>"
 					+ Math.round(((DoubleValue) nodeModel.getOrigData().getRow(
 							nodeModel.getMap().get(keys[rowIdx])).getCell(
@@ -309,10 +328,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	}
 
 	/**
-	 * @return The (unmodifiable) {@link List} of selected columns.
+	 * @return The (unmodifiable) {@link List} of visible columns.
 	 */
-	public List<String> getSelectedColumns() {
-		return Collections.unmodifiableList(selectedColumns);
+	List<String> getVisibleColumns() {
+		return Collections.unmodifiableList(visibleColumns);
 	}
 
 	@Override
@@ -328,6 +347,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	public void setHorizontalDirection(final boolean directionLeftToRight) {
 		this.directionLeftToRight = directionLeftToRight;
 	}
+
 	//
 	// /**
 	// * @param directionUpToDown
@@ -336,4 +356,27 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	// public void setVerticalDirection(final boolean directionUpToDown) {
 	// this.directionUpToDown = directionUpToDown;
 	// }
+
+	/**
+	 * Selects the visible columns (and clears selection of columns).
+	 * 
+	 * @param visibleColumns
+	 *            The visible columns.
+	 */
+	protected void setVisibleColumns(final List<String> visibleColumns) {
+		this.visibleColumns.clear();
+		this.visibleColumns.addAll(visibleColumns);
+		selectedColumns.clear();
+		computeIndices();
+	}
+
+	/**
+	 * @param selectedColumns
+	 *            The selected columns.
+	 */
+	protected void setSelectedColumns(final List<String> selectedColumns) {
+		this.selectedColumns.clear();
+		this.selectedColumns.addAll(selectedColumns);
+		computeIndices();
+	}
 }

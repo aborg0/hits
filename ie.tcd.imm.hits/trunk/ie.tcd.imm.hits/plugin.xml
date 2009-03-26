@@ -15,18 +15,11 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
 	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory"/>
    	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly"/>
-    </extension>
+    <node category-path="/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
+<node category-path="/" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
+</extension>
 	<extension point="org.knime.workbench.repository.metanode">
-		<PersistedMetaNode
-        workflowDir="metaworkflows/Cluster Columns"
-        name="Cluster Columns"
-        id="ie.tcd.imm.hits.ClusterColumns"
-        category-path="/"
-        after=""
-        icon="icons/HiTS.png"
-        description="Reorganise the columns of a table using a clustering algorithm."
-        expert-flag="false"
-        >
+		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="false" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
 		</PersistedMetaNode>
 	</extension>
 	<extension point="org.knime.product.splashExtension">

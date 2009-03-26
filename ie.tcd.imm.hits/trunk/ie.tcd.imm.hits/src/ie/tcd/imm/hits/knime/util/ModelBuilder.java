@@ -34,7 +34,6 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -47,10 +46,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class, Nonnegative.class })
-public class ModelBuilder {
-	private final DataTable table;
-
-	private final SpecAnalyser specAnalyser;
+public class ModelBuilder extends SimpleModelBuilder {
+	private static final long serialVersionUID = 6605965494973262221L;
 
 	/** key, plate, position [0-95] */
 	private final Map<String, Pair<Integer, Integer>> keyToPlateAndPosition = new HashMap<String, Pair<Integer, Integer>>();
@@ -76,9 +73,7 @@ public class ModelBuilder {
 	 *            A {@link SpecAnalyser} compatible with {@code table}.
 	 */
 	public ModelBuilder(final DataTable table, final SpecAnalyser specAnalyser) {
-		super();
-		this.table = table;
-		this.specAnalyser = specAnalyser;
+		super(table, specAnalyser);
 		generate(specAnalyser);
 	}
 
@@ -186,6 +181,18 @@ public class ModelBuilder {
 		 *            A {@link DataTableSpec}.
 		 */
 		public SpecAnalyser(final DataTableSpec tableSpec) {
+			this(tableSpec, true);
+		}
+
+		/**
+		 * Constructs a {@link SpecAnalyser} using {@code tableSpec}.
+		 * 
+		 * @param tableSpec
+		 *            A {@link DataTableSpec}.
+		 * @param checks
+		 *            Checks some constraints if {@code true}.
+		 */
+		public SpecAnalyser(final DataTableSpec tableSpec, final boolean checks) {
 			super();
 			hasPlate = false;
 			hasReplicate = false;
@@ -298,9 +305,27 @@ public class ModelBuilder {
 					valueIndices.put(specName, Integer.valueOf(idx));
 				}
 			}
-			if (!hasPlate) {
+			if (!hasPlate && checks) {
 				throw new IllegalStateException("No plate information found");
 			}
+		}
+
+		/**
+		 * @return The range map for with based on specs.
+		 */
+		public Map<String, Map<StatTypes, Map<RangeType, Double>>> initialRanges() {
+			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
+			for (final String str : getParameters()) {
+				EnumMap<StatTypes, Map<RangeType, Double>> map;
+				ret.put(str,
+						map = new EnumMap<StatTypes, Map<RangeType, Double>>(
+								StatTypes.class));
+				for (final StatTypes stat : getStatistics()) {
+					map.put(stat, new EnumMap<RangeType, Double>(
+							RangeType.class));
+				}
+			}
+			return ret;
 		}
 
 		/**
@@ -308,14 +333,17 @@ public class ModelBuilder {
 		 *         table.
 		 */
 		public List<String> getParameters() {
-			return Collections.unmodifiableList(parameters);
+			return !parameters.isEmpty() ? Collections
+					.unmodifiableList(parameters) : new ArrayList<String>(
+					valueIndices.keySet());
 		}
 
 		/**
 		 * @return The {@link StatTypes} present in the table.
 		 */
 		public EnumSet<StatTypes> getStatistics() {
-			return statistics;
+			return statistics.isEmpty() ? EnumSet.of(StatTypes.raw)
+					: statistics;
 		}
 
 		/**
@@ -403,7 +431,7 @@ public class ModelBuilder {
 		}
 
 		/**
-		 * @return the indices
+		 * @return the indices (stat, parameter, index (from {@code 0}))
 		 */
 		public EnumMap<StatTypes, Map<String, Integer>> getIndices() {
 			return indices;
@@ -601,8 +629,7 @@ public class ModelBuilder {
 						final double[] vals = values.get(type);
 						if (false) {
 							vals[well] = param.equals("Cell Count") ? 0.0
-									: (param.equals("Nuc Displacement")) ? 1
-											: -1;
+									: param.equals("Nuc Displacement") ? 1 : -1;
 						} else {
 							vals[well] = ((DoubleValue) dataRow.getCell(indices
 									.get(type).get(param).intValue()))
@@ -663,49 +690,23 @@ public class ModelBuilder {
 	}
 
 	/**
-	 * Converts a {@code [a-hA-H](0)?[0-9]} like {@code well} value to a
-	 * {@code 96} plate position. The position is {@code 0}-based, and goes
-	 * from {@code A1} &Rarr; {@code A12} &Rarr; {@code B1}, ..., {@code H12}.
+	 * Converts a {@code [a-hA-H](0)?[0-9]} like {@code well} value to a {@code
+	 * 96} plate position. The position is {@code 0}-based, and goes from
+	 * {@code A1} &Rarr; {@code A12} &Rarr; {@code B1}, ..., {@code H12}.
 	 * 
 	 * @param well
-	 *            A {@link String} matching the pattern:
-	 *            {@code [a-hA-H](0)?[0-9]}.
+	 *            A {@link String} matching the pattern: {@code
+	 *            [a-hA-H](0)?[0-9]}.
 	 * @return The {@code 0} based position on the 96 well plate. (Horizontal
 	 *         first, then vertical.)
 	 * @see Format#convertWellToPosition(String)
 	 */
 	@Deprecated
 	public static int convertWellToPosition(final String well) {
-		return ((Character.toLowerCase(well.charAt(0)) - 'a')
+		return (Character.toLowerCase(well.charAt(0)) - 'a')
 				* 12
 				+ Integer.parseInt(well.substring(well.length() - 2, well
-						.length())) - 1);
-	}
-
-	/**
-	 * Selects the {@code index + 1}<sup>th</sup> cell value from
-	 * {@code dataRow}.
-	 * 
-	 * @param dataRow
-	 *            A {@link DataRow}.
-	 * @param index
-	 *            A {@code 0}-based index to select a cell in {@code dataRow}.
-	 * @return The value at {@code index} position in {@code dataRow}.
-	 * @throws ClassCastException
-	 *             if the cell is not an {@link IntCell}.
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the {@code index} is not valid.
-	 */
-	public static Integer getInt(final DataRow dataRow, final int index) {
-		return Integer
-				.valueOf(((IntCell) dataRow.getCell(index)).getIntValue());
-	}
-
-	/**
-	 * @return the table
-	 */
-	public DataTable getTable() {
-		return table;
+						.length())) - 1;
 	}
 
 	/**
@@ -713,13 +714,14 @@ public class ModelBuilder {
 	 *         {@link #getTable() table}, the dimensions are these:
 	 *         <ul>
 	 *         <li>experiment</li>
-	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>normalisations (
+	 *         {@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
 	 *         <li>plate</li>
 	 *         <li>replicate</li>
 	 *         <li>parameter</li>
 	 *         <li>statistics type</li>
-	 *         <li>{@double double}s to for each position on plate. (May
-	 *         contain {@link Double#NaN} values)</li>
+	 *         <li>{@double double}s to for each position on plate. (May contain
+	 *         {@link Double#NaN} values)</li>
 	 *         </ul>
 	 * @see StatTypes#isUseReplicates() {@code true}.
 	 */
@@ -732,12 +734,13 @@ public class ModelBuilder {
 	 *         {@link #getTable() table}, the dimensions are these:
 	 *         <ul>
 	 *         <li>experiment</li>
-	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>normalisations (
+	 *         {@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
 	 *         <li>plate</li>
 	 *         <li>parameter</li>
 	 *         <li>statistics type</li>
-	 *         <li>{@double double}s to for each position on plate. (May
-	 *         contain {@link Double#NaN} values)</li>
+	 *         <li>{@double double}s to for each position on plate. (May contain
+	 *         {@link Double#NaN} values)</li>
 	 *         </ul>
 	 * @see StatTypes#isUseReplicates() {@code false}.
 	 */
@@ -746,11 +749,11 @@ public class ModelBuilder {
 	}
 
 	/**
-	 * @return the texts of {@link #getTable() table}, the dimensions are
-	 *         these:
+	 * @return the texts of {@link #getTable() table}, the dimensions are these:
 	 *         <ul>
 	 *         <li>experiment</li>
-	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>normalisations (
+	 *         {@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
 	 *         <li>plate</li>
 	 *         <li>column name</li>
 	 *         <li>{@link String}s for each position on plate. (May contain
@@ -766,7 +769,8 @@ public class ModelBuilder {
 	 *         these:
 	 *         <ul>
 	 *         <li>experiment</li>
-	 *         <li>normalisations ({@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
+	 *         <li>normalisations (
+	 *         {@link #getNormKey(DataRow, int, int, int, int, int, int)})</li>
 	 *         <li>plate</li>
 	 *         <li>{@link Color}s for each position on plate. (May contain
 	 *         {@code null} values)</li>
@@ -881,7 +885,7 @@ public class ModelBuilder {
 				ret.get(entry.getKey()).get(subEntry.getKey()).put(
 						RangeType.mad,
 						n == 0 ? Double.NaN
-								: Double.valueOf(((n % 2 != 0) ? diffAbs
+								: Double.valueOf((n % 2 != 0 ? diffAbs
 										.get(n / 2) : (diffAbs.get(n / 2)
 										.doubleValue() + diffAbs.get(n / 2 - 1)
 										.doubleValue()) / 2) * 1.4826));
