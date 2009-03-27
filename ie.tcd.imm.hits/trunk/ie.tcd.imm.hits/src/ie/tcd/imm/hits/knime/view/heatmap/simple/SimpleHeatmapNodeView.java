@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.view.heatmap.simple;
 
-import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -12,6 +11,7 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -50,6 +51,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.property.ColorAttr;
+import org.knime.core.data.property.ColorHandler;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
@@ -105,6 +107,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 	private final class Parameters extends JPanel {
 		private static final long serialVersionUID = 559337357788334817L;
 
+		private static final int OFFSET = 3;
+
 		private final List<String> parameters = new ArrayList<String>();
 		private int maxLength = -1;
 
@@ -117,8 +121,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			this.parameters.clear();
 			this.parameters.addAll(parameters);
 			updateMaxLength();
-			// setPreferredSize(new Dimension(getPreferredSize().width,
-			// maxLength));
+			setPreferredSize(new Dimension(getPreferredSize().width, maxLength));
+			setMaximumSize(new Dimension(getPreferredSize().width, maxLength));
 		}
 
 		private void updateMaxLength() {
@@ -127,6 +131,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			for (final String s : parameters) {
 				maxLength = Math.max(maxLength, fm.stringWidth(s));
 			}
+			maxLength += OFFSET;
 		}
 
 		@Override
@@ -140,8 +145,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 
 			final int fontHeight = fm.getHeight();
 			for (final String param : parameters) {
-				g.drawString(param, -maxLength, p++ * cellW + cellW / 2
-						+ fontHeight / 3
+				g.drawString(param, -maxLength + OFFSET, p++ * cellW + cellW
+						/ 2 + fontHeight / 3
 						+ (textLeft ? view.maxStringLength : 0));
 			}
 		}
@@ -208,17 +213,17 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 					}
 					final int cellH = ((Number) cellHeight.getValue())
 							.intValue();
-					if (y2 > table.size() * cellH + maxParamLength) {
-						select(y1, table.size() * cellH + maxParamLength,
-								xorSelection, addSelection);
+					if (y2 > table.size() * cellH) {
+						select(y1, table.size() * cellH, xorSelection,
+								addSelection);
 						return;
 					}
 					if (!xorSelection && !addSelection) {
 						selections.clear();
 					}
 					if (xorSelection) {
-						final int min = (y1 - maxParamLength) / cellH;
-						for (int i = (y2 + cellH - maxParamLength) / cellH; i-- > min;) {
+						final int min = y1 / cellH;
+						for (int i = (y2 + cellH) / cellH; i-- > min;) {
 							final Integer integer = Integer.valueOf(i);
 							if (!selections.contains(integer)) {
 								selections.add(integer);
@@ -227,8 +232,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 							}
 						}
 					} else {
-						final int min = (y1 - maxParamLength) / cellH;
-						for (int i = (y2 + cellH - maxParamLength) / cellH; i-- > min;) {
+						final int min = y1 / cellH;
+						for (int i = (y2 + cellH) / cellH; i-- > min;) {
 							final Integer integer = Integer.valueOf(i);
 							selections.add(integer);
 						}
@@ -240,10 +245,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				public void mouseMoved(final MouseEvent e) {
 					final int xx = e.getX();
 					final int yy = e.getY();
-					final int rowIndex = yy < maxParamLength ? -1
-							: (yy - maxParamLength)
-									/ ((Integer) cellHeight.getValue())
-											.intValue();
+					final int rowIndex = yy
+							/ ((Integer) cellHeight.getValue()).intValue();
 					final int xoffset = textOnLeft.isSelected() ? maxStringLength
 							: 0;
 					final int colIndex = xx < xoffset ? -1 : (xx - xoffset)
@@ -287,6 +290,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			}
 			selectedParams = new ArrayList<String>(indices.get(selectedStat)
 					.keySet());
+			legend.updateList(selectedParams);
 			colIndices = new int[selectedParams.size() * 1/* selectedStats.size() */];
 			int idx = 0;
 			for (final String param : selectedParams) {
@@ -302,8 +306,9 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			setPreferredSize(new Dimension(selectedParams.size()
 					* ((Number) cellWidth.getValue()).intValue()
 					+ maxStringLength, this.table.size()
-					* ((Number) cellHeight.getValue()).intValue() + 2
-					* maxParamLength));
+					* ((Number) cellHeight.getValue()).intValue()
+					+ maxParamLength));
+			legend.updateList(selectedParams);
 		}
 
 		protected void updateMaxStringLength() {
@@ -342,21 +347,24 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				final FontMetrics fm = g.getFontMetrics();
 				for (final String param : selectedParams) {
 					final int index = map.get(param);
+					final ColorHandler colorHandler = table.getDataTableSpec()
+							.getColumnSpec(index).getColorHandler();
 					final DataCell cell = row.getCell(index);
 					if (cell instanceof DoubleValue) {
 						final double val = ((DoubleValue) cell)
 								.getDoubleValue();
 						final ColourComputer m = model.getModel(param,
 								selectedStat);
-						final Color col = m.compute(val);
+						final Color col = m == null ? colorHandler == null ? Color.BLACK
+								: colorHandler.getColorAttr(cell).getColor()
+								: m.compute(val);
 						g.setColor(col);
 						g.fillRect((textLeft ? maxStringLength + i * cellW : i /*- 1*/
-								* cellW), y * cellH + maxParamLength, cellW,
-								cellH);
+								* cellW), y * cellH, cellW, cellH);
 						if (showVals) {
 							g
 									.setColor(Color.RGBtoHSB(col.getRed(), col
-											.getGreen(), col.getBlue(), null)[2] > .4f ? Color.BLACK
+											.getGreen(), col.getBlue(), null)[2] > .6f ? Color.BLACK
 											: Color.WHITE);
 							final String str = Math.abs(val) > 100 ? Double
 									.toString(Math.round(val))
@@ -365,10 +373,15 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 											: Double.toString(Math
 													.round(val * 100) / 100.0);
 
-							g.drawString(str, (textLeft ? maxStringLength : 0)
-									+ i * cellW + (cellW - fm.stringWidth(str))
-									/ 2, y * cellH + maxParamLength + cellH / 2
-									+ fontHeight / 3);
+							g
+									.drawString(str,
+											(textLeft ? maxStringLength : 0)
+													+ i
+													* cellW
+													+ (cellW - fm
+															.stringWidth(str))
+													/ 2, y * cellH + cellH / 2
+													+ fontHeight / 3);
 						}
 					}
 					++i;
@@ -382,9 +395,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 						g.setColor(ColorAttr.HILITE);
 					}
 					((Graphics2D) g).setStroke(new BasicStroke(2.0f));
-					g.drawRect(textLeft ? maxStringLength : 0, y * cellH
-							+ maxParamLength, cellW * selectedParams.size(),
-							cellH);
+					g.drawRect(textLeft ? maxStringLength : 0, y * cellH, cellW
+							* selectedParams.size(), cellH);
 				}
 
 				final ColorAttr colorAttr = table.getDataTableSpec()
@@ -392,8 +404,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				if (colorAttr != ColorAttr.DEFAULT) {
 					final Color rowColor = colorAttr.getColor();
 					g.setColor(rowColor);
-					g.fillRect(textLeft ? 0 : allCols * cellW, y * cellH
-							+ maxParamLength, maxStringLength, cellH);
+					g.fillRect(textLeft ? 0 : allCols * cellW, y * cellH,
+							maxStringLength, cellH);
 					g
 							.setColor(Color.RGBtoHSB(rowColor.getGreen(),
 									rowColor.getGreen(), rowColor.getBlue(),
@@ -404,8 +416,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				g.drawString(row.getKey().getString(),
 						textLeft ? maxStringLength
 								- fm.stringWidth(row.getKey().getString())
-								: allCols * cellW, y * cellH + maxParamLength
-								+ cellH / 2 + fontHeight / 3);
+								: allCols * cellW, y * cellH + cellH / 2
+								+ fontHeight / 3);
 				++y;
 			}
 			// if (visibleLegend.isSelected()) {
@@ -417,8 +429,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			int p = 0;
 			final FontMetrics fm = getFontMetrics(getFont());
 			for (final String param : selectedParams) {
-				g.drawString(param, -maxParamLength, p * cellW + cellW / 2
-						+ fontHeight / 3 + (textLeft ? maxStringLength : 0));
+				// g.drawString(param, -maxParamLength, p * cellW + cellW / 2
+				// + fontHeight / 3 + (textLeft ? maxStringLength : 0));
 				// if (visibleLegend.isSelected()) {
 				//
 				// g.drawString(param, -getVisibleRect().y
@@ -426,7 +438,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				// p * cellW + cellW / 2 + fontHeight / 3
 				// + (textLeft ? maxStringLength : 0));
 				// }
-				g.drawString(param, -table.size() * cellH - maxParamLength
+				g.drawString(param, -table.size() * cellH
 						- fm.stringWidth(param), p++ * cellW + cellW / 2
 						+ fontHeight / 3 + (textLeft ? maxStringLength : 0));
 			}
@@ -478,9 +490,11 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		view.setBackground(Color.WHITE);
 		final JScrollPane viewScrollPane = new JScrollPane(view);
 		viewScrollPane.setViewportView(view);
+		viewScrollPane.setAutoscrolls(true);
+		viewScrollPane.setColumnHeaderView(legend);
 		// split.setLeftComponent(viewScrollPane);
+		// split.setRightComponent(legend);
 		main.setLeftComponent(viewScrollPane);
-		main.setRightComponent(legend);
 		final JTabbedPane tabbedPane = new JTabbedPane();
 		main.setRightComponent(tabbedPane);
 		main.setOneTouchExpandable(true);
@@ -496,8 +510,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		tabbedPane.addTab("Colours", new JScrollPane(colourTab));
 		tabbedPane.addTab("General", generalTab);
 		updateModel(nodeModel);
-		final JPanel panel = new JPanel();
-		panel.add(split);
+		// final JPanel panel = new JPanel();
+		// panel.add(split);
 		main.setDividerLocation(500);
 		setComponent(main);
 		textOnLeft.addActionListener(this);
@@ -508,6 +522,8 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		statistics.addActionListener(this);
 		// visibleLegend.addActionListener(this);
 		view.addMouseListener(new PopupListener(createPopupMenu()));
+		// split.setDividerLocation(1.0);
+		split.setDividerLocation(1800);
 		getJMenuBar().add(createHiLiteMenu());
 	}
 
@@ -588,7 +604,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				.initialRanges();
 		final Map<String, Map<StatTypes, List<Double>>> vals = builder
 				.computeAllVals();
-		ModelBuilder.computeStatistics(ranges, vals);
+		SimpleModelBuilder.computeStatistics(ranges, vals);
 		selector.update(s.getParameters(), s.getStatistics(), ranges);
 		selector.repaint();
 		final EnumMap<StatTypes, Map<String, Integer>> indices = s.getIndices();
@@ -624,15 +640,17 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		view.updateSize();
 		main.invalidate();
 		main.revalidate();
-		((JScrollPane) main.getLeftComponent()).invalidate();
-		((JScrollPane) main.getLeftComponent()).revalidate();
+		((Container) main.getLeftComponent()).invalidate();
+		((JComponent) main.getLeftComponent()).revalidate();
 		main.repaint();
 		view.repaint();
+		legend.repaint();
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		view.updateStats();
 		view.repaint();
+		legend.repaint();
 	}
 }

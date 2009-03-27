@@ -8,15 +8,13 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.awt.Color;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -211,10 +209,10 @@ public class ModelBuilder extends SimpleModelBuilder {
 			indices = new EnumMap<StatTypes, Map<String, Integer>>(
 					StatTypes.class);
 			for (final StatTypes stat : StatTypes.values()) {
-				indices.put(stat, new TreeMap<String, Integer>());
+				indices.put(stat, new LinkedHashMap<String, Integer>());
 			}
 			stringIndices = new TreeMap<String, Integer>();
-			valueIndices = new TreeMap<String, Integer>();
+			valueIndices = new LinkedHashMap<String, Integer>();
 			int idx = -1;
 			for (final DataColumnSpec spec : tableSpec) {
 				++idx;
@@ -316,7 +314,7 @@ public class ModelBuilder extends SimpleModelBuilder {
 		public Map<String, Map<StatTypes, Map<RangeType, Double>>> initialRanges() {
 			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret = new HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
 			for (final String str : getParameters()) {
-				EnumMap<StatTypes, Map<RangeType, Double>> map;
+				final EnumMap<StatTypes, Map<RangeType, Double>> map;
 				ret.put(str,
 						map = new EnumMap<StatTypes, Map<RangeType, Double>>(
 								StatTypes.class));
@@ -333,16 +331,15 @@ public class ModelBuilder extends SimpleModelBuilder {
 		 *         table.
 		 */
 		public List<String> getParameters() {
-			return !parameters.isEmpty() ? Collections
-					.unmodifiableList(parameters) : new ArrayList<String>(
-					valueIndices.keySet());
+			return parameters.isEmpty() ? new ArrayList<String>(valueIndices
+					.keySet()) : Collections.unmodifiableList(parameters);
 		}
 
 		/**
 		 * @return The {@link StatTypes} present in the table.
 		 */
 		public EnumSet<StatTypes> getStatistics() {
-			return statistics.isEmpty() ? EnumSet.of(StatTypes.raw)
+			return statistics.isEmpty() ? EnumSet.of(StatTypes.otherNumeric)
 					: statistics;
 		}
 
@@ -821,76 +818,5 @@ public class ModelBuilder extends SimpleModelBuilder {
 	 */
 	public Map<String, Pair<Integer, Integer>> getKeyToPlateAndPosition() {
 		return Collections.unmodifiableMap(keyToPlateAndPosition);
-	}
-
-	/**
-	 * Computes some statistics of {@code vals} to {@code ret}.
-	 * 
-	 * @param ret
-	 *            The result ranges map.
-	 * @param vals
-	 *            The values to analyse.
-	 */
-	public static void computeStatistics(
-			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret,
-			final Map<String, Map<StatTypes, List<Double>>> vals) {
-		for (final Entry<String, Map<StatTypes, List<Double>>> entry : vals
-				.entrySet()) {
-			for (final Entry<StatTypes, List<Double>> subEntry : entry
-					.getValue().entrySet()) {
-				final List<Double> values = subEntry.getValue();
-				Collections.sort(values);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.min,
-						values.size() > 0 ? values.get(0) : Double.NaN);
-				int n = 0;
-				double sum = 0.0;
-				for (final Double d : values) {
-					if (!d.isNaN()) {
-						++n;
-						sum += d.doubleValue();
-					}
-				}
-				final double median = n > 0 ? (n % 2 != 0 ? values.get(n / 2)
-						: (values.get(n / 2) + values.get(n / 2 - 1)) / 2)
-						: Double.NaN;
-
-				final double maxVal = n > 0 ? values.get(n - 1) : Double.NaN;
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.max, maxVal);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.median, median);
-				final double average = sum / n;
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.average,
-						n == 0 ? Double.NaN : Double.valueOf(average));
-				final MathContext context = new MathContext(10,
-						RoundingMode.HALF_EVEN);
-				BigDecimal sumDiffSquare = new BigDecimal(0.0);
-				final List<Double> diffAbs = new ArrayList<Double>(n);
-				for (final Double d : values) {
-					if (!d.isNaN()) {
-						final double diff = d - average;
-						final BigDecimal diffBig = BigDecimal.valueOf(diff);
-						sumDiffSquare = sumDiffSquare.add(diffBig.multiply(
-								diffBig, context), context);
-						diffAbs.add(Double.valueOf(Math.abs(diff)));
-					}
-				}
-				Collections.sort(diffAbs);
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.stdev,
-						n == 0 ? Double.NaN : Double.valueOf(Math
-								.sqrt(sumDiffSquare.doubleValue() / n)));
-				ret.get(entry.getKey()).get(subEntry.getKey()).put(
-						RangeType.mad,
-						n == 0 ? Double.NaN
-								: Double.valueOf((n % 2 != 0 ? diffAbs
-										.get(n / 2) : (diffAbs.get(n / 2)
-										.doubleValue() + diffAbs.get(n / 2 - 1)
-										.doubleValue()) / 2) * 1.4826));
-
-			}
-		}
 	}
 }
