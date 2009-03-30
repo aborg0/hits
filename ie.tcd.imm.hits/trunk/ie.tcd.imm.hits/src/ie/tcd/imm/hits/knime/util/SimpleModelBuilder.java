@@ -33,8 +33,10 @@ import org.knime.core.data.def.IntCell;
  */
 public class SimpleModelBuilder implements Serializable {
 	private static final long serialVersionUID = -2037522274855411494L;
-	protected final DataTable table;
-	protected final SpecAnalyser specAnalyser;
+	/** The analysed table */
+	private final DataTable table;
+	/** The {@link SpecAnalyser} for the table. */
+	private final SpecAnalyser specAnalyser;
 
 	/**
 	 * Selects the {@code index + 1}<sup>th</sup> cell value from {@code
@@ -63,7 +65,9 @@ public class SimpleModelBuilder implements Serializable {
 	 * @param vals
 	 *            The values to analyse.
 	 */
-	public static void computeStatistics(final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret, final Map<String, Map<StatTypes, List<Double>>> vals) {
+	public static void computeStatistics(
+			final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret,
+			final Map<String, Map<StatTypes, List<Double>>> vals) {
 		for (final Entry<String, Map<StatTypes, List<Double>>> entry : vals
 				.entrySet()) {
 			for (final Entry<StatTypes, List<Double>> subEntry : entry
@@ -87,12 +91,25 @@ public class SimpleModelBuilder implements Serializable {
 				final double median = n > 0 ? (n % 2 != 0 ? values.get(n / 2)
 						: (values.get(n / 2) + values.get(n / 2 - 1)) / 2)
 						: Double.NaN;
-	
+				final double q1 = n > 0 ? (n % 4 == 1 ? values.get(n / 4) : ((4
+						* n + 4 - n + 1)
+						% 4 * values.get(n / 4) + (n - 1) % 4
+						* values.get(n / 4 - 1)) / 4) : Double.NaN;
+				final double q3 = n > 0 ? (n % 4 == 1 ? values.get(3 * n / 4)
+						: ((4 * n + 4 - n + 1) % 4 * values.get(3 * n / 4) + (n - 1)
+								% 4 * values.get(3 * n / 4 - 1)) / 4)
+						: Double.NaN;
 				final double maxVal = n > 0 ? values.get(n - 1) : Double.NaN;
 				ret.get(entry.getKey()).get(subEntry.getKey()).put(
 						RangeType.max, maxVal);
 				ret.get(entry.getKey()).get(subEntry.getKey()).put(
 						RangeType.median, median);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.q1, q1);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.q3, q3);
+				ret.get(entry.getKey()).get(subEntry.getKey()).put(
+						RangeType.iqr, q3 - q1);
 				final double average = sum / n;
 				ret.get(entry.getKey()).get(subEntry.getKey()).put(
 						RangeType.average,
@@ -122,7 +139,7 @@ public class SimpleModelBuilder implements Serializable {
 										.get(n / 2) : (diffAbs.get(n / 2)
 										.doubleValue() + diffAbs.get(n / 2 - 1)
 										.doubleValue()) / 2) * 1.4826));
-	
+
 			}
 		}
 	}
@@ -146,6 +163,12 @@ public class SimpleModelBuilder implements Serializable {
 		return table;
 	}
 
+	/**
+	 * Collects the values belonging to the parameters and statistics. (
+	 * {@link Double#NaN}s are not filtered.
+	 * 
+	 * @return The map from parameters to a map from stats to values.
+	 */
 	public Map<String, Map<StatTypes, List<Double>>> computeAllVals() {
 		final Map<String, Map<StatTypes, List<Double>>> ret = new TreeMap<String, Map<StatTypes, List<Double>>>();
 		final EnumMap<StatTypes, Map<String, Integer>> indices = specAnalyser
@@ -188,4 +211,10 @@ public class SimpleModelBuilder implements Serializable {
 		return ret;
 	}
 
+	/**
+	 * @return the {@link SpecAnalyser} associated to {@link #getTable() table}.
+	 */
+	public SpecAnalyser getSpecAnalyser() {
+		return specAnalyser;
+	}
 }

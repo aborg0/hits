@@ -472,7 +472,7 @@ public class ModelBuilder extends SimpleModelBuilder {
 		final boolean hasReplicate = specAnalyser.isHasReplicate();
 		minPlate = Integer.MAX_VALUE;
 		maxPlate = Integer.MIN_VALUE;
-		for (final DataRow dataRow : table) {
+		for (final DataRow dataRow : getTable()) {
 			final String experiment = ((StringCell) dataRow
 					.getCell(experimentIndex)).getStringValue();
 			if (!replicates.containsKey(experiment)) {
@@ -562,7 +562,7 @@ public class ModelBuilder extends SimpleModelBuilder {
 			final Map<String, String[]> textColumns = textValues.get(plate);
 			final int well = convertWellToPosition(((StringCell) dataRow
 					.getCell(wellIndex)).getStringValue());
-			colourValues.get(plate)[well] = table.getDataTableSpec()
+			colourValues.get(plate)[well] = getTable().getDataTableSpec()
 					.getRowColor(dataRow).getColor();
 			for (final Entry<String, Integer> entry : stringIndices.entrySet()) {
 				final DataCell cell = dataRow.getCell(entry.getValue()
@@ -779,13 +779,6 @@ public class ModelBuilder extends SimpleModelBuilder {
 	 */
 	public Map<String, Map<String, Map<Integer, Color[]>>> getColours() {
 		return colours;
-	}
-
-	/**
-	 * @return the {@link SpecAnalyser} associated to {@link #getTable() table}.
-	 */
-	public SpecAnalyser getSpecAnalyser() {
-		return specAnalyser;
 	}
 
 	/**

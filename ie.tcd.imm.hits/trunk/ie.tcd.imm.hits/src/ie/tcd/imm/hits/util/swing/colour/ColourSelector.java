@@ -614,6 +614,9 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 						JEPHelper.addConstant(jep, RangeType.max, 4.5);
 						JEPHelper.addConstant(jep, RangeType.stdev, 1.0);
 						JEPHelper.addConstant(jep, RangeType.mad, .97);
+						JEPHelper.addConstant(jep, RangeType.q1, -1.2);
+						JEPHelper.addConstant(jep, RangeType.q3, 1.2);
+						JEPHelper.addConstant(jep, RangeType.iqr, 2.4);
 						try {
 							final Node res = jep.parse(e.getDocument().getText(
 									0, e.getDocument().getLength()));

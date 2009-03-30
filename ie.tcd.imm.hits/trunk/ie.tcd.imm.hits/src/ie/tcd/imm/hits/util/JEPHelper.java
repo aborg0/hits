@@ -63,6 +63,15 @@ public class JEPHelper {
 			addCaseInsensitiveConstant(jep, "standarddeviation", val);
 			addCaseInsensitiveConstant(jep, "\u03c3", val);
 			break;
+		case q1:
+			addCaseInsensitiveConstant(jep, "q1", val);
+			break;
+		case q3:
+			addCaseInsensitiveConstant(jep, "q3", val);
+			break;
+		case iqr:
+			addCaseInsensitiveConstant(jep, "iqr", val);
+			break;
 		default:
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ type);
