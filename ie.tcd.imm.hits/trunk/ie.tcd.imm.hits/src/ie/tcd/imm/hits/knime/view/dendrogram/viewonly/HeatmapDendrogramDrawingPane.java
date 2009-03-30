@@ -300,13 +300,15 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					&& idx >= allCount) {
 				return keys[rowIdx];
 			}
+			final DataCell cell = nodeModel.getOrigData().getRow(
+					nodeModel.getMap().get(keys[rowIdx])).getCell(indices[idx]);
 			return "<html>"
 					+ visibleColumns.get(idx)
 					+ ": <b>"
-					+ Math.round(((DoubleValue) nodeModel.getOrigData().getRow(
-							nodeModel.getMap().get(keys[rowIdx])).getCell(
-							indices[idx])).getDoubleValue() * 1000) / 1000.0
-					+ "</b> (" + keys[rowIdx] + ")</html>";
+					+ (cell instanceof DoubleValue ? Math
+							.round(((DoubleValue) cell).getDoubleValue() * 1000) / 1000.0
+							: Double.NaN) + "</b> (" + keys[rowIdx]
+					+ ")</html>";
 		} else {
 			return super.getToolTipText(event);
 		}

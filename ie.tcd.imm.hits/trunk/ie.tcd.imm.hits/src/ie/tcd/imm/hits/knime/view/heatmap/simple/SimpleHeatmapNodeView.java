@@ -252,14 +252,16 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 					final int colIndex = xx < xoffset ? -1 : (xx - xoffset)
 							/ ((Number) cellWidth.getValue()).intValue();
 					if (rowIndex >= 0 && rowIndex < table.size()) {
+						final DataCell cell = colIndex >= 0
+								&& colIndex < selectedParams.size() ? table
+								.getRow(rowIndex).getCell(colIndices[colIndex])
+								: null;
 						setToolTipText("<html>"
-								+ (colIndex >= 0
-										&& colIndex < selectedParams.size() ? selectedParams
-										.get(colIndex)
+								+ (cell != null ? selectedParams.get(colIndex)
 										+ ": "
-										+ ((DoubleValue) table.getRow(rowIndex)
-												.getCell(colIndices[colIndex]))
+										+ (cell instanceof DoubleValue ? ((DoubleValue) cell)
 												.getDoubleValue()
+												: Double.NaN)
 										: "") + " (<b>"
 								+ table.getRow(rowIndex).getKey().getString()
 								+ "</b>)<html>");

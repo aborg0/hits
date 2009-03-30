@@ -599,9 +599,11 @@ public class ModelBuilder extends SimpleModelBuilder {
 						if (!enumMap.containsKey(stat)) {
 							enumMap.put(stat, createPlateValues(96));
 						}
-						enumMap.get(stat)[well] = ((DoubleValue) dataRow
-								.getCell(indices.get(stat).get(param)
-										.intValue())).getDoubleValue();
+						final DataCell cell = dataRow.getCell(indices.get(stat)
+								.get(param).intValue());
+						enumMap.get(stat)[well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
+								.getDoubleValue()
+								: Double.NaN;
 					}
 				}
 			}
@@ -628,9 +630,11 @@ public class ModelBuilder extends SimpleModelBuilder {
 							vals[well] = param.equals("Cell Count") ? 0.0
 									: param.equals("Nuc Displacement") ? 1 : -1;
 						} else {
-							vals[well] = ((DoubleValue) dataRow.getCell(indices
-									.get(type).get(param).intValue()))
-									.getDoubleValue();
+							final DataCell cell = dataRow.getCell(indices.get(
+									type).get(param).intValue());
+							vals[well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
+									.getDoubleValue()
+									: Double.NaN;
 						}
 					}
 				}

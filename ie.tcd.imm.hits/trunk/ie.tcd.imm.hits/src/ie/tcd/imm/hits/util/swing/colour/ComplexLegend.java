@@ -161,11 +161,14 @@ public class ComplexLegend extends JPanel implements ColourLegend<ComplexModel> 
 			g.setFont(g.getFont().deriveFont(
 					orientation.isVertical() ? 8.5f : 8.0f));
 			int i = 0;
+			if (values.size() == 0) {
+
+			}
+			final int n = values.size() == 1 ? 2 : values.size();
 			for (final Double value : values) {
 				final String val = Double.toString(Math.round(value
 						.doubleValue() * 100) / 100.0);
 				final double range = largest - smallest;
-				final int n = values.size();
 				final int strWidth = g.getFontMetrics().getStringBounds(val, g)
 						.getBounds().width;
 				final int fontHeight = getFontMetrics(getFont()).getHeight();
