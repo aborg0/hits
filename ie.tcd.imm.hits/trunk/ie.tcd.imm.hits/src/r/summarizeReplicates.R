@@ -173,14 +173,14 @@ scoreReplicatesByNPI <- function(object, posControls, negControls){
 ## ======================================================================
 ## Replicates summarization
 ## ======================================================================
-summarizeReplicates = function(object, summary="min", method="single-color") {
+summarizeReplicates = function(object, summary="min", method=singleColor) {
 
   if(!state(object)[["normalized"]])
     stop("Please normalize 'object' (using for example the function 'normalizePlates') before calling this function.")
 
-  if(dim(Data(object))[3]!=1 && "single-color"==method)
+  if(dim(Data(object))[3]!=1 && singleColor==method)
     stop("Currently this function is implemented only for single-color data.")
-  else if ("per-channel"!=method && "single-color"!=method)
+  else if (perChannel!=method && singleColor!=method)
 	stop("Only single-color or per-channel summarization is supported.")
 
   ## 2) Summarize between scored replicates:
@@ -215,7 +215,6 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
   xnorm <- Data(object)
 
   if(dim(xnorm)[2]>1) { # we don't need to do anything in case we don't have replicates!
-
 	channelCount <- dim(xnorm)[3]
 	score <- matrix(nrow=dim(xnorm)[1], ncol=channelCount, dimnames=list(featureNames(object), 1:channelCount))
 	for (i in 1:channelCount)
@@ -232,10 +231,8 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
     stop(sprintf("Invalid value '%s' for argument 'summary'", summary)))
 	}
   ## Store the scores in 'assayData' slot. Since now there's a single sample (replicate) we need to construct a new cellHTS object.
-  if ("per-channel"==method)
+  if (perChannel==method)
   {
-	  if (TRUE | dim(xnorm)[2]==dim(score)[2])
-	  {
 		  xnorm <- Data(object) # construct a cellHTS object just with the first sample
 		  
 		  channelCount <- dim(xnorm)[3]
@@ -244,7 +241,7 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
 		  for (i in 1:channelCount)
 		  {
 			  xnorm <- Data(object)[,,i]
-			  score[, i] <- switch("mean",
+			  score[, i] <- switch(summary,
 					  mean = rowMeans(xnorm, na.rm=TRUE),
 					  median = rowMedians(xnorm, na.rm=TRUE),
 					  max  = apply(xnorm, 1, myMax),
@@ -266,20 +263,11 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
 #			  assayData(z) <- combine(assayData(z), assayDataNew("score"=matrix(score[,i], dimnames=list(featureNames(object[,1]), 1))))
 #		  }
 		  #		assayData(z) <- assayDataNew("score"=score)
-	  }
-	  else
-	  {
-	    z <- object[,1] # construct a cellHTS object just with the first sample
-		for (ch in 1:dim(score)[2])
-		{
-			assayData(z) <- assayDataNew("score"=matrix(score[, ch], dimnames=list(featureNames(object), 1)))
-		}
-	  }
   }
   else
   {
 	  z <- object[, 1] # construct a cellHTS object just with the first sample
-	  assayData(z) <- assayDataNew("score"=matrix(score, dimnames=list(featureNames(object), 1)))
+        assayData(z) <- assayDataNew("score"=matrix(score, dimnames=list(featureNames(object), 1)))
   }
 
   ## batch slot: see if the batch differs across samples. If so, reset it to an empty array since now we only have one sample. Otherwise just keep one sample.
@@ -292,8 +280,17 @@ summarizeReplicates = function(object, summary="min", method="single-color") {
     z@batch <- if(any(bbt>1))  new("cellHTS")@batch else bb[,1,1, drop=FALSE]
   }
 } else {
-
-z <- object
+	  z <- object
+	if (perChannel == method)
+	{
+		print(dim(Data(object)))
+		e=new.env()
+		for (ch in 1:dim(Data(object))[3])
+		{
+			e[[paste("score",ch, sep="_ch")]]=matrix(Data(object)[,1,ch], dimnames=list(featureNames(object[,1]), 1))
+		}
+		assayData(z) <- do.call(assayDataNew, as.list(e))
+	}
 }
 
 # NB - the state "scored" of the cellHTS object is only changed to TRUE after data scoring and replicate summarization.
@@ -340,5 +337,5 @@ scores2calls <- function(x, z0, lambda){
   return(x)
 }
 
-
-
+perChannel = "per-channel"
+singleColor = "single-color"

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,8 +94,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*} sign depending on the
- * additive or multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}*}*}*}*}*}*}
+ * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending on the additive or
+ * multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -814,12 +816,26 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ parameters.size()
 						+ ")), negControls=as.vector(rep(\"^neg$\", "
 						+ parameters.size() + ")))");
-		final double[] corrCoeffMin = ((REXPDouble) repMeasures.asList().get(
-				repMeasures.asList().names.contains("corrCoef") ? "corrCoef"
-						: "corrCoef.min")).asDoubles();
-		final double[] corrCoeffMax = ((REXPDouble) repMeasures.asList().get(
-				repMeasures.asList().names.contains("corrCoef") ? "corrCoef"
-						: "corrCoef.max")).asDoubles();
+		final double[] corrCoeffMin = replicateCount == 1 ? new double[parameters
+				.size()
+				* plateCount]
+				: ((REXPDouble) repMeasures
+						.asList()
+						.get(
+								repMeasures.asList().names.contains("corrCoef") ? "corrCoef"
+										: "corrCoef.min")).asDoubles();
+		final double[] corrCoeffMax = replicateCount == 1 ? new double[parameters
+				.size()
+				* plateCount]
+				: ((REXPDouble) repMeasures
+						.asList()
+						.get(
+								repMeasures.asList().names.contains("corrCoef") ? "corrCoef"
+										: "corrCoef.max")).asDoubles();
+		if (replicateCount == 1) {
+			Arrays.fill(corrCoeffMin, Double.NaN);
+			Arrays.fill(corrCoeffMax, Double.NaN);
+		}
 		final StringCell experimentCell = new StringCell(experimentNameModel
 				.getStringValue());
 		final StringCell normaliseCell = new StringCell(normalise);
@@ -861,13 +877,18 @@ public class CellHTS2NodeModel extends NodeModel {
 						values.add(DataType.getMissingCell());
 						values.add(DataType.getMissingCell());
 					}
-					values.add(new DoubleCell(((REXPDouble) repMeasures
-							.asList().get("repStDev")).asDoubles()[param
-							* plateCount + plate]));
-					values.add(new DoubleCell(corrCoeffMin[param * plateCount
-							+ plate]));
-					values.add(new DoubleCell(corrCoeffMax[param * plateCount
-							+ plate]));
+					values.add(replicateCount == 1 ? DataType.getMissingCell()
+							: new DoubleCell(((REXPDouble) repMeasures.asList()
+									.get("repStDev")).asDoubles()[param
+									* plateCount + plate]));
+					final double coeffMin = corrCoeffMin[param * plateCount
+							+ plate];
+					values.add(Double.isNaN(coeffMin) ? DataType
+							.getMissingCell() : new DoubleCell(coeffMin));
+					final double coeffMax = corrCoeffMax[param * plateCount
+							+ plate];
+					values.add(Double.isNaN(coeffMax) ? DataType
+							.getMissingCell() : new DoubleCell(coeffMax));
 					final Object possZFactor = allZFactor.asList().get(0);
 					if (possZFactor instanceof REXPDouble) {
 						final REXPDouble zfactors = (REXPDouble) possZFactor;
@@ -1155,10 +1176,12 @@ public class CellHTS2NodeModel extends NodeModel {
 	private void annotate(final RConnection conn,
 			final BufferedDataTable dataTable, final int replicateIdx,
 			final int plateIdx) throws RserveException {
-		final int lastCol = dataTable.getDataTableSpec().getNumColumns() - 1;
+		final String geneSymbolName = "GeneSymbol";
+		final int geneSymbol = findCol(dataTable, geneSymbolName);
 		conn.voidEval("  nrPlate = max(plate(xn))");
-		if (dataTable.getDataTableSpec().getColumnSpec(lastCol).getType()
-				.equals(StringCell.TYPE)) {
+		if (geneSymbol >= 0
+				&& dataTable.getDataTableSpec().getColumnSpec(geneSymbol)
+						.getType().equals(StringCell.TYPE)) {
 			final StringBuilder sb = new StringBuilder(
 					"geneIDs=data.frame(Plate=c(");
 			for (final DataRow row : dataTable) {
@@ -1171,26 +1194,24 @@ public class CellHTS2NodeModel extends NodeModel {
 			sb.setLength(sb.length() - 2);
 			sb.append("), Well=rep(pWells, nrPlate");
 			sb.append("), GeneID=");
-			if (dataTable.getDataTableSpec().containsName("GeneID")) {
+			final String geneIDName = "GeneID";
+			final int geneID = findCol(dataTable, geneIDName);
+			if (geneID >= 0) {
 				sb.append("c(");
-				int colIndex = -1;
-				int c = 0;
-				for (final DataColumnSpec columnSpec : dataTable
-						.getDataTableSpec()) {
-					if (columnSpec.getName().equalsIgnoreCase("GeneID")) {
-						colIndex = c;
-						break;
-					}
-					++c;
-				}
-				assert c >= 0;
 				for (final DataRow dataRow : dataTable) {
 					if (((IntCell) dataRow.getCell(replicateIdx)).getIntValue() == 1) {// first
 						// replicate
-						sb.append('"').append(
-								((StringCell) dataRow.getCell(colIndex))
-										.getStringValue()).append('"').append(
-								", ");
+						final DataCell cell = dataRow.getCell(geneID);
+						sb
+								.append('"')
+								.append(
+										cell instanceof StringCell ? ((StringCell) cell)
+												.getStringValue()
+												: cell instanceof IntCell ? Integer
+														.toString(((IntCell) cell)
+																.getIntValue())
+														: "").append('"')
+								.append(", ");
 					}
 				}
 				sb.setLength(sb.length() - 2);
@@ -1198,13 +1219,22 @@ public class CellHTS2NodeModel extends NodeModel {
 				sb.append("rep(NA, " + dataTable.getRowCount());
 			}
 			sb.append("), GeneSymbol=c(");
-			for (final DataRow row : dataTable) {
-				if (((IntCell) row.getCell(replicateIdx)).getIntValue() == 1) {// first
-					// replicate
-					sb.append('"').append(
-							((StringCell) row.getCell(lastCol))
-									.getStringValue().trim()).append('"')
-							.append(", ");
+			if (dataTable.getDataTableSpec().containsName(geneSymbolName)) {
+				for (final DataRow row : dataTable) {
+					if (((IntCell) row.getCell(replicateIdx)).getIntValue() == 1) {// first
+						// replicate
+						final DataCell cell = row.getCell(geneSymbol);
+						sb
+								.append('"')
+								.append(
+										cell instanceof StringCell ? ((StringCell) cell)
+												.getStringValue().trim()
+												: cell instanceof IntCell ? Integer
+														.toString(((IntCell) cell)
+																.getIntValue())
+														: "").append('"')
+								.append(", ");
+					}
 				}
 			}
 			sb.setLength(sb.length() - 2);
@@ -1240,6 +1270,29 @@ public class CellHTS2NodeModel extends NodeModel {
 			conn.voidEval("  xn@state[[\"annotated\"]] = TRUE\n");
 			conn.voidEval("  validObject(xn)");
 		}
+	}
+
+	/**
+	 * Finds the index of a column by name (case insensitive).
+	 * 
+	 * @param dataTable
+	 *            A {@link DataTable}.
+	 * @param colName
+	 *            The name of the column to find.
+	 * @return The index of the found column, or {@code -1} if none found.
+	 */
+	private int findCol(final DataTable dataTable, final String colName) {
+		int colIndex = -1;
+		int c = 0;
+		for (final DataColumnSpec columnSpec : dataTable.getDataTableSpec()) {
+			if (columnSpec.getName().equalsIgnoreCase(colName)) {
+				colIndex = c;
+				break;
+			}
+			++c;
+		}
+		// assert c >= 0;
+		return colIndex;
 	}
 
 	/**
@@ -1856,7 +1909,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					 * (!spec.getType().equals(DoubleCell.TYPE)) { throw new
 					 * InvalidSettingsException( "Illegal type of parameter"); }
 					 * } else
-					 */if (!spec.getType().equals(DoubleCell.TYPE)
+					 */if (!DoubleCell.TYPE.isASuperTypeOf(spec.getType())
 							&& !spec.getType().equals(StringCell.TYPE)) {
 						throw new InvalidSettingsException(
 								"Illegal type of parameter on first port");
@@ -2072,20 +2125,20 @@ public class CellHTS2NodeModel extends NodeModel {
 			for (final List<DataCell> ret : rets) {
 				switch (possibleStatistics) {
 				case SCORE:
-					ret.add(new DoubleCell(((REXPDouble) topTable.get("score_"
-							+ ch)).asDoubles()[row]));
+					ret.add(getCellFromValue(((REXPDouble) topTable
+							.get("score_" + ch)).asDoubles()[row]));
 					// ret.add(new DataColumnSpecCreator(possibleStatistics
 					// .getDisplayText()
 					// + "_" + ch, getType(possibleStatistics)).createSpec());
 					break;
 				case MEAN_OR_DIFF:
-					ret.add(new DoubleCell(((REXPDouble) topTable
+					ret.add(getCellFromValue(((REXPDouble) topTable
 							.get((numReplicates == 2 ? "diff_" : "average_")
 									+ ch)).asDoubles()[row]));
 					break;
 				case MEDIAN:
-					ret.add(new DoubleCell(((REXPDouble) topTable.get("median_"
-							+ ch)).asDoubles()[row]));
+					ret.add(getCellFromValue(((REXPDouble) topTable
+							.get("median_" + ch)).asDoubles()[row]));
 					break;
 				case FINAL_WELL_ANNOTATION:
 					if (ch == null) {
@@ -2136,17 +2189,18 @@ public class CellHTS2NodeModel extends NodeModel {
 							.get(repl - 1) : rets.get(0);
 					switch (possibleStatistics) {
 					case RAW:
-						ret.add(new DoubleCell(
-								((REXPDouble) topTable.get("raw_r" + repl + "_"
-										+ ch)).asDoubles()[row]));
+						ret
+								.add(getCellFromValue(((REXPDouble) topTable
+										.get("raw_r" + repl + "_" + ch))
+										.asDoubles()[row]));
 						break;
 					case RAW_PER_PLATE_REPLICATE_MEAN:
-						ret.add(new DoubleCell(((REXPDouble) topTable
+						ret.add(getCellFromValue(((REXPDouble) topTable
 								.get("raw/PlateMedian_r" + repl + "_" + ch))
 								.asDoubles()[row]));
 						break;
 					case NORMALISED:
-						ret.add(new DoubleCell(((REXPDouble) topTable
+						ret.add(getCellFromValue(((REXPDouble) topTable
 								.get("normalized_r" + repl + "_" + ch))
 								.asDoubles()[row]));
 						break;
@@ -2221,6 +2275,10 @@ public class CellHTS2NodeModel extends NodeModel {
 		default:
 			break;
 		}
+	}
+
+	private static DataCell getCellFromValue(final double d) {
+		return Double.isNaN(d) ? DataType.getMissingCell() : new DoubleCell(d);
 	}
 
 	/**
