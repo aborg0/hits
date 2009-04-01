@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./INCell.png" type="Source">
-    <name>Importer</name>
+    <name>INCell xls Importer</name>
     
     <shortDescription>
         Reads the data from (IN Cell Analyzer 1000) xls files, and gene annotations.
