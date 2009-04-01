@@ -3,18 +3,21 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
-import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.annotation.Nullable;
 
 import org.knime.base.node.mine.cluster.hierarchical.ClusterTreeModel;
 import org.knime.base.node.mine.cluster.hierarchical.view.ClusterViewNode;
@@ -57,12 +60,6 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	static final NodeLogger logger = NodeLogger
 			.getLogger(DendrogramNodeModel.class);
 
-	// /** Configuration key for the parameter rearrangement. */
-	// protected static final String CFGKEY_REARRANGE_PARAMETERS =
-	// "ie.tcd.imm.hits.knime.view.dendrogram.rearrangeParameters";
-	// /** Default value of the parameter rearrangement. */
-	// protected static final boolean DEFAULT_REARRANGE_PARAMETERS = true;
-
 	/** Reset should clear it. */
 	private final Map<String, Integer> mapOfKeys = new HashMap<String, Integer>();
 
@@ -71,14 +68,11 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	/** The selected columns. */
 	private final List<String> selectedColumns = new ArrayList<String>();
 
-	// private final SettingsModelBoolean rearrangeParameters = new
-	// SettingsModelBoolean(
-	// DendrogramNodeModel.CFGKEY_REARRANGE_PARAMETERS,
-	// DendrogramNodeModel.DEFAULT_REARRANGE_PARAMETERS);
+	private @Nullable
+	DataArray origData;
 
-	private DataArray origData;
-
-	private ClusterViewNode root;
+	private @Nullable
+	ClusterViewNode root;
 
 	/**
 	 * Constructor for the node model.
@@ -99,27 +93,6 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 			final ExecutionContext exec) throws Exception {
 		selectedColumns.clear();
 		setTreeModel((ClusterTreeModel) data[0]);
-		// if (rearrangeParameters.getBooleanValue()) {
-		// final HalfDoubleMatrix cache = new HalfDoubleMatrix(cols.size(),
-		// false);
-		// final Names nameOfDistanceFunction = DistanceFunction.Names
-		// .valueOf(new SettingsModelString(
-		// HierarchicalClusterNodeModel.DISTFUNCTION_KEY,
-		// DistanceFunction.Names.values()[0].name())
-		// .getStringValue());
-		// final DistanceFunction distFunc;
-		// switch (nameOfDistanceFunction) {
-		// case Manhattan:
-		// distFunc = ManhattanDist.MANHATTEN_DISTANCE;
-		// break;
-		// case Euclidean:
-		// distFunc = EuclideanDist.EUCLIDEAN_DISTANCE;
-		// break;
-		// default:
-		// throw new UnsupportedOperationException(
-		// "Not supported distance function.");
-		// }
-		// }
 		origData = new DefaultDataArray((BufferedDataTable) data[1], 1,
 				((BufferedDataTable) data[1]).getRowCount());
 		mapOfKeys.clear();
@@ -127,9 +100,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 		for (final DataRow row : origData/* data[0] */) {
 			mapOfKeys.put(row.getKey().getString(), Integer.valueOf(i++));
 		}
-		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
 		fillStats((BufferedDataTable) data[1]);
-		// logger.debug(new Date(System.currentTimeMillis()).toGMTString());
 		return new BufferedDataTable[0];
 	}
 
@@ -151,8 +122,6 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	 */
 	private void fillStats(final DataTable table) {
 		final Map<String, Map<StatTypes, List<Double>>> vals = new HashMap<String, Map<StatTypes, List<Double>>>();
-		// final Map<String, Map<StatTypes, Map<RangeType, Double>>> ret = new
-		// HashMap<String, Map<StatTypes, Map<RangeType, Double>>>();
 		ranges.clear();
 		final List<String> columns = getColumns();
 		final int[] colIndices = new int[columns.size()];
@@ -184,7 +153,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 				}
 			}
 		}
-		ModelBuilder.computeStatistics(ranges, vals);
+		SimpleModelBuilder.computeStatistics(ranges, vals);
 	}
 
 	/**
@@ -246,11 +215,13 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	protected void saveInternals(final File nodeInternDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		final File dataFile = new File(nodeInternDir,
-				DendrogramNodeModel.CFG_H_CLUST_DATA);
-		DataContainer.writeToZip(origData, dataFile, exec);
-		PortUtil.writeObjectToFile(clusterTreeModel, new File(nodeInternDir,
-				CFG_H_TREE_DATA), exec);
+		if (origData != null) {
+			final File dataFile = new File(nodeInternDir,
+					DendrogramNodeModel.CFG_H_CLUST_DATA);
+			DataContainer.writeToZip(origData, dataFile, exec);
+			PortUtil.writeObjectToFile(clusterTreeModel, new File(
+					nodeInternDir, CFG_H_TREE_DATA), exec);
+		}
 	}
 
 	/**
@@ -272,19 +243,22 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	/**
 	 * @return The original data table.
 	 */
-	public DataArray getOrigData() {
+	public @Nullable
+	DataArray getOrigData() {
 		return origData;
 	}
 
 	/**
 	 * @return The root {@link DendrogramNode}.
 	 */
-	public DendrogramNode getRoot() {
+	public @Nullable
+	DendrogramNode getRoot() {
 		return root;
 	}
 
 	@Override
-	public DataArray getDataArray(final int index) {
+	public @Nullable
+	DataArray getDataArray(final int index) {
 		return origData;
 	}
 

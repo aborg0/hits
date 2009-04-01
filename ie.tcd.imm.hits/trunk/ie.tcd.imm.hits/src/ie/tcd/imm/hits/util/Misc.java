@@ -32,8 +32,8 @@ public class Misc {
 	 *         digits (except if {@code num} is {@link Integer#MIN_VALUE} and
 	 *         {@code minDigits} is more than its digits).
 	 */
-	public static String addTrailing(final int num, @Nonnegative
-	final int minDigits) {
+	public static String addTrailing(final int num,
+			@Nonnegative final int minDigits) {
 		if (num < 0 && num != Integer.MIN_VALUE) {
 			return "-" + addTrailing(-num, minDigits);
 		}
@@ -50,5 +50,19 @@ public class Misc {
 			sb.setCharAt(i + minDigits - str.length(), str.charAt(i));
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Rounds the {@code val} to minimise have an easier to read representation
+	 * of if.
+	 * 
+	 * @param val
+	 *            A finite double value.
+	 * @return The rounded value as {@link String}.
+	 */
+	public static String round(final double val) {
+		return Math.abs(val) > 100 ? Long.toString(Math.round(val)) : Math
+				.abs(val) > 10 ? Double.toString(Math.round(val * 10) / 10.0)
+				: Double.toString(Math.round(val * 100) / 100.0);
 	}
 }

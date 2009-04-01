@@ -4,19 +4,22 @@
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -60,6 +63,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private boolean directionLeftToRight;
 
 	private int leafX;
+	private boolean showValues;
 
 	// private boolean directionUpToDown;
 
@@ -142,7 +146,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		final List<BinaryTreeNode<DendrogramPoint>> nodes = rootNode
 				.getNodes(BinaryTree.Traversal.IN);
 
-		final int fontHeight = g.getFontMetrics().getHeight();
+		final FontMetrics fm = g.getFontMetrics();
+		final int fontHeight = fm.getHeight();
 		for (final BinaryTreeNode<DendrogramPoint> node : nodes) {
 			final DendrogramPoint dendroPoint = node.getContent();
 			if (dendroPoint.getRows().size() == 1 && nodeModel != null) {
@@ -168,6 +173,26 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 										* cellWidth : i /*- 1*/
 										* cellWidth), point.y - cellHeight / 2,
 								cellWidth, cellHeight + 1);
+						if (showValues) {
+							g
+									.setColor(Color.RGBtoHSB(col.getRed(), col
+											.getGreen(), col.getBlue(), null)[2] > .6f ? Color.BLACK
+											: Color.WHITE);
+							final String str = Misc.round(val);
+							g
+									.drawString(
+											str,
+											point.x
+													+ (directionLeftToRight ? (i - visibleColumns
+															.size())
+															* cellWidth
+															: i * cellWidth)
+
+													+ (cellWidth - fm
+															.stringWidth(str))
+													/ 2, point.y + fontHeight
+													/ 3);
+						}
 					}
 				}
 
@@ -189,13 +214,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					g.setColor(Color.BLACK);
 				}
 				g.drawString(row.getKey().getString(),
-						directionLeftToRight ? point.x
-								- visibleColumns.size()
+						directionLeftToRight ? point.x - visibleColumns.size()
 								* cellWidth
-								- g.getFontMetrics().stringWidth(
-										row.getKey().getString()) : point.x
-								+ visibleColumns.size() * cellWidth, point.y
-								+ /*
+								- fm.stringWidth(row.getKey().getString())
+								: point.x + visibleColumns.size() * cellWidth,
+						point.y + /*
 								 * cellHeight / 2 -
 								 */fontHeight / 3);
 				g.setColor(color);
@@ -208,9 +231,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
 				if (node.getContent().getRows().size() == 1) {
 					final Point point = node.getContent().getPoint();
-					g.drawRect(point.x - visibleColumns.size() * cellWidth,
-							point.y - cellHeight / 2 + 1, cellWidth
-									* visibleColumns.size(), cellHeight);
+					g.drawRect(point.x
+							- (directionLeftToRight ? visibleColumns.size()
+									* cellWidth : 0), point.y - cellHeight / 2
+							+ 1, cellWidth * visibleColumns.size(), cellHeight);
 				}
 			} else {
 				((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
@@ -380,5 +404,15 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		this.selectedColumns.clear();
 		this.selectedColumns.addAll(selectedColumns);
 		computeIndices();
+	}
+
+	/**
+	 * Updates the showValues property.
+	 * 
+	 * @param showValues
+	 *            The new value for the property.
+	 */
+	public void setShowValues(final boolean showValues) {
+		this.showValues = showValues;
 	}
 }

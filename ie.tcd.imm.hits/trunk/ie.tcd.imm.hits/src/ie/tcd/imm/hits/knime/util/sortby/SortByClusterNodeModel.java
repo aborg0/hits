@@ -1,12 +1,16 @@
 package ie.tcd.imm.hits.knime.util.sortby;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
 import org.knime.base.node.mine.cluster.hierarchical.ClusterTreeModel;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramNode;
@@ -27,12 +31,15 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of SortByCluster. Sorts the data by the
  * order defined by the clustering.
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SortByClusterNodeModel extends NodeModel {
 
 	/** key for ascending order */

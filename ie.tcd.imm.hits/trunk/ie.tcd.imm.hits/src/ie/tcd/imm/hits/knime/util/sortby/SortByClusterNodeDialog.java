@@ -1,8 +1,13 @@
 package ie.tcd.imm.hits.knime.util.sortby;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * <code>NodeDialog</code> for the "SortByCluster" Node. Sorts the data by the
@@ -15,6 +20,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SortByClusterNodeDialog extends DefaultNodeSettingsPane {
 
 	/**

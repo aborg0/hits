@@ -3,11 +3,21 @@ package ie.tcd.imm.hits.knime.view.heatmap.simple;
 import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.swing.PopupListener;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -20,15 +30,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -57,12 +61,15 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * {@link NodeView} for the "SimpleHeatmap" Node. Shows a simple heatmap of the
  * data.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		implements ChangeListener, ActionListener {
 
@@ -368,13 +375,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 									.setColor(Color.RGBtoHSB(col.getRed(), col
 											.getGreen(), col.getBlue(), null)[2] > .6f ? Color.BLACK
 											: Color.WHITE);
-							final String str = Math.abs(val) > 100 ? Double
-									.toString(Math.round(val))
-									: Math.abs(val) > 10 ? Double.toString(Math
-											.round(val * 10) / 10.0)
-											: Double.toString(Math
-													.round(val * 100) / 100.0);
-
+							final String str = Misc.round(val);
 							g
 									.drawString(str,
 											(textLeft ? maxStringLength : 0)
@@ -534,6 +535,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		for (final JMenuItem menu : createHiLiteMenuItems()) {
 			ret.add(menu);
 		}
+		createHiLiteMenuItems();
 		return ret;
 	}
 
@@ -592,6 +594,12 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 				.getHiLitKeys()));
 	}
 
+	/**
+	 * Updates the view based on the new {@code nodeModel}.
+	 * 
+	 * @param nodeModel
+	 *            A {@link SimpleHeatmapNodeModel}.
+	 */
 	void updateModel(final SimpleHeatmapNodeModel nodeModel) {
 		if (nodeModel == null) {
 			// main.setVisible(false);

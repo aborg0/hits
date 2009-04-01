@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -44,6 +45,7 @@ public class HeatmapDendrogramPlotterProperties extends
 			"Flip horizontal", false);
 	private final JToggleButton flipVertical = new JToggleButton(
 			"Flip vertical");
+	private final JCheckBox showValues = new JCheckBox("Show values");
 
 	/**
 	 * Constructs the properties with a new tab, and default colours.
@@ -60,6 +62,8 @@ public class HeatmapDendrogramPlotterProperties extends
 		box.add(cellWidth);
 		box.add(flipHorizontal);
 		box.add(flipVertical);
+		flipVertical.setEnabled(false);
+		box.add(showValues);
 	}
 
 	/**
@@ -109,5 +113,12 @@ public class HeatmapDendrogramPlotterProperties extends
 	 */
 	public AbstractButton getFlipVertical() {
 		return flipVertical;
+	}
+
+	/**
+	 * @return The {@link AbstractButton} for showing the values.
+	 */
+	public AbstractButton getShowValues() {
+		return showValues;
 	}
 }

@@ -1,8 +1,13 @@
 package ie.tcd.imm.hits.knime.view.heatmap.simple;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * <code>NodeFactory</code> for the "SimpleHeatmap" Node. Shows a simple heatmap
@@ -10,6 +15,7 @@ import org.knime.core.node.NodeView;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SimpleHeatmapNodeFactory extends
 		NodeFactory<SimpleHeatmapNodeModel> {
 

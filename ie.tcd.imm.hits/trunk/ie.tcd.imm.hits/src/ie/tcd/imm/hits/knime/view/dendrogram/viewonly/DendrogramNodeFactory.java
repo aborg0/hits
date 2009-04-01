@@ -8,7 +8,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "Dendrogram" Node. Allows to create
  * dendrogram with a heatmap of parameters.
  * 
- * @author TCD
+ * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class DendrogramNodeFactory extends NodeFactory<DendrogramNodeModel> {
 

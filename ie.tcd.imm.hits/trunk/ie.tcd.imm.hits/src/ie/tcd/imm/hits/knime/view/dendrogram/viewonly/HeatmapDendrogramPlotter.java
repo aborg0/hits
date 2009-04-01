@@ -3,15 +3,18 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import ie.tcd.imm.hits.knime.util.ShiftedLogarithmicMappingMethod;
+
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -27,10 +30,12 @@ import org.knime.base.node.viz.plotter.dendrogram.DendrogramNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPoint;
 import org.knime.base.util.coordinate.AscendingNumericTickPolicyStrategy;
+import org.knime.base.util.coordinate.Coordinate;
 import org.knime.base.util.coordinate.DescendingNumericTickPolicyStrategy;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
@@ -45,6 +50,19 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	private static final long serialVersionUID = -7290110714225915563L;
+
+	static {
+		Coordinate.addMappingMethod(DoubleValue.class,
+				ShiftedLogarithmicMappingMethod.ID_BASE_E,
+				new ShiftedLogarithmicMappingMethod(1.0));
+		Coordinate.addMappingMethod(DoubleValue.class,
+				ShiftedLogarithmicMappingMethod.ID_BASE_10,
+				new ShiftedLogarithmicMappingMethod(10.0, 1.0));
+		Coordinate.addMappingMethod(DoubleValue.class,
+				ShiftedLogarithmicMappingMethod.ID_BASE_2,
+				new ShiftedLogarithmicMappingMethod(2.0, 1.0));
+	}
+
 	private DendrogramNode rootNode;
 
 	/** The set of selected dendrogram points. */
@@ -158,6 +176,9 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		heatmapDendrogramPlotterProperties.getFlipVertical().setAction(
 				new AbstractAction("Flip Vertical") {
 					private static final long serialVersionUID = -5557966689877616495L;
+					{
+						setEnabled(false);
+					}
 
 					@Override
 					public void actionPerformed(final ActionEvent e) {
@@ -166,6 +187,38 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 						heatmapDendrogramDrawingPane.repaint();
 					}
 				});
+		heatmapDendrogramPlotterProperties.getShowValues().setAction(
+				new AbstractAction("Show Values") {
+					private static final long serialVersionUID = 8315638463449648686L;
+
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						heatmapDendrogramDrawingPane
+								.setShowValues(heatmapDendrogramPlotterProperties
+										.getShowValues().isSelected());
+						heatmapDendrogramDrawingPane.repaint();
+					}
+				});
+		getXAxis().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				heatmapDendrogramPlotterProperties
+						.getFlipHorizontal()
+						.setSelected(
+								getXAxis()
+										.getCoordinate()
+										.getCurrentPolicy()
+										.getDisplayName()
+										.equals(
+												DescendingNumericTickPolicyStrategy.ID));
+				heatmapDendrogramPlotterProperties.getFlipHorizontal()
+						.getAction().actionPerformed(
+								new ActionEvent(e.getSource(), 0,
+										heatmapDendrogramPlotterProperties
+												.getFlipHorizontal()
+												.getActionCommand()));
+			}
+		});
 		updateDirection(heatmapDendrogramPlotterProperties);
 	}
 
@@ -173,6 +226,9 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			final HeatmapDendrogramPlotterProperties heatmapDendrogramPlotterProperties) {
 		directionLeftToRight = !heatmapDendrogramPlotterProperties
 				.getFlipHorizontal().isSelected();
+		// getXAxis().getCoordinate().setPolicy(
+		// directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
+		// : DescendingNumericTickPolicyStrategy.ID);
 		((HeatmapDendrogramDrawingPane) getDrawingPane())
 				.setHorizontalDirection(directionLeftToRight);
 		// directionUpToDown = !heatmapDendrogramPlotterProperties
@@ -231,11 +287,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		dp.setHeatmapCellHeight((int) getYAxis().getCoordinate()
 				.getUnusedDistBetweenTicks(getDrawingPaneDimension().height));
 		getDrawingPane().repaint();
-	}
-
-	@Override
-	public void createXCoordinate(final double min, final double max) {
-		super.createXCoordinate(min, max);
 	}
 
 	/**

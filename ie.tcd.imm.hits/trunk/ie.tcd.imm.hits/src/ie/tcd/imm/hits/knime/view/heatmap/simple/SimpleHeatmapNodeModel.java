@@ -1,15 +1,21 @@
 package ie.tcd.imm.hits.knime.view.heatmap.simple;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+
 import org.knime.base.node.util.DataArray;
 import org.knime.base.node.util.DefaultDataArray;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.container.ContainerTable;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DoubleCell;
@@ -23,12 +29,15 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This is the model implementation of SimpleHeatmap. Shows a simple heatmap of
  * the data.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SimpleHeatmapNodeModel extends NodeModel {
 
 	// the logger instance
@@ -58,6 +67,7 @@ public class SimpleHeatmapNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
+		logger.debug("Node reset");
 		table = null;
 	}
 
@@ -118,10 +128,17 @@ public class SimpleHeatmapNodeModel extends NodeModel {
 		DataContainer.writeToZip(table, new File(internDir, TABLE), exec);
 	}
 
+	/**
+	 * @return The associated table as {@link DataArray}.
+	 */
 	protected DataArray getTable() {
 		return table;
 	}
 
+	/**
+	 * @return A {@link List} of columns with {@link DoubleValue}s (or empty
+	 *         {@link DataCell}s).
+	 */
 	protected List<String> getColumns() {
 		if (table == null) {
 			return Collections.emptyList();
