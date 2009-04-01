@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./heatmap.png" type="Visualizer">
-    <name>Heatmap</name>
+    <name>Plate Heatmap</name>
     
     <shortDescription>
         Shows the heatmap of the plates
