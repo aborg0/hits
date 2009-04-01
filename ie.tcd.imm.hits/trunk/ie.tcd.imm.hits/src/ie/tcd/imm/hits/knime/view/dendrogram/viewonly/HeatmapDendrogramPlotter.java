@@ -19,6 +19,8 @@ import java.lang.reflect.Method;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -29,6 +31,7 @@ import org.knime.base.node.viz.plotter.dendrogram.DendrogramDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPoint;
+import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.base.util.coordinate.AscendingNumericTickPolicyStrategy;
 import org.knime.base.util.coordinate.Coordinate;
 import org.knime.base.util.coordinate.DescendingNumericTickPolicyStrategy;
@@ -219,6 +222,17 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 												.getActionCommand()));
 			}
 		});
+		heatmapDendrogramPlotterProperties.getClusterCount().addChangeListener(
+				new ChangeListener() {
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						heatmapDendrogramDrawingPane
+								.setClusterCount(((Number) heatmapDendrogramPlotterProperties
+										.getClusterCount().getValue())
+										.intValue());
+						heatmapDendrogramDrawingPane.repaint();
+					}
+				});
 		updateDirection(heatmapDendrogramPlotterProperties);
 	}
 
@@ -283,6 +297,16 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		}
 		createNominalYCoordinate(keys);
 		tree = viewModel();
+		final int size = tree.getNodes(Traversal.PRE).size();
+		final JSpinner spinner = ((HeatmapDendrogramPlotterProperties) getProperties())
+				.getClusterCount();
+		final int leafCount = (1 + size) / 2;
+		@SuppressWarnings("unchecked")
+		final int compareResult = ((SpinnerNumberModel) spinner.getModel())
+				.getMaximum().compareTo(Integer.valueOf(leafCount));
+		if (compareResult != 0) {
+			spinner.setModel(new SpinnerNumberModel(1, 1, leafCount, 1));
+		}
 		((DendrogramDrawingPane) getDrawingPane()).setRootNode(tree);
 		dp.setHeatmapCellHeight((int) getYAxis().getCoordinate()
 				.getUnusedDistBetweenTicks(getDrawingPaneDimension().height));

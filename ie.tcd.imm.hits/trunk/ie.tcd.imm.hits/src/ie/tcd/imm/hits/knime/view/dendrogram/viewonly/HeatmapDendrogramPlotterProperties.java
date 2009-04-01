@@ -46,6 +46,8 @@ public class HeatmapDendrogramPlotterProperties extends
 	private final JToggleButton flipVertical = new JToggleButton(
 			"Flip vertical");
 	private final JCheckBox showValues = new JCheckBox("Show values");
+	private final JSpinner clusterCount = new JSpinner(new SpinnerNumberModel(
+			1, 1, 1, 1));
 
 	/**
 	 * Constructs the properties with a new tab, and default colours.
@@ -64,6 +66,8 @@ public class HeatmapDendrogramPlotterProperties extends
 		box.add(flipVertical);
 		flipVertical.setEnabled(false);
 		box.add(showValues);
+		box.add(new JLabel("Clusters: "));
+		box.add(clusterCount);
 	}
 
 	/**
@@ -120,5 +124,12 @@ public class HeatmapDendrogramPlotterProperties extends
 	 */
 	public AbstractButton getShowValues() {
 		return showValues;
+	}
+
+	/**
+	 * @return The {@link JSpinner} for the cluster count.
+	 */
+	public JSpinner getClusterCount() {
+		return clusterCount;
 	}
 }

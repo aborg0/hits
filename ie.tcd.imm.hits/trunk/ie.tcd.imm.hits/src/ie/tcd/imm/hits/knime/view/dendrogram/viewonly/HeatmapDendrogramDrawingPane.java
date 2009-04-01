@@ -10,7 +10,11 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -64,6 +68,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 
 	private int leafX;
 	private boolean showValues;
+	private int clusterCount;
+	private final Set<String> lastClusterKeys = new HashSet<String>();
 
 	// private boolean directionUpToDown;
 
@@ -221,6 +227,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						point.y + /*
 								 * cellHeight / 2 -
 								 */fontHeight / 3);
+				if (lastClusterKeys.contains(row.getKey().getString())) {
+					final int y = point.y + cellHeight / 2;
+					g.drawLine(0, y, getWidth(), y);
+				}
 				g.setColor(color);
 			}
 			// set the correct stroke and color
@@ -414,5 +424,49 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	 */
 	public void setShowValues(final boolean showValues) {
 		this.showValues = showValues;
+	}
+
+	/**
+	 * Updates the cluster count to show on pane.
+	 * 
+	 * @param clusterCount
+	 *            The new cluster count.
+	 */
+	public void setClusterCount(final int clusterCount) {
+		final List<BinaryTreeNode<DendrogramPoint>> nodes = rootNode
+				.getNodes(Traversal.PRE);
+		if (clusterCount > (nodes.size() + 1) / 2 || clusterCount < 1) {
+			throw new IllegalArgumentException(
+					"The number of cluster cannot exceed the number of leaves in the hierarchy, and must be at least 0.");
+		}
+		this.clusterCount = clusterCount;
+		lastClusterKeys.clear();
+		final TreeSet<BinaryTreeNode<DendrogramPoint>> treeSet = new TreeSet<BinaryTreeNode<DendrogramPoint>>(
+				new Comparator<BinaryTreeNode<DendrogramPoint>>() {
+					@Override
+					public int compare(
+							final BinaryTreeNode<DendrogramPoint> o1,
+							final BinaryTreeNode<DendrogramPoint> o2) {
+						return Double.compare(o1.getContent().getDistance(), o2
+								.getContent().getDistance());
+					}
+				});
+		for (final BinaryTreeNode<DendrogramPoint> node : nodes) {
+			treeSet.add(node);
+		}
+		while (lastClusterKeys.size() < this.clusterCount - 1) {
+			final BinaryTreeNode<DendrogramPoint> last = treeSet.last();
+			treeSet.remove(last);
+			BinaryTreeNode<DendrogramPoint> p = last.getRightChild();
+			while (!p.isLeaf()) {
+				p = p.getLeftChild();
+				// p = p.getLeftChild().getContent().getDistance() > p
+				// .getRightChild().getContent().getDistance()
+				// /* || p.getLeftChild().isLeaf() */? p.getLeftChild() : p
+				// .getRightChild();
+			}
+			lastClusterKeys.add(p.getContent().getRows().iterator().next()
+					.getString());
+		}
 	}
 }
