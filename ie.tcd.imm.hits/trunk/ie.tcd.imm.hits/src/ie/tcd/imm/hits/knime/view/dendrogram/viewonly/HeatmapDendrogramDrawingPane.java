@@ -85,7 +85,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	public void setNodeModel(final DendrogramNodeModel nodeModel) {
 		this.nodeModel = nodeModel;
 		maxStringLength = 0;
-		if (this.nodeModel != null) {
+		if (this.nodeModel != null && this.nodeModel.getDataArray(1) != null) {
 			computeIndices();
 			for (final DataRow row : this.nodeModel.getOrigData()) {
 				maxStringLength = Math.max(maxStringLength, getFontMetrics(

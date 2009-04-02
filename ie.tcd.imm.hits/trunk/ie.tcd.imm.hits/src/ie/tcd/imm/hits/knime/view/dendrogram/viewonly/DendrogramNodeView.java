@@ -3,6 +3,9 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
@@ -14,8 +17,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -219,7 +220,8 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			if (((AbstractButton) e.getSource()).isSelected()) {
+			if (((AbstractButton) e.getSource()).isSelected()
+					&& ((DendrogramNodeModel) getNodeModel()).getOrigData() != null) {
 				final List<String> visibleColumns = new ArrayList<String>();
 				final List<String> selectedColumns = new ArrayList<String>();
 				final DendrogramNodeModel nodeModel = (DendrogramNodeModel) getNodeModel();
