@@ -6,8 +6,10 @@ package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 import ie.tcd.imm.hits.knime.util.HiliteType;
 import ie.tcd.imm.hits.knime.util.ShiftedLogarithmicMappingMethod;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import java.awt.Dimension;
@@ -26,6 +28,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.base.node.util.DataArray;
 import org.knime.base.node.viz.plotter.AbstractPlotter;
 import org.knime.base.node.viz.plotter.DataProvider;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
@@ -45,6 +48,9 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.property.ColorAttr;
+import org.knime.core.data.property.ShapeFactory;
+import org.knime.core.data.property.ShapeFactory.Shape;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -76,6 +82,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	private BinaryTree<DendrogramPoint> tree;
 
 	private boolean directionLeftToRight;
+
+	private final Map<RowKey, Integer> mapFromKeysToIndices = new HashMap<RowKey, Integer>();
 
 	// private boolean directionUpToDown;
 
@@ -318,8 +326,14 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	 * @return The model for the view.
 	 */
 	private BinaryTree<DendrogramPoint> viewModel() {
+		mapFromKeysToIndices.clear();
+		int i = 0;
+		for (final DataRow row : getDataProvider().getDataArray(1)) {
+			mapFromKeysToIndices.put(row.getKey(), Integer.valueOf(i++));
+		}
 		final BinaryTree<DendrogramPoint> tree = rootNode == null ? null
 				: new BinaryTree<DendrogramPoint>(createViewModelFor(rootNode));
+		mapFromKeysToIndices.clear();
 		return tree;
 	}
 
@@ -417,16 +431,22 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			y = dim.height - getYPosition(node);
 			p = new DendrogramPoint(new Point(x, y), node.getDist());
 		} else {
-			final DataRow row = node.getLeafDataPoint();
+			// final DataRow row = node.getLeafDataPoint();
+			final RowKey key = getKey(node);
+			final DataArray table = getDataProvider().getDataArray(1);
+			final DataRow row = table.getRow(mapFromKeysToIndices.get(key)
+					.intValue());
 			y = dim.height
 					- (int) getYAxis().getCoordinate().calculateMappedValue(
 							new StringCell(getKey(node)
 							/* row.getKey() */.getString()), dim.height);
 			p = new DendrogramPoint(new Point(x, y), node.getDist());
-			final DataTableSpec spec = getDataProvider().getDataArray(1)
-					.getDataTableSpec();
-			p.setColor(spec.getRowColor(row));
-			p.setShape(spec.getRowShape(row));
+			final DataTableSpec spec = table.getDataTableSpec();
+			final ColorAttr rowColor = spec.getRowColor(row);
+			p.setColor(rowColor == null ? ColorAttr.DEFAULT : rowColor);
+			final Shape rowShape = spec.getRowShape(row);
+			p.setShape(rowShape == null ? ShapeFactory
+					.getShape(ShapeFactory.DEFAULT) : rowShape);
 			p.setRelativeSize(spec.getRowSizeFactor(row));
 			p.setHilite(delegateIsHiLit(getKey(node)
 			/* row.getKey() */));

@@ -234,6 +234,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 								 * cellHeight / 2 -
 								 */fontHeight / 3);
 				if (lastClusterKeys.contains(row.getKey().getString())) {
+					g.setColor(Color.RGBtoHSB(getBackground().getGreen(),
+							getBackground().getGreen(), getBackground()
+									.getBlue(), null)[2] < .4f ? Color.WHITE
+							: Color.BLACK);
 					final int y = point.y + cellHeight / 2;
 					g.drawLine(0, y, getWidth(), y);
 				}
