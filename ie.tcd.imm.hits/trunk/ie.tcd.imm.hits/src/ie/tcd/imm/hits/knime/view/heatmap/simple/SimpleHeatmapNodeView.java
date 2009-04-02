@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -36,7 +35,7 @@ import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -81,8 +80,6 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			2, 50, 2));
 	private final JCheckBox textOnLeft = new JCheckBox("Text on left", true);
 	private final JCheckBox showValues = new JCheckBox("Show values", false);
-	// private final JCheckBox visibleLegend = new JCheckBox("VisibleLegend",
-	// true);
 	private final JComboBox statistics = new JComboBox();
 	private final View view = new View();
 	private final JPanel generalTab = new JPanel();
@@ -90,6 +87,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 	private final ColourSelector selector = new ColourSelector(Collections
 			.<String> emptyList(), Collections.<StatTypes> emptyList());
 	private final Parameters legend = new Parameters();
+	private final JScrollPane viewScrollPane;
 
 	private abstract class HiLiteAction extends AbstractAction {
 		private static final long serialVersionUID = 251274937768154434L;
@@ -342,8 +340,6 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 			final int cellH = ((Number) cellHeight.getValue()).intValue();
 			final boolean textLeft = textOnLeft.isSelected();
 			int y = 0;
-			// new ArrayList<StatTypes>(
-			// indices.keySet());
 			final StatTypes selectedStat = (StatTypes) statistics
 					.getSelectedItem();
 			final boolean showVals = showValues.isSelected();
@@ -423,24 +419,10 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 								+ fontHeight / 3);
 				++y;
 			}
-			// if (visibleLegend.isSelected()) {
-			// g.setColor(getBackground());
-			// g.fillRect(0, getVisibleRect().y + getVisibleRect().height
-			// - maxParamLength, getWidth(), maxParamLength);
-			// }
 			((Graphics2D) g).rotate(-Math.PI / 2);
 			int p = 0;
 			final FontMetrics fm = getFontMetrics(getFont());
 			for (final String param : selectedParams) {
-				// g.drawString(param, -maxParamLength, p * cellW + cellW / 2
-				// + fontHeight / 3 + (textLeft ? maxStringLength : 0));
-				// if (visibleLegend.isSelected()) {
-				//
-				// g.drawString(param, -getVisibleRect().y
-				// + getVisibleRect().height - fm.stringWidth(param),
-				// p * cellW + cellW / 2 + fontHeight / 3
-				// + (textLeft ? maxStringLength : 0));
-				// }
 				g.drawString(param, -table.size() * cellH
 						- fm.stringWidth(param), p++ * cellW + cellW / 2
 						+ fontHeight / 3 + (textLeft ? maxStringLength : 0));
@@ -491,7 +473,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		split.setOneTouchExpandable(true);
 		view.setBackground(Color.WHITE);
-		final JScrollPane viewScrollPane = new JScrollPane(view);
+		viewScrollPane = new JScrollPane(view);
 		viewScrollPane.setViewportView(view);
 		viewScrollPane.setAutoscrolls(true);
 		viewScrollPane.setColumnHeaderView(legend);
@@ -504,17 +486,16 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		// main.setPreferredSize(new Dimension(800, 800));
 		// view.setPreferredSize(new Dimension(800, 700));
 		colourTab.add(selector);
+		generalTab.add(new JLabel("Cell width: "));
 		generalTab.add(cellWidth);
+		generalTab.add(new JLabel("Cell height: "));
 		generalTab.add(cellHeight);
 		generalTab.add(textOnLeft);
 		generalTab.add(statistics);
 		generalTab.add(showValues);
-		// generalTab.add(visibleLegend);
 		tabbedPane.addTab("Colours", new JScrollPane(colourTab));
 		tabbedPane.addTab("General", generalTab);
 		updateModel(nodeModel);
-		// final JPanel panel = new JPanel();
-		// panel.add(split);
 		main.setDividerLocation(500);
 		setComponent(main);
 		textOnLeft.addActionListener(this);
@@ -523,9 +504,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		showValues.addActionListener(this);
 		selector.getModel().addActionListener(this);
 		statistics.addActionListener(this);
-		// visibleLegend.addActionListener(this);
 		view.addMouseListener(new PopupListener(createPopupMenu()));
-		// split.setDividerLocation(1.0);
 		split.setDividerLocation(1800);
 		getJMenuBar().add(createHiLiteMenu());
 	}
@@ -580,14 +559,9 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 	 */
 	@Override
 	protected void modelChanged() {
-
-		// TODO retrieve the new model from your nodemodel and
-		// update the view.
 		final SimpleHeatmapNodeModel nodeModel = getNodeModel();
 		assert nodeModel != null;
 
-		// be aware of a possibly not executed nodeModel! The data you retrieve
-		// from your nodemodel could be null, emtpy, or invalid in any kind.
 		updateModel(nodeModel);
 		nodeModel.getInHiLiteHandler(0).addHiLiteListener(view);
 		view.hiLite(new KeyEvent(this, nodeModel.getInHiLiteHandler(0)
@@ -601,11 +575,11 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 	 *            A {@link SimpleHeatmapNodeModel}.
 	 */
 	void updateModel(final SimpleHeatmapNodeModel nodeModel) {
-		if (nodeModel == null) {
-			// main.setVisible(false);
+		if (nodeModel == null || nodeModel.getTable() == null) {
+			main.setVisible(false);
 			return;
 		}
-		// main.setVisible(true);
+		main.setVisible(true);
 		final SpecAnalyser s = new SpecAnalyser(nodeModel.getTable()
 				.getDataTableSpec(), false);
 		final SimpleModelBuilder builder = new SimpleModelBuilder(nodeModel
@@ -648,10 +622,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 	@Override
 	public void stateChanged(final ChangeEvent e) {
 		view.updateSize();
-		main.invalidate();
-		main.revalidate();
-		((Container) main.getLeftComponent()).invalidate();
-		((JComponent) main.getLeftComponent()).revalidate();
+		viewScrollPane.getViewport().revalidate();
 		main.repaint();
 		view.repaint();
 		legend.repaint();
