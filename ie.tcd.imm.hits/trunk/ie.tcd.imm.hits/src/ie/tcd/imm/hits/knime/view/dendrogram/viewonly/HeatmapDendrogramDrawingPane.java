@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import ie.tcd.imm.hits.knime.util.HiliteType;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
@@ -70,6 +71,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private boolean showValues;
 	private int clusterCount;
 	private final Set<String> lastClusterKeys = new HashSet<String>();
+
+	private HiliteType hilite = HiliteType.Normal;
 
 	// private boolean directionUpToDown;
 
@@ -217,7 +220,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 									rowColor.getGreen(), rowColor.getBlue(),
 									null)[2] < .4f ? Color.WHITE : Color.BLACK);
 				} else {
-					g.setColor(Color.BLACK);
+					g.setColor(Color.RGBtoHSB(getBackground().getGreen(),
+							getBackground().getGreen(), getBackground()
+									.getBlue(), null)[2] < .4f ? Color.WHITE
+							: Color.BLACK);
 				}
 				g.drawString(row.getKey().getString(),
 						directionLeftToRight ? point.x - visibleColumns.size()
@@ -234,8 +240,28 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				g.setColor(color);
 			}
 			// set the correct stroke and color
-			g.setColor(ColorAttr.DEFAULT.getColor(node.getContent()
-					.isSelected(), node.getContent().isHilite()));
+			switch (hilite) {
+			case Normal:
+				g.setColor(ColorAttr.DEFAULT.getColor(node.getContent()
+						.isSelected(), node.getContent().isHilite()));
+				break;
+			case HideUnHilit:
+				g.setColor(node.getContent().isSelected()
+						|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+						.getColor(node.getContent().isSelected(), false)
+						: getBackground());
+				break;
+			case FadeUnHilit:
+				g
+						.setColor(node.getContent().isSelected()
+								|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+								.getColor(node.getContent().isSelected(), false)
+								: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
+										: ColorAttr.INACTIVE);
+				break;
+			default:
+				break;
+			}
 			if (node.getContent().isSelected() || node.getContent().isHilite()) {
 				((Graphics2D) g).setStroke(new BasicStroke(
 						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
@@ -262,9 +288,29 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 			}
 			// draw horizontal line
 			if (node.getParent() != null) {
-				g.setColor(ColorAttr.DEFAULT.getColor(node.getParent()
-						.getContent().isSelected(), node.getParent()
-						.getContent().isHilite()));
+				switch (hilite) {
+				case Normal:
+					g.setColor(ColorAttr.DEFAULT.getColor(node.getContent()
+							.isSelected(), node.getContent().isHilite()));
+					break;
+				case HideUnHilit:
+					g.setColor(node.getContent().isSelected()
+							|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+							.getColor(node.getContent().isSelected(), false)
+							: getBackground());
+					break;
+				case FadeUnHilit:
+					g
+							.setColor(node.getContent().isSelected()
+									|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+									.getColor(node.getContent().isSelected(),
+											false)
+									: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
+											: ColorAttr.INACTIVE);
+					break;
+				default:
+					break;
+				}
 				// check if parent is selected
 				// if yes bold line, else normal line
 				if (node.getParent().getContent().isSelected()
@@ -468,5 +514,15 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 			lastClusterKeys.add(p.getContent().getRows().iterator().next()
 					.getString());
 		}
+	}
+
+	/**
+	 * Sets the strategy of HiLite to {@code hilite}.
+	 * 
+	 * @param hilite
+	 *            The new strategy to HiLite the content.
+	 */
+	public void setHilite(final HiliteType hilite) {
+		this.hilite = hilite;
 	}
 }

@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import ie.tcd.imm.hits.knime.util.HiliteType;
 import ie.tcd.imm.hits.knime.util.ShiftedLogarithmicMappingMethod;
 
 import java.util.HashSet;
@@ -19,11 +20,13 @@ import java.lang.reflect.Method;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.base.node.viz.plotter.AbstractPlotter;
 import org.knime.base.node.viz.plotter.DataProvider;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTreeNode;
@@ -280,10 +283,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		final double min = 0;
 		final double max = rootNode.getMaxDistance();
 		setPreserve(false);
-		createXCoordinate(min, max * 10/*
-										 * Math.max(max, getWidth() * max /
-										 * (getWidth() - offset))
-										 */);
+		createXCoordinate(min, Math.max(max + 2, max * getWidth()
+				/ (getWidth() - offset)));
 		getXAxis().getCoordinate().setPolicy(
 				directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
 						: DescendingNumericTickPolicyStrategy.ID);
@@ -525,5 +526,47 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		} catch (final ClassCastException e) {
 			// No (serious) problem
 		}
+	}
+
+	@Override
+	public Action getFadeAction() {
+		return new AbstractAction(AbstractPlotter.FADE_UNHILITED) {
+			private static final long serialVersionUID = 52543500465537535L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				((HeatmapDendrogramDrawingPane) getDrawingPane())
+						.setHilite(HiliteType.FadeUnHilit);
+				getDrawingPane().repaint();
+			}
+		};
+	}
+
+	@Override
+	public Action getShowAllAction() {
+		return new AbstractAction(AbstractPlotter.SHOW_ALL) {
+			private static final long serialVersionUID = -3628234319863271438L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				((HeatmapDendrogramDrawingPane) getDrawingPane())
+						.setHilite(HiliteType.Normal);
+				getDrawingPane().repaint();
+			}
+		};
+	}
+
+	@Override
+	public Action getHideAction() {
+		return new AbstractAction(AbstractPlotter.HIDE_UNHILITED) {
+			private static final long serialVersionUID = -9125403146492421287L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				((HeatmapDendrogramDrawingPane) getDrawingPane())
+						.setHilite(HiliteType.HideUnHilit);
+				getDrawingPane().repaint();
+			}
+		};
 	}
 }

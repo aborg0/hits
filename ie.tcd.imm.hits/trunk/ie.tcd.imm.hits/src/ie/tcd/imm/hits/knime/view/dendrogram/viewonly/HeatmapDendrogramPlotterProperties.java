@@ -11,10 +11,13 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 import java.util.Collections;
 import java.util.Map;
 
+import java.awt.Color;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -22,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.LineBorder;
 
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotterProperties;
 import org.knime.base.node.viz.plotter.props.DefaultTab;
@@ -58,14 +62,16 @@ public class HeatmapDendrogramPlotterProperties extends
 				Collections.singleton(StatTypes.raw));
 		addTab("Colours", new JScrollPane(colourSelector));
 		final DefaultTab defaultTab = (DefaultTab) getComponentAt(0);
-		final Box box = (Box) defaultTab.getComponent(0);
+		final Box box = new Box(BoxLayout.X_AXIS);
+		box.setBorder(new LineBorder(Color.GRAY));
+		defaultTab.add(box);
 		box.add(zoomOut);
 		box.add(new JLabel("Heatmap width: "));
 		box.add(cellWidth);
+		box.add(showValues);
 		box.add(flipHorizontal);
 		box.add(flipVertical);
 		flipVertical.setEnabled(false);
-		box.add(showValues);
 		box.add(new JLabel("Clusters: "));
 		box.add(clusterCount);
 	}
