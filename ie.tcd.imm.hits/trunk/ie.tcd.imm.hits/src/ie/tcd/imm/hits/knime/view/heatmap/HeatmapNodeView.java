@@ -2,6 +2,7 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
@@ -16,6 +17,22 @@ import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -43,21 +60,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -151,7 +153,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see
+		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+		 * )
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -236,8 +240,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					final Map<StatTypes, Integer> origSelections = new EnumMap<StatTypes, Integer>(
 							StatTypes.class);
 					for (final SliderModel sliderModel : sliderModels) {
-						if ((primerParameters.get(0).getType() != sliderModel
-								.getParameters().get(0).getType())
+						if (primerParameters.get(0).getType() != sliderModel
+								.getParameters().get(0).getType()
 								&& (seconderParameters.size() == 0 || seconderParameters
 										.get(0).getType() != sliderModel
 										.getParameters().get(0).getType())) {
@@ -267,7 +271,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						}
 					});
 					frame.setVisible(true);
-					boolean madeDirs = new File(fileName.getText()).mkdirs();
+					final boolean madeDirs = new File(fileName.getText())
+							.mkdirs();
 					assert madeDirs || !madeDirs;
 					final Callable<Boolean> worker = new Callable<Boolean>() {
 						@Override
@@ -307,8 +312,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param others
 		 *            The non-primary, non-secondary {@link SliderModel}s.
 		 * @param actual
-		 *            The actually modified {@link SliderModel} in
-		 *            {@code others}.
+		 *            The actually modified {@link SliderModel} in {@code
+		 *            others}.
 		 */
 		private void saveImages(final boolean[] stopped,
 				final JScrollPane scrollPane, final int w, final int h,
@@ -504,8 +509,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param volatileModel
 		 *            The actual values of the visualisation parameters.
 		 */
-		public HeatmapPanel(final ViewModel model, @Nullable
-		final HeatmapNodeModel dataModel, final VolatileModel volatileModel) {
+		public HeatmapPanel(final ViewModel model,
+				@Nullable final HeatmapNodeModel dataModel,
+				final VolatileModel volatileModel) {
 			super();
 			controlPanel.setName(PositionConstants.upper.name());
 			setLayout(new BorderLayout());
@@ -650,7 +656,13 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	}
 
 	private static final ParameterModel defaultParamModel = new ParameterModel(
-			"score", StatTypes.score, null, Collections.singletonList("score"), /* Collections.singletonList("plate") */
+			"score", StatTypes.score, null, Collections.singletonList("score"), /*
+																				 * Collections.
+																				 * singletonList
+																				 * (
+																				 * "plate"
+																				 * )
+																				 */
 			Collections.<String> emptyList());
 	private static final ParameterModel parameterParamModel = new ParameterModel(
 			"parameters", StatTypes.parameter, null, Collections
@@ -694,9 +706,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	}
 	private final VolatileModel volatileModel = new VolatileModel();
 
-	private ChangeListener changeListenerForControlsHandler;
+	private final ChangeListener changeListenerForControlsHandler;
 
 	private final ControlPanel controlPanel = new ControlPanel(this);
+
+	private final JSplitPane mainSplit;
 
 	/** This class is responsible to hold the changing parameters. */
 	static class VolatileModel implements Serializable, ActionListener {
@@ -779,8 +793,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		/**
 		 * Sets the new row key &Rarr; (plate, position) {@link Map}. Every
-		 * change will have effect on the {@link VolatileModel}, so please
-		 * <b>do not</b> modify.
+		 * change will have effect on the {@link VolatileModel}, so please <b>do
+		 * not</b> modify.
 		 * 
 		 * @param keyToPlateAndPosition
 		 *            The new key &Rarr; (plate, position) {@link Map}.
@@ -1197,8 +1211,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		// legendMenu.add(showTooltipsLegend);
 		getJMenuBar().add(legendMenu);
 
-		final JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				true);
+		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		final JSplitPane upperSplit = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT, false);
 		mainSplit.setTopComponent(upperSplit);
@@ -1350,6 +1363,11 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	 */
 	@Override
 	protected void modelChanged() {
+		if (getNodeModel() == null || getNodeModel().getTable() == null) {
+			mainSplit.setVisible(false);
+			return;
+		}
+		mainSplit.setVisible(true);
 		logger.debug("Model change started.");
 		for (final Entry<Type, Collection<SliderModel>> entry : getVolatileModel().arrangementModel
 				.getSliders().entrySet()) {
@@ -1540,7 +1558,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 		}
-		ModelBuilder.computeStatistics(ret, vals);
+		SimpleModelBuilder.computeStatistics(ret, vals);
 		return ret;
 	}
 

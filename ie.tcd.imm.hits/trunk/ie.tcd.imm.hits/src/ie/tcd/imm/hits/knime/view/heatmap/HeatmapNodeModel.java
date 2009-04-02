@@ -5,9 +5,6 @@ import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,6 +16,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
@@ -200,9 +201,9 @@ public class HeatmapNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		executeInner(inData[0], exec);
 		return new BufferedDataTable[] { /*
-											 * (BufferedDataTable) modelBuilder
-											 * .getTable()
-											 */};
+										 * (BufferedDataTable) modelBuilder
+										 * .getTable()
+										 */};
 	}
 
 	private void executeInner(final DataTable table, final ExecutionMonitor exec)
@@ -309,7 +310,7 @@ public class HeatmapNodeModel extends NodeModel {
 	 * @return The actual table used.
 	 */
 	public DataTable getTable() {
-		return modelBuilder.getTable();
+		return modelBuilder == null ? null : modelBuilder.getTable();
 	}
 
 	/**
@@ -413,7 +414,7 @@ public class HeatmapNodeModel extends NodeModel {
 		if (getTable() != null) {
 			DataContainer.writeToZip(getTable(), file, exec);
 		} else {
-			boolean deleted = file.delete();
+			final boolean deleted = file.delete();
 			assert deleted || !deleted;
 		}
 		// Everything written to output ports is saved automatically (data
