@@ -13,7 +13,7 @@
    	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.biomart.BiomartAnnotatorNodeFactory" id="ie.tcd.imm.knime.biomart.BiomartAnnotatorNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
-	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.DendrogramNodeFactory"/>
+	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
    	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly"/>
     <node category-path="/view" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
 <node category-path="/distmatrix" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
