@@ -8,32 +8,32 @@ This page (these images) hopefully worth a 1000 words.
 = Nodes =
 
 == cellHTS2 ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Options.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Parameters.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Advanced.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Help.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2View.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Options.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Parameters.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Advanced.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2Help.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/cellHTS2View.png
 
 == INCell Analyser 1000 xls Importer ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/INCellAnalyzer1000xlsImporterConfigure.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/INCellAnalyzer1000xlsImporterConfigure.png
 
 == Simple Configurator for cellHTS2 ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simpleConfiguratorCellHTS2.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simpleConfiguratorCellHTS2.png
 
 == Plate Heatmap ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapChangeAppearanceBefore.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapChangeTypeBefore.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/HeatmapInfoControl.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapChangeAppearanceBefore.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapChangeTypeBefore.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/HeatmapInfoControl.png
 
 == Simple Heatmap ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simpleHeatmapView.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simpleHeatmapView.png
 
 == Heatmap with Dendrogram ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapDendrogramView.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapDendrogramView.png
 
 == Rank ==
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/rankConfigure.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/rankConfigure.png
 
 = Usage patterns =
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/usageCommonWorkflow.png
-http://code.google.com/p/hits/source/browse/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/usageVisualWorkflow.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/usageCommonWorkflow.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/usageVisualWorkflow.png
