@@ -15,11 +15,104 @@ The following nodes are using colour settings:
 </ul>
 
 <h2><a name="generalConfiguration">General Configuration</a></h2>
+<p>See <a href="settings.xhtml#colours">this page</a>.</p>
 <h2><a name="colourSettings">Colour Settings</a></h2>
+<p>By clicking on the <code>Statistics</code>, or any of the possible statistics buttons you are able to set the ranges and colours for each parameter at once. (The <code>Statistics</code> changes every parameter for all statistics, while one of the statistics buttons changes the colours only for that statistics.)</p>
+<p>You may remove existing, or add new ranges from the right click menu.</p>
+<p>If the <code>Connect neighbours</code> is checked, the change in a range's higher value will be copied to the lower value of the range just above it, and vice versa.</p>
+<p>The colours can be changed by clicking on the button with colour, and then selecting the new colour (selection ends after hitting the <code>OK</code> button).</p>
+<p>You have the following options to use in the formula editing box (all is applied to all values of the selected parameter and statistics):</p>
+<ul>
+<li><code><a href="concepts.xhtml#min">minimum</a></code> - the minimum, also accepted as <code>min</code>.</li>
+<li><code><a href="concepts.xhtml#max">maximum</a></code> - the maximum, also accepted as <code>max</code>.</li>
+<li><code><a href="concepts.xhtml#mean">average</a></code> - the average, also accepted as <code>mean</code>, <code>avg</code>.</li>
+<li><code><a href="concepts.xhtml#max">median</a></code> - the median.</li>
+<li><code><a href="concepts.xhtml#sd">stdev</a></code> - the standard deviation, also accepted as <code>sd</code>, <code>standarddeviation</code>.</li>
+<li><code><a href="concepts.xhtml#mad">mad</a></code> - the median absolute deviation, also accepted as <code>medianabsolutedeviation</code>.</li>
+<li><code><a href="concepts.xhtml#q1">q1</a></code> - the value at first quarter (just after the low 25%, high 75%).</li>
+<li><code><a href="concepts.xhtml#q3">q3</a></code> - the value at third quarter (just after the low 75%, high 25%).</li>
+<li><code><a href="concepts.xhtml#iqr">iqr</a></code> - the value difference: <code>q3-q1</code>.</li>
+</ul>
+<p>If the formula is not interpretable the background of the box will be red.</p>
+<p><span class="hint">Do not hit <code>OK</code> if you removed all ranges!</span></p>
 <h2><a name="usefulPatterns">Useful Patterns</a></h2>
 <h3><a name="simple">Simple (general default)</a></h3>
+<p>There are three values and colours in this case. The gradient colours are going from a maximum to the median, then to the minimum.</p>
+<p>So the layout is the following:</p>
+<ul>
+<li>Higher</li>
+<ul>
+	<li>(No above)</li>
+	<li><strong><code>maximum</code></strong></li>
+	<li><strong><code>median</code></strong></li>
+	<li>(Nothing between <code>median</code> and <code>median</code>)</li>
+</ul>
+<li>Lower</li>
+<ul>
+	<li>(Nothing between <code>median</code> and <code>median</code>)</li>
+	<li><strong><code>median</code></strong></li>
+	<li><strong><code>minimum</code></strong></li>
+	<li>(No below)</li>
+	</ul>
+</ul>
 <h3><a name="useful">Simple (settings default)</a></h3>
+<p>There are two gradient colour ranges, but in this case those are not (necessarily) connected. There are three colours. Practically is seems there are 5 (strictly 6) regions, two gradient, 3 (strictly 4) single colour regions.</p>
+<p>The layout:</p>
+<ul>
+<li>Higher</li>
+<ul>
+	<li><em>single colour (red) above</em> <code>median+2mad</code></li>
+	<li><strong><code>median+2mad</code></strong></li>
+	<li><strong><code>median+1.5mad</code></strong></li>
+	<li><em>single colour (black) between</em> <abbr title="median+1.5mad-(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr> and <code>median+1.5mad</code></li>
+</ul>
+<li>Lower</li>
+<ul>
+	<li><em>single colour (black) between</em> <code>median-1.5mad</code> and <abbr title="median-1.5mad+(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr></li>
+	<li><strong><code>median-1.5mad</code></strong></li>
+	<li><strong><code>median-2mad</code></strong></li>
+	<li><em>single colour (green) below</em> <code>median-2mad</code></li>
+</ul>
+</ul>
 <h3><a name="iqr">IQR, InterQuartile Ranges</a></h3>
+<p>Using IQR is a good way to rank the outliers. It has different colours for every range.</p>
+<ul>
+  <li>Highest outliers</li>
+  <ul>
+    <li><strong><code>maximum</code></strong></li>
+    <li><strong><code>q3+3iqr</code></strong></li>
+  </ul>
+  <li>High outliers</li>
+  <ul>
+    <li><strong><code>q3+3iqr</code></strong></li>
+    <li><strong><code>q3+1.5iqr</code></strong></li>
+  </ul>
+  <li>Mild high outliers</li>
+  <ul>
+    <li><strong><code>q3+1.5iqr</code></strong></li>
+    <li><strong><code>q3</code></strong></li>
+  </ul>
+  <li>"Average" values</li>
+  <ul>
+    <li><strong><code>q3</code></strong></li>
+    <li><strong><code>q1</code></strong></li>
+  </ul>
+  <li>Mild low outliers</li>
+  <ul>
+    <li><strong><code>q1</code></strong></li>
+    <li><strong><code>q1-1.5iqr</code></strong></li>
+  </ul>
+  <li>Low outliers</li>
+  <ul>
+    <li><strong><code>q1-1.5iqr</code></strong></li>
+    <li><strong><code>q1-3iqr</code></strong></li>
+  </ul>
+  <li>Lowest outliers</li>
+  <ul>
+    <li><strong><code>q1-3iqr</code></strong></li>
+    <li><strong><code>minimum</code></strong></li>
+  </ul>
+</ul>
 <include path="ie.tcd.imm.hits/help/footer.xhtml/copyright"/>
 </body>
 </html>
