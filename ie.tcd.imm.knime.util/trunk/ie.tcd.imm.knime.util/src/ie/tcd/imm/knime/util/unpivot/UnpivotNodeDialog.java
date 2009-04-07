@@ -30,7 +30,8 @@ public class UnpivotNodeDialog extends DefaultNodeSettingsPane {
 		final SettingsModelString patternModel = new SettingsModelString(
 				UnpivotNodeModel.CFGKEY_PATTERN,
 				UnpivotNodeModel.DEFAULT_PATTERN);
-		addDialogComponent(new DialogComponentString(patternModel, "Pattern: "));
+		addDialogComponent(new DialogComponentString(patternModel, "Pattern: ",
+				true, 40));
 		final DialogComponentTable table = new DialogComponentTable(
 				new SettingsModelStringArray(
 						UnpivotNodeModel.CFGKEY_NEW_COLUMNS,

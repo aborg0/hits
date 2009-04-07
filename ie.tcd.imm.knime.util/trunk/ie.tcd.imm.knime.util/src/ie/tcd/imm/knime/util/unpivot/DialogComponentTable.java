@@ -4,33 +4,41 @@
 package ie.tcd.imm.knime.util.unpivot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.tableview.TableView;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
+ * A component to preview the result of the unpivoting.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -39,7 +47,7 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 
 	private final int portIndex;
 	private final SettingsModelString pattern;
-	private final JTable table;
+	private final TableView table;
 
 	private final List<String> newColumns = new ArrayList<String>();
 
@@ -53,155 +61,124 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 		super(model);
 		this.pattern = pattern;
 		this.portIndex = portIndex;
-		table = new JTable(new Object[][] { { 1, 1, "Sth", "a", "B", "C" },
-				{ 1, 2, "Sth", "?", "?", "?" } }, new Object[] { "Plate",
-				"Replicate", "Parameter", "Col_1", "Col_2", "Col_3" });
-		table.setTableHeader(new JTableHeader(table.getColumnModel()));
+		table = new TableView();
 		getComponentPanel().add(table);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
-	 * checkConfigurabilityBeforeLoad(org.knime.core.node.port.PortObjectSpec[])
-	 */
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
-		// TODO Auto-generated method stub
-
+		// Do nothing.
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents
-	 * (boolean)
-	 */
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
 		table.setEnabled(enabled);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText
-	 * (java.lang.String)
-	 */
 	@Override
 	public void setToolTipText(final String text) {
-		// TODO Auto-generated method stub
-
+		// No tooltip yet
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
-	 */
 	@Override
 	protected void updateComponent() {
-		// TODO Auto-generated method stub
 		final PortObjectSpec lastTableSpec = getLastTableSpec(portIndex);
-		final List<DataColumnSpec> singleSpecs = new ArrayList<DataColumnSpec>();
-		final List<Map<String, String>> names = new ArrayList<Map<String, String>>();
+		final List<DataRow> dataRows = new ArrayList<DataRow>();
+		final List<DataColumnSpec> colSpecs = new ArrayList<DataColumnSpec>();
 		if (lastTableSpec instanceof DataTableSpec) {
 			final DataTableSpec spec = (DataTableSpec) lastTableSpec;
 			try {
-				final Pattern p = Pattern.compile(pattern.getStringValue());
-				for (final DataColumnSpec colSpec : spec) {
-					final Matcher matcher = p.matcher(colSpec.getName());
-					if (matcher.matches()) {
-						final HashMap<String, String> newRow = new HashMap<String, String>();
-						for (int i = 1; i <= matcher.groupCount(); ++i) {
-							newRow.put(matcher.groupCount() == newColumns
-									.size() ? newColumns.get(i - 1) : "Col_"
-									+ i, matcher.group(i));
-						}
-						names.add(newRow);
-					} else {
-						singleSpecs.add(colSpec);
+				final Map<List<String>, Map<String, Integer>> parts = UnpivotNodeModel
+						.createParts2(pattern.getStringValue(), spec);
+				newColumns.clear();
+				final Set<Integer> participating = new HashSet<Integer>();
+				for (final Map<String, Integer> map : parts.values()) {
+					for (final Integer i : map.values()) {
+						participating.add(i);
 					}
+				}
+				for (int i = 0; i < spec.getNumColumns(); ++i) {
+					if (!participating.contains(Integer.valueOf(i))) {
+						colSpecs.add(spec.getColumnSpec(i));
+					}
+				}
+				final int singleCount = colSpecs.size();
+				int rowCount = 0;
+				if (!parts.isEmpty()) {
+					for (int i = parts.keySet().iterator().next().size(); i-- > 0;) {
+						final String colName = "Col_" + i;
+						newColumns.add(colName);
+						colSpecs.add(new DataColumnSpecCreator(colName,
+								StringCell.TYPE).createSpec());
+					}
+				}
+				final Map<String, DataType> types = new LinkedHashMap<String, DataType>();
+				for (final Entry<List<String>, Map<String, Integer>> outer : parts
+						.entrySet()) {
+					final Map<String, Integer> map = outer.getValue();
+					for (final Entry<String, Integer> entry : map.entrySet()) {
+						final String colName = entry.getKey();
+						final DataType origType = types.get(colName);
+						if (origType == null) {
+							types.put(colName, spec.getColumnSpec(
+									entry.getValue().intValue()).getType());
+						} else {
+							types.put(colName, DataType.getCommonSuperType(
+									origType, spec.getColumnSpec(
+											entry.getValue().intValue())
+											.getType()));
+						}
+					}
+				}
+				for (final Entry<String, DataType> entry : types.entrySet()) {
+					colSpecs.add(new DataColumnSpecCreator(entry.getKey(),
+							entry.getValue()).createSpec());
+				}
+				for (final Entry<List<String>, Map<String, Integer>> entry : parts
+						.entrySet()) {
+					final List<DataCell> cells = new ArrayList<DataCell>(
+							colSpecs.size());
+					for (int i = singleCount; i-- > 0;) {
+						cells.add(DataType.getMissingCell());
+					}
+					for (final String val : entry.getKey()) {
+						cells.add(new StringCell(val));
+					}
+					for (final Entry<String, Integer> inner : entry.getValue()
+							.entrySet()) {
+						final DataColumnDomain domain = spec.getColumnSpec(
+								inner.getValue().intValue()).getDomain();
+						cells.add(domain.getLowerBound() == null ? domain
+								.getValues() == null
+								|| domain.getValues().isEmpty() ? DataType
+								.getMissingCell() : domain.getValues()
+								.iterator().next() : domain.getLowerBound());
+					}
+					dataRows.add(new DefaultRow("Row" + rowCount, cells));
+					++rowCount;
 				}
 			} catch (final PatternSyntaxException e) {
 				for (final DataColumnSpec dataColumnSpec : spec) {
-					singleSpecs.add(dataColumnSpec);
+					colSpecs.add(dataColumnSpec);
 				}
 			}
 		}
-		// final DefaultTableColumnModel columnModel = (DefaultTableColumnModel)
-		// table
-		// .getColumnModel();
-
-		// for (int i = columnModel.getColumnCount(); i-- > 0;) {
-		// columnModel.removeColumn(columnModel.getColumn(i));
-		// }
-		final Map<String, Integer> colIndices = new HashMap<String, Integer>();
-		int colIndex = 0;
-		for (final DataColumnSpec col : singleSpecs) {
-			final TableColumn column = new TableColumn();
-			column.setHeaderValue(col);
-			column.setIdentifier(col);
-			// columnModel.addColumn(column);
-			colIndices.put(col.toString(), Integer.valueOf(colIndex++));
-		}
-		newColumns.clear();
-		if (!names.isEmpty()) {
-			for (final String name : names.iterator().next().keySet()) {
-				final TableColumn column = new TableColumn();
-				column.setHeaderValue(name);
-				column.setIdentifier(name);
-				// columnModel.addColumn(column);
-				colIndices.put(name, Integer.valueOf(colIndex++));
-				newColumns.add(name);
-			}
-		}
-		// final DefaultTableModel model = (DefaultTableModel) table.getModel();
-		// for (int i = model.getRowCount(); i-- > 0;) {
-		// model.removeRow(i);
-		// }
-		for (final Map<String, String> map : names) {
-			// final Vector<String> v = new Vector<String>(columnModel
-			// .getColumnCount());
-			// v.setSize(columnModel.getColumnCount());
-			// for (int i = singleSpecs.size(); i-- > 0;) {
-			// v.add("?");
-			// }
-			// for (final Entry<String, String> entry : map.entrySet()) {
-			// v.set(colIndices.get(entry.getKey()).intValue(), entry
-			// .getValue());
-			// }
-			// model.addRow(v);
-		}
-		// model.newRowsAdded(new TableModelEvent(model));
+		@SuppressWarnings("deprecation")
+		final DataTable data = new org.knime.core.data.def.DefaultTable(
+				dataRows.toArray(new DataRow[dataRows.size()]),
+				new DataTableSpec(colSpecs.toArray(new DataColumnSpec[colSpecs
+						.size()])));
+		table.setDataTable(data);
 		table.repaint();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
-	 * validateSettingsBeforeSave()
-	 */
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		// TODO Auto-generated method stub
 		((SettingsModelStringArray) getModel()).setStringArrayValue(newColumns
 				.toArray(new String[newColumns.size()]));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent
-	 * )
-	 */
 	@Override
 	public void stateChanged(final ChangeEvent e) {
 		updateComponent();

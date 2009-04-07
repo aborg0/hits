@@ -36,7 +36,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
-import org.knime.core.util.Pair;
 
 /**
  * This is the model implementation of Unpivot. Introduces new rows (and
@@ -80,18 +79,9 @@ public class UnpivotNodeModel extends NodeModel {
 		final BufferedDataTable table = inData[0];
 		final BufferedDataContainer container = exec
 				.createDataContainer(createTableSpec(table.getSpec()));
-		// final List<Map<String, Pair<List<String>, Integer>>> parts =
-		// createParts(table
-		// .getSpec());
-		final Map<List<String>, Map<String, Integer>> parts = createParts2(table
-				.getSpec());
+		final Map<List<String>, Map<String, Integer>> parts = createParts2(
+				patternModel.getStringValue(), table.getSpec());
 		final Set<Integer> participantColumns = new HashSet<Integer>();
-		// for (final Map<String, Pair<List<String>, Integer>> mapping : parts)
-		// {
-		// for (final Pair<List<String>, Integer> pair : mapping.values()) {
-		// participantColumns.add(pair.getSecond());
-		// }
-		// }
 		for (final Entry<List<String>, Map<String, Integer>> entry : parts
 				.entrySet()) {
 			for (final Integer i : entry.getValue().values()) {
@@ -114,19 +104,6 @@ public class UnpivotNodeModel extends NodeModel {
 				}
 			}
 			int j = 0;
-			// for (final Map<String, Pair<List<String>, Integer>> map : parts)
-			// {
-			// for (final Entry<String, Pair<List<String>, Integer>> entry : map
-			// .entrySet()) {
-			// for (final String cellValue : entry.getValue().getFirst()) {
-			// newRowContents.get(j).add(new StringCell(cellValue));
-			// }
-			// newRowContents.get(j).add(
-			// dataRow.getCell(entry.getValue().getSecond()
-			// .intValue()));
-			// }
-			// ++j;
-			// }
 			for (final Entry<List<String>, Map<String, Integer>> entry : parts
 					.entrySet()) {
 				for (final String cellValue : entry.getKey()) {
@@ -141,8 +118,8 @@ public class UnpivotNodeModel extends NodeModel {
 			}
 			j = 0;
 			for (final List<DataCell> rowContent : newRowContents) {
-				container.addRowToTable(new DefaultRow("Row_" + origRow
-						* parts.size() + j++, rowContent));
+				container.addRowToTable(new DefaultRow("Row_"
+						+ (origRow * parts.size() + j++), rowContent));
 			}
 			exec.checkCanceled();
 			exec.setProgress(origRow++ * 1.0 / table.getRowCount());
@@ -154,9 +131,9 @@ public class UnpivotNodeModel extends NodeModel {
 		return new BufferedDataTable[] { out };
 	}
 
-	private Map<List<String>, Map<String, Integer>> createParts2(
-			final DataTableSpec spec) {
-		final Pattern pattern = Pattern.compile(patternModel.getStringValue());
+	static Map<List<String>, Map<String, Integer>> createParts2(
+			final String patternString, final DataTableSpec spec) {
+		final Pattern pattern = Pattern.compile(patternString);
 		final Map<List<String>, Map<String, Integer>> ret = new LinkedHashMap<List<String>, Map<String, Integer>>();
 		int i = 0;
 		for (final DataColumnSpec colSpec : spec) {
@@ -187,38 +164,6 @@ public class UnpivotNodeModel extends NodeModel {
 	}
 
 	/**
-	 * @param spec
-	 * @return
-	 */
-	private List<Map<String, Pair<List<String>, Integer>>> createParts(
-			final DataTableSpec spec) {
-		final Pattern pattern = Pattern.compile(patternModel.getStringValue());
-		final List<Map<String, Pair<List<String>, Integer>>> ret = new ArrayList<Map<String, Pair<List<String>, Integer>>>();
-
-		int i = 0;
-		for (final DataColumnSpec colSpec : spec) {
-			final Matcher matcher = pattern.matcher(colSpec.getName());
-			if (matcher.matches()) {
-				final Map<String, Pair<List<String>, Integer>> map = new LinkedHashMap<String, Pair<List<String>, Integer>>();
-				final List<String> list = new ArrayList<String>(matcher
-						.groupCount());
-				final StringBuilder sb = new StringBuilder(colSpec.getName());
-				for (int j = matcher.groupCount() + 1; j-- > 1;) {
-					list.add(matcher.group(j));
-					sb.delete(matcher.start(j), matcher.end(j));
-				}
-				map.put(sb.toString(), new Pair<List<String>, Integer>(list,
-						Integer.valueOf(i)));
-				ret.add(map);
-				// ret.add(new Pair<Map<String, List<String>>, Integer>(map,
-				// Integer.valueOf(i++)));
-			}
-			++i;
-		}
-		return ret;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -234,13 +179,6 @@ public class UnpivotNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
-
 		return new DataTableSpec[] { createTableSpec(inSpecs[0]) };
 	}
 
@@ -249,7 +187,6 @@ public class UnpivotNodeModel extends NodeModel {
 	 * @return
 	 */
 	private DataTableSpec createTableSpec(final DataTableSpec dataTableSpec) {
-		// TODO Auto-generated method stub
 		final List<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
 		final Pattern pattern = Pattern.compile(patternModel.getStringValue());
 		final String[] newColumnNames = newColumnsModel.getStringArrayValue();
@@ -267,11 +204,11 @@ public class UnpivotNodeModel extends NodeModel {
 				if (types.containsKey(sb.toString())
 						&& !dataColumnSpec.getType().equals(
 								types.get(sb.toString()))) {
-					throw new IllegalArgumentException(sb + " - "
-							+ types.get(sb.toString()) + " - "
-							+ dataColumnSpec.getType());
+					types.put(sb.toString(), DataType.getCommonSuperType(types
+							.get(sb.toString()), dataColumnSpec.getType()));
+				} else {
+					types.put(sb.toString(), dataColumnSpec.getType());
 				}
-				types.put(sb.toString(), dataColumnSpec.getType());
 			} else {
 				specs.add(dataColumnSpec);
 			}
