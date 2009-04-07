@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+    <!-- All rights reserved. (C) Copyright 2009, Trinity College Dublin -->
+    <name>Pivot</name>
+    
+    <shortDescription>
+        Converts information present in rows to columns.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Converts information present in rows to columns</intro>
+        
+        
+        <!--<option name="short name of first option (like in the dialog)">description of first option</option>
+        <option name="short name of second option (like in the dialog)">description of second option</option>-->
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input table">A table with known domains for the keys and pivoting columns.</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="Pivoted table">The table with information transformed to the columns.</outPort>
+        <outPort index="1" name="Reverse pattern">An indicator of the pushed variable</outPort>
+        <!-- possibly more output ports here-->
+    </ports>    
+    <!--<views>
+        <view index="0" name="name of first view">Description of first view...</view>
+        view index="1" name="name of second view">Description of second view...</view
+    </views>
+--></knimeNode>
