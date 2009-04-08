@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
 makePlot = function(path, con, name, w, h=devDims(w)$height, fun, psz=12, print=TRUE, isPlatePlot=FALSE, isImageScreen=FALSE) {
 
   outf = paste(name, c("pdf", "png"), sep=".")

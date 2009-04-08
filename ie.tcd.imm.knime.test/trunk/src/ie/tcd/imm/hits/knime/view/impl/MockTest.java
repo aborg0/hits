@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -14,13 +14,14 @@ import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

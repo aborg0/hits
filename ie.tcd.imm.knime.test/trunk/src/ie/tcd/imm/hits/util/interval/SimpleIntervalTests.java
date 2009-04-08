@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util.interval;
 
@@ -18,7 +18,8 @@ import org.testng.annotations.Test;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
- * Some tests to test {@link DefaultInterval} implementation of {@link Interval}.
+ * Some tests to test {@link DefaultInterval} implementation of {@link Interval}
+ * .
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -83,7 +84,7 @@ public class SimpleIntervalTests {
 		// Assert.assertEquals(subMap.size(), expected ? 1 : 0);
 		final Interval<Double> higherKey = map.higherKey(val);
 		final Interval<Double> lowerKey = map.lowerKey(val);
-		Assert.assertEquals((higherKey != null && higherKey.contains(value))
-				|| (lowerKey != null && lowerKey.contains(value)), expected);
+		Assert.assertEquals(higherKey != null && higherKey.contains(value)
+				|| lowerKey != null && lowerKey.contains(value), expected);
 	}
 }

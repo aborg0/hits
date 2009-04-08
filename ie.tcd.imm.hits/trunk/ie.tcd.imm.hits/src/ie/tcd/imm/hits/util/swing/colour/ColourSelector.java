@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.util.swing.colour;
 
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -10,16 +13,6 @@ import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.Line.ComplexMetaModel;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +23,17 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

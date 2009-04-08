@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.util.swing.colour;
 
 /** The orientation of the sample (text). */

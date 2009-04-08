@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
@@ -15,6 +15,15 @@ import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
 import ie.tcd.imm.hits.util.swing.colour.Orientation;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,14 +36,6 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;

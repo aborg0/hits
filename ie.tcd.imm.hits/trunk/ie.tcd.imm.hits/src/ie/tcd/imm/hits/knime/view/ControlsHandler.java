@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.view;
 
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
@@ -7,8 +10,9 @@ import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
-import java.awt.Container;
 import java.util.Set;
+
+import java.awt.Container;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -83,16 +87,15 @@ public interface ControlsHandler<ModelType> {
 	 * @see #setContainer(JComponent, SplitType, String)
 	 */
 	public boolean register(final SliderModel model, final SplitType splitType,
-			@Nullable
-			final String nameOfContainer,
+			@Nullable final String nameOfContainer,
 			final ControlTypes preferredControlType);
 
 	/**
 	 * Removes all {@link VariableControl}s associated to the {@code model}.
 	 * <p>
 	 * If {@code model} previously was not
-	 * {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
-	 * it will do nothing.
+	 * {@link #register(SliderModel, SplitType, String, ControlTypes)
+	 * registered} it will do nothing.
 	 * 
 	 * @param model
 	 *            A previously registered {@link SliderModel}.
@@ -124,27 +127,30 @@ public interface ControlsHandler<ModelType> {
 	 * 
 	 * @param variableControl
 	 *            A
-	 *            {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
-	 *            {@link VariableControl}.
+	 *            {@link #register(SliderModel, SplitType, String, ControlTypes)
+	 *            registered} {@link VariableControl}.
 	 * @param nameOfContainer
 	 *            The <b>new</b> name of the container. May be {@code null},
 	 *            which means one of the possible containers.
-	 * @return Indicates whether the it has moved ({@code true}) or not ({@code false}).
+	 * @return Indicates whether the it has moved ({@code true}) or not ({@code
+	 *         false}).
 	 */
-	public boolean move(VariableControl<ModelType> variableControl, @Nullable
-	String nameOfContainer);
+	public boolean move(VariableControl<ModelType> variableControl,
+			@Nullable String nameOfContainer);
 
 	/**
-	 * Changes the {@link ControlTypes} of the registered {@link SliderModel} ({@code slider})
-	 * to {@code type} if possible. If not possible it will do nothing.
+	 * Changes the {@link ControlTypes} of the registered {@link SliderModel} (
+	 * {@code slider}) to {@code type} if possible. If not possible it will do
+	 * nothing.
 	 * 
 	 * @param variableControl
 	 *            A
-	 *            {@link #register(SliderModel, SplitType, String, ControlTypes) registered}
-	 *            {@link VariableControl}.
+	 *            {@link #register(SliderModel, SplitType, String, ControlTypes)
+	 *            registered} {@link VariableControl}.
 	 * @param type
 	 *            The <b>new</b> {@link ControlTypes} of the {@code slider}.
-	 * @return Indicates whether the change has done ({@code true}) or not ({@code false}).
+	 * @return Indicates whether the change has done ({@code true}) or not (
+	 *         {@code false}).
 	 */
 	public boolean changeControlType(
 			VariableControl<ModelType> variableControl, ControlTypes type);
@@ -167,8 +173,8 @@ public interface ControlsHandler<ModelType> {
 	 *         {@link #setContainer(JComponent, SplitType, String) set} before.
 	 */
 	public @Nullable
-	JComponent getContainer(final SplitType containerType, @Nullable
-	final String nameOfContainer);
+	JComponent getContainer(final SplitType containerType,
+			@Nullable final String nameOfContainer);
 
 	/**
 	 * Adds a {@link ChangeListener} ({@code changeListener}) to
@@ -199,7 +205,8 @@ public interface ControlsHandler<ModelType> {
 	 *            A {@link VariableControl}.
 	 * @param second
 	 *            Another {@link VariableControl}.
-	 * @return Indicates whether the change has done ({@code true}) or not ({@code false}).
+	 * @return Indicates whether the change has done ({@code true}) or not (
+	 *         {@code false}).
 	 */
 	public boolean exchangeControls(final VariableControl<ModelType> first,
 			final VariableControl<ModelType> second);
@@ -210,8 +217,8 @@ public interface ControlsHandler<ModelType> {
 	 * 
 	 * @param splitType
 	 *            A {@link SplitType}.
-	 * @return The {@link VariableControl}s with {@link SplitType}:
-	 *         {@code splitType}.
+	 * @return The {@link VariableControl}s with {@link SplitType}: {@code
+	 *         splitType}.
 	 */
 	public Set<VariableControl<ModelType>> getVariableControlsAt(
 			SplitType splitType);

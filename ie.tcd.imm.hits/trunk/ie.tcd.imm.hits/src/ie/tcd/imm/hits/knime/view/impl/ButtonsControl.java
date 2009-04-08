@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -8,15 +8,16 @@ import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeListener;
@@ -54,7 +55,9 @@ class ButtonsControl extends AbstractVariableControl {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see
+		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+		 * )
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -88,7 +91,7 @@ class ButtonsControl extends AbstractVariableControl {
 
 	private static final boolean INCLUDE_INDICATOR = true;
 
-	private List<JToggleButton> buttons = new ArrayList<JToggleButton>();
+	private final List<JToggleButton> buttons = new ArrayList<JToggleButton>();
 	// private ButtonGroup group = new ButtonGroup();
 
 	/**
@@ -98,8 +101,7 @@ class ButtonsControl extends AbstractVariableControl {
 
 	/**
 	 * @param model
-	 *            A {@link SettingsModelListSelection } to store the
-	 *            preferences.
+	 *            A {@link SettingsModelListSelection } to store the preferences.
 	 * @param selectionType
 	 *            The {@link SelectionType} for this control.
 	 * @param controlsHandler
@@ -125,7 +127,9 @@ class ButtonsControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents(boolean)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents
+	 * (boolean)
 	 */
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
@@ -136,7 +140,8 @@ class ButtonsControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
 	 */
 	@Override
 	protected void updateComponent() {

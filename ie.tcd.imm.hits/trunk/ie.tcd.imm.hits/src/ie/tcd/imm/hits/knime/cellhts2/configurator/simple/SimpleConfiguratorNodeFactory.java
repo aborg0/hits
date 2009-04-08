@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
 import org.knime.core.node.NodeDialogPane;
@@ -11,7 +14,8 @@ import org.knime.core.node.NodeView;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class SimpleConfiguratorNodeFactory extends NodeFactory<SimpleConfiguratorNodeModel> {
+public class SimpleConfiguratorNodeFactory extends
+		NodeFactory<SimpleConfiguratorNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -33,8 +37,8 @@ public class SimpleConfiguratorNodeFactory extends NodeFactory<SimpleConfigurato
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<SimpleConfiguratorNodeModel> createNodeView(final int viewIndex,
-			final SimpleConfiguratorNodeModel nodeModel) {
+	public NodeView<SimpleConfiguratorNodeModel> createNodeView(
+			final int viewIndex, final SimpleConfiguratorNodeModel nodeModel) {
 		throw new ArrayIndexOutOfBoundsException("Index: " + viewIndex);
 	}
 

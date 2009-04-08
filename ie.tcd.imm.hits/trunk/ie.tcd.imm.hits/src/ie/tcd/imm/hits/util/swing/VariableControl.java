@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.util.swing;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
@@ -103,8 +106,8 @@ public interface VariableControl<ModelType> {
 	public ControlTypes getType();
 
 	/**
-	 * @return The {@link ChangeListener} which is associated to the
-	 *         {@code ModelType} {@link #getModel() model}.
+	 * @return The {@link ChangeListener} which is associated to the {@code
+	 *         ModelType} {@link #getModel() model}.
 	 */
 	public ChangeListener getModelChangeListener();
 }

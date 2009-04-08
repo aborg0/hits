@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util;
 
@@ -41,7 +41,7 @@ public class FilenameFilterWrapper extends FileFilter {
 	 */
 	@Override
 	public boolean accept(final File f) {
-		return (f.isDirectory() && allowDirs)
+		return f.isDirectory() && allowDirs
 				|| filenameFilter.accept(f.getParentFile(), f.getName());
 	}
 

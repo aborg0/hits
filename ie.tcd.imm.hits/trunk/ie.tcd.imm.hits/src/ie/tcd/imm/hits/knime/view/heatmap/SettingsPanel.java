@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
@@ -8,7 +8,8 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 /**
- * This panel allows the user to save/load/delete view configurations ({@link ViewModel}s).
+ * This panel allows the user to save/load/delete view configurations (
+ * {@link ViewModel}s).
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */

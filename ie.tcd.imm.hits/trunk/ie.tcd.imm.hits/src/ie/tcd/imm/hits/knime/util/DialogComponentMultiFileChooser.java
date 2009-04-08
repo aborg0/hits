@@ -1,9 +1,14 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.util.FilenameFilterWrapper;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -13,10 +18,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -83,8 +84,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	@SuppressWarnings("RCN")
 	public DialogComponentMultiFileChooser(
 			final SettingsModelStringArray model, final String fileNameLabel,
-			final String historyId, @Nonnegative
-			final int visibleRowCount, final String... validExtensions) {
+			final String historyId, @Nonnegative final int visibleRowCount,
+			final String... validExtensions) {
 		super(model);
 		stringHistory = StringHistory.getInstance(historyId);
 		final HashSet<String> extensions = new HashSet<String>(
@@ -215,7 +216,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#checkConfigurabilityBeforeLoad(org.knime.core.data.DataTableSpec[])
+	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
+	 * checkConfigurabilityBeforeLoad(org.knime.core.data.DataTableSpec[])
 	 */
 	/**
 	 * {@inheritDoc}
@@ -229,7 +231,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents(boolean)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents
+	 * (boolean)
 	 */
 	/**
 	 * {@inheritDoc}
@@ -244,7 +248,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText(java.lang.String)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText
+	 * (java.lang.String)
 	 */
 	/**
 	 * {@inheritDoc}
@@ -262,7 +268,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
 	 */
 	/**
 	 * {@inheritDoc}
@@ -330,7 +337,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#validateSettingsBeforeSave()
+	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
+	 * validateSettingsBeforeSave()
 	 */
 	/**
 	 * {@inheritDoc}
@@ -366,7 +374,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	}
 
 	/**
-	 * @return The currently selected {@link String} in {@link #dirNameComboBox}.
+	 * @return The currently selected {@link String} in {@link #dirNameComboBox}
+	 *         .
 	 */
 	protected String getCurrentSelection() {
 		final String select = dirNameComboBox.getEditor().getItem().toString();

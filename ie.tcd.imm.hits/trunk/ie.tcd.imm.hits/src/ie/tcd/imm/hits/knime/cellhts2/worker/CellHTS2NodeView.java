@@ -1,4 +1,10 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.cellhts2.worker;
+
+import java.util.Map;
+import java.util.Map.Entry;
 
 import java.awt.Component;
 import java.awt.Desktop;
@@ -7,8 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;

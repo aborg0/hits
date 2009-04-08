@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.xls;
 
 import ie.tcd.imm.hits.knime.util.DialogComponentMultiFileChooser;
@@ -94,7 +97,7 @@ public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 					throws InvalidSettingsException {
 				try {
 					super.validateSettingsBeforeSave();
-				} catch (InvalidSettingsException e) {
+				} catch (final InvalidSettingsException e) {
 					if (!"Please specify a filename.".equals(e.getMessage())) {
 						throw e;
 					}

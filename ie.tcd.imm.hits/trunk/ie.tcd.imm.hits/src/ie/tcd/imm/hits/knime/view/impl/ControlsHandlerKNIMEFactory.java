@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -13,8 +13,6 @@ import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
-import java.awt.Component;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -28,6 +26,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.Map.Entry;
+
+import java.awt.Component;
+import java.lang.ref.WeakReference;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -78,7 +79,7 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
-	private Map<SliderModel, VariableControl<SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<SettingsModel>>();
+	private final Map<SliderModel, VariableControl<SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<SettingsModel>>();
 	private final EnumMap<SplitType, Map<String, WeakReference<JComponent>>> containers = new EnumMap<SplitType, Map<String, WeakReference<JComponent>>>(
 			SplitType.class);
 	{
@@ -93,7 +94,7 @@ public class ControlsHandlerKNIMEFactory implements
 	private final List<WeakReference<ChangeListener>> listeners = new ArrayList<WeakReference<ChangeListener>>();
 	private ShapeModel arrangement;
 
-	private Map<SplitType, Map<VariableControl<SettingsModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel>, Boolean>>(
+	private final Map<SplitType, Map<VariableControl<SettingsModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel>, Boolean>>(
 			SplitType.class);
 	{
 		for (final SplitType type : SplitType.values()) {
@@ -102,7 +103,7 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
-	private Map<VariableControl<? extends SettingsModel>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel>, SplitType>();
+	private final Map<VariableControl<? extends SettingsModel>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel>, SplitType>();
 
 	/**
 	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
@@ -167,8 +168,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 * 
 	 * @param slider
 	 *            A {@link SliderModel}.
-	 * @return The short name of the first {@link ParameterModel} of
-	 *         {@code slider}.
+	 * @return The short name of the first {@link ParameterModel} of {@code
+	 *         slider}.
 	 */
 	public static String createName(final SliderModel slider) {
 		final String name = slider.getParameters().iterator().next()
@@ -543,8 +544,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 */
 	@Override
 	public @Nullable
-	JComponent getContainer(final SplitType splitType, @Nullable
-	final String nameOfContainer) {
+	JComponent getContainer(final SplitType splitType,
+			@Nullable final String nameOfContainer) {
 		final Map<String, WeakReference<JComponent>> map = containers
 				.get(splitType);
 		if (map == null) {
@@ -715,8 +716,8 @@ public class ControlsHandlerKNIMEFactory implements
 	}
 
 	/**
-	 * Finds a {@link SliderModel} belonging to {@code control} in
-	 * {@code sliderModels}.
+	 * Finds a {@link SliderModel} belonging to {@code control} in {@code
+	 * sliderModels}.
 	 * 
 	 * @param control
 	 *            A handled {@link VariableControl}.

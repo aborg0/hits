@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util.swing.colour;
 
@@ -8,8 +8,6 @@ import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 
-import java.awt.Color;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -18,6 +16,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+
+import java.awt.Color;
+import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

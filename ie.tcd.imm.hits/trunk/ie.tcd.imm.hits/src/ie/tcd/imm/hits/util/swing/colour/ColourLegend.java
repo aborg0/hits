@@ -1,8 +1,7 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util.swing.colour;
-
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
@@ -30,7 +30,8 @@ public class InfoParser {
 	 *            The name of the selected experiment.
 	 * @param normalisation
 	 *            The normalisations/scorings done for the experiment. (See
-	 *            {@link ModelBuilder#getNormKey(org.knime.core.data.DataRow, int, int, int, int, int, int)})
+	 *            {@link ModelBuilder#getNormKey(org.knime.core.data.DataRow, int, int, int, int, int, int)}
+	 *            )
 	 * @param format
 	 *            A formatting {@link String}. The special parts should start
 	 *            with {@code $}, HTML tags are accepted.
@@ -193,7 +194,8 @@ public class InfoParser {
 	 *            The name of the selected experiment.
 	 * @param normalisations
 	 *            The normalisations/scorings done for the experiment. (See
-	 *            {@link ModelBuilder#getNormKey(org.knime.core.data.DataRow, int, int, int, int, int, int)})
+	 *            {@link ModelBuilder#getNormKey(org.knime.core.data.DataRow, int, int, int, int, int, int)}
+	 *            )
 	 * @param format
 	 *            A formatting {@link String}. The special parts should start
 	 *            with {@code $}, HTML tags are accepted.

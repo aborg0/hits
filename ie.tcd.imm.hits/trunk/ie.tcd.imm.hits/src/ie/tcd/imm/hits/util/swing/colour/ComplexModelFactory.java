@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util.swing.colour;
 
@@ -11,11 +11,12 @@ import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

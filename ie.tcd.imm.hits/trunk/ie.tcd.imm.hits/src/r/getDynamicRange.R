@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
 ## ---------------------------------------------------------------------------
 # LPB, August 2007
 # Function to calculate per-plate dynamic range based on positive and negative controls.

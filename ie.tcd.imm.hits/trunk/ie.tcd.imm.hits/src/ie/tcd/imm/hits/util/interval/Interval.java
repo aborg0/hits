@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util.interval;
 
@@ -85,7 +85,8 @@ public interface Interval<Content extends Comparable<? super Content>> extends
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see ie.tcd.imm.hits.util.interval.Interval#contains(java.lang.Comparable)
+		 * @see
+		 * ie.tcd.imm.hits.util.interval.Interval#contains(java.lang.Comparable)
 		 */
 		@Override
 		public boolean contains(final Content val) {
@@ -187,8 +188,8 @@ public interface Interval<Content extends Comparable<? super Content>> extends
 			int result = 1;
 			result = prime * result + (closedHigh ? 1231 : 1237);
 			result = prime * result + (closedLow ? 1231 : 1237);
-			result = prime * result + ((high == null) ? 0 : high.hashCode());
-			result = prime * result + ((low == null) ? 0 : low.hashCode());
+			result = prime * result + (high == null ? 0 : high.hashCode());
+			result = prime * result + (low == null ? 0 : low.hashCode());
 			return result;
 		}
 

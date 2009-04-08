@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -120,7 +120,9 @@ class ListControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents(boolean)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents
+	 * (boolean)
 	 */
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
@@ -130,7 +132,8 @@ class ListControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#updateComponent()
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#updateComponent()
 	 */
 	@Override
 	protected void updateComponent() {
@@ -193,7 +196,7 @@ class ListControl extends AbstractVariableControl {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((list == null) ? 0 : list.hashCode());
+		result = prime * result + (list == null ? 0 : list.hashCode());
 		return result;
 	}
 

@@ -1,15 +1,16 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs.ui;
 
 import ie.tcd.imm.hits.util.Displayable;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import java.lang.reflect.Array;
 
 import javax.annotation.RegEx;
 
@@ -123,7 +124,7 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 			@Override
 			public String getText(final Object element) {
 				if (element instanceof Displayable) {
-					final Displayable e = ((Displayable) element);
+					final Displayable e = (Displayable) element;
 					return e.getDisplayText();
 				}
 				return super.getText(element);
@@ -135,7 +136,7 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 		switch (result) {
 		case Window.OK:
 			@SuppressWarnings("unchecked")
-			final EnumType selectedEnum = ((EnumType) listDialog.getResult()[0]);
+			final EnumType selectedEnum = (EnumType) listDialog.getResult()[0];
 			return selectedEnum.getDisplayText();
 		default:
 			throw new IllegalArgumentException("No selection has done.");

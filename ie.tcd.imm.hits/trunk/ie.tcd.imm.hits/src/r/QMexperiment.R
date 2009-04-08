@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
 QMexperiment = function(xr, xn, path, con, allControls, allZfac, channels=paste(paste("Channel", 1:dim(Data(xr))[3], sep=" "))) {
 ##uses raw data and (if available) normalized data
 

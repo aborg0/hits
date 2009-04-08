@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -5,9 +8,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 
 import javax.annotation.Nullable;
 
@@ -155,11 +159,11 @@ public class SliderModel implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((parameters == null) ? 0 : parameters.hashCode());
+				+ (parameters == null ? 0 : parameters.hashCode());
 		result = prime * result + subId;
 		// result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result
-				+ ((valueMapping == null) ? 0 : valueMapping.hashCode());
+				+ (valueMapping == null ? 0 : valueMapping.hashCode());
 		return result;
 	}
 
@@ -243,7 +247,8 @@ public class SliderModel implements Serializable {
 	}
 
 	/**
-	 * @return The selected (to view) values of the {@link SliderModel}. (<em>Not modifiable!</em>)
+	 * @return The selected (to view) values of the {@link SliderModel}. (
+	 *         <em>Not modifiable!</em>)
 	 */
 	public Set<Integer> getSelections() {
 		return Collections.unmodifiableSet(selections);
@@ -336,8 +341,8 @@ public class SliderModel implements Serializable {
 	 * @param statType
 	 *            A {@link StatTypes}.
 	 * @return The first {@link SliderModel} with (first) {@link ParameterModel}
-	 *         with type {@code statType} in {@code sliders}, or {@code null}
-	 *         if not found.
+	 *         with type {@code statType} in {@code sliders}, or {@code null} if
+	 *         not found.
 	 */
 	public static @Nullable
 	SliderModel findSlider(final Iterable<SliderModel> sliders,

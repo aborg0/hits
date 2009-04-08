@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.biomart;
 
 import java.util.Arrays;
@@ -67,7 +70,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				new ChangeListener() {
 					@Override
 					public void stateChanged(final ChangeEvent e) {
-						final JComboBox combobox = ((JComboBox) e.getSource());
+						final JComboBox combobox = (JComboBox) e.getSource();
 						final Object selectedItem = combobox.getSelectedItem();
 						if (selectedItem instanceof String) {
 							final String dbName = (String) selectedItem;
@@ -100,7 +103,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		biomartDatasetDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				final JComboBox combobox = ((JComboBox) e.getSource());
+				final JComboBox combobox = (JComboBox) e.getSource();
 				final Object object = ((JComboBox) biomartDatabaseDialog
 						.getComponentPanel().getComponent(1)).getSelectedItem();
 				if (object instanceof String) {

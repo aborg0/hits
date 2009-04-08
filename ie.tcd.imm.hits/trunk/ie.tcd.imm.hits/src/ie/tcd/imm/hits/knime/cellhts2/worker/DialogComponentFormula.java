@@ -1,7 +1,10 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.cellhts2.worker;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,8 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -147,7 +148,8 @@ class DialogComponentFormula extends UpdatableComponent implements
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+		 * @seejavax.swing.event.ChangeListener#stateChanged(javax.swing.event.
+		 * ChangeEvent)
 		 */
 		@Override
 		public void stateChanged(final ChangeEvent e) {
@@ -162,8 +164,7 @@ class DialogComponentFormula extends UpdatableComponent implements
 		 * @param listener
 		 *            A {@link ChangeListener}. (May be {@code null}.)
 		 */
-		public void setListener(@Nullable
-		final ChangeListener listener) {
+		public void setListener(@Nullable final ChangeListener listener) {
 			this.listener = listener;
 		}
 	}
@@ -354,8 +355,8 @@ class DialogComponentFormula extends UpdatableComponent implements
 	}
 
 	/**
-	 * Gets a value from {@code map} using {@code key}, if not found return
-	 * with the value associated to {@link #DEFAULT}.
+	 * Gets a value from {@code map} using {@code key}, if not found return with
+	 * the value associated to {@link #DEFAULT}.
 	 * 
 	 * @param map
 	 *            A {@link String} &Rarr; {@link String} {@link Map}.
@@ -371,7 +372,9 @@ class DialogComponentFormula extends UpdatableComponent implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 * @see
+	 * javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent
+	 * )
 	 */
 	@Override
 	public void stateChanged(final ChangeEvent e) {
@@ -384,8 +387,7 @@ class DialogComponentFormula extends UpdatableComponent implements
 	 * @param helpDialog
 	 *            A {@link DialogComponent}. May be {@code null}.
 	 */
-	public void setHelpComponent(@Nullable
-	final DialogComponent helpDialog) {
+	public void setHelpComponent(@Nullable final DialogComponent helpDialog) {
 		this.helpDialog = helpDialog;
 	}
 }

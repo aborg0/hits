@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.ranking;
 
 import ie.tcd.imm.hits.common.Format;
@@ -5,8 +8,6 @@ import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -16,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -289,8 +293,9 @@ public class RankNodeModel extends NodeModel {
 									final double[] others = otherMap.get(stat);
 									final double[] ds = statValues.get(stat);
 									for (int i = ds.length; i-- > 0;) {
-										((wellTypes[i] != null && wellTypes[i]
-												.equalsIgnoreCase("sample")) ? samples
+										(wellTypes[i] != null
+												&& wellTypes[i]
+														.equalsIgnoreCase("sample") ? samples
 												: others)[format.getWellCount()
 												* (plate.intValue() - plateShift)
 												+ i] = ds[i];
@@ -379,8 +384,8 @@ public class RankNodeModel extends NodeModel {
 									final double[] others = otherMap.get(plate);
 									final double[] ds = statValues.get(stat);
 									for (int i = ds.length; i-- > 0;) {
-										((wellTypes[i]
-												.equalsIgnoreCase("sample")) ? samples
+										(wellTypes[i]
+												.equalsIgnoreCase("sample") ? samples
 												: others)[i] = ds[i];
 									}
 								}
@@ -510,11 +515,13 @@ public class RankNodeModel extends NodeModel {
 										final double[] ds = statValues
 												.get(stat);
 										for (int i = ds.length; i-- > 0;) {
-											((wellTypes[i] != null && wellTypes[i]
-													.equalsIgnoreCase("sample")) ? samples
+											(wellTypes[i] != null
+													&& wellTypes[i]
+															.equalsIgnoreCase("sample") ? samples
 													: others)[(grouping == RankingGroups.experiment ? (replicateEntry
 													.getKey().intValue() - repShift)
-													* (format.getWellCount() * plateCount)
+													* format.getWellCount()
+													* plateCount
 													: 0)
 													+ format.getWellCount()
 													* (plate.intValue() - plateShift)
@@ -638,8 +645,8 @@ public class RankNodeModel extends NodeModel {
 										final double[] ds = statValues
 												.get(stat);
 										for (int i = ds.length; i-- > 0;) {
-											((wellTypes[i]
-													.equalsIgnoreCase("sample")) ? samples
+											(wellTypes[i]
+													.equalsIgnoreCase("sample") ? samples
 													: others)[grouping == RankingGroups.plate ? (repEntry
 													.getKey().intValue() - repShift)
 													* ds.length + i

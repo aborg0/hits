@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
@@ -13,15 +13,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +24,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -372,17 +373,17 @@ public class ControlPanel extends JPanel {
 		 * proper {@link ParameterModel#getType()}.
 		 * 
 		 * @param mainArrangement
-		 *            A mapping from the {@link ParameterModel}s to the
-		 *            affected {@link SliderModel}s.
+		 *            A mapping from the {@link ParameterModel}s to the affected
+		 *            {@link SliderModel}s.
 		 * @param n
 		 *            A {@link SliderModel#getSubId()}.
 		 * @param stat
 		 *            A {@link StatTypes}.
 		 * @return The first {@link SliderModel} with
 		 *         {@link SliderModel#getSubId()} {@code n} and with a
-		 *         {@link ParameterModel#getType()} {@code stat} from
-		 *         {@code arrangementModel}. It returns {@code null}, if no
-		 *         such {@link SliderModel} found.
+		 *         {@link ParameterModel#getType()} {@code stat} from {@code
+		 *         arrangementModel}. It returns {@code null}, if no such
+		 *         {@link SliderModel} found.
 		 * @see #getMainArrangement()
 		 */
 		static SliderModel selectNth(
@@ -466,7 +467,8 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
-		 * Sets the possible values of the {@link ParameterModel}/{@link ParamaterSelection}.
+		 * Sets the possible values of the {@link ParameterModel}/
+		 * {@link ParamaterSelection}.
 		 * 
 		 * @param possValues
 		 *            The possible values for some {@link StatTypes}. Any

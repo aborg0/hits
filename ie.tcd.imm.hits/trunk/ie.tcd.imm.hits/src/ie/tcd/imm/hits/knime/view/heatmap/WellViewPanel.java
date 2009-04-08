@@ -1,6 +1,12 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+
+import java.util.Collection;
+import java.util.List;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -8,8 +14,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.swing.JPanel;
@@ -56,9 +60,9 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 * @param model
 	 *            The model for the layout of the well.
 	 * @param positionOnPlate
-	 *            A {@code 0}-based position on the plate. It is
-	 *            {@code row*12+column}. If may be less then {@code 0}
-	 *            indicating that it is not belonging to a plate.
+	 *            A {@code 0}-based position on the plate. It is {@code
+	 *            row*12+column}. If may be less then {@code 0} indicating that
+	 *            it is not belonging to a plate.
 	 */
 	public WellViewPanel(final boolean isSelectable, final ViewModel model,
 			final int positionOnPlate) {
@@ -273,7 +277,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 		g.drawOval(bounds.width / 2 - radius - 1, bounds.height / 2 - radius
 				- 1, 2 * (radius + 1), 2 * (radius + 1));
 		g.drawOval(bounds.width / 2 - radius, bounds.height / 2 - radius,
-				2 * (radius), 2 * (radius));
+				2 * radius, 2 * radius);
 		// g.drawOval(bounds.width / 2 - radius + 1, bounds.height / 2 - radius
 		// + 1, 2 * (radius - 1), 2 * (radius - 1));
 	}
@@ -306,8 +310,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 * @param labels
 	 *            The new labels. Any change on these has affect later.
 	 */
-	public void setLabels(@Nullable
-	final String... labels) {
+	public void setLabels(@Nullable final String... labels) {
 		this.labels = labels == null ? NO_LABELS : labels;
 	}
 
@@ -325,7 +328,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	protected static int[] getRadiuses(final int radius, final int count) {
 		final int[] ret = new int[count];
 		double prev = radius / Math.sqrt(count);
-		ret[count - 1] = (int) (prev);
+		ret[count - 1] = (int) prev;
 		for (int i = count - 1; i-- > 1;) {
 			prev = Math.sqrt(prev * prev + (double) radius * radius / count);
 			ret[i] = (int) prev;
@@ -407,8 +410,8 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 * {@link #repaint()}s it.
 	 * 
 	 * @param select
-	 *            If the well is {@link #isSelectable} and this value is
-	 *            {@code true} and , than it will be selected, else if still
+	 *            If the well is {@link #isSelectable} and this value is {@code
+	 *            true} and , than it will be selected, else if still
 	 *            {@link #isSelectable}, but the value is {@code false} if will
 	 *            be deselected.
 	 */

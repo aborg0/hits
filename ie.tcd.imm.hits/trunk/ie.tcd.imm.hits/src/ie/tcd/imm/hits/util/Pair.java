@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.util;
 
@@ -74,8 +74,8 @@ public class Pair<Left, Right> implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((left == null) ? 0 : left.hashCode());
-		result = prime * result + ((right == null) ? 0 : right.hashCode());
+		result = prime * result + (left == null ? 0 : left.hashCode());
+		result = prime * result + (right == null ? 0 : right.hashCode());
 		return result;
 	}
 

@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.util;
 
 import java.awt.Color;
@@ -36,15 +39,14 @@ public class VisualUtils {
 	 * @param low
 	 *            The "down" value. Must be finite.
 	 * @param mid
-	 *            The "middle" or natural value. May be anything if
-	 *            {@code black} is {@code null}.
+	 *            The "middle" or natural value. May be anything if {@code
+	 *            black} is {@code null}.
 	 * @param high
 	 *            The "up" value. Must be finite.
 	 * @return The {@link Color} belonging for {@code d}.
 	 */
 	public final static Color colourOf(final double d, final Color blue,
-			@Nullable
-			final Color black, final Color red, final double low,
+			@Nullable final Color black, final Color red, final double low,
 			final double mid, final double high) {
 		if (d < low) {
 			return blue;

@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.util;
 
@@ -66,7 +66,8 @@ public class SelectionMoverActionListener implements ActionListener,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 * @see
+	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	/**
 	 * Moves the selection up or down.
@@ -77,10 +78,9 @@ public class SelectionMoverActionListener implements ActionListener,
 	public void actionPerformed(final ActionEvent e) {
 		final int[] selectedIndices = list.getSelectedIndices();
 		final int max = model.getSize();
-		if (selectedIndices.length > 0
-				&& (move > 0 && selectedIndices[selectedIndices.length - 1]
-						+ move < max)
-				|| (move < 0 && selectedIndices[0] + move >= 0)) {
+		if (selectedIndices.length > 0 && move > 0
+				&& selectedIndices[selectedIndices.length - 1] + move < max
+				|| move < 0 && selectedIndices[0] + move >= 0) {
 			final int sgn = move > 0 ? 1 : -1;
 			final int start = sgn == -1 ? 0 : selectedIndices.length - 1;
 			final int end = sgn == -1 ? selectedIndices.length : -1;

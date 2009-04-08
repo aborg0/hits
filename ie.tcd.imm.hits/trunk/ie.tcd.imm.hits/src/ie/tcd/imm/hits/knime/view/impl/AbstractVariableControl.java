@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -111,7 +111,8 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#checkConfigurabilityBeforeLoad(org.knime.core.node.port.PortObjectSpec[])
+	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
+	 * checkConfigurabilityBeforeLoad(org.knime.core.node.port.PortObjectSpec[])
 	 */
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
@@ -123,7 +124,9 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText(java.lang.String)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setToolTipText
+	 * (java.lang.String)
 	 */
 	@Override
 	public void setToolTipText(final String text) {
@@ -133,7 +136,8 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#validateSettingsBeforeSave()
+	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
+	 * validateSettingsBeforeSave()
 	 */
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
@@ -156,7 +160,8 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#updateComponent()
 	 */
 	@Override
 	protected void updateComponent() {

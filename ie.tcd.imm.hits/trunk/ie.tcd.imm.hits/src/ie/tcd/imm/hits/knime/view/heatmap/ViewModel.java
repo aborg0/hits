@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
@@ -9,10 +9,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -240,9 +241,11 @@ public class ViewModel implements ActionListener {
 		 * @param primerParameters
 		 *            This describes the primary split {@link ParameterModel}s.
 		 * @param secunderParameters
-		 *            This describes the secondary split {@link ParameterModel}s.
+		 *            This describes the secondary split {@link ParameterModel}
+		 *            s.
 		 * @param additionalParameters
-		 *            This describes the additional data {@link ParameterModel}s.
+		 *            This describes the additional data {@link ParameterModel}
+		 *            s.
 		 * @param drawBorder
 		 *            If set draws a (rectangular) border around the well.
 		 * @param drawPrimaryBorders
@@ -279,9 +282,11 @@ public class ViewModel implements ActionListener {
 		 * @param primerParameters
 		 *            This describes the primary split {@link ParameterModel}s.
 		 * @param secunderParameters
-		 *            This describes the secondary split {@link ParameterModel}s.
+		 *            This describes the secondary split {@link ParameterModel}
+		 *            s.
 		 * @param additionalParameters
-		 *            This describes the additional data {@link ParameterModel}s.
+		 *            This describes the additional data {@link ParameterModel}
+		 *            s.
 		 * @param drawBorders
 		 *            If set draws every possible separator line, else it draws
 		 *            none.
@@ -530,9 +535,8 @@ public class ViewModel implements ActionListener {
 		 *            These values are used, may be empty, meaning all.
 		 */
 		public ParameterModel(final String shortName, final StatTypes type,
-				@Nullable
-				final AggregateType aggregateType, final List<String> columns,
-				final List<String> columnValues) {
+				@Nullable final AggregateType aggregateType,
+				final List<String> columns, final List<String> columnValues) {
 			super();
 			this.shortName = shortName;
 			this.type = type;
@@ -709,27 +713,27 @@ public class ViewModel implements ActionListener {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((aggregateType == null) ? 0 : aggregateType.hashCode());
+					+ (aggregateType == null ? 0 : aggregateType.hashCode());
 			result = prime * result
-					+ ((colorLegend == null) ? 0 : colorLegend.hashCode());
+					+ (colorLegend == null ? 0 : colorLegend.hashCode());
 			result = prime * result
-					+ ((columnValues == null) ? 0 : columnValues.hashCode());
+					+ (columnValues == null ? 0 : columnValues.hashCode());
 			result = prime * result
-					+ ((columns == null) ? 0 : columns.hashCode());
+					+ (columns == null ? 0 : columns.hashCode());
 			result = prime * result
-					+ ((endColor == null) ? 0 : endColor.hashCode());
+					+ (endColor == null ? 0 : endColor.hashCode());
 			result = prime * result
-					+ ((middleColor == null) ? 0 : middleColor.hashCode());
+					+ (middleColor == null ? 0 : middleColor.hashCode());
 			long temp;
 			temp = Double.doubleToLongBits(rangeMax);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + (int) (temp ^ temp >>> 32);
 			temp = Double.doubleToLongBits(rangeMin);
-			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result + (int) (temp ^ temp >>> 32);
 			result = prime * result
-					+ ((shortName == null) ? 0 : shortName.hashCode());
+					+ (shortName == null ? 0 : shortName.hashCode());
 			result = prime * result
-					+ ((startColor == null) ? 0 : startColor.hashCode());
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
+					+ (startColor == null ? 0 : startColor.hashCode());
+			result = prime * result + (type == null ? 0 : type.hashCode());
 			result = prime * result + valueCount;
 			return result;
 		}

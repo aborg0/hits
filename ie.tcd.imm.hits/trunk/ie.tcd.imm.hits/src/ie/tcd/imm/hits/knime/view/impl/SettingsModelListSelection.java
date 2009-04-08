@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -107,7 +107,8 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#getConfigName()
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#getConfigName()
 	 */
 	@Override
 	protected String getConfigName() {
@@ -117,7 +118,8 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#getModelTypeID()
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#getModelTypeID()
 	 */
 	@Override
 	protected String getModelTypeID() {
@@ -127,8 +129,10 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#loadSettingsForDialog(org.knime.core.node.NodeSettingsRO,
-	 *      org.knime.core.node.port.PortObjectSpec[])
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#loadSettingsForDialog
+	 * (org.knime.core.node.NodeSettingsRO,
+	 * org.knime.core.node.port.PortObjectSpec[])
 	 */
 	@Override
 	protected void loadSettingsForDialog(final NodeSettingsRO settings,
@@ -164,7 +168,9 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#loadSettingsForModel(org.knime.core.node.NodeSettingsRO)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#loadSettingsForModel
+	 * (org.knime.core.node.NodeSettingsRO)
 	 */
 	@Override
 	protected void loadSettingsForModel(final NodeSettingsRO settings)
@@ -187,7 +193,9 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#saveSettingsForDialog(org.knime.core.node.NodeSettingsWO)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#saveSettingsForDialog
+	 * (org.knime.core.node.NodeSettingsWO)
 	 */
 	@Override
 	protected void saveSettingsForDialog(final NodeSettingsWO settings)
@@ -201,7 +209,9 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#saveSettingsForModel(org.knime.core.node.NodeSettingsWO)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.SettingsModel#saveSettingsForModel
+	 * (org.knime.core.node.NodeSettingsWO)
 	 */
 	@Override
 	protected void saveSettingsForModel(final NodeSettingsWO settings) {
@@ -224,7 +234,8 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.SettingsModel#validateSettingsForModel(org.knime.core.node.NodeSettingsRO)
+	 * @seeorg.knime.core.node.defaultnodesettings.SettingsModel#
+	 * validateSettingsForModel(org.knime.core.node.NodeSettingsRO)
 	 */
 	@Override
 	protected void validateSettingsForModel(final NodeSettingsRO settings)
@@ -286,7 +297,9 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ListSelection#setPossibleValues(java.util.List)
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.ListSelection#setPossibleValues(java.util.
+	 * List)
 	 */
 	@Override
 	public void setPossibleValues(final List<? extends String> possibleValues) {
@@ -303,7 +316,8 @@ class SettingsModelListSelection extends SettingsModel implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ie.tcd.imm.hits.knime.view.ListSelection#setSelection(java.lang.Iterable)
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.ListSelection#setSelection(java.lang.Iterable)
 	 */
 	@Override
 	public void setSelection(final Iterable<? extends String> selection) {

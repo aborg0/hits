@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
  ## Correct wellAnno information:
      ## ... by taking into account the wells that were flagged in the screen log file, 
      ## or even manually by the user in the assayData slot. Besides the categories in wellAnno(x), it contains the category "flagged".

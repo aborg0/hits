@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
 ## ---------------------------------------------------------------------------
 # LPB, August 2007
 # Function to calculate per-experiment Z'-factor based on positive and negative controls (for each replicate and channel).

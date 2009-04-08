@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.prefs;
 
@@ -80,8 +80,8 @@ public class ColourPreferencePage extends FieldEditorPreferencePage implements
 	 * @see FieldEditorPreferencePage#FieldEditorPreferencePage(String,
 	 *      ImageDescriptor, int)
 	 */
-	public ColourPreferencePage(final String title, @Nullable
-	final ImageDescriptor image, final int style) {
+	public ColourPreferencePage(final String title,
+			@Nullable final ImageDescriptor image, final int style) {
 		super(title, image, style);
 		setPreferenceStore(ImporterNodePlugin.getDefault().getPreferenceStore());
 		setDescription("Set the default colour codes for your heatmaps.");
@@ -90,7 +90,9 @@ public class ColourPreferencePage extends FieldEditorPreferencePage implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
+	 * @see
+	 * org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors
+	 * ()
 	 */
 	@Override
 	protected void createFieldEditors() {
@@ -155,7 +157,8 @@ public class ColourPreferencePage extends FieldEditorPreferencePage implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
+	 * @see
+	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	@Override
 	public void init(final IWorkbench workbench) {

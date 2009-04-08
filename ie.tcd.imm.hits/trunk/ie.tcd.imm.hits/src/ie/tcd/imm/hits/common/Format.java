@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.common;
 
 /**
@@ -34,15 +37,16 @@ public enum Format {
 	}
 
 	/**
-	 * Converts a {@code well} like {@code A01}, {@code A1}, or {@code A - 1}
-	 * to a position between {@code [0} and {@code row * col)}.
+	 * Converts a {@code well} like {@code A01}, {@code A1}, or {@code A - 1} to
+	 * a position between {@code [0} and {@code row * col)}.
 	 * 
 	 * @param well
 	 *            A {@link String} like: a {@code well} like {@code A01},
 	 *            {@code A1}, or {@code A - 1}. The letter represents the row,
 	 *            the number represents the column.
-	 * @return The position appropriate for the {@link Format} between
-	 *         {@code [0} and {@code row * col)} ({@code rowPositionFromA * columnCount + columnPositionFrom1}).
+	 * @return The position appropriate for the {@link Format} between {@code
+	 *         [0} and {@code row * col)} ({@code rowPositionFromA * columnCount
+	 *         + columnPositionFrom1}).
 	 * @throws IllegalArgumentException
 	 *             If the column or row is out of the allowed values.
 	 * @throws StringIndexOutOfBoundsException

@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import ie.tcd.imm.hits.common.Format;
@@ -12,14 +15,6 @@ import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Pair;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +26,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -94,7 +98,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}*}*}*}*}*}*}
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}*}*}*}*}*}*}*}
  * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending on the additive or
  * multiplicative nature of normalisation method.</li>
  * </ul>

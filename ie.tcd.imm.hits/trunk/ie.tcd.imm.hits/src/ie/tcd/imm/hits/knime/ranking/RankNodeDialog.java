@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.ranking;
 
 import ie.tcd.imm.hits.knime.ranking.RankNodeModel.RankingGroups;
@@ -21,8 +24,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.defaultnodesettings.UpdatableComponent;
 
 /**
- * <code>NodeDialog</code> for the "Rank" Node. This node ranks the results
- * for each parameter and for each normalisation methods with selectable neutral
+ * <code>NodeDialog</code> for the "Rank" Node. This node ranks the results for
+ * each parameter and for each normalisation methods with selectable neutral
  * values and the direction of the upregulation.<br>
  * The downregulated values has negative rankings, the upregulated has positive
  * ones. If present it uses the (final) well annotation information of the

@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.view.heatmap.simple;
 
 import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;

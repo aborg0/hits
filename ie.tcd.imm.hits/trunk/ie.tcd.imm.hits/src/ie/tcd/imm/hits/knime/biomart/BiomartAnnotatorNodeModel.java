@@ -1,13 +1,17 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.biomart;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -152,7 +156,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 				final String[] origVal = newValues.get(key);
 				for (int j = 0; j < newAttributes.length; j++) {
 					final StringBuilder sb = new StringBuilder(
-							origVal[j] == null ? "" : (origVal[j] + "|"));
+							origVal[j] == null ? "" : origVal[j] + "|");
 					final String toAppend = rawAnnots.get(newAttributes[j])[i];
 					if (sb.length() > 0
 							&& (sb.substring(0, sb.length() - 1).equals(

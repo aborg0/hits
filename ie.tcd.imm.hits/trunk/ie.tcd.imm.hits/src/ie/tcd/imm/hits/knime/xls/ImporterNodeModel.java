@@ -1,6 +1,12 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.xls;
 
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,8 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -195,8 +199,8 @@ public class ImporterNodeModel extends NodeModel {
 					for (int i = 3; i < perWellSheet.getLastRowNum() + 1; ++i) {
 						final DataCell[] values = new DataCell[columns
 								+ (addAnnotations ? 2 : 0)];
-						values[0] = new IntCell(1 + (j / replicateCount));// plate
-						values[1] = new IntCell(1 + (j % replicateCount));// replicate
+						values[0] = new IntCell(1 + j / replicateCount);// plate
+						values[1] = new IntCell(1 + j % replicateCount);// replicate
 						final HSSFRow currentRow = perWellSheet.getRow(i);
 						final String wellName = currentRow.getCell(0)
 								.getRichStringCellValue().getString().replace(
@@ -224,9 +228,8 @@ public class ImporterNodeModel extends NodeModel {
 							values[columns] = new StringCell(nonNullGeneID);
 							values[columns + 1] = new StringCell(nonNullAnnot);
 						}
-						final String keyString = ((j / replicateCount) + 1)
-								+ "_" + ((j % replicateCount) + 1) + "_"
-								+ (i - 2);
+						final String keyString = j / replicateCount + 1 + "_"
+								+ (j % replicateCount + 1) + "_" + (i - 2);
 						final DefaultRow defaultRow = new DefaultRow(
 								new RowKey(keyString), values);
 						container.addRowToTable(defaultRow);
@@ -310,7 +313,7 @@ public class ImporterNodeModel extends NodeModel {
 			final int cols) {
 		final int row = Character.toLowerCase(well.charAt(0)) - 'a';
 		final int col = Integer.parseInt(well.substring(1)) - 1;
-		final int wellIndex = (row < 0 || row >= rows || col < 0 || col >= cols) ? -1
+		final int wellIndex = row < 0 || row >= rows || col < 0 || col >= cols ? -1
 				: row * cols + col;
 		return wellIndex;
 	}

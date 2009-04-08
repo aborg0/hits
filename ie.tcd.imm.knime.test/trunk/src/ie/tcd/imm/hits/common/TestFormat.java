@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.common;
 
@@ -10,8 +10,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Tests for {@link Format}'s
- * {@link Format#convertWellToPosition(String) well parsing method}.
+ * Tests for {@link Format}'s {@link Format#convertWellToPosition(String) well
+ * parsing method}.
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */

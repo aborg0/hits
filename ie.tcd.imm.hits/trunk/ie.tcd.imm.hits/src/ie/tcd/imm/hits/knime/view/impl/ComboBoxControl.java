@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
@@ -8,12 +8,13 @@ import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -89,7 +90,9 @@ class ComboBoxControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents(boolean)
+	 * @see
+	 * org.knime.core.node.defaultnodesettings.DialogComponent#setEnabledComponents
+	 * (boolean)
 	 */
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
@@ -99,7 +102,8 @@ class ComboBoxControl extends AbstractVariableControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#updateComponent()
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl#updateComponent()
 	 */
 	@Override
 	protected void updateComponent() {
@@ -144,8 +148,7 @@ class ComboBoxControl extends AbstractVariableControl {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result
-				+ ((combobox == null) ? 0 : combobox.hashCode());
+		result = prime * result + (combobox == null ? 0 : combobox.hashCode());
 		return result;
 	}
 

@@ -1,3 +1,6 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
+
 ## NB - since 05.11.2007, replicate scoring and summarization were split into 2 functions: "scoreReplicates" and "summarizeReplicates", in order to make the preprocessing work-flow clearer (these two steps were formely done sequentially by calling "summarizeReplicates").
 ## Now, summarizeReplicates **only** does what its name indicates: takes the chosen summary from the replicate data at each well.
 ## This function should be called **after** scoring the replicates through calling function "scoreReplicates".

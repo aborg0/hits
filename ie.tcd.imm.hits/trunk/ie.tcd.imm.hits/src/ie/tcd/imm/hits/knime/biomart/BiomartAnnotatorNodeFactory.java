@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.biomart;
 
 import org.knime.core.node.NodeDialogPane;
@@ -10,7 +13,8 @@ import org.knime.core.node.NodeView;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class BiomartAnnotatorNodeFactory extends NodeFactory<BiomartAnnotatorNodeModel> {
+public class BiomartAnnotatorNodeFactory extends
+		NodeFactory<BiomartAnnotatorNodeModel> {
 
 	/**
 	 * {@inheritDoc}
@@ -32,8 +36,8 @@ public class BiomartAnnotatorNodeFactory extends NodeFactory<BiomartAnnotatorNod
 	 * {@inheritDoc}
 	 */
 	@Override
-	public NodeView<BiomartAnnotatorNodeModel> createNodeView(final int viewIndex,
-			final BiomartAnnotatorNodeModel nodeModel) {
+	public NodeView<BiomartAnnotatorNodeModel> createNodeView(
+			final int viewIndex, final BiomartAnnotatorNodeModel nodeModel) {
 		throw new IndexOutOfBoundsException("No views defined. (" + viewIndex
 				+ ")");
 	}

@@ -1,11 +1,15 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import ie.tcd.imm.hits.knime.cellhts2.worker.DialogComponentFormula.SettingsWrapper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import java.io.File;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -50,9 +54,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation(Nonnull.class)
 public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 
-	private DialogComponentFormula normFormula;
-	private DialogComponentFormula summariseFormula;
-	private DialogComponentFormula scoreFormula;
+	private final DialogComponentFormula normFormula;
+	private final DialogComponentFormula summariseFormula;
+	private final DialogComponentFormula scoreFormula;
 
 	/**
 	 * New pane for configuring CellHTS2 node dialog.
@@ -313,7 +317,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final List<String> paramList = new ArrayList<String>(parametersModel
 				.getIncludeList().size());
 		for (int i = 0; i < parametersModel.getIncludeList().size(); ++i) {
-			paramList.add((parametersModel.getIncludeList().get(i)));
+			paramList.add(parametersModel.getIncludeList().get(i));
 		}
 		final Map<String, String> dirs = CellHTS2NodeModel
 				.computeOutDirs(

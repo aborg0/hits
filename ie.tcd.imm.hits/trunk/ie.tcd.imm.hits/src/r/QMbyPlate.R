@@ -1,3 +1,5 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
+# Copyright 2008 Michael Boutros and Ligia P. Bras L and Wolfgang Huber
 
 myImageMap <- function(object, tags, imgname) {
 

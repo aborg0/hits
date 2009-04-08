@@ -1,3 +1,4 @@
+# All rights reserved. (C) Copyright 2009, Trinity College Dublin
 ## (C) Ligia P. Bras 2006
 ##
 ## 'object' is a 'cellHTS' object
