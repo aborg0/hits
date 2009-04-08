@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+	<name>DirectProduct</name>
+
+	<shortDescription>
+		This node takes input tables and creates a direct
+		product of the rows.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			For example, given:
+			<br />
+			A:
+<pre>Col1 |Col2
+a    |1
+b    |2</pre>
+			and B:
+<pre>Col3
+x
+y
+z</pre>
+			the result of AxB is:
+<pre>Col1 |Col2 |Col3
+a    |1    |x
+a    |1    |y
+a    |1    |z
+b    |2    |x
+b    |2    |y
+b    |2    |z</pre>
+		</intro>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="The left side of product">A table</inPort>
+		<inPort index="1" name="The right side of product">A table</inPort>
+		<outPort index="0" name="Direct product">Direct product: left x right.</outPort>
+	</ports>
+</knimeNode>
