@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
 <contexts>
-	<context id="columnSelection" title="Column selection">
+	<context id="ie.tcd.imm.hits.help.pref.columnSelection" title="Column selection">
 		<description>This is the column selection area.</description>
-		<topic href="../settings.xhtml#columns" label="Columns"/>
+		<topic href="help/settings.xhtml#columns" label="Columns"/>
 		<topic href="help/settings.xhtml#colOrder" label="Column order"/>
 	</context>
 </contexts>

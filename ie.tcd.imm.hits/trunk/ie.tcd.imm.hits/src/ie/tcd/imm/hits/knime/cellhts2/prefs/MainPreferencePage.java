@@ -94,7 +94,7 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(
 				columnSelectionFieldEditor
 						.getListControl(getFieldEditorParent()),
-				"columnSelection");
+				"ie.tcd.imm.hits.help.pref.columnSelection");
 		addField(columnSelectionFieldEditor);
 	}
 
