@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.knime.util.product;
 
 import java.util.ArrayList;
@@ -23,73 +26,6 @@ import org.knime.core.node.NodeSettingsWO;
 /**
  * This is the model implementation of DirectProduct. This node takes input
  * tables and creates a direct product of the rows.
- * <p>
- * For example, given:<br/>
- * A:<br/>
- * <table>
- * <th>
- * <td>Col1</td>
- * <td>Col2</td></th>
- * <tr>
- * <td>a</td>
- * <td>1</td>
- * </tr>
- * <tr>
- * <td>b</td>
- * <td>2</td>
- * </tr>
- * </table>
- * and B:<br/>
- * <table>
- * <th>
- * <td>Col3</td></th>
- * <tr>
- * <td>x</td>
- * </tr>
- * <tr>
- * <td>y</td>
- * </tr>
- * <tr>
- * <td>z</td>
- * </tr>
- * </table>
- * the result is:
- * <table>
- * <th>
- * <td>Col1</td></th>
- * <td>Col2</td></th>
- * <td>Col3</td></th>
- * <tr>
- * <td>a</td>
- * <td>1</td>
- * <td>x</td>
- * </tr>
- * <tr>
- * <td>b</td>
- * <td>2</td>
- * <td>x</td>
- * </tr>
- * <tr>
- * <td>a</td>
- * <td>1</td>
- * <td>y</td>
- * </tr>
- * <tr>
- * <td>b</td>
- * <td>2</td>
- * <td>y</td>
- * </tr>
- * <tr>
- * <td>a</td>
- * <td>1</td>
- * <td>z</td>
- * </tr>
- * <tr>
- * <td>b</td>
- * <td>2</td>
- * <td>z</td>
- * </tr>
- * </table>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -123,7 +59,6 @@ public class DirectProductNodeModel extends NodeModel {
 				out.addRowToTable(new DefaultRow(row0.getKey() + "_"
 						+ row1.getKey(), cells));
 			}
-
 		}
 		out.close();
 		final BufferedDataTable ret = out.getTable();
@@ -135,7 +70,7 @@ public class DirectProductNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO: generated method stub
+		// Do nothing
 	}
 
 	/**
@@ -153,7 +88,7 @@ public class DirectProductNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO: generated method stub
+		// No settings yet
 	}
 
 	/**
@@ -162,7 +97,7 @@ public class DirectProductNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		// No settings yet
 	}
 
 	/**
@@ -171,7 +106,7 @@ public class DirectProductNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		// No settings yet
 	}
 
 	/**
@@ -181,7 +116,7 @@ public class DirectProductNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// No settings yet
 	}
 
 	/**
@@ -191,7 +126,6 @@ public class DirectProductNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// No settings yet
 	}
-
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Manipulator">
-	<name>DirectProduct</name>
+<knimeNode icon="./product.png" type="Manipulator">
+    <!-- All rights reserved. (C) Copyright 2009, Trinity College Dublin -->
+    <name>Direct Product</name>
 
 	<shortDescription>
 		This node takes input tables and creates a direct
@@ -29,6 +30,8 @@ a    |1    |z
 b    |2    |x
 b    |2    |y
 b    |2    |z</pre>
+<br/>
+The row ids will be the combination of the original row ids, separated by the _ character. (This may cause problem in some cases.)
 		</intro>
 	</fullDescription>
 
