@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.annotation.Nonnull;
@@ -17,9 +19,12 @@ import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentButton;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
 import org.knime.core.node.defaultnodesettings.DialogComponentDoubleRange;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
@@ -155,6 +160,25 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_FOLDER_PATTERN,
 						CellHTS2NodeModel.DEFAULT_FOLDER_PATTERN), "Pattern:");
 		addDialogComponent(patternDialog);
+		final DialogComponentButton helpButton = new DialogComponentButton(
+				"Help");
+		helpButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Display display = Display.getDefault();
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						PlatformUI
+								.getWorkbench()
+								.getHelpSystem()
+								.displayHelpResource(
+										"/ie.tcd.imm.hits/help/cellHTS2.xhtml#params");
+					}
+				});
+			}
+		});
+		addDialogComponent(helpButton);
 		setHorizontalPlacement(false);
 		addDialogComponent(sample);
 		closeCurrentGroup();
