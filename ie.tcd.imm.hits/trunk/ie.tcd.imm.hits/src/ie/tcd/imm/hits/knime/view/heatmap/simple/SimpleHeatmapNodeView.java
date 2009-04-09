@@ -7,7 +7,9 @@ import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Misc;
+import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.PopupListener;
+import ie.tcd.imm.hits.util.swing.SaveAs;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
@@ -510,6 +512,12 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 		view.addMouseListener(new PopupListener(createPopupMenu()));
 		split.setDividerLocation(1800);
 		getJMenuBar().add(createHiLiteMenu());
+		getJMenuBar().getMenu(0).add(
+				SaveAs.createAction(getComponent(), "Export as PNG", view,
+						ImageType.png));
+		getJMenuBar().getMenu(0).add(
+				SaveAs.createAction(getComponent(), "Export as SVG", view,
+						ImageType.svg));
 	}
 
 	private JMenu createHiLiteMenu() {

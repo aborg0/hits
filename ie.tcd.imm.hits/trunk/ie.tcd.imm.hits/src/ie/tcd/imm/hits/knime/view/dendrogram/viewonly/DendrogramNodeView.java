@@ -22,44 +22,32 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import ie.tcd.imm.hits.util.swing.ImageType;
+import ie.tcd.imm.hits.util.swing.SaveAs;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.reflect.Method;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 
 import org.knime.base.node.mine.cluster.hierarchical.HierarchicalClusterNodeView;
-import org.knime.base.node.viz.plotter.AbstractDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.node.DefaultVisualizationNodeView;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.NodeModel;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -73,113 +61,6 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public class DendrogramNodeView extends DefaultVisualizationNodeView {
 
 	private static final String DATA_MENU = "Data";
-
-	private enum ImageType {
-		png, svg;
-	}
-
-	private final class SaveAs extends AbstractAction {
-		private static final long serialVersionUID = -6981404140757972969L;
-		private final HeatmapDendrogramPlotter dendrogramPlotter;
-		private final ImageType type;
-
-		private SaveAs(final String name,
-				final HeatmapDendrogramPlotter heatmapDendrogramPlotter,
-				final ImageType type) {
-			super(name);
-			this.dendrogramPlotter = heatmapDendrogramPlotter;
-			this.type = type;
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final JFileChooser fileChooser = new JFileChooser();
-			switch (fileChooser.showSaveDialog(getComponent())) {
-			case JFileChooser.APPROVE_OPTION:
-				final AbstractDrawingPane drawingPane = dendrogramPlotter
-						.getDrawingPane();
-				final BufferedImage bi = new BufferedImage(drawingPane
-						.getWidth(), drawingPane.getHeight(),
-						ColorSpace.TYPE_RGB);
-				switch (type) {
-				case png:
-					final Graphics2D g = bi.createGraphics();
-					g.setColor(Color.BLACK);
-					g.setBackground(Color.WHITE);
-					drawingPane.paintAll(g);
-					try {
-						ImageIO.write(bi, "png", fileChooser.getSelectedFile());
-					} catch (final IOException e1) {
-						throw new RuntimeException(e1);
-					}
-					break;
-				case svg:
-					try {
-						final Class<?> SVGGraphics2DClass = Class
-								.forName("org.apache.batik.svggen.SVGGraphics2D");
-						final Class<?> domImplClass = Class
-								.forName("org.apache.batik.dom.GenericDOMImplementation");
-						final Method getDomImplMethod = domImplClass
-								.getMethod("getDOMImplementation");
-						final DOMImplementation domImpl = (DOMImplementation) getDomImplMethod
-								.invoke(null);
-						// Create an instance of org.w3c.dom.Document.
-						final String svgNS = "http://www.w3.org/2000/svg";
-						final Document document = domImpl.createDocument(svgNS,
-								"svg", null);
-
-						// Create an instance of the SVG Generator.
-						final Graphics2D svgGenerator = (Graphics2D) SVGGraphics2DClass
-								.getConstructor(Document.class).newInstance(
-										document);
-						// Ask the test to render into the SVG Graphics2D
-						// implementation.
-						drawingPane.paintAll(svgGenerator);
-
-						// Finally, stream out SVG to the standard output using
-						// UTF-8 encoding.
-						final boolean useCSS = true; // we want to use CSS style
-						// attributes
-						final Method stream = SVGGraphics2DClass.getMethod(
-								"stream", Writer.class, boolean.class);
-						final FileOutputStream fos = new FileOutputStream(
-								fileChooser.getSelectedFile());
-						try {
-							final Writer out = new OutputStreamWriter(fos,
-									"UTF-8");
-							try {
-								stream.invoke(svgGenerator, out, useCSS);
-								// svgGenerator.stream(out, useCSS);
-							} finally {
-								out.close();
-							}
-						} finally {
-							fos.close();
-						}
-					} catch (final Exception e1) {
-						DendrogramNodeModel.logger
-								.debug(
-										"No batik svggen found, disabling saving to SVG.",
-										e1);
-						JOptionPane
-								.showMessageDialog(
-										drawingPane,
-										"The Apache Batik SVG Generation or the Apache Batik DOM extension is not installed, but these are necessary for this functionality.\n"
-												+ "You can install them from the Orbit download page:\n"
-												+ "http://download.eclipse.org/tools/orbit/downloads/",
-										"Download Apache Batik SVG Generation/Apache Batik DOM",
-										JOptionPane.INFORMATION_MESSAGE);
-						setEnabled(false);
-					}
-					break;
-				default:
-					throw new UnsupportedOperationException(
-							"Not supported image format: " + type);
-				}
-				break;
-			}
-		}
-	}
 
 	private static enum DataOrder {
 		/** no selection, only from second */
@@ -302,11 +183,13 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 			final HeatmapDendrogramPlotter heatmapDendrogramPlotter) {
 		super(nodeModel, heatmapDendrogramPlotter);
 		final JMenu file = getJMenuBar().getMenu(0);
-		final JMenuItem exportPNG = new JMenuItem(new SaveAs(
-				"Export view as PNG", heatmapDendrogramPlotter, ImageType.png));
+		final JMenuItem exportPNG = new JMenuItem(SaveAs.createAction(this
+				.getComponent(), "Export view as PNG", heatmapDendrogramPlotter
+				.getDrawingPane(), ImageType.png));
 		file.add(exportPNG);
-		final JMenuItem exportSVG = new JMenuItem(new SaveAs(
-				"Export view as SVG", heatmapDendrogramPlotter, ImageType.svg));
+		final JMenuItem exportSVG = new JMenuItem(SaveAs.createAction(this
+				.getComponent(), "Export view as SVG", heatmapDendrogramPlotter
+				.getDrawingPane(), ImageType.svg));
 		file.add(exportSVG);
 		final JMenu dataMenu = new JMenu(DATA_MENU);
 		final ButtonGroup group = new ButtonGroup();
