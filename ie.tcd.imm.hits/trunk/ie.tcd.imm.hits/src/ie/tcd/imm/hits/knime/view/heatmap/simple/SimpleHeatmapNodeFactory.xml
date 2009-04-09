@@ -8,7 +8,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Shows a simple heatmap of numeric values.</intro>
+        <intro><p>Shows a simple heatmap of numeric values.</p><p>Detailed description: <a href="../../help/simpleHeatmap.xhtml">Simple Heatmap node</a></p></intro>
     </fullDescription>
     
     <ports>

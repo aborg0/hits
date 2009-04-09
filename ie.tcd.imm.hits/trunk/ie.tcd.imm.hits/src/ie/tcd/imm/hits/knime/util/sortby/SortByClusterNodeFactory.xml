@@ -8,7 +8,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Sorts the data according to the position in the clusters.</intro>
+        <intro><p>Sorts the data according to the position in the clusters. This ensures that the order of the rows in the dendrogram is maintained in the table.</p><p>Detailed description: <a href="../../help/sortByCluster.xhtml">Sort by Cluster node</a></p></intro>
         
         
         <option name="ascending">Selects one of the possible orders.</option>

@@ -92,10 +92,16 @@ public abstract class SaveAs extends AbstractAction {
 		case JFileChooser.APPROVE_OPTION:
 			final boolean db = component.isDoubleBuffered();
 			((JComponent) component).setDoubleBuffered(false);
-			saveToFile(component, fileChooser.getSelectedFile());
+			try {
+				saveToFile(component, fileChooser.getSelectedFile());
+				JOptionPane.showMessageDialog(parent, "Successfully saved to: "
+						+ fileChooser.getSelectedFile());
+			} catch (final Throwable t) {
+				JOptionPane.showMessageDialog(parent,
+						"Error occured during save: " + t.getMessage(),
+						"Error saving", JOptionPane.ERROR_MESSAGE);
+			}
 			((JComponent) component).setDoubleBuffered(db);
-			JOptionPane.showMessageDialog(parent, "Successfully saved to: "
-					+ fileChooser.getSelectedFile());
 		}
 	}
 

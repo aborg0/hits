@@ -77,6 +77,9 @@ public class HeatmapDendrogramPlotterProperties extends
 	 */
 	public HeatmapDendrogramPlotterProperties() {
 		super();
+		// Removing the Appearance tab, because we do not use those settings
+		removeTabAt(1);
+
 		colourSelector = new ColourSelector(Collections.<String> emptyList(),
 				Collections.singleton(StatTypes.raw));
 		addTab("Colours", new JScrollPane(colourSelector));

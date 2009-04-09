@@ -19,7 +19,7 @@
       <node category-path="/distmatrix" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
     </extension>
 	<extension point="org.knime.workbench.repository.metanode">
-		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="false" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
+		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
 		</PersistedMetaNode>
 	</extension>
 	<extension point="org.knime.product.splashExtension">
@@ -40,9 +40,12 @@
    	<extension point="org.eclipse.help.toc">
       <toc file="toc.xml"/>
       <toc file="HiTSToc.xml" primary="true"/>
+	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
    	  <toc extradir="html" file="tocs/HiTS.xml"/>
 	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
-	</extension>
+	  <toc extradir="html" file="tocs/view_nodes.xml"/>
+      <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
+    </extension>
    	<extension point="org.eclipse.help.base.luceneSearchParticipants">
       <binding participantId="org.eclipse.help.base.xhtml"/>
    	</extension>

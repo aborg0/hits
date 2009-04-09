@@ -127,7 +127,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 				.setColourModel(heatmapDendrogramPlotterProperties
 						.getColourModel());
 		heatmapDendrogramPlotterProperties.getZoomOut().setAction(
-				new AbstractAction("zoom out") {
+				new AbstractAction("Zoom out") {
 					private static final long serialVersionUID = 5536007737196887615L;
 					{
 						setEnabled(false);

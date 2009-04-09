@@ -88,8 +88,20 @@
 				<anchor id="cellHTS2formulae"/>
 			</topic>
 		</topic>
-		<topic label="Visualise data" href="help/heatmap.xhtml">
-			<anchor id="heatmap"/>
+		<topic label="Visualise data" href="help/visualise.xhtml">
+     <anchor id="visualise"/>
+     <topic href="help/heatmap.xhtml" label="Plate Heatmap">
+        <anchor id="heatmap"/>
+     </topic>
+     <topic href="help/simpleHeatmap.xhtml" label="Simple Heatmap">
+        <anchor id="simpleHeatmap"/>
+     </topic>
+     <topic href="help/heatmapDendrogram.xhtml" label="Dendrogram with Heatmap">
+        <anchor id="heatmapDendrogram"/>
+     </topic>
+     <topic href="help/sortByCluster.xhtml" label="Sort by Cluster">
+        <anchor id="sortByCluster"/>
+     </topic>
 		</topic>
 		<topic label="Add ranking" href="help/rank.xhtml">
 			<anchor id="rank"/>

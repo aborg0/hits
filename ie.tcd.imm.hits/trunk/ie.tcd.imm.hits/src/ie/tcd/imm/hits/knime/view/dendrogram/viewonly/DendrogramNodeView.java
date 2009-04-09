@@ -69,10 +69,10 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		OnlyFirst("Columns only from first port (present in second too)", true),
 		/** first in front, commons are selected */
 		BothButFirstBefore(
-				"Columns only in first in front (all of the columns from second port)"),
+				"Columns in first in front (all of the columns from second port)"),
 		/** second in front, commons are selected */
 		BothButSecondBefore(
-				"Columns only in second in front (all of the columns from second port)"),
+				"Columns in second at back (all of the columns from second port)"),
 		/**
 		 * all of them in the order of second, only from second (commons
 		 * selected)
