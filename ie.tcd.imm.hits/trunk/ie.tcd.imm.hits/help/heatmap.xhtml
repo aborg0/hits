@@ -128,18 +128,34 @@ ${score}&lt;/table&gt;
 <h3><a name="legendArea">Legend</a></h3>
 <p>Shows a legend of the wells similarly to the other legend views on the <a href="#rightLegend">sidebar</a> and on <a href="#controlsTab">controls tab</a>.</p>
 <h3><a name="coloursArea">Colours</a></h3>
-<p>The controls on this tab allows to set the bounds and colours of the continuous colouring, and optionally the neutral points.</p>
+<p>The controls on this tab allows to set the bounds and colours of the continuous (two colours) and discrete (one colour) colouring.</p>
 <p><img src="heatmapColours.png"/></p>
-<p>With the fields for numbers adjust the bounds. With the buttons right of them adjust the colour of the parameter/statistics pair. If you delete the value for the neutral value (middle), you will be able to get a continuous change between the limits.</p>
-<p>For example the image above shows that the <em>Cell Count</em> scores are going from <samp>-2</samp> (black) to <samp>0</samp> (white) without any other intermediate colour. (The colour of values outside of the bounds is the same as the colour of the nearest bound.) Also, the colours for the score of <em>Cell Elongation</em> are flipped. The lower bound has red colour, while the upper bound has green.</p>
+<p>For details see the page about the <a href="visualise.xhtml#colourSettings">colour settings</a> in general.</p>
+<p>For example the image above shows that the <em>Cell Count</em> scores are going from <samp>-2</samp> (yellow) to <samp>0</samp> (black) without any other intermediate colour. (The colour of values outside of the bounds is the same as the colour of the nearest bound.) Also, the colours for the score of <em>Cell Elongation</em> are flipped: the lower bound has red colour, while the upper bound has green.</p>
 <h2>Special controls</h2>
-<p>It is possible to move or change the appearance of the controls. Also, you can influence which parameters you want to see.</p>
+<p>It is possible to move or change the appearance of the controls. Also, you can influence which parameters you want to see.<br />
+There are some special concepts related to these nodes:</p>
+<ul>
+<li><code><a name="primary">primary</a></code> - These are the horizontal splits in the rectangular form, while with circles these are creating splices.</li>
+<li><code><a name="secondary">secondary</a></code> - These are the vertical splits in the rectangular form, while with circles these are splitting rectangularly.</li>
+<li><a name="other">other</a> - These are not splitting nor the rectangles, nor the circles, but there are controls to change their values. You may not move a primary or secondary control to these forms directly, but if you select an other control you can change it to primary or a secondary. In that case the will be swapped.</li>
+</ul>
 <h3><a name="changeAppearance">Change appearance</a></h3>
 <p>Example: You want to change the appearance of the plate parameter slider to buttons. For this you right click near the slider, and select from the context menu the <em>Change appearance</em>/<em>toButtons</em> option.</p>
 <p><img src="heatmapChangeAppearanceBefore.png"/></p>
 <p>After the change you will see something like this:</p>
 <p><img src="heatmapChangeAppearanceAfter.png"/></p>
 <h3><a name="moveTo">Move to</a></h3>
+<p>There are some areas where you can put the controls:</p>
+<ul>
+<li><code>upper</code> - This is only for the <a href="#other">other</a> (non-<a href="#primary">primary</a>, non-<a href="#secondary">secondary</a>) controls. This is above the heatmaps.</li>
+<li><code>sidebarOther</code> - This is for the default area for <a href="#other">other</a> (non-<a href="#primary">primary</a>, non-<a href="#secondary">secondary</a>) controls. It is located on the right of the heatmap.</li>
+<li><code>control</code> - This is located below the heatmap. (With this name it is only for <a href="#other">other</a> (non-<a href="#primary">primary</a>, non-<a href="#secondary">secondary</a>) controls.)</li>
+<li><code>primary</code> - This is located below the heatmap. (With this name it is only for <a href="#primary">primary</a> controls.)</li>
+<li><code>sidebarPrimary</code> - This is located on the right of the heatmap, default location. (With this name it is only for <a href="#primary">primary</a> controls.)</li>
+<li><code>secondary</code> - This is located below the heatmap. (With this name it is only for <a href="#secondary">secondary</a> controls.)</li>
+<li><code>sidebarSecondary</code> - This is located on the right of the heatmap, default location. (With this name it is only for <a href="#secondary">secondary</a> controls.)</li>
+</ul>
 <p>Example: You want to move the statistics parameter combobox to the <a href="#upperPanel">upper</a> panel. For this you right click near the combobox, and select from the context menu the <em>Move to</em>/<em>upper</em> option.</p>
 <p>Note: The result area's background become black.</p>
 <p><img src="heatmapMovetoBefore.png"/></p>
