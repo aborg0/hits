@@ -66,4 +66,12 @@ public class UpdatableComponent extends DialogComponent {
 		// TODO Auto-generated method stub
 
 	}
+
+	/**
+	 * @return The last {@link PortObjectSpec}s, or {@code null}.
+	 * @see DialogComponent#getLastTableSpecs()
+	 */
+	public PortObjectSpec[] getLastPortObjectSpecs() {
+		return super.getLastTableSpecs();
+	}
 }
