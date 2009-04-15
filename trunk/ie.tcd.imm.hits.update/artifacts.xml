@@ -6,22 +6,16 @@
     <property name='p2.timestamp' value='1239789990329'/>
   </properties>
   <mappings size='3'>
-    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
     <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
-    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
   </mappings>
-  <artifacts size='3'>
+  <artifacts size='2'>
     <artifact classifier='osgi.bundle' id='ie.tcd.imm.knime.util' version='0.0.1'>
       <properties size='3'>
         <property name='artifact.size' value='44236'/>
         <property name='download.size' value='44236'/>
         <property name='download.contentType' value='application/zip'/>
-      </properties>
-    </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.knime.util.feature' version='0.0.1'>
-      <properties size='2'>
-        <property name='artifact.size' value='958'/>
-        <property name='download.size' value='958'/>
       </properties>
     </artifact>
     <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.knime.util.feature' version='0.0.1'>
