@@ -3,7 +3,7 @@
 <repository name='HiTS official update site - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1239788934586'/>
+    <property name='p2.timestamp' value='1239789990337'/>
   </properties>
   <references size='2'>
     <repository url='http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/' type='1' options='0'/>
