@@ -2,10 +2,10 @@
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
 /**
- * Package for the direct product node.
+ * Package for some {@link DialogComponent}s.
  */
 //@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-package ie.tcd.imm.knime.util.product;
+package org.knime.core.node.defaultnodesettings;
 
 //import javax.annotation.CheckReturnValue;
 //import javax.annotation.Nonnull;

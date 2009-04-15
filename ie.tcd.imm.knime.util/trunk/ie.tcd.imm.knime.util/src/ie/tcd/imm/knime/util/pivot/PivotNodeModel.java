@@ -293,7 +293,7 @@ public class PivotNodeModel extends NodeModel {
 	private static final class Variable {
 		final String name;
 
-		private Variable(final String name) {
+		Variable(final String name) {
 			super();
 			this.name = name;
 		}
@@ -302,7 +302,7 @@ public class PivotNodeModel extends NodeModel {
 	private static final class Column {
 		final DataColumnSpec spec;
 
-		private Column(final DataColumnSpec spec) {
+		Column(final DataColumnSpec spec) {
 			this.spec = spec;
 		}
 
@@ -473,14 +473,15 @@ public class PivotNodeModel extends NodeModel {
 					final String varName = vars[i].substring(1, terminator);
 					final String var = peekScopeVariableString(varName);
 					if (var == null) {
-						new InvalidSettingsException("No variable: " + varName);
+						throw new InvalidSettingsException("No variable: "
+								+ varName);
 					}
 					parts.add(new Variable(varName));
 					if (vars[i].length() - 1 != terminator) {
 						parts.add(vars[i].substring(terminator + 1));
 					}
 				} catch (final RuntimeException e) {
-					new InvalidSettingsException(e);
+					throw new InvalidSettingsException(e);
 				}
 			} else if (vars[i].startsWith("{"))// column
 			{

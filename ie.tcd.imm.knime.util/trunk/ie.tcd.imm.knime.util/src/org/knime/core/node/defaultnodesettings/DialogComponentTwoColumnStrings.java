@@ -9,8 +9,6 @@ import java.util.Set;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -22,13 +20,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class DialogComponentTwoColumnStrings extends DialogComponent {
 
 	private final JList includeList = new JList(new DefaultListModel());

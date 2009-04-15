@@ -12,8 +12,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -35,14 +33,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.tableview.TableView;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A component to preview the result of the unpivoting.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 class DialogComponentTable extends DialogComponent implements ChangeListener {
 
 	private final int portIndex;

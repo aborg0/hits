@@ -28,7 +28,7 @@ public class UpdatableComponent extends DialogComponent {
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
-
+		// Do nothing
 	}
 
 	/**
