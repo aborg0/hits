@@ -72,8 +72,9 @@ public class PivotNodeModel extends NodeModel {
 
 	private final SettingsModelFilterString toColumns = new SettingsModelFilterString(
 			CFGKEY_TO_COLUMNS);
-	private final SettingsModelFilterString values = new SettingsModelFilterString(
-			CFGKEY_VALUES);
+	// private final SettingsModelFilterString values = new
+	// SettingsModelFilterString(
+	// CFGKEY_VALUES);
 	private final SettingsModelFilterString keys = new SettingsModelFilterString(
 			CFGKEY_KEYS);
 
@@ -132,7 +133,7 @@ public class PivotNodeModel extends NodeModel {
 				}
 			}
 		}
-		final int[] valueIndices = findIndices(table, values.getIncludeList());
+		final int[] valueIndices = findIndices(table, keys.getExcludeList());
 		int i = 0;
 		final Map<Map<Column, String>, DataRow> connectByPivotValues = new HashMap<Map<Column, String>, DataRow>();
 		final List<DataCell> keyValues = new ArrayList<DataCell>();
@@ -370,7 +371,7 @@ public class PivotNodeModel extends NodeModel {
 		final List<Map<Column, String>> vals = new ArrayList<Map<Column, String>>();
 		vals.add(new HashMap<Column, String>());
 		generateValues(cols, vals);
-		for (final String valueColName : values.getIncludeList()) {
+		for (final String valueColName : keys.getExcludeList()) {
 			for (final Map<Column, String> map : vals) {
 				spec.add(createColSpec(parts, map, dataTableSpec
 						.getColumnSpec(valueColName)));
@@ -563,7 +564,7 @@ public class PivotNodeModel extends NodeModel {
 
 		// TODO save user settings to the config object.
 		toColumns.saveSettingsTo(settings);
-		values.saveSettingsTo(settings);
+		// values.saveSettingsTo(settings);
 		keys.saveSettingsTo(settings);
 		pattern.saveSettingsTo(settings);
 		behaviourModel.saveSettingsTo(settings);
@@ -580,7 +581,7 @@ public class PivotNodeModel extends NodeModel {
 		// It can be safely assumed that the settings are valided by the
 		// method below.
 		toColumns.loadSettingsFrom(settings);
-		values.loadSettingsFrom(settings);
+		// values.loadSettingsFrom(settings);
 		keys.loadSettingsFrom(settings);
 		pattern.loadSettingsFrom(settings);
 		behaviourModel.loadSettingsFrom(settings);
@@ -598,7 +599,7 @@ public class PivotNodeModel extends NodeModel {
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
 		toColumns.validateSettings(settings);
-		values.validateSettings(settings);
+		// values.validateSettings(settings);
 		keys.validateSettings(settings);
 		pattern.validateSettings(settings);
 		behaviourModel.validateSettings(settings);
