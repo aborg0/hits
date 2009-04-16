@@ -18,6 +18,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -59,15 +60,19 @@ public class PivotNodeModel extends NodeModel {
 
 	/** Those columns whose values will be converted to columns */
 	static final String CFGKEY_TO_COLUMNS = "to columns";
-	/** Those columns whose values will remain values in the converted columns */
-	static final String CFGKEY_VALUES = "values";
+	// /** Those columns whose values will remain values in the converted
+	// columns */
+	// static final String CFGKEY_VALUES = "values";
 	/** Those columns which remain the same (except row count). */
 	static final String CFGKEY_KEYS = "keys";
 
+	/** Configuration key for the pattern to generate the columns. */
 	static final String CFGKEY_PATTERN = "pattern";
 
+	/** Configuration key for the intended behaviour. */
 	static final String CFGKEY_BEHAVIOUR = "behaviour";
 
+	/** Default value for the intended behaviour. */
 	static final String DEFAULT_BEHAVIOUR = Behaviour.fillEmpty.name();
 
 	private final SettingsModelFilterString toColumns = new SettingsModelFilterString(
@@ -84,8 +89,12 @@ public class PivotNodeModel extends NodeModel {
 	private final SettingsModelString behaviourModel = new SettingsModelString(
 			CFGKEY_BEHAVIOUR, DEFAULT_BEHAVIOUR);
 
+	/** The intended behaviour. */
 	enum Behaviour {
-		fillEmpty, signalError;
+		/** Fills the non-existing parts with empty cells. */
+		fillEmpty,
+		/** Reports an error when non-existing parts to be generated. */
+		signalError;
 	}
 
 	/**
@@ -105,35 +114,28 @@ public class PivotNodeModel extends NodeModel {
 		logger.debug("Pivoting start");
 		final Behaviour behaviour = Behaviour.valueOf(behaviourModel
 				.getStringValue());
-		// the data table spec of the single output table,
-		// the table will have three columns:
 		final BufferedDataTable table = (BufferedDataTable) inData[0];
-		final DataTableSpec outputSpec = createTableSpec(table.getSpec());
-		// the execution context will provide us with storage capacity, in this
-		// case a data container to which we will add rows sequentially
-		// Note, this container can also handle arbitrary big data tables, it
-		// will buffer to disc if necessary.
+		final DataTableSpec spec = table.getSpec();
+		final DataTableSpec outputSpec = createTableSpec(spec);
 		final BufferedDataContainer container = exec
 				.createDataContainer(outputSpec);
-		final List<Object> parts = getParts(table.getSpec());
+		final List<?> parts = getParts(spec);
 		final List<Column> columns = filterColumns(parts);
 		final List<Map<Column, String>> vals = new ArrayList<Map<Column, String>>();
 		vals.add(new HashMap<Column, String>());
 		generateValues(columns, vals);
-		final int[] keyIndices = findIndices(table, keys.getIncludeList());
-		final int[] pivotIndices = findIndices(table, toColumns
-				.getIncludeList());
+		final int[] keyIndices = findIndices(spec, keys.getIncludeList());
+		final int[] pivotIndices = findIndices(spec, toColumns.getIncludeList());
 		final Column[] cols = new Column[pivotIndices.length];
 		for (int index = pivotIndices.length; index-- > 0;) {
 			for (final Column column : columns) {
-				if (column.spec.equals(table.getSpec().getColumnSpec(
-						pivotIndices[index]))) {
+				if (column.spec.equals(spec.getColumnSpec(pivotIndices[index]))) {
 					cols[index] = column;
 					break;
 				}
 			}
 		}
-		final int[] valueIndices = findIndices(table, keys.getExcludeList());
+		final int[] valueIndices = findIndices(spec, keys.getExcludeList());
 		int i = 0;
 		final Map<Map<Column, String>, DataRow> connectByPivotValues = new HashMap<Map<Column, String>, DataRow>();
 		final List<DataCell> keyValues = new ArrayList<DataCell>();
@@ -196,7 +198,8 @@ public class PivotNodeModel extends NodeModel {
 	 * @param connectByPivotValues
 	 * @param row
 	 */
-	private void processRow(final int[] pivotIndices, final Column[] cols,
+	private static void processRow(final int[] pivotIndices,
+			final Column[] cols,
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
 			final DataRow row) {
 		final Map<Column, String> pivotMap = new HashMap<Column, String>();
@@ -208,17 +211,28 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Creates new row based on the grouped {@code vals}, and adds them the
+	 * {@code container}.
+	 * 
 	 * @param container
+	 *            A {@link DataContainer}.
 	 * @param vals
+	 *            Pivot columns. {@link Column}.
 	 * @param keyIndices
+	 *            The indices to key columns.
 	 * @param valueIndices
+	 *            The indices to unnamed columns. ({@link VarColumn})
 	 * @param connectByPivotValues
+	 *            Some adjacent rows in a map structure.
 	 * @param keyValues
+	 *            The values in the key columns. (<b>out parameter</b>!)
 	 * @param newRowCount
+	 *            The actual row number.
 	 * @param row
-	 * @return
+	 *            A row to fill the {@code keyValues} list.
+	 * @return The next row identifier.
 	 */
-	private int createNewRow(final BufferedDataContainer container,
+	private static int createNewRow(final DataContainer container,
 			final List<Map<Column, String>> vals, final int[] keyIndices,
 			final int[] valueIndices,
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
@@ -244,12 +258,20 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Adds the values for each {@code valueIndices} to {@code cells}.
+	 * 
+	 * @see #addValues(Map, int, List, List)
+	 * 
 	 * @param connectByPivotValues
+	 *            A connection from pivot nodes to some nodes.
 	 * @param valueIndices
+	 *            The columns to select from the row.
 	 * @param vals
+	 *            The mapping from the pivot columns to the new column names.
 	 * @param cells
+	 *            The result cells.
 	 */
-	private void addValues(
+	private static void addValues(
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
 			final int[] valueIndices, final List<Map<Column, String>> vals,
 			final List<DataCell> cells) {
@@ -259,12 +281,19 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Puts the values from the row selected by the {@code vals} from {@code
+	 * connectByPivotValues} to {@code cells}.
+	 * 
 	 * @param connectByPivotValues
+	 *            A connection from pivot nodes to some nodes.
 	 * @param valIndex
+	 *            The column to select from the row.
 	 * @param vals
+	 *            The mapping from the pivot columns to the new column names.
 	 * @param cells
+	 *            The result cells.
 	 */
-	private void addValues(
+	private static void addValues(
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
 			final int valIndex, final List<Map<Column, String>> vals,
 			final List<DataCell> cells) {
@@ -276,20 +305,26 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
-	 * @param table
+	 * Finds the proper indices for each column name in {@code includeList} from
+	 * the {@code spec}.
+	 * 
+	 * @param spec
+	 *            A {@link DataTableSpec}.
 	 * @param includeList
-	 * @return
+	 * @return An array of ({@code 0} based) indices of {@code includeList} in
+	 *         the {@code spec}.
 	 */
-	private int[] findIndices(final BufferedDataTable table,
+	private static int[] findIndices(final DataTableSpec spec,
 			final List<String> includeList) {
 		final int[] keyIndices = new int[includeList.size()];
 		int i = 0;
 		for (final String keyName : includeList) {
-			keyIndices[i++] = table.getSpec().findColumnIndex(keyName);
+			keyIndices[i++] = spec.findColumnIndex(keyName);
 		}
 		return keyIndices;
 	}
 
+	/** Variable from the meta workflow. */
 	private static final class Variable {
 		final String name;
 
@@ -299,6 +334,7 @@ public class PivotNodeModel extends NodeModel {
 		}
 	}
 
+	/** A column selected. */
 	private static final class Column {
 		final DataColumnSpec spec;
 
@@ -306,11 +342,6 @@ public class PivotNodeModel extends NodeModel {
 			this.spec = spec;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#hashCode()
-		 */
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -319,11 +350,6 @@ public class PivotNodeModel extends NodeModel {
 			return result;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
 		@Override
 		public boolean equals(final Object obj) {
 			if (this == obj) {
@@ -347,6 +373,7 @@ public class PivotNodeModel extends NodeModel {
 		}
 	}
 
+	/** A "value" column. Singleton. */
 	private static class VarColumn {
 		static final VarColumn instance = new VarColumn();
 
@@ -356,13 +383,17 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Creates the new {@link DataTableSpec} based on {@code dataTableSpec} and
+	 * the key columns.
+	 * 
 	 * @param dataTableSpec
-	 * @return
+	 *            A {@link DataTableSpec}.
+	 * @return The new {@link DataTableSpec}.
 	 * @throws InvalidSettingsException
 	 */
 	private DataTableSpec createTableSpec(final DataTableSpec dataTableSpec)
 			throws InvalidSettingsException {
-		final List<Object> parts = getParts(dataTableSpec);
+		final List<?> parts = getParts(dataTableSpec);
 		final List<DataColumnSpec> spec = new ArrayList<DataColumnSpec>();
 		for (final String key : keys.getIncludeList()) {
 			spec.add(dataTableSpec.getColumnSpec(key));
@@ -380,13 +411,7 @@ public class PivotNodeModel extends NodeModel {
 		return new DataTableSpec(spec.toArray(new DataColumnSpec[spec.size()]));
 	}
 
-	/**
-	 * @param parts
-	 * @param map
-	 * @param dataColumnSpec
-	 * @return
-	 */
-	private DataColumnSpec createColSpec(final List<Object> parts,
+	private DataColumnSpec createColSpec(final List<?> parts,
 			final Map<Column, String> map, final DataColumnSpec dataColumnSpec) {
 		final StringBuilder name = new StringBuilder();
 		for (final Object object : parts) {
@@ -413,8 +438,15 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Generate values to {@code vals} based on the selected columns ({@code
+	 * cols}).
+	 * 
 	 * @param cols
+	 *            The selected columns.
 	 * @param vals
+	 *            The values for each column. (One element represents a group of
+	 *            columns.) The map's values are the {@link DataCell} values'
+	 *            {@link String} representations.
 	 */
 	private void generateValues(final List<Column> cols,
 			final List<Map<Column, String>> vals) {
@@ -439,11 +471,7 @@ public class PivotNodeModel extends NodeModel {
 		generateValues(cols.subList(1, cols.size()), vals);
 	}
 
-	/**
-	 * @param parts
-	 * @return
-	 */
-	private List<Column> filterColumns(final List<Object> parts) {
+	private List<Column> filterColumns(final List<?> parts) {
 		final List<Column> cols = new ArrayList<Column>();
 		for (final Object object : parts) {
 			if (object instanceof Column) {
@@ -455,11 +483,17 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Parses the pattern, and based on that and the {@code dataTableSpec} it
+	 * will return a list of {@link Variable}, {@link Column}, {@link String} or
+	 * {@link VarColumn}s.
+	 * 
 	 * @param dataTableSpec
-	 * @return
+	 *            A {@link DataTableSpec}.
+	 * @return The list of objects as the pattern describes.
 	 * @throws InvalidSettingsException
+	 *             If unrecognised variable, or column found.
 	 */
-	private List<Object> getParts(final DataTableSpec dataTableSpec)
+	private List<?> getParts(final DataTableSpec dataTableSpec)
 			throws InvalidSettingsException {
 		final String patternVal = pattern.getStringValue();
 		final String[] vars = patternVal.split("\\$");
@@ -521,10 +555,13 @@ public class PivotNodeModel extends NodeModel {
 	}
 
 	/**
-	 * @param stringValue
-	 * @return
+	 * Finds a reverse pattern to be applied with an <code>Unpivot</code> node.
+	 * 
+	 * @param patternString
+	 *            A pattern to generate the columns.
+	 * @return The reverse regular expression.
 	 */
-	private String getReversePattern(final String stringValue) {
+	private String getReversePattern(final String patternString) {
 		// TODO Auto-generated method stub
 		return "";
 	}
@@ -562,10 +599,8 @@ public class PivotNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-
 		// TODO save user settings to the config object.
 		toColumns.saveSettingsTo(settings);
-		// values.saveSettingsTo(settings);
 		keys.saveSettingsTo(settings);
 		pattern.saveSettingsTo(settings);
 		behaviourModel.saveSettingsTo(settings);
@@ -577,12 +612,10 @@ public class PivotNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
 		// TODO load (valid) settings from the config object.
 		// It can be safely assumed that the settings are valided by the
 		// method below.
 		toColumns.loadSettingsFrom(settings);
-		// values.loadSettingsFrom(settings);
 		keys.loadSettingsFrom(settings);
 		pattern.loadSettingsFrom(settings);
 		behaviourModel.loadSettingsFrom(settings);
@@ -594,13 +627,11 @@ public class PivotNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
 		// TODO check if the settings could be applied to our model
 		// e.g. if the count is in a certain range (which is ensured by the
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
 		toColumns.validateSettings(settings);
-		// values.validateSettings(settings);
 		keys.validateSettings(settings);
 		pattern.validateSettings(settings);
 		behaviourModel.validateSettings(settings);

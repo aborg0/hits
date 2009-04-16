@@ -85,7 +85,7 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 			final DataTableSpec spec = (DataTableSpec) lastTableSpec;
 			try {
 				final Map<List<String>, Map<String, Integer>> parts = UnpivotNodeModel
-						.createParts2(pattern.getStringValue(), spec);
+						.createParts(pattern.getStringValue(), spec);
 				newColumns.clear();
 				final Set<Integer> participating = new HashSet<Integer>();
 				for (final Map<String, Integer> map : parts.values()) {

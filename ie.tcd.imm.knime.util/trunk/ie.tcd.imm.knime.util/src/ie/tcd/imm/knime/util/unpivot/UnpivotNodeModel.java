@@ -49,10 +49,14 @@ public class UnpivotNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(UnpivotNodeModel.class);
 
+	/** Configuration key for new column names. */
 	static final String CFGKEY_NEW_COLUMNS = "new columns";
+	/** Default names for new columns. */
 	static final String[] DEFAULT_NEW_COLUMNS = new String[0];
 
+	/** Configuration key for pattern. */
 	static final String CFGKEY_PATTERN = "pattern";
+	/** Default value for regular expression pattern. */
 	static final String DEFAULT_PATTERN = "";
 
 	private final SettingsModelStringArray newColumnsModel = new SettingsModelStringArray(
@@ -73,13 +77,12 @@ public class UnpivotNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-
 		logger.debug("Unpivot start");
 
 		final BufferedDataTable table = inData[0];
 		final BufferedDataContainer container = exec
 				.createDataContainer(createTableSpec(table.getSpec()));
-		final Map<List<String>, Map<String, Integer>> parts = createParts2(
+		final Map<List<String>, Map<String, Integer>> parts = createParts(
 				patternModel.getStringValue(), table.getSpec());
 		final Set<Integer> participantColumns = new HashSet<Integer>();
 		for (final Entry<List<String>, Map<String, Integer>> entry : parts
@@ -131,7 +134,19 @@ public class UnpivotNodeModel extends NodeModel {
 		return new BufferedDataTable[] { out };
 	}
 
-	static Map<List<String>, Map<String, Integer>> createParts2(
+	/**
+	 * Creates the parts from the {@link DataTableSpec} ({@code spec}) and the
+	 * {@code patternString}.
+	 * 
+	 * @param patternString
+	 *            The pattern.
+	 * @param spec
+	 *            The {@link DataTableSpec}.
+	 * @return A {@link Map} with keys of groups from the pattern, and values
+	 *         are maps with key: part of the column name not in a group;
+	 *         values: the index of the column.
+	 */
+	static Map<List<String>, Map<String, Integer>> createParts(
 			final String patternString, final DataTableSpec spec) {
 		final Pattern pattern = Pattern.compile(patternString);
 		final Map<List<String>, Map<String, Integer>> ret = new LinkedHashMap<List<String>, Map<String, Integer>>();
@@ -150,13 +165,6 @@ public class UnpivotNodeModel extends NodeModel {
 					ret.put(list, new LinkedHashMap<String, Integer>());
 				}
 				ret.get(list).put(sb.toString(), Integer.valueOf(i));
-				// final Map<String, Pair<List<String>, Integer>> map = new
-				// LinkedHashMap<String, Pair<List<String>, Integer>>();
-				// map.put(sb.toString(), new Pair<List<String>, Integer>(list,
-				// Integer.valueOf(i)));
-				// ret.add(map);
-				// ret.add(new Pair<Map<String, List<String>>, Integer>(map,
-				// Integer.valueOf(i++)));
 			}
 			++i;
 		}
@@ -183,8 +191,12 @@ public class UnpivotNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Creates the {@link DataTableSpec} based on the {@code dataTableSpec}, and
+	 * the parameters.
+	 * 
 	 * @param dataTableSpec
-	 * @return
+	 *            The original {@link DataTableSpec}.
+	 * @return The new {@link DataTableSpec}.
 	 */
 	private DataTableSpec createTableSpec(final DataTableSpec dataTableSpec) {
 		final List<DataColumnSpec> specs = new ArrayList<DataColumnSpec>();
