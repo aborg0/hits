@@ -49,20 +49,12 @@ import org.knime.core.node.port.flowvariable.FlowVariablePortObjectSpec;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class PivotNodeModel extends NodeModel {
-
-	/**  */
-	// private static final String VALUE_PATTERN = "\\$[^\\$]+\\$";
-	/**  */
-	// private static final String VAR_PATTERN = "\\$\\$[^\\$]+\\$\\$";
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(PivotNodeModel.class);
 
 	/** Those columns whose values will be converted to columns */
 	static final String CFGKEY_TO_COLUMNS = "to columns";
-	// /** Those columns whose values will remain values in the converted
-	// columns */
-	// static final String CFGKEY_VALUES = "values";
 	/** Those columns which remain the same (except row count). */
 	static final String CFGKEY_KEYS = "keys";
 
@@ -77,9 +69,6 @@ public class PivotNodeModel extends NodeModel {
 
 	private final SettingsModelFilterString toColumns = new SettingsModelFilterString(
 			CFGKEY_TO_COLUMNS);
-	// private final SettingsModelFilterString values = new
-	// SettingsModelFilterString(
-	// CFGKEY_VALUES);
 	private final SettingsModelFilterString keys = new SettingsModelFilterString(
 			CFGKEY_KEYS);
 
