@@ -8,21 +8,20 @@
 </head>
 <body>
 <h1><a name="overview">cellHTS2 node overview</a></h1>
-<p>This node is able to perform various normalisations on your input data. The <a href="../html/nodes/CellHTS2.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p> 
+<p>This node is able to perform various manipulations of input  screen data and output a range of reports and tables. These include summation, normalisation, and scoring. The <a href="../html/nodes/CellHTS2.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p> 
 <h1><a name="input">Input data</a></h1>
 <h2><a name="input1">First data port</a></h2>
 <p>This is the raw data from the experiment for each plate.</p>
 <h3>Expected format</h3>
 <p>There should be a column with name <samp>plate</samp> and integral type. The values in that column should be from <samp>1</samp> and continuously to the maximal value. Must not contain missing values (<samp>?</samp>).</p>
 <p>The <samp>replicate</samp> column with integral type is also mandatory. The values should be from <samp>1</samp> and continuously to the maximal value. Must not contain missing values (<samp>?</samp>). The same replicate numbers should be for every plate.</p>
-<p>The <samp>well</samp> column has to be text (<em>S</em>tring) type, also mandatory. The values must follow this format: A capital letter from <samp>A</samp> to <samp>H</samp> followed by a number from <samp>1</samp> to <samp>12</samp>. (Sorry currently only 96 well plates are supported.) Must not contain missing values (<samp>?</samp>). It should contain every possible combination (all of the 96) for every plate-replicate pair.</p>
-<p>Some (at least one) column with floating point numeric (<em>D</em>ouble) type. These will be the parameters. Must not contain missing values (<samp>?</samp>).</p>
+<p>The <samp>well</samp> column has to be text (<em>S</em>tring) type, also mandatory. The values must follow this format: A capital letter from <samp>A</samp> to <samp>H</samp> followed by a number from <samp>1</samp> to <samp>12</samp>. (At present only 96 well plates are supported.) Must not contain missing values (<samp>?</samp>). The table should contain every possible combination (all of the 96) for every plate-replicate pair.</p>
+<p>Must contain at least one column with floating point numeric (<em>D</em>ouble) type. These will be the parameters. Must not contain missing values (<samp>?</samp>).</p>
 <p>There may be other text (<em>S</em>tring) type columns. Two of them will be treated specially: <samp>GeneID</samp> and <samp>GeneSymbol</samp> (must be present or absent simultaneously). These will be present in the output to help identify the content of the wells. These may contain missing values.</p>
 <p><span class="hint">The <a href="INCellAnalyzer1000xls.xhtml">Importer node</a>'s result is compatible with this port.</span></p>
-<p><span class="hint">You may rearrange the input (especially the parameters) columns to influence to order of the results.</span> You can use <em>Column Resorter</em> node for this task.</p>
+<p><span class="hint">You may rearrange the input, especially the parameter columns to influence to order of the results.</span> You can use <em>Column Resorter</em> node for this task.</p>
 <h2><a name="input2">Second data port</a></h2>
-<p>This should contain the plate configuration data. For more information: For more information check the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a> Screen configuration: annotating the plate re-
-sults/Format of the plate configuration file (Section 4.1.)</p>
+<p>This should contain the plate configuration data. For more information check the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a> Screen configuration: annotating the plate results/Format of the plate configuration file (Section 4.1.)</p>
 <h3>Expected format</h3>
 <ol>
 <li><samp>plate</samp> <em>text</em> (<em>S</em>tring) type. There can be a pattern here, but usually use integral numbers (in textual form) to specify the plate number.</li>
@@ -40,8 +39,7 @@ sults/Format of the plate configuration file (Section 4.1.)</p>
 </ol>
 <p>The order of columns is important.</p>
 <h2><a name="input4">Fourth data port</a></h2>
-<p>This is the place for screen log. Currently not tested. For more information: For more information check the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a> Screen configuration: annotating the plate re-
-sults/Format of the screen log file (Section 4.2.)</p>
+<p>This is the place for screen log. Currently not tested. For more information check the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a> Screen configuration: annotating the plate results/Format of the screen log file (Section 4.2.)</p>
 <h3>Expected format</h3>
 <p><samp>Filename</samp> text (<em>S</em>tring) type. Meaningless, should contain the plate reference.</p>
 <p><samp>Well</samp> text (<em>S</em>tring) type. Well reference.</p>
@@ -50,9 +48,9 @@ sults/Format of the screen log file (Section 4.2.)</p>
 <p><span class="hint">You may use a <a href="PLUGINS_ROOT/org.knime.base/html/nodes/File_Reader.html">File Reader</a> to have a node with the proper columns, but without content.</span></p>
 <h1><a name="output">Result data</a></h1>
 <h2><a name="output1">summarised values</a></h2>
-<p>These are the replicate independent (summarised) statistics. The order of columns the the selection of columns is described on <a href="settings.xhtml#colOrder">this page</a>.</p>
+<p>These are the replicate independent (summarised) statistics. The order of columns can influenced by setting the generated statistics. This is described in  <a href="settings.xhtml#colOrder">this page</a>.</p>
 <h3>Structure</h3>
-<p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics. These are the meaningful in this outport:</p>
+<p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics that can be applied. These are the available values in this outport:</p>
 <ul>
 <li><a href="settings.xhtml#experiment">Experiment</a></li>
 <li><a href="settings.xhtml#normMethod">Normalisation method</a></li>
@@ -77,9 +75,9 @@ sults/Format of the screen log file (Section 4.2.)</p>
 <h4>Row ID</h4>
 <p>First the plate number (starting from 1, with at least 3 digits) followed by <samp>_</samp> followed by well name (like: <samp>A01</samp>), and optionally the normalisation method (only if more then one has been selected).</p>
 <h2><a name="output2">replicate values</a></h2>
-<p></p>
+<p>@@@@@TODO</p>
 <h3>Structure</h3>
-<p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics. These are the meaningful in this outport (all of them):</p>
+<p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics. These are the available values in this outport (all of them):</p>
 <ul>
 <li><a href="settings.xhtml#experiment">Experiment</a></li>
 <li><a href="settings.xhtml#normMethod">Normalisation method</a></li>
@@ -108,7 +106,7 @@ sults/Format of the screen log file (Section 4.2.)</p>
 <h4>Row ID</h4>
 <p>First the plate number (starting from 1, with at least 3 digits) followed by <samp>_</samp> followed by well name (like: <samp>A01</samp>) followed by <samp>_</samp> followed by replicate number (without trailing zeroes), and optionally the normalisation method (only if more then one has been selected).</p>
 <h2><a name="output3">aggregate values</a></h2>
-<p></p>
+<p>@@@@@@ TODO</p>
 <h3>Structure</h3>
 <ul>
 <li><a href="settings.xhtml#experiment">Experiment</a></li>
@@ -174,7 +172,7 @@ the positive and negative controls (on that specific plate for that parameter)</
 <p>It has similar structure to the <a href="#output2">second output port</a>, but because the position may contain the information about the generation parameters those columns are not present, and the replicates are in the columns, not in the rows. The same <a href="settings.xhtml#colOrder">configuration</a> sets the order and selection of the columns.</p>
 <h2><a name="otherFiles">Other files</a></h2>
 <h3><samp>in/Description.txt</samp></h3>
-<p>The standard description of the cellHTS2 report, but added the generation parameters to the end.</p>
+<p>The standard description of the cellHTS2 report, but with the generation parameters added to the end.</p>
 <h3><samp>in/Platelist.txt</samp></h3>
 <p>The plate list for the data files.</p>
 <h1><a name="view">View of HTML results</a></h1>
