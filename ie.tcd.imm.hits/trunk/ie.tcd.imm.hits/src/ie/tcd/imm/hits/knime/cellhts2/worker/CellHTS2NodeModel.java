@@ -98,9 +98,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}*}*}*}*}*}*}*}
- * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending on the additive or
- * multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
+ * additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -1362,17 +1361,27 @@ public class CellHTS2NodeModel extends NodeModel {
 			conn.voidEval(command);
 			CellHTS2NodeModel.logger.debug(conn.eval("dim(xraw)")
 					.toDebugString());
-			createChannelList(parameters);
+			// createChannelList(parameters);
 			// conn.voidEval(" dat = lapply(seq_len(" + paramCount
 			// + "), function(ch) \n" + " matrix(xraw[,,,ch], ncol="
 			// + replicateCount + ", nrow=" + (wellCount * plateCount)
 			// + "))\n" + " names(dat) = paste(\"ch\", seq_len(" + paramCount
 			// + "), sep=\"\")");
+			final StringBuilder channels = new StringBuilder(5 + paramCount * 5);
+			channels.append("c(");
+			for (int i = 1; i <= paramCount; ++i) {
+				channels.append("\"ch").append(Misc.addTrailing(i, 3)).append(
+						"\", ");
+			}
+			channels.setLength(channels.length() - ", ".length());
+			channels.append(")");
 			final String createDat = "  dat = lapply(seq_len(" + paramCount
 					+ "), function(ch) \n" + "    matrix(xraw[,,,ch], ncol="
 					+ replicateCount + ", nrow=" + wellCount * plateCount
-					+ "))\n" + "  names(dat) = " + "paste(\"ch\", seq_len("
-					+ paramCount + "), sep=\"\")"; // + channelsSb;
+					+ "))\n" + "  names(dat) = " + channels;
+			// "paste(\"ch\", seq_len("
+			// + paramCount
+			// + "), sep=\"\")"; // + channelsSb;
 			conn.voidEval(createDat);
 		} catch (final RserveException e) {
 			CellHTS2NodeModel.logger.fatal(
