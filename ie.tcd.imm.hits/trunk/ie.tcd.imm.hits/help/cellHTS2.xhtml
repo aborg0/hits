@@ -48,7 +48,7 @@
 <p><span class="hint">You may use a <a href="PLUGINS_ROOT/org.knime.base/html/nodes/File_Reader.html">File Reader</a> to have a node with the proper columns, but without content.</span></p>
 <h1><a name="output">Result data</a></h1>
 <h2><a name="output1">summarised values</a></h2>
-<p>These are the replicate independent (summarised) statistics. The order of columns can influenced by setting the generated statistics. This is described in  <a href="settings.xhtml#colOrder">this page</a>.</p>
+<p>These are the replicate independent (summarised) statistics. The order of columns can be influenced by setting the generated statistics. This is described in  <a href="settings.xhtml#colOrder">this page</a>.</p>
 <h3>Structure</h3>
 <p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics that can be applied. These are the available values in this outport:</p>
 <ul>
@@ -75,7 +75,7 @@
 <h4>Row ID</h4>
 <p>First the plate number (starting from 1, with at least 3 digits) followed by <samp>_</samp> followed by well name (like: <samp>A01</samp>), and optionally the normalisation method (only if more then one has been selected).</p>
 <h2><a name="output2">replicate values</a></h2>
-<p>@@@@@TODO</p>
+<p>These contain all computed statistics. The order of columns can influenced by setting the generated statistics. This is described in  <a href="settings.xhtml#colOrder">this page</a>.</p>
 <h3>Structure</h3>
 <p>The <a href="settings.xhtml#columns">page describing the settings</a> introduce the possible statistics. These are the available values in this outport (all of them):</p>
 <ul>
@@ -106,7 +106,7 @@
 <h4>Row ID</h4>
 <p>First the plate number (starting from 1, with at least 3 digits) followed by <samp>_</samp> followed by well name (like: <samp>A01</samp>) followed by <samp>_</samp> followed by replicate number (without trailing zeroes), and optionally the normalisation method (only if more then one has been selected).</p>
 <h2><a name="output3">aggregate values</a></h2>
-<p>@@@@@@ TODO</p>
+<p>These are the per-plate statistics, like Z' factor, ranges, correlations within the plates.</p>
 <h3>Structure</h3>
 <ul>
 <li><a href="settings.xhtml#experiment">Experiment</a></li>
