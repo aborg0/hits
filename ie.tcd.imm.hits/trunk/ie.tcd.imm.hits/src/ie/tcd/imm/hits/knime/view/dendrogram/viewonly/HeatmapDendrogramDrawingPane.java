@@ -258,6 +258,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 									.getBlue(), null)[2] < .4f ? Color.WHITE
 							: Color.BLACK);
 					final int y = point.y + cellHeight / 2;
+					((Graphics2D) g).setStroke(new BasicStroke(1.0f,
+							BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
+							10.0f, new float[] { 2.0f, 3.0f }, 0.0f));
 					g.drawLine(0, y, getWidth(), y);
 				}
 				g.setColor(color);
