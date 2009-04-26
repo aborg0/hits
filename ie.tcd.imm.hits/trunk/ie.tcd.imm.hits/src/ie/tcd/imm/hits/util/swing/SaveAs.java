@@ -88,21 +88,59 @@ public abstract class SaveAs extends AbstractAction {
 		final JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(new FileNameExtensionFilter(type
 				.getDescription(), type.getExtensions()));
-		switch (fileChooser.showSaveDialog(parent)) {
-		case JFileChooser.APPROVE_OPTION:
-			final boolean db = component.isDoubleBuffered();
-			((JComponent) component).setDoubleBuffered(false);
-			try {
-				saveToFile(component, fileChooser.getSelectedFile());
-				JOptionPane.showMessageDialog(parent, "Successfully saved to: "
-						+ fileChooser.getSelectedFile());
-			} catch (final Throwable t) {
-				JOptionPane.showMessageDialog(parent,
-						"Error occured during save: " + t.getMessage(),
-						"Error saving", JOptionPane.ERROR_MESSAGE);
+		checkForOverwrite: while (true) {
+			switch (fileChooser.showSaveDialog(parent)) {
+			case JFileChooser.APPROVE_OPTION:
+				final boolean db = component.isDoubleBuffered();
+				((JComponent) component).setDoubleBuffered(false);
+				try {
+					final File selectedFile = addMissingExtension(fileChooser
+							.getSelectedFile(), type.getExtensions()[0]);
+					if (selectedFile.exists()) {
+						switch (JOptionPane.showConfirmDialog(parent,
+								"Overwrite " + selectedFile.getAbsolutePath()
+										+ "?", "Overwrite existing file?",
+								JOptionPane.YES_NO_OPTION)) {
+						case JOptionPane.YES_OPTION:
+							break;
+						case JOptionPane.NO_OPTION:
+							continue checkForOverwrite;
+						}
+					}
+					saveToFile(component, selectedFile);
+					JOptionPane.showMessageDialog(parent,
+							"Successfully saved to: " + selectedFile);
+					break checkForOverwrite;
+				} catch (final Throwable t) {
+					JOptionPane.showMessageDialog(parent,
+							"Error occured during save: " + t.getMessage(),
+							"Error saving", JOptionPane.ERROR_MESSAGE);
+				}
+				((JComponent) component).setDoubleBuffered(db);
+			case JFileChooser.CANCEL_OPTION:
+				break checkForOverwrite;
 			}
-			((JComponent) component).setDoubleBuffered(db);
+
 		}
+	}
+
+	/**
+	 * Adds {@code extension} to {@code selectedFile}, if not yet present.
+	 * 
+	 * @param selectedFile
+	 *            A {@link File}.
+	 * @param extension
+	 *            A (preferably non-empty) {@link String}.
+	 * @return A {@link File} with the given {@code extension} and same
+	 *         path/name as {@code selectedFile}.
+	 */
+	private File addMissingExtension(final File selectedFile,
+			final String extension) {
+		return selectedFile.getName().toLowerCase().endsWith(
+				extension.toLowerCase()) ? selectedFile : new File(selectedFile
+				.getParentFile(), selectedFile.getName()
+				+ (extension.length() < 0 && extension.charAt(0) == '.' ? ""
+						: ".") + extension);
 	}
 
 	/**
