@@ -98,7 +98,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*} sign depending on the
  * additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
@@ -411,12 +411,13 @@ public class CellHTS2NodeModel extends NodeModel {
 					int j = 0;
 					for (final String colName : parametersModel
 							.getIncludeList()) {
-						final DoubleValue cell = (DoubleValue) dataRow
-								.getCell(paramIndices.get(colName).intValue());
+						final DataCell cell = dataRow.getCell(paramIndices.get(
+								colName).intValue());
 						rawValues[plate * replicateCount * paramCount
 								* wellCount + replicate * paramCount
-								* wellCount + j++ * wellCount + well] = cell
-								.getDoubleValue();
+								* wellCount + j++ * wellCount + well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
+								.getDoubleValue()
+								: Double.NaN;
 					}
 				}
 			}
