@@ -11,6 +11,9 @@ At current stage the plugin is able to import data (the summary by wells data) f
 
  * [http://hcdc.ethz.ch/ High Content Data Chain]
 
+= First steps after [Install install] =
+An easy approach to start is downloading the content of [http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/plate8/ this folder], and import [http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/sampleCellHTS2/sample1.zip this workflow]. After that you [http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/sampleCellHTS2/readme.txt should follow the instructions] to get familiar with this data analysis tool.
+
 = Acknowledgement =
 
 This development was supported by a [http://cordis.europa.eu/improving/fellowships/home.htm Marie Curie Fellowship].
