@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.util.swing.colour;
 
+import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
@@ -26,6 +27,7 @@ import java.awt.event.ActionListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -605,9 +607,14 @@ public class ComplexControl extends JButton implements
 
 	/**
 	 * Constructs a control with the default settings.
+	 * 
+	 * @param parameter
+	 *            The associated parameter.
+	 * @param stat
+	 *            The associated statistics type.
 	 */
-	public ComplexControl() {
-		this(new ComplexModelFactory().getDefaultModel());
+	public ComplexControl(final String parameter, @Nullable final StatTypes stat) {
+		this(new ComplexModelFactory().getDefaultModel(), parameter, stat);
 	}
 
 	/**
@@ -615,8 +622,13 @@ public class ComplexControl extends JButton implements
 	 * 
 	 * @param model
 	 *            The initial model.
+	 * @param parameter
+	 *            The associated parameter.
+	 * @param stat
+	 *            The associated statistics type.
 	 */
-	public ComplexControl(final ComplexModel model) {
+	public ComplexControl(final ComplexModel model, final String parameter,
+			@Nullable final StatTypes stat) {
 		super();
 		connectButton = new JCheckBox();
 
@@ -629,7 +641,9 @@ public class ComplexControl extends JButton implements
 					final ComplexColourPanel ccpanel = new ComplexColourPanel(
 							ComplexControl.this, getColourModel());
 					final JDialog dialog = new JDialog(JOptionPane
-							.getRootFrame(), "Adjust colour ranges", true);
+							.getRootFrame(), "Adjust colour ranges ("
+							+ parameter + (stat == null ? "" : ", " + stat)
+							+ ")", true);
 					final JComponent optionPane = new JPanel(new BorderLayout());
 					optionPane.add(ccpanel, BorderLayout.CENTER);
 					final JPanel buttonPanel = new JPanel();

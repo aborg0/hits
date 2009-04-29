@@ -37,7 +37,7 @@ public class ComplexModelFactory implements ColourFactory<ComplexModel> {
 	public ColourControl<ComplexModel> createControl(
 			final ColourModel colourModel, final String parameter,
 			final StatTypes stat, final ComplexModel computer) {
-		final ComplexControl ret = new ComplexControl();
+		final ComplexControl ret = new ComplexControl(parameter, stat);
 		ret.setModel(computer);
 		ret.addActionListener(new ActionListener() {
 			@Override
