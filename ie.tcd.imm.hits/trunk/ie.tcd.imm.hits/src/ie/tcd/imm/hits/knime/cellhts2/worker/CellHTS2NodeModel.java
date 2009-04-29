@@ -98,8 +98,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *}*} sign depending on the
- * additive or multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on
+ * the additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -411,8 +411,10 @@ public class CellHTS2NodeModel extends NodeModel {
 					int j = 0;
 					for (final String colName : parametersModel
 							.getIncludeList()) {
-						final DataCell cell = dataRow.getCell(paramIndices.get(
-								colName).intValue());
+						final int colIndex = paramIndices.get(colName)
+								.intValue();
+						final DataCell cell = colIndex < 0 ? DataType
+								.getMissingCell() : dataRow.getCell(colIndex);
 						rawValues[plate * replicateCount * paramCount
 								* wellCount + replicate * paramCount
 								* wellCount + j++ * wellCount + well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
@@ -2127,8 +2129,10 @@ public class CellHTS2NodeModel extends NodeModel {
 		case UNSPECIFIED:
 			for (final DataColumnSpec columnSpec : columnSpecs) {
 				for (final List<DataCell> ret : rets) {
-					ret.add(new StringCell(((REXPString) topTable
-							.get(columnSpec.getName())).asStrings()[row]));
+					final Object column = topTable.get(columnSpec.getName());
+					ret.add(column == null ? DataType.getMissingCell()
+							: new StringCell(
+									((REXPString) column).asStrings()[row]));
 				}
 			}
 			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
