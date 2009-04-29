@@ -86,7 +86,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		// TODO connect to the possStats and statistics components
 		final DialogComponentString regulation = new DialogComponentString(
 				new SettingsModelString(RankNodeModel.CFGKEY_REGULATION,
-						RankNodeModel.DEFAULT_REGULATION), "Regulation: ");
+						RankNodeModel.DEFAULT_REGULATION), "Ranking criteria: ");
 		addDialogComponent(regulation);
 		final DialogComponentStringSelection tieHandling = new DialogComponentStringSelection(
 				new SettingsModelString(RankNodeModel.CFGKEY_TIE,

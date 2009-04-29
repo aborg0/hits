@@ -9,9 +9,9 @@
 <h1><a name="columns">Columns</a></h1>
 <ul>
 	<li><a name="experiment">Experiment</a> - text (<em>S</em>tring)
-	type, the experiment name is the value</li>
+	type, contains the experiment name</li>
 	<li><a name="normMethod">Normalisation method</a> - text (<em>S</em>tring)
-	type, the normalisation method, possible values:
+	type, contains the normalisation method, possible terms:
 	<ul>
 		<li><samp><a href="concepts.xhtml#Bscore">Bscore</a></samp></li>
 		<li><samp><a href="concepts.xhtml#POC">POC</a></samp></li>
@@ -24,17 +24,17 @@
 	</ul>
 	</li>
 	<li><a name="log">log transform</a> - text (<em>S</em>tring) type,
-	values: the <samp><a href="concepts.xhtml#log">log</a></samp> text, or
+	terms: the <samp><a href="concepts.xhtml#log">log</a></samp> text, or
 	empty</li>
 	<li><a name="normKind">Normalisation kind</a> - text (<em>S</em>tring)
 	type, the normalisation kind (<samp><a
 		href="concepts.xhtml#multiplicative">multiplicative</a></samp> or <samp><a
 		href="concepts.xhtml#additive">additive</a></samp>) are the possible values</li>
 	<li><a name="varAdjust">Variance adjustment</a> - text (<em>S</em>tring)
-	type, variance adjustment, possible values: <samp>no adjustment</samp>,
+	type, variance adjustment, possible terms: <samp>no adjustment</samp>,
 	<samp>by plate</samp> and <samp>by experiment</samp></li>
 	<li><a name="scoreMethod">Scoring method</a> - text (<em>S</em>tring)
-	type, scoring method, possible values:
+	type, scoring method, possible terms:
 	<ul>
 		<li><samp>none</samp></li>
 		<li><samp>zscore</samp></li>
@@ -45,7 +45,7 @@
 	</ul>
 	</li>
 	<li><a name="sumMethod">Summarise method</a> - text (<em>S</em>tring)
-	type, the summarisation method, possible values:
+	type, the summarisation method, possible terms:
 	<ul>
 		<li><samp><a href="concepts.xhtml#mean">mean</a></samp></li>
 		<li><samp><a href="concepts.xhtml#median">median</a></samp></li>
@@ -76,15 +76,15 @@
 	<li><a name="score">score</a> - floating point number (<em>D</em>ouble)
 	type, does not depend on replicates, but depends on parameters these are the scored values</li>
 	<li><a name="meanDiff">mean or diff</a> - floating point number (<em>D</em>ouble)
-	type, does not depend on replicates, but depends on parameters; when there are two replicates the result is the raw value from the second replicate - raw value of the first replicate, else the mean of the replicate values</li>
+	type, does not depend on replicates, but depends on parameters; when there are two replicates the result is the raw value from the second replicate minus raw value of the first replicate, otherwise the mean of the replicate values</li>
 	<li><a name="median">median</a> - floating point number (<em>D</em>ouble)
 	type, does not depend on replicates, but depends on parameters, the median of the raw replicate values</li>
 	<li><a name="raw">raw</a> - floating point number (<em>D</em>ouble)
-	type, depends both on replicates and parameters, the original values</li>
+	type, depends both on replicates and parameters. These are the original values</li>
 	<li><a name="norm">normalised</a> - floating point number (<em>D</em>ouble)
-	type, depends both on replicates and parameters, the normalised values</li>
+	type, depends both on replicates and parameters. These are the normalised values</li>
 	<li><a name="rawPer">raw/(plate, replicate mean)</a> - floating
-	point number (<em>D</em>ouble) type, depends both on replicates and parameters, the raw value divided by the physical plate mean</li>
+	point number (<em>D</em>ouble) type, depends both on replicates and parameters. These are  the raw value divided by the physical plate mean</li>
 </ul>
 
 <h1><a name="colOrder">Column order</a></h1>
@@ -97,7 +97,7 @@
 <li><samp>group by replicates start</samp></li>
 <li><samp>group by replicates end</samp></li>
 </ul>
-<p>These entries allows you to group the results to your need, but you must have both if the specified columns are depending on channels and replicates too, and only the channels if it depends on the channels. You may have more then one channels in the start-end area, but the start-end areas may not overlap.</p>
+<p>These entries allows you to group the results to your need, but you must have both if the specified columns depend  on  both channels and replicates too, and only the channels if it depends on the channels. You may have more then one channel in the start-end area, but the start-end intervals may not overlap.</p>
 <h1><a name="colours">Colours</a></h1>
 <p><img src="defaultColoursPreferences.png"/></p>
 <p>You can set which data should have which colour. Currently you have only one choice for each data option.</p>

@@ -8,7 +8,7 @@
 </head>
 <body>
 <h1><a name="overview">Rank node overview</a></h1>
-<p>This node allows you to find the rank of your data by different parameters/statistics. The <a href="../html/nodes/Rank.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p>
+<p>This node allows you to rank your data by using different parameters/statistics. The <a href="../html/nodes/Rank.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p>
 <h1><a name="configuration">Configuration</a></h1>
 <p><img src="rankConfigure.png"/></p>
 <h2>Well annotation</h2>
@@ -16,7 +16,7 @@
 <h2>Rank prefix</h2>
 <p>The prefix for the result rank columns.</p>
 <h2>Ranking groups</h2>
-<p>Here you can select the grouping of the values. Possible values:</p>
+<p>Here you can select defined grouping of the values to rank. Possible values:</p>
 <ul>
 <li><samp>experiment</samp> - each experiment (and parameter, normalisation) is creating a group independently from the replicate property.</li>
 <li><samp>plate</samp> - each plate (and experiment, parameter, normalisation) is creating a group independently from the replicate property.</li>
@@ -27,7 +27,7 @@
 <p>Select the statistics you want to rank.</p>
 <h2>Parameters</h2>
 <p>The parameters to rank. (With the statistics.)</p>
-<h2>Regulation</h2>
+<h2>Ranking criteria</h2>
 <p>Consist of a number and a sign. The <samp>+</samp> sign means the normal ranking, the <samp>-</samp> sign means the inverse ranking. The number is where the sign of the ranking changes.</p>
 <h2>Tie handling</h2>
 <p>Possible values:</p>
@@ -36,7 +36,7 @@
 <li><samp>continuous</samp> - on tie the ranking will get the next number after the tie.</li>
 </ul>
 <h1><a name="input">Input data</a></h1>
-<p>The input data should be similar to the <a href="cellHTS2.xhtml#output1">first</a> or <a href="cellHTS2.xhtml#output2">second</a> output of <a href="cellHTS2.xhtml">cellHTS2 node</a>. It may contain more columns which will be intact.</p>
+<p>The input data should be similar to the <a href="cellHTS2.xhtml#output1">first</a> or <a href="cellHTS2.xhtml#output2">second</a> output of <a href="cellHTS2.xhtml">cellHTS2 node</a>. It may contain more columns which will be unaltered.</p>
 <h3>Expected structure</h3>
 <ul>
 <li><a href="settings.xhtml#experiment">Experiment</a></li>
