@@ -1015,7 +1015,23 @@ public class RankNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
+		final SpecAnalyser specAnalyser = new SpecAnalyser(inSpecs[0]);
+		for (final String param : parametersModel.getStringArrayValue()) {
+			if (!specAnalyser.getParameters().contains(param)) {
+				if (param.isEmpty()) {
+					throw new InvalidSettingsException(
+							"Please select a parameter");
+				}
+				throw new InvalidSettingsException("Not recognised parameter: "
+						+ param);
+			}
+		}
+		for (final String stat : statisticsModel.getStringArrayValue()) {
+			if (!specAnalyser.getStatistics().contains(StatTypes.valueOf(stat))) {
+				throw new InvalidSettingsException(
+						"Not recognised statistics: " + stat);
+			}
+		}
 		return new DataTableSpec[] { new DataTableSpec(inSpecs[0],
 				new DataTableSpec(createNewColSpec())) };
 	}

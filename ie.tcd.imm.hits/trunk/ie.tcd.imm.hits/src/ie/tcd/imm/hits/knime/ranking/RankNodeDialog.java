@@ -80,19 +80,6 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentStringListSelection parameters = new DialogComponentStringListSelection(
 				new SettingsModelStringArray(RankNodeModel.CFGKEY_PARAMETERS,
 						RankNodeModel.DEFAULT_PARAMETERS), "Parameters: ", "");
-		addDialogComponent(parameters);
-		// FIXME Here should go an editor for the regulations, in the meantime
-		// it is a simple String component.
-		// TODO connect to the possStats and statistics components
-		final DialogComponentString regulation = new DialogComponentString(
-				new SettingsModelString(RankNodeModel.CFGKEY_REGULATION,
-						RankNodeModel.DEFAULT_REGULATION), "Ranking criteria: ");
-		addDialogComponent(regulation);
-		final DialogComponentStringSelection tieHandling = new DialogComponentStringSelection(
-				new SettingsModelString(RankNodeModel.CFGKEY_TIE,
-						RankNodeModel.DEFAULT_TIE), "Tie handling: ",
-				TieHandling.increase.name(), TieHandling.continuous.name());
-		addDialogComponent(tieHandling);
 		addDialogComponent(new UpdatableComponent() {
 			@Override
 			protected void updateComponent() {
@@ -131,5 +118,18 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 						.toArray(new String[intersect.size()]);
 			}
 		});
+		addDialogComponent(parameters);
+		// FIXME Here should go an editor for the regulations, in the meantime
+		// it is a simple String component.
+		// TODO connect to the possStats and statistics components
+		final DialogComponentString regulation = new DialogComponentString(
+				new SettingsModelString(RankNodeModel.CFGKEY_REGULATION,
+						RankNodeModel.DEFAULT_REGULATION), "Ranking criteria: ");
+		addDialogComponent(regulation);
+		final DialogComponentStringSelection tieHandling = new DialogComponentStringSelection(
+				new SettingsModelString(RankNodeModel.CFGKEY_TIE,
+						RankNodeModel.DEFAULT_TIE), "Tie handling: ",
+				TieHandling.increase.name(), TieHandling.continuous.name());
+		addDialogComponent(tieHandling);
 	}
 }
