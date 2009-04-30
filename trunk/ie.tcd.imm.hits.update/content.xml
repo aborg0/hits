@@ -3,13 +3,13 @@
 <repository name='HiTS official update site' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1239789990337'/>
+    <property name='p2.timestamp' value='1241091458980'/>
   </properties>
   <references size='2'>
     <repository url='http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/' type='1' options='0'/>
     <repository url='http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/' type='0' options='0'/>
   </references>
-  <units size='9'>
+  <units size='14'>
     <unit id='tooling.source.default' version='1.0.0' singleton='false'>
       <hostRequirements size='1'>
         <required namespace='org.eclipse.equinox.p2.eclipse.type' name='source' range='0.0.0' optional='true' multiple='true' greedy='false'/>
@@ -350,6 +350,197 @@
         <provided namespace='java.package' name='org.xml.sax.helpers' version='0.0.0'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
+    </unit>
+    <unit id='ie.tcd.imm.hits.3rdparty' version='0.1.0'>
+      <update id='ie.tcd.imm.hits.3rdparty' range='[0.0.0,0.1.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS 3rd party jars Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='42'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty' version='0.1.0'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.3rdparty' version='0.1.0'/>
+        <provided namespace='java.package' name='edu.umd.cs.findbugs.annotations' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.annotation' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.annotation.concurrent' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.annotation.meta' version='0.0.0'/>
+        <provided namespace='java.package' name='net.jcip.annotations' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.ddf' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.dev' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hpsf' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hpsf.extractor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hpsf.wellknown' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.dev' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.eventmodel' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.eventusermodel' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.eventusermodel.dummyrecord' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.extractor' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.model' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.aggregates' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.cf' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.constant' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.formula' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.formula.atp' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.formula.eval' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.formula.function' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.record.formula.functions' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.usermodel' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.hssf.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.common' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.dev' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.eventfilesystem' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.filesystem' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.property' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.poifs.storage' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.ss.formula' version='0.0.0'/>
+        <provided namespace='java.package' name='org.apache.poi.util' version='0.0.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine' version='0.0.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine.Rserve' version='0.0.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine.Rserve.protocol' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.3rdparty' version='0.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Vendor: TCD&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-ClassPath: lib/poi-3.2-FINAL-20081019.jar,lib/REngine_2.5.2.jar,lib/Rserve_2.5.2.jar,lib/annotations.jar,lib/jsr305.jar,.&#xA;Require-Bundle: org.eclipse.core.runtime&#xA;Bundle-Name: HiTS 3rd party jars Plug-in&#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.3rdparty;singleton:=true&#xA;Bundle-Version: 0.1.0&#xA;Export-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.concurrent,javax.annotation.meta,net.jcip.annotations,org.apache.poi,org.apache.poi.ddf,org.apache.poi.dev,org.apache.poi.hpsf,org.apache.poi.hpsf.extractor,org.apache.poi.hpsf.wellknown,org.apache.poi.hssf.dev,org.apache.poi.hssf.eventmodel,org.apache.poi.hssf.eventusermodel,org.apache.poi.hssf.eventusermodel.dummyrecord,org.apache.poi.hssf.extractor,org.apache.poi.hssf.model,org.apache.poi.hssf.record,org.apache.poi.hssf.record.aggregates,org.apache.poi.hssf.record.cf,org.apache.poi.hssf.record.constant,org.apache.poi.hssf.record.formula,org.apache.poi.hssf.record.formula.atp,org.apache.poi.hssf.record.formula.eval,org.apache.poi.hssf.record.formula.function,org.apache.poi.hssf.record.formula.functions,org.apache.poi.hssf.usermodel,org.apache.poi.hssf.util,org.apache.poi.poifs.common,org.apache.poi.poifs.dev,org.apache.poi.poifs.eventfilesystem,org.apache.poi.poifs.filesystem,org.apache.poi.poifs.property,org.apache.poi.poifs.storage,org.apache.poi.ss.formula,org.apache.poi.util,org.rosuda.REngine,org.rosuda.REngine.Rserve,org.rosuda.REngine.Rserve.protocol&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='ie.tcd.imm.hits' version='0.2.0'>
+      <update id='ie.tcd.imm.hits' range='[0.0.0,0.2.0)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS extensions for KNIME Workbench'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' version='0.2.0'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits' version='0.2.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='12'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.3rdparty' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.ext.jep' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.apache.batik.svggen' range='1.6.0' optional='true'/>
+        <required namespace='osgi.bundle' name='org.apache.batik.dom' range='1.6.0' optional='true'/>
+        <required namespace='osgi.bundle' name='org.knime.distmatrix' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.2.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Localization: plugin&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,org.eclipse.ui,ie.tcd.imm.hits.3rdparty,org.eclipse.help,org.eclipse.help.ui,org.knime.ext.jep,org.apache.batik.svggen;bundle-version=&quot;1.6.0&quot;;resolution:=optional,org.apache.batik.dom;bundle-version=&quot;1.6.0&quot;;resolution:=optional,org.knime.distmatrix&#xA;Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin&#xA;Bundle-Name: HiTS extensions for KNIME Workbench&#xA;Bundle-Version: 0.2.0&#xA;Bundle-Vendor: TCD&#xA;Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ClassPath: importer.jar&#xA;Manifest-Version: 1.0&#xA;
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='ie.tcd.imm.hits.feature.feature.jar' version='0.2.0'>
+      <update id='ie.tcd.imm.hits.feature.feature.jar' range='[0.0.0,0.2.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It depends on Rserve.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' version='0.2.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.feature' version='0.2.0'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.2.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          The main part of the HiTS project has applied licence: Apache 2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending cellHTS2 functionality also licensed under this licence).&#xA;KNIME licence: Aladdin Free Public License, or commercial depending on your model.&#xA;Rserve licence: GNU GPL&#xA;POI licence: Apache 2.0 licence
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI projects.
+      </copyright>
+    </unit>
+    <unit id='HiTS' version='0.0.0'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main'/>
+        <property name='org.eclipse.equinox.p2.description' value='Contains the nodes, and the non-standard dependencies.'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='HiTS' version='0.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.2.0,0.2.0]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='ie.tcd.imm.hits.feature.feature.group' version='0.2.0' singleton='false'>
+      <update id='ie.tcd.imm.hits.feature.feature.group' range='[0.0.0,0.2.0)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It depends on Rserve.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' version='0.2.0'/>
+      </provides>
+      <requires size='8'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' range='[0.2.0,0.2.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty' range='[0.1.0,0.1.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' range='[0.2.0,0.2.0]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          The main part of the HiTS project has applied licence: Apache 2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending cellHTS2 functionality also licensed under this licence).&#xA;KNIME licence: Aladdin Free Public License, or commercial depending on your model.&#xA;Rserve licence: GNU GPL&#xA;POI licence: Apache 2.0 licence
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI projects.
+      </copyright>
     </unit>
   </units>
 </repository>

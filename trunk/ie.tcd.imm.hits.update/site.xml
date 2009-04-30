@@ -12,9 +12,13 @@
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.0.1.jar" id="ie.tcd.imm.knime.util.feature" version="0.0.1">
       <category name="KNIME utilities"/>
    </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.2.0.jar" id="ie.tcd.imm.hits.feature" version="0.2.0">
+      <category name="HiTS"/>
+   </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.1.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.2.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.2.0.jar"/>
    <archive path="plugins/ie.tcd.imm.knime.util_0.0.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.0.1.jar"/>
    <category-def name="HiTS" label="HiTS main">
       <description>
