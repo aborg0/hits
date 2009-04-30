@@ -8,7 +8,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Reads the cellHTS2 configuration files to simply set the type of the wells and the description of the experiment.
+        <intro>Reads the cellHTS2 configuration files to simply set the type (i.e. sample, neg, pos, empty) of the wells and the description of the experiment.
         Details <a href="../../help/simplePlateConfig.xhtml">here</a>.
         </intro>
         <option name="Plate configuration file">The configuration for the well types. For further information check the cellHTS2 manual looking for the Plateconf.txt file description.</option>

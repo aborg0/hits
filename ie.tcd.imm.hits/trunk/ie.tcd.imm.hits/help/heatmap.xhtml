@@ -3,12 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Heatmap node description</title>
+<title>Plate Heatmap node description</title>
 <link rel="stylesheet" type="text/css" href="basic.css"/>
 </head>
 <body>
-<h1><a name="overview">Heatmap node overview</a></h1>
-<p>The <a href="../html/nodes/Plate_Heatmap.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation. You initial screen of Heatmap view should look like this:</p>
+<h1><a name="overview">Plate Heatmap node overview</a></h1>
+<p>The <a href="../html/nodes/Plate_Heatmap.html">node description</a> describes the overview of the functionality, while this page gives a more detailed explanation. You initial screen of Plate Heatmap view should look like this:</p>
 <p>
 <img src="heatmapInitial.png" usemap="#overviewmap"/>
 <map name="overviewmap">
@@ -33,7 +33,7 @@
 <h2>Layout</h2>
 <p><a name="plateArea"/>As the picture above shows there is an area for the wells of the <abbr title="There are cases when more plates are shown.">selected plate</abbr>, the plate area.</p>
 <p>The plate area is made up of wells. Each well has an optional background colour, and the content (a selection of <a href="#parameter">parameters</a>/<a href="#statistics">statistics</a>/<a href="#experiment">experiments</a>/<a href="#normalisation">normalisations</a>/<a href="#plate">plates</a>/<a href="#replicate">replicates</a>) of the well colour coded in a circular or rectangular format.</p>
-<p><a name="upperPanel"/>There is a panel above the plate area, which initially contains only the <a href="#plate">plates</a> control. This is the <samp>upper</samp> named position of the possible parameter controls.</p>
+<p><a name="upperPanel"/>There is a panel above the plate area, which initially contains only the <a href="#plate">plates</a> control. This area is  termed the <samp>upper</samp> position of the possible control positions.</p>
 <p>The panel right of the plate area contains on top a <a name="rightLegend">well legend</a> and below that an <a name="rightParameter">area for the parameters</a>.</p>
 <p>Below the plate area there are the different tabs for controls:</p>
 <ul>
@@ -58,7 +58,7 @@
 	</ul>
 	</li>
 <li><a name="infoControlsTab"/><a href="#infoControlsArea"><em>Info controls</em></a> - allows you to influence content the tooltips and the textual description of the <a href="#visualWell">visual well</a>s. <a href="infoFormat">Details</a></li>
-<li><a name="infoTab"/><a href="#infoArea"><em>Info</em></a> - Some information about the last clicked <a href="#visualWell">visual well</a>, and below the input rows.</li>
+<li><a name="infoTab"/><a href="#infoArea"><em>Info</em></a> - Some information about the last clicked <a href="#visualWell">visual well</a>, and below that are the input rows.</li>
 <li><a name="settingsTab"/><a href="#settingsArea"><em>Settings</em> - Currently not usable.</a></li>
 <li><a name="legendTab"/><a href="#legendArea"><em>Legend</em></a> - A simple well legend.</li>
 <li><a name="coloursTab"/><a href="#coloursArea"><em>Colours</em></a> - A place to set the colours for the parameter-statistics pairs.</li>
@@ -70,8 +70,8 @@
 <p>This is an HTML document with some templates included. You may include any row's content with the following syntax: <samp>${</samp>name of the (textual) column<samp>}</samp> (note: the column name is case sensitive).</p>
 <p>There are special templates, which allow to include more data in a structured format:</p>
 <ul>
-<li><samp>${plate}</samp> - the actual <a href="concepts.xhtml#plate">plate</a> value (starting from <samp>1</samp>)</li>
-<li><samp>${replicate}</samp> - the actual <a href="concepts.xhtml#replicate">replicate</a> value (starting from <samp>1</samp>)</li>
+<li><samp>${plate}</samp> - the actual <a href="concepts.xhtml#plate">plate</a> identifier (starting from <samp>1</samp>)</li>
+<li><samp>${replicate}</samp> - the actual <a href="concepts.xhtml#replicate">replicate</a> identifier (starting from <samp>1</samp>)</li>
 <li><samp>${well}</samp> - the well identifier in format like: <samp>A1</samp>.</li>
 <li><samp>${score}</samp> - the <a href="settings.xhtml#score">scores</a> in table form.</li>
 <li><samp>${raw}</samp> - the <a href="settings.xhtml#raw">raw</a> input values in table form.</li>
@@ -157,12 +157,12 @@ There are some special concepts related to these nodes:</p>
 <li><code>sidebarSecondary</code> - This is located on the right of the heatmap, default location. (With this name it is only for <a href="#secondary">secondary</a> controls.)</li>
 </ul>
 <p>Example: You want to move the statistics parameter combobox to the <a href="#upperPanel">upper</a> panel. For this you right click near the combobox, and select from the context menu the <em>Move to</em>/<em>upper</em> option.</p>
-<p>Note: The result area's background become black.</p>
+<p>Note: The result area's background becomes black.</p>
 <p><img src="heatmapMovetoBefore.png"/></p>
 <p>After the change you will see something like this:</p>
 <p><img src="heatmapMovetoAfter.png"/></p>
 <h3><a name="changeType">Change type</a></h3>
-<p>Example: You want to change the axises of the rectangles, you want to see the replicates on the x axis, while the parameters on the y axis. For this you should right click near the buttons of replicates, and select from the context menu the <em>Change type</em>/<em>to primary</em> option. (Or equivalently: from Parameters list select the <em>Change type</em>/<em>to secondary</em>.)</p>
+<p>Example: You want to change the axes of the rectangles, you want to see the replicates on the x axis, while the parameters on the y axis. For this you should right click near the buttons of replicates, and select from the context menu the <em>Change type</em>/<em>to primary</em> option. (Or equivalently: from Parameters list select the <em>Change type</em>/<em>to secondary</em>.)</p>
 <p><img src="heatmapChangeTypeBefore.png"/></p>
 <p>After the change you will see something like this:</p>
 <p><img src="heatmapChangeTypeAfter.png"/></p>
@@ -179,7 +179,7 @@ There are some special concepts related to these nodes:</p>
 <p>Removes all HiLite from the input data.</p>
 <h2>Legend</h2>
 <h3>Show colours legend</h3>
-<p>Influence the visibility of the colour legends on well legends.</p>
+<p>To display or hide  colour scales on well legends.</p>
 <h1>Limitations</h1>
 <p>See <a href="features.xhtml">Features</a>.</p>
 <include path="ie.tcd.imm.hits/help/footer.xhtml/copyright"/>

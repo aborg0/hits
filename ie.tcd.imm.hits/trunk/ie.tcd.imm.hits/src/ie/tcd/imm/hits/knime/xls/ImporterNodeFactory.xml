@@ -8,7 +8,7 @@
     </shortDescription>
     
     <fullDescription>
-        <intro><p>With this node you are able to read the well statistics from a <i>IN Cell Analyzer 1000</i>, and convert it to cellHTS2 readable format.</p><p>The experiments has the following structure: It has <b>plate</b>s with some <b>replicate</b>s for each plates. Each plate has 96, or 384 <b>well</b>s. The wells contain the experimental environment. From each well there can be taken some photographs on predefined positions (<b>field</b>s), which contains the <b>cell</b>s.</p> Details <a href="../../help/INCellAnalyzer1000xls.xhtml">here</a>.</intro>
+        <intro><p>With this node you are able to read the well mean values from a <i>IN Cell Analyzer 1000</i>, and convert it to cellHTS2 readable format.</p><p>The experiments has the following structure: It has <b>plate</b>s with some <b>replicate</b>s for each plates. Each plate has 96, or 384 <b>well</b>s. The wells contain the experimental environment. From each well there can be taken some photographs on predefined positions (<b>field</b>s), which contains the <b>cell</b>s.</p> Details <a href="../../help/INCellAnalyzer1000xls.xhtml">here</a>.</intro>
         <option name="Folder of xls files">From this folder will be selected the XLS files.</option>
         <option name="XLS files">You can select the Excel files belonging to this experiment. They will be used in this (alphabetical) order as the first plate's first replicate, first plate's second replicate, ..., first plate's k replicate; second plate's first replicate, ..., second plate's k replicate; ...; n plate's first replicate, n plate's second replicate, ..., n plate's k replicate.</option>
         <option name="Well count">Number of wells on each plates.</option>
