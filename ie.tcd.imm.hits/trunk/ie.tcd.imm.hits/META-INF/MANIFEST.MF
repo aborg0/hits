@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.
 Bundle-Vendor: TCD
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: importer.jar
-Bundle-Version: 0.1.2
+Bundle-Version: 0.2.0
 Bundle-Name: HiTS extensions for KNIME Workbench
 Bundle-Localization: plugin
 Bundle-ManifestVersion: 2

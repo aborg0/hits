@@ -14,14 +14,13 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
 	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
-   	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly"/>
       <node category-path="/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
-      <node category-path="/distmatrix" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
+      <node category-path="/distmatrix/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
     </extension>
-	<extension point="org.knime.workbench.repository.metanode">
+	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
 		</PersistedMetaNode>
-	</extension>
+	</extension-->
 	<extension point="org.knime.product.splashExtension">
     	<splashExtension icon="icons/HiTS.png" id="ie.tcd.imm.hits.splashExtension"/>
 	</extension>
