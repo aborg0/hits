@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+  	<extension point="org.knime.workbench.repository.categories">
+      <category description="High Throughput Screening" icon="icons/HiTS.png" level-id="HiTS" name="HiTS" path="/"/>
+   	</extension>
+
+   	<extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.xls.ImporterNodeFactory" id="ie.tcd.imm.knime.xls.ImporterNodeFactory"/>
+   	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.worker.CellHTS2NodeFactory" id="ie.tcd.imm.knime.cellhts2.CellHTS2NodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="ie.tcd.imm.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
+   	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.biomart.BiomartAnnotatorNodeFactory" id="ie.tcd.imm.knime.biomart.BiomartAnnotatorNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
+	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
+      <node category-path="/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
+      <node category-path="/distmatrix/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
+    </extension>
+	<!--extension point="org.knime.workbench.repository.metanode">
+		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
+		</PersistedMetaNode>
+	</extension-->
+	<extension point="org.knime.product.splashExtension">
+    	<splashExtension icon="icons/HiTS.png" id="ie.tcd.imm.hits.splashExtension"/>
+	</extension>
+   	<extension point="org.eclipse.equinox.preferences.preferences"/>
+   	<extension point="org.eclipse.ui.preferencePages">
+      <page category="org.knime.workbench.ui.preferences" class="ie.tcd.imm.hits.knime.cellhts2.prefs.MainPreferencePage" id="ie.tcd.imm.knime.cellhts2.prefs.MainPreferencePage" name="HiTS Preferences">
+      	<!--keywordReference id="ie.tcd.imm.hits.help.pref.columnSelection"/-->
+      </page>
+      <page category="ie.tcd.imm.knime.cellhts2.prefs.MainPreferencePage" class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferencePage" id="ie.tcd.imm.hits.knime.view" name="Default colour codes">
+      </page>
+   	</extension>
+   	<extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceInitializer"/>
+      <initializer class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceInitializer"/>
+   	</extension>
+   	<extension point="org.eclipse.help.toc">
+      <toc file="toc.xml"/>
+      <toc file="HiTSToc.xml" primary="true"/>
+	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
+   	  <toc extradir="html" file="tocs/HiTS.xml"/>
+	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
+	  <toc extradir="html" file="tocs/view_nodes.xml"/>
+      <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
+    </extension>
+   	<extension point="org.eclipse.help.base.luceneSearchParticipants">
+      <binding participantId="org.eclipse.help.base.xhtml"/>
+   	</extension>
+   	<extension point="org.eclipse.help.contentProducer">
+      <binding producerId="org.eclipse.help.dynamic"/>
+   	</extension>
+   	<!--extension
+          id="ie.tcd.imm.hits.help"
+          name="ie.tcd.imm.hits.help"
+          point="org.eclipse.help.contexts">
+   		<contexts file="help/contexts/contexts.xml" plugin="ie.tcd.imm.hits"/>
+   	</extension-->
+</plugin>
