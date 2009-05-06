@@ -98,8 +98,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on
- * the additive or multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
+ * additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -483,7 +483,8 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ "source(\"QMbyPlate.R\")\n"
 							+ "source(\"QMexperiment.R\")\n"
 							+ "source(\"imageScreen.R\")\n"
-							+ "source(\"writeReport.R\")\n" + "");
+							// + "source(\"writeReport.R\")\n"
+							+ "");
 					newVersion = true;
 					CellHTS2NodeModel.logger
 							.info("Using the improved version of cellHTS2.");
@@ -584,7 +585,9 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ aspectRatioModel.getDoubleValue()
 										+ "), map=TRUE, outdir=\""
 										+ outDir
-										+ "\"" + additionalParams + ")");
+										+ "\""
+										// + additionalParams
+										+ ")");
 						// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
 						exec.checkCanceled();
 					} catch (final Exception e) {
@@ -706,9 +709,8 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ "   imageScreenArgs = list(zrange=c("
 										+ zRange
 										+ "), ar=1), map=TRUE, outdir=\""
-										+ outDir
-										+ "\""
-										+ additionalParams
+										+ outDir + "\""
+										// + additionalParams
 										+ ")");
 					} catch (final Exception e) {
 						CellHTS2NodeModel.logger.fatal(
