@@ -98,9 +98,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}
- * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending on the additive or
- * multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}
+ * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} *}*}*}*}*}*}*}*}*}*}*}*}*}*}*}
+ * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending
+ * on the additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -284,6 +285,22 @@ public class CellHTS2NodeModel extends NodeModel {
 	// CFGKEY_USE_TCD_CELLHTS_EXTENSIONS,
 	// DEFAULT_USE_TCD_CELLHTS_EXTENSIONS);
 
+	private static enum CellHTS2Version {
+		/**
+		 * Original cellHTS2 without modifications, before version {@code 2.8.0}
+		 */
+		originalPre28,
+		/** HiTS modified cellHTS2 before version {@code 2.8.0} */
+		modifiedPre28,
+		/**
+		 * Original cellHTS2 without modifications, at least version {@code
+		 * 2.8.0}
+		 */
+		original28OrCompat,
+		/** HiTS modified cellHTS2 after version {@code 2.8.0} */
+		modified28OrCompat;
+	}
+
 	/**
 	 * Constructor for the node model.
 	 */
@@ -321,6 +338,25 @@ public class CellHTS2NodeModel extends NodeModel {
 				CellHTS2NodeModel.logger
 						.fatal("Not connected to the Rserve, please restart it if possible.");
 				throw new IllegalStateException("No connection to R.");
+			}
+			final REXPString versionExpr;
+			try {
+				conn.voidEval("library(\"Biobase\")");
+				versionExpr = (REXPString) conn
+						.eval("package.version(\"cellHTS2\")");
+			} catch (final RserveException e) {
+				throw new IllegalStateException(
+						"This R installation has no supported cellHTS2 installed.");
+			}
+			final String cellHTS2Version = versionExpr.asString();
+			CellHTS2Version version;
+			if (cellHTS2Version.matches("2\\.[67]\\.\\d*")) {
+				version = CellHTS2Version.originalPre28;
+			} else if (cellHTS2Version.matches("2\\.[8]\\.\\d*")) {
+				version = CellHTS2Version.original28OrCompat;
+			} else {
+				throw new IllegalStateException(
+						"This R installation has no supported cellHTS2 installed.");
 			}
 			int replicateCount = 0;
 			int plateCount = 0;
@@ -468,7 +504,10 @@ public class CellHTS2NodeModel extends NodeModel {
 					final File rSourcesDir = new File(
 							((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImporterNodePlugin
 									.getDefault().getBundle()).getBundleData())
-									.getBundleFile().getBaseFile(), "bin/r");
+									.getBundleFile().getBaseFile(),
+							"bin/r/"
+									+ (version == CellHTS2Version.originalPre28 ? "2.7"
+											: "2.8"));
 					// conn
 					// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
 					// + "");
@@ -476,8 +515,25 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
 							+ "\")");
 					conn.voidEval("library(\"cellHTS2\")");
+					conn.voidEval("library(\"prada\")");
 					conn.voidEval("source(\"summarizeReplicates.R\")\n"
 							+ "source(\"getTopTable.R\")\n"
+							+ "source(\"checkControls.R\")\n"
+							+ "source(\"progressReport.R\")\n"
+							+ "source(\"makePlot.R\")\n"
+							+ "source(\"AllGeneric.R\")\n"
+							+ "source(\"AllClasses.R\")\n"
+							+ "source(\"glossary.R\")\n"
+							+ "source(\"writeHTML-methods.R\")\n"
+							+ "source(\"plateConfModule.R\")\n"
+							+ "source(\"plateListModule.R\")\n"
+							+ "source(\"plateSummariesModule.R\")\n"
+							+ "source(\"imageScreen.R\")\n"
+							+ "source(\"screenDescriptionModule.R\")\n"
+							+ "source(\"screenResultsModule.R\")\n"
+							+ "source(\"screenScriptModule.R\")\n"
+							+ "source(\"screenSummaryModule.R\")\n"
+							+ "source(\"writeReport.R\")\n"
 					// + "source(\"getDynamicRange.R\")\n"
 							// + "source(\"getZfactor.R\")\n"
 							// + "source(\"checkControls.R\")\n"
@@ -494,6 +550,16 @@ public class CellHTS2NodeModel extends NodeModel {
 					// + "source(\"progressReport.R\")\n"
 					// + "source(\"writeReport.R\")\n" + "");
 					newVersion = true;
+					switch (version) {
+					case original28OrCompat:
+						version = CellHTS2Version.modified28OrCompat;
+						break;
+					case originalPre28:
+						version = CellHTS2Version.modifiedPre28;
+						break;
+					default:
+						throw new IllegalStateException("Not supported state.");
+					}
 					CellHTS2NodeModel.logger
 							.info("Using the improved version of cellHTS2.");
 				} catch (final RserveException e) {
@@ -597,14 +663,13 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ aspectRatioModel.getDoubleValue()
 										+ "), map=TRUE, outdir=\""
 										+ outDir
-										+ "\""
-										// + additionalParams
-										+ ")");
+										+ "\"" + additionalParams + ")");
 						// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
 						exec.checkCanceled();
 					} catch (final Exception e) {
 						CellHTS2NodeModel.logger.fatal(
-								"Problem writing the results", e);
+								"Problem writing the results:\n"
+										+ conn.getLastError(), e);
 						throw e;
 					}
 					final File tempFile = File.createTempFile("topTable",
@@ -723,8 +788,9 @@ public class CellHTS2NodeModel extends NodeModel {
 										+ "   imageScreenArgs = list(zrange=c("
 										+ zRange
 										+ "), ar=1), map=TRUE, outdir=\""
-										+ outDir + "\""
-										// + additionalParams
+										+ outDir
+										+ "\""
+										+ additionalParams
 										+ ")");
 					} catch (final Exception e) {
 						CellHTS2NodeModel.logger.fatal(
