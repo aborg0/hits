@@ -98,8 +98,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
- * additive or multiplicative nature of normalisation method.</li>
+ * <li><code>{*}</code> - puts {@code +} or {@code *}*}*}*}*}*}*}*}
+ * *}*}*}*}*}*}*}*}*}*}*}*}*}*}*} sign depending on the additive or
+ * multiplicative nature of normalisation method.</li>
  * </ul>
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -474,17 +475,24 @@ public class CellHTS2NodeModel extends NodeModel {
 					conn.voidEval("setwd(\""
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
 							+ "\")");
+					conn.voidEval("library(\"cellHTS2\")");
 					conn.voidEval("source(\"summarizeReplicates.R\")\n"
 							+ "source(\"getTopTable.R\")\n"
-							+ "source(\"getDynamicRange.R\")\n"
-							+ "source(\"getZfactor.R\")\n"
-							+ "source(\"checkControls.R\")\n"
-							+ "source(\"makePlot.R\")\n"
-							+ "source(\"QMbyPlate.R\")\n"
-							+ "source(\"QMexperiment.R\")\n"
-							+ "source(\"imageScreen.R\")\n"
-							// + "source(\"writeReport.R\")\n"
-							+ "");
+					// + "source(\"getDynamicRange.R\")\n"
+							// + "source(\"getZfactor.R\")\n"
+							// + "source(\"checkControls.R\")\n"
+							// + "source(\"makePlot.R\")\n"
+							// + "source(\"progressReport.R\")\n"
+							);
+					// conn.voidEval("source(\"AllClasses.R\")\n"
+					// + "source(\"writeHTML-methods.R\")\n"
+					// + "source(\"plateListModule.R\")\n"
+					// + "source(\"plateSummariesModule.R\")\n"
+					// // + "source(\"QMbyPlate.R\")\n"
+					// // + "source(\"QMexperiment.R\")\n"
+					// + "source(\"imageScreen.R\")\n"
+					// + "source(\"progressReport.R\")\n"
+					// + "source(\"writeReport.R\")\n" + "");
 					newVersion = true;
 					CellHTS2NodeModel.logger
 							.info("Using the improved version of cellHTS2.");
@@ -500,9 +508,13 @@ public class CellHTS2NodeModel extends NodeModel {
 			// logger.debug(conn.eval("table(wellAnno(x))"));
 			CellHTS2NodeModel.logger.debug(conn.eval("state(x)"));
 			exec.checkCanceled();
-			final String additionalParams = newVersion ? ", channels="
-					+ createChannelList(parametersModel.getIncludeList())
-					+ ", colOrder=c(" + createColOrderString() + ")" : "";
+			// conn.eval("channelNames(x)<-"
+			// + createChannelList(parametersModel.getIncludeList()));
+			final String additionalParams = newVersion ? // ", channels="
+			// + createChannelList(parametersModel.getIncludeList())
+			// +
+			", colOrder=c(" + createColOrderString() + ")"
+					: "";
 			final BufferedDataContainer scores = exec
 					.createDataContainer(new DataTableSpec(computeTopTableSpec(
 							inData[0].getDataTableSpec(), false)));
@@ -577,7 +589,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					}
 					try {
 						conn
-								.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
+								.voidEval("writeReport(raw=x, normalized=xn,scored=xsc, cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
 										+ "   force=TRUE, plotPlateArgs = TRUE,\n"
 										+ "   imageScreenArgs = list(zrange=c("
 										+ zRange
@@ -602,8 +614,10 @@ public class CellHTS2NodeModel extends NodeModel {
 									+ tempFile.getAbsolutePath().replace('\\',
 											'/')
 									+ "\""
-									+ additionalParams
-									+ ")");
+									+ ", channels="
+									+ createChannelList(parametersModel
+											.getIncludeList())
+									+ additionalParams + ")");
 					final int tableLength = ((REXP) topTable.asList().get(0))
 							.length();
 					if (!tempFile.delete()) {
@@ -1375,8 +1389,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			final StringBuilder channels = new StringBuilder(5 + paramCount * 5);
 			channels.append("c(");
 			for (int i = 1; i <= paramCount; ++i) {
-				channels.append("\"ch").append(Misc.addTrailing(i, 3)).append(
-						"\", ");
+				channels.append("\"").append(parameters.get(i - 1))
+				// .append("\"ch").append(Misc.addTrailing(i, 3))
+						.append("\", ");
 			}
 			channels.setLength(channels.length() - ", ".length());
 			channels.append(")");
