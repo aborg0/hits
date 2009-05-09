@@ -1,4 +1,4 @@
-#summary Describes the installation steps
+#summary Describes the installation/update steps & truobleshooting
 #labels Featured
 = Installation instructions =
 
@@ -44,6 +44,8 @@ For the second option go to Help/Software Updates.../Find and Install.../_Search
 
 = Troubleshooting =
 
+== Network problems ==
+
 If you have not set properly the proxy configuration in your KNIME installation, you will have an error like this when you try to update or install your plugins:
 
 {{{Network connection problems encountered during search.}}}
@@ -62,6 +64,12 @@ In the *Details* there is a message like this:
 
 (If you do not have internet connection online, you will get the same message.)
 In this case please set it up properly.
+
+== Installed/updated but not working ==
+
+You experience no problem installing the HiTS version 0.2.0 feature (using KNIME based on eclipse 3.3) from the update site, but the HiTS nodes are not available.
+
+This happens when you install HiTS version 0.2.0 before the KNIME labs' [http://labs.knime.org/distance-matrix Distance Matrix Feature]. In this case you have to uninstall HiTS (Help/Software Updates/Manage Configuration/ find HiTS main feature, right click and select Uninstall, restart KNIME), install the Distance Matrix Feature, install HiTS.
 
 ==Permgen space==
 You see something like this in the log:
