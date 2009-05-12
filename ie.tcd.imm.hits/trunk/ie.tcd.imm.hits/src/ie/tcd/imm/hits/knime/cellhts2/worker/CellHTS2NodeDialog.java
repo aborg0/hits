@@ -341,8 +341,8 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				.getModel();
 		final List<String> paramList = new ArrayList<String>(parametersModel
 				.getIncludeList().size());
-		for (int i = 0; i < parametersModel.getIncludeList().size(); ++i) {
-			paramList.add(parametersModel.getIncludeList().get(i));
+		for (final String param : parametersModel.getIncludeList()) {
+			paramList.add(param);
 		}
 		final Map<String, String> dirs = CellHTS2NodeModel
 				.computeOutDirs(

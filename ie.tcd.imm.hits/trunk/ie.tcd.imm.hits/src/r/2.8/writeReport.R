@@ -198,6 +198,7 @@ createOutputFolder <- function(outdir, xr, force)
 writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, outdir,
         force=FALSE, map=FALSE, plotPlateArgs=FALSE, imageScreenArgs=NULL,
         posControls, negControls, mainScriptFile=NA,
+        channels=channelNames(raw),
         colOrder=defaultColOrder()
 )
 {
@@ -598,7 +599,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     ## The 'Screen Results module': a downloadable ASCII table of the screening results and
     ## a sortable HTML table. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenResults'.
-    print(channelNames)
+    #print(channelNames)
     screenResults.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenResults.html"),
             htmlFun=writeHtml.screenResults, title="Screen Results",
             funArgs=list(file=file.path(outdir, "in", "topTable.txt"),

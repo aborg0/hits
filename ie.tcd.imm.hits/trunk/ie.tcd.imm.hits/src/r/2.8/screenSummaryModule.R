@@ -13,30 +13,42 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
             if(overallState["annotated"]) "Table of scored <br/> and annotated probes" else
         "Table of scored probes"
         xsc <- cellHTSList$scored
-        res <- makePlot(outdir, con=con, name="imageScreen", w=7, h=7, psz=8,
-                        fun=function(map=imageScreenArgs$map) do.call("imageScreen",
-                                     args=append(list(object=xsc, map=map),
-                                     imageScreenArgs[!names(imageScreenArgs) %in% "map"])),
-                        print=FALSE, isImageScreen=TRUE)
-        imgList[["Scores"]] <- chtsImage(data.frame(title="Screen-wide image plot of the scored values",
-                                                    thumbnail="imageScreen.png", 
-                                                    fullImage="imageScreen.pdf",
-                                                    map=if(!is.null(res)) screenImageMap(object=res$obj,
-                                                    tags=res$tag, "imageScreen.png",
-                                                    cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs) else NA))
-                                                    
-        qqn <- makePlot(outdir, con=con, name="qqplot", w=7, h=7, psz=8,
-                        fun=function(x=xsc)
-                    {
-                        par(mai=c(0.8,0.8,0.2,0.2))
-                        qqnorm(Data(x), main=NULL, cex.lab=1.3)
-                        qqline(Data(x), col="darkgray", lty=3)
-                    },
+        images <- list()
+        for (ch in 1:dim(Data(xsc))[3])
+        {
+            name <- gsub("[^a-zA-Z0-9 ]", "_", paste("imageScreen", channelNames(cellHTSList$raw)[[ch]], sep="_"))
+            res <- makePlot(outdir, con=con, name=name, #"imageScreen", 
+                    w=7, h=7, psz=8,
+                            fun=function(map=imageScreenArgs$map) do.call("imageScreen",
+                                         args=append(list(object=xsc, map=map, channel=ch),
+                                         imageScreenArgs[!names(imageScreenArgs) %in% "map"])),
+                            print=FALSE, isImageScreen=TRUE)
+            imgList[["Scores"]] <- chtsImage(data.frame(title="Screen-wide image plot of the scored values",
+                                                        thumbnail=paste(name,"png", sep="."),#"imageScreen.png", 
+                                                        fullImage=paste(name, "pdf", sep="."),#"imageScreen.pdf",
+                                                        map=if(!is.null(res)) screenImageMap(object=res$obj,
+                                                        tags=res$tag, paste(name, "png", sep="."),#"imageScreen.png",
+                                                        cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs) else NA))
+
+            qqName <- gsub("[^a-zA-Z0-9 ]", "_", paste("qqplot", channelNames(cellHTSList$raw)[[ch]], sep="_"))
+            qqn <- makePlot(outdir, con=con, name=qqName, #"qqplot",
+                    w=7, h=7, psz=8,
+                            fun=function(x=xsc)
+                        {
+                            par(mai=c(0.8,0.8,0.2,0.2))
+                            qqnorm(Data(x)[,,ch], main=NULL, cex.lab=1.3)
+                            qqline(Data(x)[,,ch], col="darkgray", lty=3)
+                        },
                         print=FALSE)
-        imgList[["Q-Q Plot"]] <- chtsImage(data.frame(title="Normal Q-Q Plot",
-                                                      thumbnail="qqplot.png",
-                                                      fullImage="qqplot.pdf"))
-        stack <- chtsImageStack(list(imgList), id="imageScreen",
+            imgList[["Q-Q Plot"]] <- chtsImage(data.frame(title="Normal Q-Q Plot",
+                                                          thumbnail=paste(qqName, "png", sep="."),#"qqplot.png",
+                                                          fullImage=paste(qqName, "pdf", sep=".")#"qqplot.pdf"
+                                                          ))
+            images <- append(images, list(imgList))
+        }
+        names(images) <- channelNames(cellHTSList$raw)
+        stack <- chtsImageStack(images,#list(imgList),
+                id="imageScreen",
                                 tooltips=addTooltip(names(imgList), "Help"))        
         writeHtml.header(con)
         writeHtml(stack, con)

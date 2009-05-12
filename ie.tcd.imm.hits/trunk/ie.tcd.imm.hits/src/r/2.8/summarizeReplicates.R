@@ -305,7 +305,7 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
         z <- object
         if (perChannel == method)
         {
-            print(dim(Data(object)))
+            #print(dim(Data(object)))
             e=new.env()
             for (ch in 1:dim(Data(object))[3])
             {
