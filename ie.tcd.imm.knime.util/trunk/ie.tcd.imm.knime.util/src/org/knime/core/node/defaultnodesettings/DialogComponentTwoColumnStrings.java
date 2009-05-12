@@ -15,6 +15,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -88,7 +89,8 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 			final String excludeTitle) {
 		super(model);
 		getComponentPanel().setLayout(new GridLayout(1, 3));
-		getComponentPanel().add(excludeList);
+		final JScrollPane excludeScroll = new JScrollPane(excludeList);
+		getComponentPanel().add(excludeScroll);
 		final JPanel buttonPanel = new JPanel();
 		final ChangeAction rightToLeftAction = new ChangeAction(
 				"<html>&lArr;</html>", includeList, excludeList);
@@ -99,9 +101,10 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		buttonPanel.add(toLeftButton);
 		buttonPanel.add(toRightButton);
 		getComponentPanel().add(buttonPanel);
-		includeList.setBorder(new TitledBorder(includeTitle));
-		getComponentPanel().add(includeList);
-		excludeList.setBorder(new TitledBorder(excludeTitle));
+		final JScrollPane includeScroll = new JScrollPane(includeList);
+		includeScroll.setBorder(new TitledBorder(includeTitle));
+		getComponentPanel().add(includeScroll);
+		excludeScroll.setBorder(new TitledBorder(excludeTitle));
 		updateComponent();
 	}
 
