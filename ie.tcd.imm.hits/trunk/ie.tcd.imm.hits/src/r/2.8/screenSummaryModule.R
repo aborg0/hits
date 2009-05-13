@@ -14,26 +14,25 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
         "Table of scored probes"
         xsc <- cellHTSList$scored
         images <- list()
+        imap <- list()
         for (ch in 1:dim(Data(xsc))[3])
         {
             name <- gsub("[^a-zA-Z0-9 ]", "_", paste("imageScreen", channelNames(cellHTSList$raw)[[ch]], sep="_"))
-            res <- makePlot(outdir, con=con, name=name, #"imageScreen", 
-                    w=7, h=7, psz=8,
+            res <- makePlot(outdir, con=con, name=name, w=7, h=7, psz=8,
                             fun=function(map=imageScreenArgs$map) do.call("imageScreen",
                                          args=append(list(object=xsc, map=map, channel=ch),
                                          imageScreenArgs[!names(imageScreenArgs) %in% "map"])),
                             print=FALSE, isImageScreen=TRUE)
             imgList[["Scores"]] <- chtsImage(data.frame(title="Screen-wide image plot of the scored values",
-                                                        thumbnail=paste(name,"png", sep="."),#"imageScreen.png", 
-                                                        fullImage=paste(name, "pdf", sep="."),#"imageScreen.pdf",
+                                                        thumbnail=paste(name,"png", sep="."), 
+                                                        fullImage=paste(name, "pdf", sep="."),
                                                         map=if(!is.null(res)) screenImageMap(object=res$obj,
-                                                        tags=res$tag, paste(name, "png", sep="."),#"imageScreen.png",
-                                                        cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs) else NA))
+                                                        tags=res$tag, paste(name, "png", sep="."),
+                                                        cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs, channel=ch) else NA))
 
             qqName <- gsub("[^a-zA-Z0-9 ]", "_", paste("qqplot", channelNames(cellHTSList$raw)[[ch]], sep="_"))
-            qqn <- makePlot(outdir, con=con, name=qqName, #"qqplot",
-                    w=7, h=7, psz=8,
-                            fun=function(x=xsc)
+            qqn <- makePlot(outdir, con=con, name=qqName, w=7, h=7, psz=8,
+                    fun=function(x=xsc)
                         {
                             par(mai=c(0.8,0.8,0.2,0.2))
                             qqnorm(Data(x)[,,ch], main=NULL, cex.lab=1.3)
@@ -41,14 +40,13 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
                         },
                         print=FALSE)
             imgList[["Q-Q Plot"]] <- chtsImage(data.frame(title="Normal Q-Q Plot",
-                                                          thumbnail=paste(qqName, "png", sep="."),#"qqplot.png",
-                                                          fullImage=paste(qqName, "pdf", sep=".")#"qqplot.pdf"
+                                                          thumbnail=paste(qqName, "png", sep="."),
+                                                          fullImage=paste(qqName, "pdf", sep=".")
                                                           ))
             images <- append(images, list(imgList))
         }
         names(images) <- channelNames(cellHTSList$raw)
-        stack <- chtsImageStack(images,#list(imgList),
-                id="imageScreen",
+        stack <- chtsImageStack(images, id="imageScreen",
                                 tooltips=addTooltip(names(imgList), "Help"))        
         writeHtml.header(con)
         writeHtml(stack, con)
@@ -66,7 +64,7 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
 ## This function is used to split the Screen-wide image plot of the scored values into rectangle
 ## areas for a HTML imageMap in order that clicking on a plate will link to its quality report.
 screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
-                           imageScreenArgs=imageScreenArgs)
+                           imageScreenArgs=imageScreenArgs, channel)
 {			
     ## imageScreen configuration, same as in file imagescreen.R
     xsc <- cellHTSlist$scored	
@@ -83,7 +81,7 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
     mapname <- paste("map", gsub(" |/|#", "_", imgname), sep="_") 	
     outin <- sprintf("usemap=\"#%s\"><map name=\"%s\" id=\"%s\">\n", mapname, mapname, mapname)
 	
-    ## links to the plate report	
+    ## links to the plate report
     plateCounter <- 1
     remainingPlates <- nrPlates
     out <- ""	
@@ -91,23 +89,31 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
     {
         ## initialization; useful for the last row which may contain less than nrCol plates
         tempCol <-  if(remainingPlates<nrCol) remainingPlates else nrCol
-       				
+        
         ## coords
         xi <- object[(0:(tempCol-1))*nc+1,1]
         xf <- object[(0:(tempCol-1))*nc+(nc-1),3]		
         yi <- rep(object[1+(i-1)*nc*nrCol*nr,2], tempCol)
         yf <- rep(object[1+(i-1)*nc*nrCol*nr+nc*tempCol*(nr-1),4], tempCol)
-        toAdd <- matrix(c(xi,yi,xf,yf),ncol=4)				
         for(j in 1:tempCol)
         {
-            newLine <- paste(paste("<area shape=\"rect\" coords=\"",
-                                   paste(toAdd[j,], collapse=","),"\"", sep=""),
-                             paste(" ", paste(names(tags), "=\"",
-                                              c(paste('Plate', plateCounter,sep=' '),
-                                                paste("..", plateCounter, 'index.html', sep='/')),
-                                              "\"", sep=""), collapse=" "), " alt=\"\"/>\n",
-                             sep="")
-            out <- paste(out, newLine)	
+            dat <- as.vector(Data(xsc)[,1,channel])
+            for (x in 1:pdim(xsc)[2])
+            {
+                for (y in 1:pdim(xsc)[1])
+                {
+                    toAdd <- matrix(c(round(xi + (x-1) * (xf-xi) / (pdim(xsc)[2] - 1),0),round(yi + (y-1) * (yf-yi) / pdim(xsc)[1],0),round(xi + x * (xf-xi) / (pdim(xsc)[2] - 1),0),round(yi+y * (yf-yi) / pdim(xsc)[1],0)),ncol=4)
+                    newLine <- paste(paste("<area shape=\"rect\" coords=\"",
+                                           paste(toAdd[j,], collapse=","),"\"", sep=""),
+                                     paste(" ", paste(names(tags), "=\"",
+                                                      c(paste('Plate', plateCounter, round(dat[x + (y-1 + (plateCounter - 1) * pdim(xsc)[1]) * pdim(xsc)[2]],2)
+                              ,sep=' '),
+                                                        paste("..", plateCounter, 'index.html', sep='/')),
+                                                      "\"", sep=""), collapse=" "), " alt=\"\"/>\n",
+                                    sep="")
+                    out <- paste(out, newLine)	
+                }
+            }
             plateCounter <- plateCounter+1
         }			
         remainingPlates <- remainingPlates-tempCol			
