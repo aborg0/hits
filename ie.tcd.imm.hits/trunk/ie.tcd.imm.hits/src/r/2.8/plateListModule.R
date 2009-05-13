@@ -149,6 +149,7 @@ writeQCTable <- function(x, url, glossary, configured, xr, con)
         tabClasses <- tabClasses[,!empty]
         url <- url[,!empty]
     }
+    x$Channel <- c("Channel", channelNames(xr)[as.numeric(x$Channel[2:length(x$Channel)])])
     tabHTML <-  hwrite(x, row.names=FALSE, col.names=FALSE, class=tabClasses,
                        border=0, table.class="rest", link=url)
     out <- sprintf("
