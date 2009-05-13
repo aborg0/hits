@@ -57,7 +57,7 @@ getArrayCorrectWellAnno <- function(x)
 ## Function to obtain the topTable data.frame and export it as a txt file.
 
 getTopTable <- function(cellHTSlist, file="topTable.txt", verbose=interactive(), channels=channelNames(cellHTSlist[["scored"]]),
-		colOrder=defaultColOrder()) {
+		colOrder=defaultColOrder(), orderBy=channels[1]) {
     ## arguments:
     ## 'cellHTSlist' should be a list of cellHTS object(s) obtained from the same experimental data. Allowed components are:
     ## 'scored' - (mandatory) cellHTS object comprising scored data.
@@ -307,17 +307,17 @@ getTopTable <- function(cellHTSlist, file="topTable.txt", verbose=interactive(),
     ## Export everything to the file
     #out <- out[order(out$score, decreasing=TRUE), ]
     #out$score <- round(out$score, 2)
-	firstCol = sprintf("score_%s", channels[1])
+	firstCol = sprintf("score_%s", orderBy)
+    if (firstCol %in% names(out))
+    {
+        out = out[order(out[[firstCol]], decreasing=TRUE), ]
+    }
+    if (dim(out)[2] > 1)
+    {
+        out = out[, 2:(dim(out)[2])]
+    }
     if(!is.null(file))
     {
-        if (firstCol %in% names(out))
-        {
-		    out = out[order(out[[firstCol]], decreasing=TRUE), ]
-        }
-        if (dim(out)[2] > 1)
-        {
-		    out = out[, 2:(dim(out)[2])]
-        }
         if(verbose)
             cat(sprintf("Saving 'topTable' list in file '%s'\n", file))
         write.tabdel(out, file=file)

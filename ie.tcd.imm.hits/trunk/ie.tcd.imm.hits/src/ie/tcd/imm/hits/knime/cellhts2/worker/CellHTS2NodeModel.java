@@ -701,6 +701,9 @@ public class CellHTS2NodeModel extends NodeModel {
 													parametersModel
 															.getIncludeList(),
 													version))
+											+ ", orderBy=\""
+											+ parametersModel.getIncludeList()
+													.get(0) + "\""
 											: "") + additionalParams + ")");
 					final int tableLength = ((REXP) topTable.asList().get(0))
 							.length();
@@ -732,8 +735,6 @@ public class CellHTS2NodeModel extends NodeModel {
 							summariseModel.getStringValue());
 					final StringCell experimentCell = new StringCell(
 							experimentName);
-					final List<String> parameters = selectParameters(
-							parametersModel.getIncludeList(), version);
 					for (int row = 0; row < tableLength; ++row) {
 						final List<DataCell> values = new ArrayList<DataCell>();
 						values.add(experimentCell);
@@ -878,21 +879,22 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
+	 * Computes the order of parameters in the output.
+	 * 
 	 * @param includeList
+	 *            A list of parameters.
 	 * @param version
-	 * @return
+	 *            The CellHTS2 version used.
+	 * @return A list of {@code includeList} values ordered alphabetically if
+	 *         {@code version} is {@link CellHTS2Version#modified28OrCompat},
+	 *         else the original {@code includeList}.
 	 */
 	private List<String> selectParameters(final List<String> includeList,
 			final CellHTS2Version version) {
 		switch (version) {
 		case modified28OrCompat:
-			final List<String> ret = new ArrayList<String>();
-			final String[] array = includeList.toArray(new String[includeList
-					.size()]);
-			Arrays.sort(array);
-			for (final String string : array) {
-				ret.add(string);
-			}
+			final List<String> ret = new ArrayList<String>(includeList);
+			Collections.sort(ret);
 			return ret;
 		case modifiedPre28:
 		case original28OrCompat:
@@ -1146,7 +1148,6 @@ public class CellHTS2NodeModel extends NodeModel {
 			outDirs.put(normMethod, baseOutDir.trim());
 		}
 		final StringBuilder sb = new StringBuilder();
-		boolean appended = false;
 		nextChar: for (int i = 0; i < pattern.length(); ++i) {
 			final Map<String, String> news = new HashMap<String, String>();
 			switch (pattern.charAt(i)) {
@@ -1209,7 +1210,6 @@ public class CellHTS2NodeModel extends NodeModel {
 								outDirs.put(string, outDirs.get(string) + sb
 										+ news.get(string).trim());
 							}
-							appended = true;
 							sb.setLength(0);
 							news.clear();
 						}
