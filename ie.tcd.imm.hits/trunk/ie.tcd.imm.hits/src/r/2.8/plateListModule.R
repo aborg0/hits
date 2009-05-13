@@ -36,7 +36,7 @@ writeIntensityFiles <- function(outdir, xr, htmldir)
         html <- gsub("in/", "", paste(strsplit(nm[w], ".", fixed=TRUE)[[1]][1], "html", sep="."))
         con <- file(file.path(htmldir, html), open="w")
         writeHtml.header(con, path="../html")
-	writeLines(sprintf("<p class=\"verbatim\">%s</p>", paste(txt, collapse="<br>")), con)
+	    writeLines(sprintf("<p class=\"verbatim\">%s</p>", paste(txt, collapse="<br>")), con)
         writeHtml.trailer(con)
         close(con)
         newFileNames <- c(newFileNames, html)
@@ -683,7 +683,7 @@ intensFun <- function()
             {
                 char[unlist(ppos[[ch]])] <- "P" 
             }
-            title <- caption <- img <- NULL
+            title <- caption <- img <- imap <- NULL
             for (r in 1:maxRep) 
             {
                 if (r %in% whHasData[[ch]])
@@ -702,10 +702,10 @@ intensFun <- function()
                                              xrange=plotPlateArgs$xrange[[ch]])
                                }
                                    , print=FALSE, isPlatePlot=TRUE)
-                    imap <- if(plotPlateArgs$map) 
+                    imap <- c(imap, if(plotPlateArgs$map) 
                         myImageMap(object=pp$coord, tags=list(title=paste(genAnno, 
-                                                              ": value=", signif(platedat[,,r,ch],3), sep="")), 
-                                   sprintf("pp_Channel%d_%d.png", ch, r)) else ""
+                                                              ": value=", round(platedat[,,r,ch], 3), sep="")), 
+                                   sprintf("pp_Channel%d_%d.png", ch, r)) else "")
                     img <- c(img, sprintf("pp_Channel%d_%d.png",ch,r))
                     caption <- c(caption, NA)
                 } 
