@@ -564,7 +564,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
             funArgs=list(center=TRUE, glossary=createGlossary(),
                     links=url[expOrder,,drop=FALSE], exptab=exptab[expOrder,],
                     outdir=outdir, htmldir=htmldir,
-                    configured=overallState["configured"]))
+                    configured=overallState["configured"], expOrder=expOrder))
     tab <- writeHtml(plateList.module)
     progress <- myUpdateProgress(progress, "step3", 0.2*length(which(plateList(xr)$status=="OK")))
     

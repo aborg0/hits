@@ -1,7 +1,7 @@
 ## The workhorse function for the 'Plate List' module: this is a matrix of quality metrics
 ## for the different plates and links to the per plate quality reports. 
 writeHtml.plateList <- function(cellHTSList, module, exptab, links, center, glossary,
-                                outdir, htmldir, configured, con, ...)
+                                outdir, htmldir, configured, con, expOrder, ...)
 {
     ## Copy the original intensity files for the compedium and also generate HTML files
     nn <- writeIntensityFiles(outdir=outdir, xr=cellHTSList$raw, htmldir=htmldir)
@@ -10,6 +10,7 @@ writeHtml.plateList <- function(cellHTSList, module, exptab, links, center, glos
     links[!is.na(links[, "Filename"]),"Filename"] <- nn
     sel <- !is.na(links[, "status"])
     links[sel,"status"] <- file.path("../", links[sel,"status"])
+    links <- links[expOrder,]
     
     writeQCTable(exptab, url=links, con=con, glossary=glossary, configured=configured,
                  xr=cellHTSList$raw)

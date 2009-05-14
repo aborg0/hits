@@ -849,7 +849,8 @@ public class CellHTS2NodeModel extends NodeModel {
 			for (final String normMethod : normMethods) {
 				CellHTS2NodeModel.writePlateList(outDirs.get(normMethod)
 						+ File.separatorChar + "in", plateCount,
-						replicateCount, paramCount);
+						replicateCount, selectParameters(parametersModel
+								.getIncludeList(), version), version);
 			}
 			// conn.shutdown();
 			// conn.close();
@@ -1076,12 +1077,19 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Writes the plate list file to {@code dir}.
 	 * 
 	 * @param dir
+	 *            Folder of the resulting {@code Platelist.txt}.
 	 * @param plateCount
+	 *            Number of plates.
 	 * @param replicateCount
-	 * @param paramCount
+	 *            Number of replicates.
+	 * @param parameters
+	 *            The input parameters.
+	 * @param version
+	 *            CellHTS2 version
 	 */
 	private static void writePlateList(final String dir, final int plateCount,
-			final int replicateCount, final int paramCount) {
+			final int replicateCount, final List<String> parameters,
+			final CellHTS2Version version) {
 		try {
 			final FileWriter writer = new FileWriter(new File(new File(dir),
 					"Platelist.txt"));
@@ -1089,11 +1097,30 @@ public class CellHTS2NodeModel extends NodeModel {
 				writer.write("Filename\tPlate\tReplicate\tChannel\r\n");
 				for (int p = 1; p <= plateCount; ++p) {
 					for (int r = 1; r <= replicateCount; ++r) {
-						for (int ch = 1; ch <= paramCount; ++ch) {
-							writer.write(String.format(
-									"data-%03d-%d-%d.txt\t%1$d\t%2$d\t%3$d\n",
-									Integer.valueOf(p), Integer.valueOf(r),
-									Integer.valueOf(ch)));
+						for (int ch = 1; ch <= parameters.size(); ++ch) {
+							switch (version) {
+							case modified28OrCompat:
+							case original28OrCompat:
+								writer
+										.write(String
+												.format(
+														"data-%03d-%d-%d.txt\t%1$d\t%2$d\t%4$s\n",
+														Integer.valueOf(p),
+														Integer.valueOf(r),
+														Integer.valueOf(ch),
+														parameters.get(ch - 1)));
+								break;
+							case modifiedPre28:
+							case originalPre28:
+								writer
+										.write(String
+												.format(
+														"data-%03d-%d-%d.txt\t%1$d\t%2$d\t%3$d\n",
+														Integer.valueOf(p),
+														Integer.valueOf(r),
+														Integer.valueOf(ch)));
+								break;
+							}
 						}
 					}
 				}
@@ -1584,11 +1611,11 @@ public class CellHTS2NodeModel extends NodeModel {
 
 			// conn.eval("Filename = vector(mode=\"character\", length="
 			// + (plateCount * replicateCount * paramCount) + ")");
-			conn.voidEval("Filename = rep(\"test\", " + plateCount
+			conn.voidEval("Filename <- rep(\"test\", " + plateCount
 					* replicateCount * paramCount + ")");
 			conn.voidEval("pd = matrix(nrow=" + plateCount * replicateCount
 					* paramCount + ", ncol=3)");
-			conn.voidEval("  intensityFiles = vector(mode=\"list\", length="
+			conn.voidEval("  intensityFiles <- vector(mode=\"list\", length="
 					+ plateCount * replicateCount * paramCount + ")");
 			conn.voidEval("wells_internal=vector(length=" + wellCount + ")\n"
 					+ "for (i in 1:" + wellRowCount + ") wells_internal[("
@@ -1611,15 +1638,18 @@ public class CellHTS2NodeModel extends NodeModel {
 					* paramCount
 					+ " + (re - 1) * "
 					+ paramCount
-					+ " + ch]]= paste(paste(\"data\", formatC(pl, flag=\"0\", width=3), re, ch, sep=\"-\"), \"txt\", sep=\".\")";// paste(paste(\"data\",
-			// formatC(pl,
-			// flag=\"0\", width=3), re, ch,
-			// sep=\"-\"), \"txt\", sep=\".\")
+					+ " + ch]] <- paste(paste(\"data\", formatC(pl, flag=\"0\", width=3), re, ch, sep=\"-\"), \"txt\", sep=\".\")";
 			CellHTS2NodeModel.logger.debug(fillFileNames);
 			conn.voidEval(fillFileNames);
 			// System.out.println(conn.eval(
 			// "paste(capture.output(print(Filename)),collapse=\"\\n\")")
 			// .asString());
+			if (version.isPre28()) {
+				conn.voidEval("channelOrder <- 1:" + parameters.size());
+			} else {
+				conn.voidEval("channelOrder <- order("
+						+ createChannelList(parameters) + ")");
+			}
 			final String fillPd = "for (pl in 1:" + plateCount + ")"
 					+ "  for (re in 1:" + replicateCount + ")"
 					+ "    for (ch in 1:" + paramCount + ") {"
@@ -1627,8 +1657,10 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ " + (re - 1) * " + paramCount + " + ch\n"
 					+ "      pd[row,1] = pl\n" + "      pd[row,2] = re\n"
 					+ "      pd[row,3] = ch\n"
-					+ "      intensityFiles[[row]]=paste(\"" + experimentName
-					+ "\", wells_internal, xraw[, pl, re, ch])\n" + "}";
+					+ "      intensityFiles[[row]] <- paste(\""
+					+ experimentName
+					+ "\", wells_internal, xraw[, pl, re, channelOrder[ch]])\n"
+					+ "}";
 			CellHTS2NodeModel.logger.debug(fillPd);
 			conn.voidEval(fillPd);
 
