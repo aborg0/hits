@@ -3,7 +3,7 @@
 ## to the quality report page of the respective plates. Also a Normal Q-Q plot of the scores
 ## data.
 writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overallState,
-                                  nrPlate, con)
+                                  nrPlate, con, geneAnnotation)
 {
     outdir <- dirname(module@url)
     if(overallState[["scored"]])
@@ -26,9 +26,14 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
             imgList[["Scores"]] <- chtsImage(data.frame(title="Screen-wide image plot of the scored values",
                                                         thumbnail=paste(name,"png", sep="."), 
                                                         fullImage=paste(name, "pdf", sep="."),
-                                                        map=if(!is.null(res)) screenImageMap(object=res$obj,
-                                                        tags=res$tag, paste(name, "png", sep="."),
-                                                        cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs, channel=ch) else NA))
+                                                        map=
+                                                                if(!is.null(res))
+                                                                    screenImageMap(object=res$obj,
+                                                                            tags=res$tag, paste(name, "png", sep="."),
+                                                                            cellHTSlist=cellHTSList, imageScreenArgs=imageScreenArgs, channel=ch,
+                                                                            geneAnnotation=geneAnnotation)
+                                                                else
+                                                                    NA))
 
             qqName <- gsub("[^a-zA-Z0-9 ]", "_", paste("qqplot", channelNames(cellHTSList$raw)[[ch]], sep="_"))
             qqn <- makePlot(outdir, con=con, name=qqName, w=7, h=7, psz=8,
@@ -64,7 +69,7 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
 ## This function is used to split the Screen-wide image plot of the scored values into rectangle
 ## areas for a HTML imageMap in order that clicking on a plate will link to its quality report.
 screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
-                           imageScreenArgs=imageScreenArgs, channel)
+                           imageScreenArgs=imageScreenArgs, channel, geneAnnotation)
 {			
     ## imageScreen configuration, same as in file imagescreen.R
     xsc <- cellHTSlist$scored	
@@ -72,7 +77,7 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
     nc <- pdim(xsc)[2] ## number of columns for the plate
     ## 'ar' is the aspect ratio for the image plot
     ##(i.e. number columns divided by the number of rows)
-    ar <- imageScreenArgs$ar	
+    ar <- imageScreenArgs$ar
     nrPlates <- getNrPlateColRow(ar, xsc)$nrPlates ## number of plates
     nrRow <- getNrPlateColRow(ar, xsc)$nrRow ## number of plates per row in imageScreen.png
     nrCol <- getNrPlateColRow(ar, xsc)$nrCol ## number of plates per column in imageScreen.png
@@ -84,7 +89,9 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
     ## links to the plate report
     plateCounter <- 1
     remainingPlates <- nrPlates
-    out <- ""	
+    out <- ""
+    print(dim(geneAnnotation))
+    print(dim(geneAnnotation))
     for(i in (1:nrRow))
     {
         ## initialization; useful for the last row which may contain less than nrCol plates
@@ -106,7 +113,7 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
                     newLine <- paste(paste("<area shape=\"rect\" coords=\"",
                                            paste(toAdd[j,], collapse=","),"\"", sep=""),
                                      paste(" ", paste(names(tags), "=\"",
-                                                      c(paste('Plate', plateCounter, round(dat[x + (y-1 + (plateCounter - 1) * pdim(xsc)[1]) * pdim(xsc)[2]],2)
+                                                      c(paste(geneAnnotation[x+ (y-1 + (plateCounter - 1) * pdim(xsc)[1]) * pdim(xsc)[2]], '(plate:', plateCounter, "well:", paste(LETTERS[y], x, sep=""), ") score:", round(dat[x + (y-1 + (plateCounter - 1) * pdim(xsc)[1]) * pdim(xsc)[2]],2)
                               ,sep=' '),
                                                         paste("..", plateCounter, 'index.html', sep='/')),
                                                       "\"", sep=""), collapse=" "), " alt=\"\"/>\n",

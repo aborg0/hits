@@ -589,10 +589,13 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     ## with an underlying HTML imageMap to allow for drill-down to the quality report page of
     ## the respective plates. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenSummary'.
+    print(dim(geneAnnotation))
+    print(geneAnnotation)
+    print(dim(geneAnnotation))
     screenSummary.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenImage.html"),
             htmlFun=writeHtml.screenSummary, title="Screen Summary",
             funArgs=list(nrPlate=nrPlate, imageScreenArgs=imageScreenArgs,
-                    overallState=overallState))
+                    overallState=overallState, geneAnnotation=geneAnnotation))
     tab <- rbind(tab, writeHtml(screenSummary.module))
     progress <- myUpdateProgress(progress, "step5")
     
