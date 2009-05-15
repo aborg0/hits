@@ -131,10 +131,21 @@ public class CellHTS2NodeModel extends NodeModel {
 	static final String[] POSSIBLE_NORMALISATION_METHODS_LOCFIT = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
 			"shorth", "locfit", "loess" };
+	/**
+	 * Possible values of the normalisation methods when {@code locfit} is
+	 * installed, and custom normalisation is also allowed.
+	 */
+	static final String[] POSSIBLE_NORMALISATION_METHODS_LOCFIT_EXPERIMENTAL = new String[] {
+			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
+			"shorth", "locfit", "loess", "customA", "customB", "customC" };
 	/** Possible values of the normalisation methods. */
 	static final String[] POSSIBLE_NORMALISATION_METHODS = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
 			"shorth" };
+	/** Possible values of the normalisation methods with custom methods. */
+	static final String[] POSSIBLE_NORMALISATION_METHODS_EXPERIMENTAL = new String[] {
+			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
+			"shorth", "customA", "customB", "customC" };
 
 	/** Configuration key for multiplicative or additive normalisation */
 	static final String CFGKEY_IS_MULTIPLICATIVE_NORMALISATION = "ie.tcd.imm.hits.knime.cellhts2.is_multiplicative";
@@ -157,6 +168,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	/** Possible values of the scoring methods */
 	static final String[] POSSIBLE_SCORE = new String[] { "none", "zscore",
 			"NPI", "zscoreByPlate", "zscoreNonRobust", "zscoreNonRobustByPlate" };
+	/** Possible values of the scoring methods with custom methods. */
+	static final String[] POSSIBLE_SCORE_EXPERIMENTAL = new String[] { "none",
+			"zscore", "NPI", "zscoreByPlate", "zscoreNonRobust",
+			"zscoreNonRobustByPlate", "customA", "customB", "customC" };
 
 	/** Configuration key for summarisation strategy */
 	static final String CFGKEY_SUMMARISE = "ie.tcd.imm.hits.knime.cellhts2.summarize";
@@ -273,6 +288,8 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	private static final String OUT_DIRS = "outdirs.txt";
 
+	static final String PROPERTY_EXPERT = "knime.expert.mode";
+
 	private static DataTableSpec outputFolderSpec = new DataTableSpec(
 			new DataColumnSpecCreator("folder", StringCell.TYPE).createSpec());
 
@@ -332,9 +349,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		final String experimentName = experimentNameModel.getStringValue();
 		final RConnection conn;
 		try {
-			conn = new RConnection(/*
-									 * "127.0.0.1", 1099, 10000
-									 */);
+			conn = new RConnection(/* "127.0.0.1", 1099, 10000 */);
 		} catch (final RserveException e) {
 			CellHTS2NodeModel.logger.fatal(
 					"Failed to connect to Rserve, please start again.", e);
@@ -510,13 +525,26 @@ public class CellHTS2NodeModel extends NodeModel {
 					final File rSourcesDir = new File(
 							((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImporterNodePlugin
 									.getDefault().getBundle()).getBundleData())
-									.getBundleFile().getBaseFile(), "bin/r/"
-									+ (version.isPre28() ? "2.7" : "2.8"));
+									.getBundleFile().getBaseFile(), "bin/r/");
+					final File rSpecDir = new File(rSourcesDir, (version
+							.isPre28() ? "2.7" : "2.8"));
+					if (Boolean.parseBoolean(System
+							.getProperty(PROPERTY_EXPERT))) {
+						conn.voidEval("setwd(\""
+								+ rSourcesDir.getAbsolutePath().replace('\\',
+										'/') + "\")");
+						conn.voidEval("source(\"perPlateScaling.R\")\n"
+								+ "source(\"normalizePlates.R\")\n"
+								+ "source(\"customNormalisation.R\")\n"
+								+ "source(\"customScoring.R\")\n"
+						// +"source(\"\")\n"
+								);
+					}
 					// conn
 					// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
 					// + "");
 					conn.voidEval("setwd(\""
-							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
+							+ rSpecDir.getAbsolutePath().replace('\\', '/')
 							+ "\")");
 					conn.voidEval("library(\"cellHTS2\")");
 					switch (version) {

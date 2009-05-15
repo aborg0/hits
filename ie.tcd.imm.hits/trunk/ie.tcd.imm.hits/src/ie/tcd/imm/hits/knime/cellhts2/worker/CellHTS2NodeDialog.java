@@ -86,8 +86,10 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
 						CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]),
 				"Normalisation method: ",
-				checkLocFit() ? CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_LOCFIT
-						: CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
+				checkLocFit() ? checkExpert() ? CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_LOCFIT_EXPERIMENTAL
+						: CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_LOCFIT
+						: checkExpert() ? CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS_EXPERIMENTAL
+								: CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS);
 		normalizationDialog
 				.setToolTipText("The normalization method for the parameters. (For \"Z score\" select mean or median, and also some kind of variance adjust.)");
 		addDialogComponent(normalizationDialog);
@@ -125,7 +127,8 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentStringSelection scoreDialog = new DialogComponentStringSelection(
 				new SettingsModelString(CellHTS2NodeModel.CFGKEY_SCORE,
 						CellHTS2NodeModel.POSSIBLE_SCORE[1]), "Score: ",
-				CellHTS2NodeModel.POSSIBLE_SCORE);
+				checkExpert() ? CellHTS2NodeModel.POSSIBLE_SCORE_EXPERIMENTAL
+						: CellHTS2NodeModel.POSSIBLE_SCORE);
 		scoreDialog.setToolTipText("Scoring of replicates.");
 		addDialogComponent(scoreDialog);
 		final DialogComponentLabel scoreHelpDialog = new DialogComponentLabel(
@@ -324,6 +327,11 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 			return false;
 		}
 		return false;
+	}
+
+	private static boolean checkExpert() {
+		return Boolean.parseBoolean(System
+				.getProperty(CellHTS2NodeModel.PROPERTY_EXPERT));
 	}
 
 	private void updateSample(final DialogComponentMultiLineString sample,
