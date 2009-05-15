@@ -90,8 +90,6 @@ screenImageMap <- function(object, tags, imgname, cellHTSlist=cellHTSlist,
     plateCounter <- 1
     remainingPlates <- nrPlates
     out <- ""
-    print(dim(geneAnnotation))
-    print(dim(geneAnnotation))
     for(i in (1:nrRow))
     {
         ## initialization; useful for the last row which may contain less than nrCol plates

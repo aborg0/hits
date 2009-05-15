@@ -589,9 +589,6 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     ## with an underlying HTML imageMap to allow for drill-down to the quality report page of
     ## the respective plates. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenSummary'.
-    print(dim(geneAnnotation))
-    print(geneAnnotation)
-    print(dim(geneAnnotation))
     screenSummary.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenImage.html"),
             htmlFun=writeHtml.screenSummary, title="Screen Summary",
             funArgs=list(nrPlate=nrPlate, imageScreenArgs=imageScreenArgs,
@@ -602,7 +599,6 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     ## The 'Screen Results module': a downloadable ASCII table of the screening results and
     ## a sortable HTML table. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenResults'.
-    #print(channelNames)
     screenResults.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenResults.html"),
             htmlFun=writeHtml.screenResults, title="Screen Results",
             funArgs=list(file=file.path(outdir, "in", "topTable.txt"),
