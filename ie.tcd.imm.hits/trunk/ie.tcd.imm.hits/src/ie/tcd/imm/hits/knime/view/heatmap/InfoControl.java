@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +24,11 @@ import javax.swing.JTextArea;
 public class InfoControl extends JPanel {
 	private static final long serialVersionUID = -6252559407229787836L;
 
-	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b> Gene: ${gene id} <b>${gene symbol}</b>"
+	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b> Gene: ${"
+			+ ImporterNodeModel.GENE_ID_COL_NAME
+			+ "} <b>${"
+			+ ImporterNodeModel.GENE_ANNOTATION_COL_NAME
+			+ "}</b>"
 			+ " Normalisation: ${Normalisation method} - ${Normalisation kind}<table>\n"
 			+ "${"
 			+ StatTypes.score.name()
