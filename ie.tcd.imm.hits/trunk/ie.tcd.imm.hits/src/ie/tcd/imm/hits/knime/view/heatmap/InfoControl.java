@@ -3,8 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,9 +25,9 @@ public class InfoControl extends JPanel {
 	private static final long serialVersionUID = -6252559407229787836L;
 
 	private static final String DEFAULT_PATTERN = "<html>\nPlate: <b>${plate}</b> Well: <b>${well}</b> Gene: ${"
-			+ ImporterNodeModel.GENE_ID_COL_NAME
+			+ PossibleStatistics.GENE_ID.getDisplayText()
 			+ "} <b>${"
-			+ ImporterNodeModel.GENE_ANNOTATION_COL_NAME
+			+ PossibleStatistics.GENE_SYMBOL.getDisplayText()
 			+ "}</b>"
 			+ " Normalisation: ${Normalisation method} - ${Normalisation kind}<table>\n"
 			+ "${"
