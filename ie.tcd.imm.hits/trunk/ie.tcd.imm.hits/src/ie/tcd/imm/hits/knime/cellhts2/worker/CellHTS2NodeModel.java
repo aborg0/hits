@@ -439,7 +439,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				CellHTS2NodeModel.logger.fatal(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
-			sendRawValues(exec, conn, inData, replicateCount, plateIdx,
+			sendRawValues(exec, conn, inData[0], replicateCount, plateIdx,
 					replicateIdx, wellIdx, wellCount, paramCount);
 			exec.setProgress(.001, "Data read.");
 			convertRawInputToCellHTS2(experimentName, conn, replicateCount,
@@ -487,40 +487,17 @@ public class CellHTS2NodeModel extends NodeModel {
 							inData[0].getDataTableSpec(), true)));
 			final BufferedDataContainer aggregate = exec
 					.createDataContainer(CellHTS2NodeModel.aggregateValuesSpec);
-			int rowStart = 1;
-			for (final String normalize : normMethods) {
-				rowStart = performNormalisation(exec, conn, inData,
-						normMethods, experimentName, version, replicateCount,
-						plateCount, plateIdx, replicateIdx, wellCount,
-						completed, additionalParams, scores, replicates,
-						aggregate, rowStart, normalize);
+			for (final String normalise : normMethods) {
+				exec.checkCanceled();
+				exec.setProgress(completed, normalise);
+				performNormalisation(exec, conn, inData,
+						normMethods.length > 1, experimentName, version,
+						replicateCount, plateCount, plateIdx, replicateIdx,
+						wellCount, additionalParams, scores, replicates,
+						aggregate, normalise);
 				completed += (1.0 - .01) / normMethods.length;
 			}
-			if (normMethods.length > 1) {
-				final FileWriter writer = new FileWriter(new File(
-						outputDirModel.getStringValue(), "index.html"));
-				try {
-					writer
-							.append("<HTML><HEAD><TITLE>Experiment report for \""
-									+ experimentName
-									+ "\"</TITLE></HEAD>\n"
-									+ "<BODY><CENTER><H1>Experiment report for \""
-									+ experimentName
-									+ "\"</H1></CENTER>\n"
-									+ "\n" + "");
-					writer.append("<table><th><td>method</td></th>");
-					for (final String normMethod : normMethods) {
-						writer.append("<tr><td>")
-
-						.append(normMethod).append("</td><td><a href=\"")
-								.append(normMethod).append("/index.html\">")
-								.append(normMethod).append("</a></td></tr>");
-					}
-					writer.append("</table></BODY></HTML>");
-				} finally {
-					writer.close();
-				}
-			}
+			writeSelectionHtml(experimentName, normMethods);
 			for (final String normMethod : normMethods) {
 				CellHTS2NodeModel.writePlateList(outDirs.get(normMethod)
 						+ File.separatorChar + "in", plateCount,
@@ -555,53 +532,106 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
-	 * @param exec
-	 * @param conn
-	 * @param inData
-	 * @param normMethods
+	 * Writes an HTML to be able to select the generated normalisation method if
+	 * there were more than one.
+	 * 
 	 * @param experimentName
-	 * @param version
-	 * @param replicateCount
-	 * @param plateCount
-	 * @param plateIdx
-	 * @param replicateIdx
-	 * @param wellCount
-	 * @param completed
-	 * @param additionalParams
-	 * @param scores
-	 * @param replicates
-	 * @param aggregate
-	 * @param rowStart
-	 * @param normalize
-	 * @throws CanceledExecutionException
-	 * @throws Exception
+	 *            Name of experiment.
+	 * @param normMethods
+	 *            Normalisation methods.
 	 * @throws IOException
-	 * @throws RserveException
-	 * @throws REXPMismatchException
+	 *             Problem writing the HTML file.
 	 */
-	private int performNormalisation(final ExecutionContext exec,
+	private void writeSelectionHtml(final String experimentName,
+			final String[] normMethods) throws IOException {
+		if (normMethods.length > 1) {
+			final File file = new File(outputDirModel.getStringValue(),
+					"index.html");
+			if (file.exists() || !file.canWrite()) {
+				logger.warn("Unable to write normalisation selection file: "
+						+ file.getAbsolutePath());
+				return;
+			}
+			final FileWriter writer = new FileWriter(file);
+			try {
+				writer.append("<HTML><HEAD><TITLE>Experiment report for \""
+						+ experimentName + "\"</TITLE></HEAD>\n"
+						+ "<BODY><CENTER><H1>Experiment report for \""
+						+ experimentName + "\"</H1></CENTER>\n" + "\n" + "");
+				writer.append("<table><th><td>method</td></th>");
+				for (final String normMethod : normMethods) {
+					writer.append("<tr><td>")
+
+					.append(normMethod).append("</td><td><a href=\"").append(
+							normMethod).append("/index.html\">").append(
+							normMethod).append("</a></td></tr>");
+				}
+				writer.append("</table></BODY></HTML>");
+			} finally {
+				writer.close();
+			}
+		}
+	}
+
+	/**
+	 * The normalisation with a selected normalisation method ({@code normalise}
+	 * ).
+	 * 
+	 * @param exec
+	 *            The {@link ExecutionMonitor}.
+	 * @param conn
+	 *            {@link RConnection} to Rserve.
+	 * @param inData
+	 *            Input tables to plate configuration and annotation.
+	 * @param multipleNormMethods
+	 *            More than one norm methods?
+	 * @param experimentName
+	 *            Name of experiment.
+	 * @param version
+	 *            Used cellHTS2 version.
+	 * @param replicateCount
+	 *            Number of replicates.
+	 * @param plateCount
+	 *            Number of plates.
+	 * @param plateIdx
+	 *            Index of plate column in first table.
+	 * @param replicateIdx
+	 *            Index of replicate column in first table.
+	 * @param wellCount
+	 *            Number of wells on a plate.
+	 * @param additionalParams
+	 *            Additional parameters for some Rserve commands.
+	 * @param scores
+	 *            First output table.
+	 * @param replicates
+	 *            Second output table.
+	 * @param aggregate
+	 *            Third output table.
+	 * @param normalise
+	 *            Method of normalisation.
+	 * @throws Exception
+	 *             Error occurred.
+	 */
+	private void performNormalisation(final ExecutionMonitor exec,
 			final RConnection conn, final BufferedDataTable[] inData,
-			final String[] normMethods, final String experimentName,
+			final boolean multipleNormMethods, final String experimentName,
 			final CellHTS2Version version, final int replicateCount,
 			final int plateCount, final int plateIdx, final int replicateIdx,
-			final int wellCount, final double completed,
-			final String additionalParams, final BufferedDataContainer scores,
+			final int wellCount, final String additionalParams,
+			final BufferedDataContainer scores,
 			final BufferedDataContainer replicates,
-			final BufferedDataContainer aggregate, int rowStart,
-			final String normalize) throws CanceledExecutionException,
-			Exception, IOException, RserveException, REXPMismatchException {
-		exec.checkCanceled();
-		exec.setProgress(completed, normalize);
+			final BufferedDataContainer aggregate, final String normalise)
+			throws Exception {
 		try {
 			plateConfiguration(inData[1], inData[2], inData[3], conn,
-					wellCount, plateCount, normalize);
+					wellCount, plateCount, normalise);
 		} catch (final Exception e) {
 			CellHTS2NodeModel.logger.fatal(
 					"Unable to set the configuration of the plates", e);
 			throw e;
 		}
 		try {
-			normalisePlates(conn, normalize);
+			normalisePlates(conn, normalise);
 		} catch (final Exception e) {
 			CellHTS2NodeModel.logger
 					.fatal("Problem with normalization step", e);
@@ -616,14 +646,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		exec.checkCanceled();
 		try {
 			addOverallStatistics(conn, plateCount, replicateCount, aggregate,
-					normalize, parametersModel.getIncludeList());
+					normalise, parametersModel.getIncludeList());
 		} catch (final Exception e) {
 			CellHTS2NodeModel.logger
 					.warn("Problem querying overall statistics. "
 							+ e.getMessage(), e);
 		}
 		exec.checkCanceled();
-		final String outDir = outDirs.get(normalize);
+		final String outDir = outDirs.get(normalise);
 		final String zRange = scoreRange.getMinRange() + ", "
 				+ scoreRange.getMaxRange();
 
@@ -708,7 +738,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					.getStringValue());
 			final StringCell scoreCell = new StringCell(scoreModel
 					.getStringValue());
-			final StringCell normCell = new StringCell(normalize);
+			final StringCell normCell = new StringCell(normalise);
 			final StringCell summariseCell = new StringCell(summariseModel
 					.getStringValue());
 			final StringCell experimentCell = new StringCell(experimentName);
@@ -725,16 +755,15 @@ public class CellHTS2NodeModel extends NodeModel {
 						replicateCount, Collections.singletonList(values),
 						false, false, stats, null, parametersModel
 								.getIncludeList(), additionalColumns);
-				scores.addRowToTable(new DefaultRow(Misc.addTrailing(
-						((REXPInteger) topTable.asList().get("plate"))
-								.asIntegers()[row], 3)
-						+ "_"
-						+ ((REXPString) topTable.asList().get("well"))
-								.asStrings()[row]
-						+ (normMethods.length > 1 ? "_" + normalize : "")
-
-				// String.valueOf(rowStart + row)
-						, values));
+				scores
+						.addRowToTable(new DefaultRow(Misc.addTrailing(
+								((REXPInteger) topTable.asList().get("plate"))
+										.asIntegers()[row], 3)
+								+ "_"
+								+ ((REXPString) topTable.asList().get("well"))
+										.asStrings()[row]
+								+ (multipleNormMethods ? "_" + normalise : ""),
+								values));
 				if (row % 50 == 0) {
 					exec.checkCanceled();
 				}
@@ -766,14 +795,13 @@ public class CellHTS2NodeModel extends NodeModel {
 							// (row + 1)
 							+ "_"
 							+ (repl + 1)
-							+ (normMethods.length > 1 ? "_" + normalize : ""),
+							+ (multipleNormMethods ? "_" + normalise : ""),
 							rows.get(repl)));
 				}
 				if (row % 50 == 0) {
 					exec.checkCanceled();
 				}
 			}
-			rowStart += tableLength;
 		} else {
 			try {
 				conn
@@ -789,7 +817,6 @@ public class CellHTS2NodeModel extends NodeModel {
 				throw e;
 			}
 		}
-		return rowStart;
 	}
 
 	/**
@@ -883,36 +910,47 @@ public class CellHTS2NodeModel extends NodeModel {
 	}
 
 	/**
+	 * Sends the raw data to Rserve. The name of the vector is {@code rawInput}.
+	 * 
 	 * @param exec
+	 *            The {@link ExecutionMonitor}.
 	 * @param conn
+	 *            Connection to Rserve.
 	 * @param inData
+	 *            First input data table.
 	 * @param replicateCount
+	 *            Number of replicates.
 	 * @param plateIdx
+	 *            Index of plate column.
 	 * @param replicateIdx
+	 *            Index of replicate column.
 	 * @param wellIdx
+	 *            Index of well column.
 	 * @param wellCount
+	 *            Number of wells on a plate.
 	 * @param paramCount
+	 *            Parameter count.
 	 * @throws CanceledExecutionException
+	 *             User cancelled the execution.
 	 */
-	private void sendRawValues(final ExecutionContext exec,
-			final RConnection conn, final BufferedDataTable[] inData,
+	private void sendRawValues(final ExecutionMonitor exec,
+			final RConnection conn, final BufferedDataTable inData,
 			final int replicateCount, final int plateIdx,
 			final int replicateIdx, final int wellIdx, final int wellCount,
 			final int paramCount) throws CanceledExecutionException {
-		final double[] rawValues = new double[inData[0].getRowCount()
-				* paramCount];
+		final double[] rawValues = new double[inData.getRowCount() * paramCount];
 		// final int i = 0;
 		// final HashSet<String> paramSet = new HashSet<String>(
 		// parametersModel.getIncludeList());
 		final Map<String, Integer> paramIndices = new HashMap<String, Integer>();
 		{
-			final DataTableSpec tableSpec = inData[0].getDataTableSpec();
+			final DataTableSpec tableSpec = inData.getDataTableSpec();
 			for (int i = tableSpec.getNumColumns(); i-- > 0;) {
 				paramIndices.put(tableSpec.getColumnSpec(i).getName(), Integer
 						.valueOf(i));
 			}
 		}
-		for (final DataRow dataRow : inData[0]) {
+		for (final DataRow dataRow : inData) {
 			// final Iterator<DataCell> it = dataRow.iterator();
 			final int plate = ((IntCell) /* it.next() */dataRow
 					.getCell(plateIdx)).getIntValue() - 1;
@@ -2090,18 +2128,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		return sb.toString();
 	}
 
-	//
-	// private static int countDifferentValues(final BufferedDataTable table,
-	// final int colCount, final boolean caseSensitive) {
-	// final Set<String> values = new HashSet<String>();
-	// for (final DataRow row : table) {
-	// final DataCell cell = row.getCell(colCount);
-	// final String value = ((StringCell) cell).getStringValue();
-	// values.add(caseSensitive ? value : value.toLowerCase());
-	// }
-	// return values.size();
-	// }
-
 	/**
 	 * Adds the MIAME information to the {@code miameInfo} R variable.
 	 * 
@@ -2163,22 +2189,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		return ret;
 	}
 
-	// /**
-	// * TODO only 96 well format supported. Use
-	// * {@link ModelBuilder#convertWellToPosition(String)} instead this.
-	// *
-	// * @param wellId
-	// * @return The well position starting from {@code 0}. Ideal for array
-	// index
-	// * computation
-	// */
-	// @Deprecated
-	// private static int getWellNumber(final String wellId) {
-	// assert wellId.length() >= 2 && wellId.length() < 4;
-	// return (wellId.charAt(0) - 'A') * 12
-	// + Integer.valueOf(wellId.substring(1)) - 1;
-	// }
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2231,12 +2241,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			while (firstIt.hasNext()) {
 				final DataColumnSpec spec = firstIt.next();
 				if (!checkedNames.contains(spec.getName())) {
-					/*
-					 * if (firstIt.hasNext()) { if
-					 * (!spec.getType().equals(DoubleCell.TYPE)) { throw new
-					 * InvalidSettingsException( "Illegal type of parameter"); }
-					 * } else
-					 */if (!DoubleCell.TYPE.isASuperTypeOf(spec.getType())
+					if (!DoubleCell.TYPE.isASuperTypeOf(spec.getType())
 							&& !spec.getType().equals(StringCell.TYPE)) {
 						throw new InvalidSettingsException(
 								"Illegal type of parameter on first port");
@@ -2503,9 +2508,6 @@ public class CellHTS2NodeModel extends NodeModel {
 					}
 					++repl;
 				}
-				// ret.add(new DataColumnSpecCreator(possibleStatistics
-				// .getDisplayText(), getType(possibleStatistics))
-				// .createSpec());
 			}
 			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
 					rets, replicateTable, turnReplicates, stats.subList(1,
@@ -2537,10 +2539,6 @@ public class CellHTS2NodeModel extends NodeModel {
 						assert possibleStatistics.getMultiplicity() != Multiplicity.CHANNELS_AND_REPLICATES : possibleStatistics;
 						break;
 					}
-					// ret.add(new DataColumnSpecCreator(possibleStatistics
-					// .getDisplayText()
-					// + "_" + ch, getType(possibleStatistics))
-					// .createSpec());
 				}
 			}
 			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
@@ -2593,9 +2591,6 @@ public class CellHTS2NodeModel extends NodeModel {
 				default:
 					break;
 				}
-				// ret.add(new DataColumnSpecCreator(possibleStatistics
-				// .getDisplayText(), getType(possibleStatistics))
-				// .createSpec());
 			}
 			CellHTS2NodeModel.computeTableValue(topTable, row, numReplicates,
 					rets, replicateTable, turnReplicates, stats.subList(1,
@@ -2763,7 +2758,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.saveSettingsTo(settings);
 		scoreRange.saveSettingsTo(settings);
 		aspectRatioModel.saveSettingsTo(settings);
-		// useTCDCellHTS2ExtensionsModel.saveSettingsTo(settings);
 	}
 
 	/**
@@ -2784,7 +2778,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.loadSettingsFrom(settings);
 		scoreRange.loadSettingsFrom(settings);
 		aspectRatioModel.loadSettingsFrom(settings);
-		// useTCDCellHTS2ExtensionsModel.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -2805,7 +2798,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.validateSettings(settings);
 		scoreRange.validateSettings(settings);
 		aspectRatioModel.validateSettings(settings);
-		// useTCDCellHTS2ExtensionsModel.validateSettings(settings);
 	}
 
 	/**
@@ -2843,13 +2835,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		} else {
 			outDirs = new TreeMap<String, String>();
 		}
-		// TODO load internal data.
-		// Everything handed to output ports is loaded automatically (data
-		// returned by the execute method, models loaded in loadModelContent,
-		// and user settings set through loadSettingsFrom - is all taken care
-		// of). Load here only the other internals that need to be restored
-		// (e.g. data used by the views).
-
 	}
 
 	/**
@@ -2877,12 +2862,6 @@ public class CellHTS2NodeModel extends NodeModel {
 		} finally {
 			fos.close();
 		}
-		// TODO save internal models.
-		// Everything written to output ports is saved automatically (data
-		// returned by the execute method, models saved in the saveModelContent,
-		// and user settings saved through saveSettingsTo - is all taken care
-		// of). Save here only the other internals that need to be preserved
-		// (e.g. data used by the views).
 	}
 
 	/**
