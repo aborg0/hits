@@ -14,8 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -34,10 +36,12 @@ import org.w3c.dom.Document;
  */
 public abstract class SaveAs extends AbstractAction {
 	private static final long serialVersionUID = -6981404140757972969L;
+	@Nullable
 	private final Component parent;
 	/** The drawing component */
 	private final Component component;
 	private final ImageType type;
+	private final JFileChooser fileChooser;
 
 	/**
 	 * Creates the proper action to save to the selected {@code type} format.
@@ -52,7 +56,7 @@ public abstract class SaveAs extends AbstractAction {
 	 *            Type of the result image.
 	 * @return The new {@link SaveAs} {@link Action}.
 	 */
-	public static SaveAs createAction(final Component parent,
+	public static SaveAs createAction(@Nullable final Component parent,
 			final String name, final Component drawingPane, final ImageType type) {
 		switch (type) {
 		case png:
@@ -75,52 +79,80 @@ public abstract class SaveAs extends AbstractAction {
 	 * @param type
 	 *            Type of image to save.
 	 */
-	protected SaveAs(final Component parent, final String name,
+	protected SaveAs(@Nullable final Component parent, final String name,
 			final Component drawingPane, final ImageType type) {
 		super(name);
 		this.parent = parent;
 		this.component = drawingPane;
 		this.type = type;
+		fileChooser = new JFileChooser();
+		getFileChooser().setFileFilter(
+				new FileNameExtensionFilter(type.getDescription(), type
+						.getExtensions()));
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileFilter(new FileNameExtensionFilter(type
-				.getDescription(), type.getExtensions()));
+		saveToFile(true);
+		getFileChooser().setSelectedFile(null);
+	}
+
+	/**
+	 * Saves the file based on the {@link #fileChooser}'s actual state.
+	 * 
+	 * @param infoMessage
+	 *            On success it should popup an information dialog, or not.
+	 * @return On success {@code true} else {@code false}.
+	 */
+	public boolean saveToFile(final boolean infoMessage) {
+		final boolean db = component.isDoubleBuffered();
+		((JComponent) component).setDoubleBuffered(false);
 		checkForOverwrite: while (true) {
-			switch (fileChooser.showSaveDialog(parent)) {
-			case JFileChooser.APPROVE_OPTION:
-				final boolean db = component.isDoubleBuffered();
-				((JComponent) component).setDoubleBuffered(false);
-				try {
-					final File selectedFile = addMissingExtension(fileChooser
-							.getSelectedFile(), type.getExtensions()[0]);
-					if (selectedFile.exists()) {
-						switch (JOptionPane.showConfirmDialog(parent,
-								"Overwrite " + selectedFile.getAbsolutePath()
-										+ "?", "Overwrite existing file?",
-								JOptionPane.YES_NO_OPTION)) {
-						case JOptionPane.YES_OPTION:
-							break;
-						case JOptionPane.NO_OPTION:
-							continue checkForOverwrite;
-						}
+			try {
+				if (getFileChooser().getSelectedFile() == null) {
+					switch (getFileChooser().showSaveDialog(parent)) {
+					case JFileChooser.APPROVE_OPTION:
+						break;
+					case JFileChooser.CANCEL_OPTION:
+						return false;
 					}
-					saveToFile(component, selectedFile);
+				}
+				final File selectedFile = addMissingExtension(getFileChooser()
+						.getSelectedFile(), type.getExtensions()[0]);
+				if (selectedFile.exists()) {
+					switch (JOptionPane.showConfirmDialog(parent, "Overwrite "
+							+ selectedFile.getAbsolutePath() + "?",
+							"Overwrite existing file?",
+							JOptionPane.YES_NO_CANCEL_OPTION)) {
+					case JOptionPane.YES_OPTION:
+						break;
+					case JOptionPane.NO_OPTION:
+						fileChooser.setSelectedFile(null);
+						continue checkForOverwrite;
+					case JOptionPane.CANCEL_OPTION:
+						if (infoMessage) {
+							JOptionPane.showMessageDialog(parent,
+									"Saving of file ("
+											+ selectedFile.getAbsolutePath()
+											+ ") cancelled.", "Save cancelled",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+						return false;
+					}
+				}
+				saveToFile(component, selectedFile);
+				if (infoMessage) {
 					JOptionPane.showMessageDialog(parent,
 							"Successfully saved to: " + selectedFile);
-					break checkForOverwrite;
-				} catch (final Throwable t) {
-					JOptionPane.showMessageDialog(parent,
-							"Error occured during save: " + t.getMessage(),
-							"Error saving", JOptionPane.ERROR_MESSAGE);
 				}
+				return true;
+			} catch (final Throwable t) {
+				JOptionPane.showMessageDialog(parent,
+						"Error occured during save: " + t.getMessage(),
+						"Error saving", JOptionPane.ERROR_MESSAGE);
+			} finally {
 				((JComponent) component).setDoubleBuffered(db);
-			case JFileChooser.CANCEL_OPTION:
-				break checkForOverwrite;
 			}
-
 		}
 	}
 
@@ -151,10 +183,17 @@ public abstract class SaveAs extends AbstractAction {
 	 */
 	protected abstract void saveToFile(Component component, File selectedFile);
 
+	/**
+	 * @return the fileChooser
+	 */
+	public JFileChooser getFileChooser() {
+		return fileChooser;
+	}
+
 	private static final class PngSaveAs extends SaveAs {
 		private static final long serialVersionUID = 4335469648086107939L;
 
-		PngSaveAs(final Component parent, final String name,
+		PngSaveAs(@Nullable final Component parent, final String name,
 				final Component drawingPane) {
 			super(parent, name, drawingPane, ImageType.png);
 		}
@@ -181,7 +220,7 @@ public abstract class SaveAs extends AbstractAction {
 	private static final class SvgSaveAs extends SaveAs {
 		private static final long serialVersionUID = 59357548575248851L;
 
-		SvgSaveAs(final Component parent, final String name,
+		SvgSaveAs(@Nullable final Component parent, final String name,
 				final Component drawingPane) {
 			super(parent, name, drawingPane, ImageType.svg);
 		}
@@ -228,19 +267,38 @@ public abstract class SaveAs extends AbstractAction {
 				} finally {
 					fos.close();
 				}
-			} catch (final Exception e1) {
-				// Logger.getAnonymousLogger().log(Level.FINE,
-				// "No batik svggen found, disabling saving to SVG.", e1);
-				JOptionPane
-						.showMessageDialog(
-								super.component,
-								"The Apache Batik SVG Generation or the Apache Batik DOM extension is not installed, but these are necessary for this functionality.\n"
-										+ "You can install them from the Orbit download page:\n"
-										+ "http://download.eclipse.org/tools/orbit/downloads/",
-								"Download Apache Batik SVG Generation/Apache Batik DOM",
-								JOptionPane.INFORMATION_MESSAGE);
-				setEnabled(false);
+			} catch (final IllegalArgumentException e) {
+				handleMissingBatik();
+			} catch (final IllegalAccessException e) {
+				handleMissingBatik();
+
+			} catch (final InvocationTargetException e) {
+				handleMissingBatik();
+			} catch (final SecurityException e) {
+				handleMissingBatik();
+			} catch (final NoSuchMethodException e) {
+				handleMissingBatik();
+			} catch (final InstantiationException e) {
+				handleMissingBatik();
+			} catch (final ClassNotFoundException e) {
+				handleMissingBatik();
+			} catch (final IOException e) {
+				JOptionPane.showMessageDialog(super.component,
+						"Failed to save file: " + e.getMessage(),
+						"Failed to save file", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+
+		private void handleMissingBatik() {
+			JOptionPane
+					.showMessageDialog(
+							super.component,
+							"The Apache Batik SVG Generation or the Apache Batik DOM extension is not installed, but these are necessary for this functionality.\n"
+									+ "You can install them from the Orbit download page:\n"
+									+ "http://download.eclipse.org/tools/orbit/downloads/",
+							"Download Apache Batik SVG Generation/Apache Batik DOM",
+							JOptionPane.INFORMATION_MESSAGE);
+			setEnabled(false);
 		}
 	}
 }

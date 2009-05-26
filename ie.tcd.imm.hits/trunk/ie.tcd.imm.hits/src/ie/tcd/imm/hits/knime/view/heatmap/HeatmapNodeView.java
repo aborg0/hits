@@ -17,8 +17,11 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
+import ie.tcd.imm.hits.util.swing.colour.ExportLegendAction;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.util.ArrayList;
@@ -164,10 +167,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		public void actionPerformed(final ActionEvent e) {
 			final JDialog dialog = new JDialog((Frame) null,
 					"Image export parameters", true);
-			final JFileChooser fileChooser = new JFileChooser();
 			final Container contentPane = dialog.getContentPane();
-			// final SpringLayout springLayout = new SpringLayout();
-			// contentPane.setLayout(springLayout);
+			final JFileChooser fileChooser = new JFileChooser();
 			contentPane.setLayout(new FlowLayout());
 			final JLabel fileNameLabel = new JLabel("Destination folder: ");
 			contentPane.add(fileNameLabel);
@@ -180,6 +181,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 				@Override
 				public void actionPerformed(final ActionEvent e) {
+					fileChooser
+							.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 					final int res = fileChooser.showOpenDialog(dialog);
 					switch (res) {
 					case JFileChooser.APPROVE_OPTION:
@@ -1172,6 +1175,9 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		final JMenu fileMenu = getJMenuBar().getMenu(0);
 		final Action exportAllAction = new ExportAllAction();
 		fileMenu.add(new JMenuItem(exportAllAction));
+		final Action exportLegendAction = new ExportLegendAction<ComplexModel>(
+				"Export colour legend", colourSelector, ImageType.png);
+		fileMenu.add(new JMenuItem(exportLegendAction));
 		getJMenuBar().add(hiliteMenu);
 		table.getContentTable().addMouseListener(new MouseAdapter() {
 

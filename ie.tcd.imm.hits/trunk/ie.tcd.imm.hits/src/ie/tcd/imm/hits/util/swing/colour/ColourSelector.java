@@ -17,10 +17,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -154,6 +156,24 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			final Map<StatTypes, ColourComputer> map = models.get(parameter);
 			map.put(stat, model);
 			fireModelChanged();
+		}
+
+		/**
+		 * @return The keys of the {@link ColourComputer} values.
+		 */
+		public Map<String, Collection<StatTypes>> getModelKeys() {
+			final Map<String, Collection<StatTypes>> ret = new TreeMap<String, Collection<StatTypes>>();
+			for (final Entry<String, Map<StatTypes, ColourComputer>> entry : models
+					.entrySet()) {
+				if (!entry.getValue().isEmpty()) {
+					final Set<StatTypes> set = new HashSet<StatTypes>();
+					ret.put(entry.getKey(), set);
+					for (final StatTypes s : entry.getValue().keySet()) {
+						set.add(s);
+					}
+				}
+			}
+			return ret;
 		}
 
 		/**

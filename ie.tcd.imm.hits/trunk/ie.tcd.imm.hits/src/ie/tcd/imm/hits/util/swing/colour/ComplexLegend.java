@@ -152,6 +152,7 @@ public class ComplexLegend extends JPanel implements ColourLegend<ComplexModel> 
 
 		@Override
 		protected void paintComponent(final Graphics g) {
+			super.paintComponent(g);
 			if (values.isEmpty()) {
 				return;
 			}

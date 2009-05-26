@@ -11,24 +11,33 @@ import javax.annotation.Nonnull;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
+ * Something like {@link Iterable}, but it is more like a visitor.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Type>
+ *            The type of the interesting elements.
+ * @param <State>
+ *            The associated state for the interesting elements.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface Traversable<Type, State> {
 
 	/**
+	 * Visits all interesting elements, and calls {@code callable} in those
+	 * places.
+	 * 
 	 * @param callable
+	 *            The method to call.
 	 */
 	void traverse(Callable<?> callable);
 
 	/**
-	 * @return
+	 * @return The associated state of the interesting element.
 	 */
 	State getState();
 
 	/**
-	 * @return
+	 * @return The current interesting element.
 	 */
-	Type getType();
+	Type getElement();
 }

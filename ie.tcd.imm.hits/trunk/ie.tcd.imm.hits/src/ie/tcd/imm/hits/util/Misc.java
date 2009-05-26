@@ -65,4 +65,15 @@ public class Misc {
 				.abs(val) > 10 ? Double.toString(Math.round(val * 10) / 10.0)
 				: Double.toString(Math.round(val * 100) / 100.0);
 	}
+
+	/**
+	 * Removes the invalid characters and replaces them with {@code _}
+	 * 
+	 * @param string
+	 *            A non-{@code null}{@link String}.
+	 * @return The new {@link String} without invalid parameters.
+	 */
+	public static String convertToFileName(final String string) {
+		return string.replaceAll("[/\\\\\u0000-\u001f]", "_");
+	}
 }
