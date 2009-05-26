@@ -367,48 +367,6 @@ public class ControlPanel extends JPanel {
 			listeners.remove(listener);
 		}
 
-		/**
-		 * Selects a {@link SliderModel} from {@code mainArrangement} with the
-		 * proper {@link SliderModel#getSubId()}, and with a parameter with
-		 * proper {@link ParameterModel#getType()}.
-		 * 
-		 * @param mainArrangement
-		 *            A mapping from the {@link ParameterModel}s to the affected
-		 *            {@link SliderModel}s.
-		 * @param n
-		 *            A {@link SliderModel#getSubId()}.
-		 * @param stat
-		 *            A {@link StatTypes}.
-		 * @return The first {@link SliderModel} with
-		 *         {@link SliderModel#getSubId()} {@code n} and with a
-		 *         {@link ParameterModel#getType()} {@code stat} from {@code
-		 *         arrangementModel}. It returns {@code null}, if no such
-		 *         {@link SliderModel} found.
-		 * @see #getMainArrangement()
-		 */
-		static SliderModel selectNth(
-				final LinkedHashMap<ParameterModel, Collection<SliderModel>> mainArrangement,
-				final int n, final StatTypes stat) {
-			int u = 0;
-			for (final Map.Entry<ParameterModel, Collection<SliderModel>> entry : mainArrangement
-					.entrySet()) {
-				if (u++ == n) {
-					final Collection<SliderModel> sliders = entry.getValue();
-					for (final SliderModel slider : sliders) {
-						for (final ParameterModel param : slider
-								.getParameters()) {
-							if (param.getType() == stat) {
-								// Not sure whether this is necessary.
-								assert slider.getParameters().size() == 1;
-								return slider;
-							}
-						}
-					}
-				}
-			}
-			return null;
-		}
-
 		@Override
 		public String toString() {
 			return mainArrangement.toString();

@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.knime.base.node.util.DataArray;
 import org.knime.base.node.util.DefaultDataArray;
@@ -46,7 +47,8 @@ public class SimpleHeatmapNodeModel extends NodeModel {
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(SimpleHeatmapNodeModel.class);
-	private DataArray table;
+	private @Nullable
+	DataArray table;
 
 	/**
 	 * Constructor for the node model.
@@ -134,6 +136,7 @@ public class SimpleHeatmapNodeModel extends NodeModel {
 	/**
 	 * @return The associated table as {@link DataArray}.
 	 */
+	@Nullable
 	protected DataArray getTable() {
 		return table;
 	}

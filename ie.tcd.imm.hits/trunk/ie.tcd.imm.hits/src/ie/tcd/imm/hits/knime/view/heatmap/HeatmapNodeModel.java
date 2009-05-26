@@ -24,6 +24,8 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
 import org.knime.core.data.DataTable;
@@ -183,7 +185,8 @@ public class HeatmapNodeModel extends NodeModel {
 	/** This is the {@link HiliteManager} which updates the HiLites. */
 	private final HiLiteManager hiliteManager = new HiLiteManager();
 
-	private ModelBuilder modelBuilder;
+	private @Nullable
+	ModelBuilder modelBuilder;
 
 	private File internDir;
 
@@ -312,6 +315,7 @@ public class HeatmapNodeModel extends NodeModel {
 	/**
 	 * @return The actual table used.
 	 */
+	@Nullable
 	public DataTable getTable() {
 		return modelBuilder == null ? null : modelBuilder.getTable();
 	}
@@ -340,7 +344,8 @@ public class HeatmapNodeModel extends NodeModel {
 	 * @return The {@link ModelBuilder} belonging to the current
 	 *         {@link #getTable() table}.
 	 */
-	public ModelBuilder getModelBuilder() {
+	public @Nullable
+	ModelBuilder getModelBuilder() {
 		return modelBuilder;
 	}
 

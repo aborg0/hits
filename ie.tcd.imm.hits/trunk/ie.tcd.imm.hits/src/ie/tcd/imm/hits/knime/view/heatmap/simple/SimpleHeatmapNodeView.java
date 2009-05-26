@@ -185,7 +185,7 @@ public class SimpleHeatmapNodeView extends NodeView<SimpleHeatmapNodeModel>
 
 				@Override
 				public void mouseDragged(final MouseEvent e) {
-					if ((e.getModifiers() | MouseEvent.BUTTON1) != 0) {
+					if ((e.getModifiers() & MouseEvent.BUTTON1) != 0) {
 						if (dragStart < 0) {
 							dragStart = e.getY();
 							origSelection.addAll(view.selections);
