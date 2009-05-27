@@ -7,6 +7,7 @@ import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.ExportImages;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
@@ -17,11 +18,11 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
-import ie.tcd.imm.hits.util.swing.colour.ExportLegendAction;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.util.ArrayList;
@@ -34,11 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,12 +43,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsAdapter;
@@ -59,11 +53,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
@@ -71,15 +61,11 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -87,12 +73,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -121,10 +105,13 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	/**
 	 * An action to save all possible views of plates in the experiment.
 	 */
-	public class ExportAllAction extends AbstractAction {
+	public class ExportAllAction extends ExportImages {
 		private static final long serialVersionUID = 7782954593253996267L;
 		/** The default action description. */
 		public static final String EXPORT_ALL = "Export all...";
+
+		private JViewport viewport;
+		private String fileName;
 
 		/**
 		 * Creates the action with value of {@link #EXPORT_ALL} default
@@ -142,7 +129,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @see AbstractAction#AbstractAction(String)
 		 */
 		public ExportAllAction(final String name) {
-			super(name);
+			this(name, null);
 		}
 
 		/**
@@ -152,89 +139,37 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 *            The {@link Icon} associated to the {@link ExportAllAction}
 		 *            instance.
 		 */
-		public ExportAllAction(final String name, final Icon icon) {
-			super(name, icon);
+		public ExportAllAction(final String name, @Nullable final Icon icon) {
+			this(name, icon, ImageType.png);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
-		 * )
+		/**
+		 * @param name
+		 *            The description of the action.
+		 * @param icon
+		 *            The {@link Icon} associated to the {@link ExportAllAction}
+		 *            instance.
+		 * @param type
+		 *            Format of saved images.
 		 */
+		ExportAllAction(final String name, @Nullable final Icon icon,
+				final ImageType type) {
+			super(name, icon, type);
+		}
+
 		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final JDialog dialog = new JDialog((Frame) null,
-					"Image export parameters", true);
-			final Container contentPane = dialog.getContentPane();
-			final JFileChooser fileChooser = new JFileChooser();
-			contentPane.setLayout(new FlowLayout());
-			final JLabel fileNameLabel = new JLabel("Destination folder: ");
-			contentPane.add(fileNameLabel);
-			final JTextField fileName = new JTextField(fileChooser
-					.getSelectedFile() == null ? "" : fileChooser
-					.getSelectedFile().getAbsolutePath(), 22);
-			contentPane.add(fileName);
-			contentPane.add(new JButton(new AbstractAction("Browse") {
-				private static final long serialVersionUID = 5781557115110972194L;
+		protected JComponent createAdditionalControls() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected Traversable<JComponent, String> createTraversable(
+				final String folderName, final int width, final int height) {
+			return new Traversable<JComponent, String>() {
 
 				@Override
-				public void actionPerformed(final ActionEvent e) {
-					fileChooser
-							.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-					final int res = fileChooser.showOpenDialog(dialog);
-					switch (res) {
-					case JFileChooser.APPROVE_OPTION:
-						fileName.setText(fileChooser.getSelectedFile()
-								.getAbsolutePath());
-						break;
-					default:
-						// Ignore cancel or error
-						break;
-					}
-				}
-			}));
-			// springLayout.addLayoutComponent(fileChooser, new Constraints());
-			final JLabel x = new JLabel("width: ");
-			contentPane.add(x);
-			final JSpinner width = new JSpinner(new SpinnerNumberModel(800,
-					200, 20000, 100));
-			contentPane.add(width);
-			final JLabel y = new JLabel("height: ");
-			contentPane.add(y);
-			final JSpinner height = new JSpinner(new SpinnerNumberModel(600,
-					200, 20000, 100));
-			contentPane.add(height);
-			final JButton okButton = new JButton("OK");
-			final boolean[] ok = new boolean[1];
-			okButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					ok[0] = true;
-					dialog.setVisible(false);
-					dialog.dispose();
-				}
-			});
-			contentPane.add(okButton);
-			dialog.setPreferredSize(new Dimension(400, 400));
-			dialog.pack();
-			while (true) {
-				dialog.setVisible(true);
-				if (ok[0]) {
-					if (fileName.getText().isEmpty()) {
-						JOptionPane
-								.showMessageDialog(
-										dialog,
-										"No folder specified for the result images. Please select one.",
-										"No folder specified",
-										JOptionPane.WARNING_MESSAGE);
-						dialog.setVisible(true);
-						continue;
-					}
-					final int w = ((Integer) width.getModel().getValue())
-							.intValue(), h = ((Integer) height.getModel()
-							.getValue()).intValue();
+				public void traverse(final Callable<?> callable) {
 					final List<ParameterModel> primerParameters = getCurrentViewModel()
 							.getMain().getPrimerParameters();
 					final List<ParameterModel> seconderParameters = getCurrentViewModel()
@@ -259,47 +194,29 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 									.iterator().next());
 						}
 					}
-					final JFrame frame = new JFrame();
-					final JScrollPane scrollPane = new JScrollPane();
-					frame.getContentPane().add(scrollPane);
-					scrollPane.getViewport()
-							.setPreferredSize(
-									new Dimension(((Number) width.getModel()
-											.getValue()).intValue(),
-											((Number) height.getModel()
-													.getValue()).intValue()));
-					frame.pack();
 					final boolean[] stopped = new boolean[1];
-					frame.addWindowListener(new WindowAdapter() {
-						@Override
-						public void windowClosing(final WindowEvent e) {
-							stopped[0] = true;
-						}
-					});
-					frame.setVisible(true);
-					final boolean madeDirs = new File(fileName.getText())
-							.mkdirs();
+					final boolean madeDirs = new File(folderName).mkdirs();
 					assert madeDirs || !madeDirs;
-					final Callable<Boolean> worker = new Callable<Boolean>() {
-						@Override
-						public Boolean call() throws Exception {
-							saveImages(stopped, scrollPane, w, h, fileName
-									.getText(), others, 0);
-							SwingUtilities.invokeAndWait(new Runnable() {
-								@Override
-								public void run() {
-									frame.dispose();
-								}
-							});
-							return Boolean.valueOf(!stopped[0]);
-						}
-					};
-					executor.submit(worker);
-					break;
-				} else {
-					break;
+					saveImages(stopped, callable, width, height, folderName,
+							others, 0);
 				}
-			}
+
+				@Override
+				public String getState() {
+					return fileName;
+				}
+
+				@Override
+				public JComponent getElement() {
+					return viewport;
+				}
+			};
+		}
+
+		@Override
+		protected void setupComponent(
+				final Traversable<JComponent, String> traversable) {
+			scrollPane.setViewport((JViewport) traversable.getElement());
 		}
 
 		/**
@@ -307,7 +224,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * 
 		 * @param stopped
 		 *            The stopped pointer
-		 * @param scrollPane
+		 * @param callable
 		 *            The scrollpane for the drawing.
 		 * @param w
 		 *            The width of the image.
@@ -322,7 +239,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 *            others}.
 		 */
 		private void saveImages(final boolean[] stopped,
-				final JScrollPane scrollPane, final int w, final int h,
+				final Callable<?> callable, final int w, final int h,
 				final String folderName, final List<SliderModel> others,
 				final int actual) {
 			if (stopped[0]) {
@@ -335,73 +252,62 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				for (final Integer key : slider.getValueMapping().keySet()) {
 					if (!stopped[0]) {
 						slider.selectSingle(key);
-						saveImages(stopped, scrollPane, w, h, folderName,
-								others, actual + 1);
+						saveImages(stopped, callable, w, h, folderName, others,
+								actual + 1);
 					}
 				}
 				slider.selectSingle(original);
-				// if (actual == 0) {
-				// getCurrentViewModel()
-				// .getMain()
-				// .getArrangementModel()
-				// .actionPerformed(
-				// new ActionEvent(
-				// this,
-				// (int) (System.currentTimeMillis() & 0xffffffffL),
-				// "refresh"));
-				// }
 			} else {
-				final BufferedImage bi = new BufferedImage(w, h,
-						ColorSpace.TYPE_RGB);
-				final Graphics2D g = bi.createGraphics();
-				try {
-					SwingUtilities.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							final HeatmapPanel hp = new HeatmapPanel(
-									HeatmapNodeView.this.getCurrentViewModel(),
-									HeatmapNodeView.this.getNodeModel(),
-									HeatmapNodeView.this.getVolatileModel());
-							scrollPane.setViewportView(hp.heatmapsPanel);
-							scrollPane.getViewport().setPreferredSize(
-									new Dimension(w, h));
-							scrollPane.getViewport().setMinimumSize(
-									new Dimension(w, h));
-							scrollPane.getViewport().setMaximumSize(
-									new Dimension(w, h));
-							// hp.heatmapsPanel.setVisible(true);
-							hp.setModel(getNodeModel());
-							hp.heatmapsPanel.setSize(w, h);
-							hp.heatmapsPanel.setBounds(0, 0, w, h);
-							scrollPane.getViewport().paintComponents(g);
-						}
-					});
-				} catch (final InterruptedException e1) {
-					JOptionPane.showMessageDialog(null, "Interrupted",
-							"Interrupted", JOptionPane.ERROR_MESSAGE);
-				} catch (final InvocationTargetException e1) {
-					JOptionPane.showMessageDialog(null, "Interrupted",
-							"Interrupted", JOptionPane.ERROR_MESSAGE);
-				}
-				try {
-					final StringBuilder fileName = new StringBuilder(folderName);
-					fileName.append(File.separatorChar);
-					for (final SliderModel sliderModel : others) {
-						fileName.append(sliderModel.getParameters().get(0)
-								.getShortName());
-						fileName.append("-").append(
-								sliderModel.getValueMapping().get(
-										sliderModel.getSelections().iterator()
-												.next()).getRight().toString()
-										.replaceAll("[^\\d\\w]+", "_")).append(
-								" ");
+				final Runnable paint = new Runnable() {
+					@Override
+					public void run() {
+						final HeatmapPanel hp = new HeatmapPanel(
+								HeatmapNodeView.this.getCurrentViewModel(),
+								HeatmapNodeView.this.getNodeModel(),
+								HeatmapNodeView.this.getVolatileModel());
+						scrollPane.setViewportView(hp.heatmapsPanel);
+						viewport = scrollPane.getViewport();
+						viewport.setPreferredSize(new Dimension(w, h));
+						viewport.setMinimumSize(new Dimension(w, h));
+						viewport.setMaximumSize(new Dimension(w, h));
+						hp.setModel(getNodeModel());
+						hp.heatmapsPanel.setSize(w, h);
+						hp.heatmapsPanel.setBounds(0, 0, w, h);
 					}
-					fileName.append(".png");
-					ImageIO.write(bi, "png", new File(fileName.toString()));
-				} catch (final IOException e1) {
-					JOptionPane.showMessageDialog(HeatmapNodeView.this
-							.getComponent(), "File save failed: "
-							+ e1.getMessage());
+				};
+				if (SwingUtilities.isEventDispatchThread()) {
+					paint.run();
+				} else {
+					try {
+						SwingUtilities.invokeAndWait(paint);
+					} catch (final InterruptedException e1) {
+						JOptionPane.showMessageDialog(null, "Interrupted",
+								"Interrupted", JOptionPane.ERROR_MESSAGE);
+					} catch (final InvocationTargetException e1) {
+						JOptionPane.showMessageDialog(null, "Interrupted",
+								"Interrupted", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				final StringBuilder fileNameBuilder = new StringBuilder();
+				for (final SliderModel sliderModel : others) {
+					fileNameBuilder.append(sliderModel.getParameters().get(0)
+							.getShortName());
+					fileNameBuilder.append("-").append(
+							sliderModel.getValueMapping().get(
+									sliderModel.getSelections().iterator()
+											.next()).getRight().toString()
+									.replaceAll("[^\\d\\w]+", "_")).append(" ");
+				}
+				// fileNameBuilder.append(".png");
+				fileName = fileNameBuilder.toString();
+				try {
+					callable.call();
+				} catch (final RuntimeException e) {
+					logger.warn("Problem: " + e.getMessage(), e);
+					throw e;
+				} catch (final Exception e) {
+					logger.warn("Problem: " + e.getMessage(), e);
+					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -410,8 +316,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(HeatmapNodeView.class);
 
-	private static final ExecutorService executor = new ThreadPoolExecutor(1,
-			1, 1000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
+	// private static final ExecutorService executor = new ThreadPoolExecutor(1,
+	// 1, 1000, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
 	private final LegendPanel legendPanel;
 	private final LegendPanel legendPanel2;
 	// private final JTable infoTable = new JTable(1, 1);

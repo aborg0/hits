@@ -1,7 +1,7 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.util.swing.colour;
+package ie.tcd.imm.hits.knime.view;
 
 import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.swing.ImageType;
@@ -27,6 +27,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -49,11 +51,16 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-abstract class ExportImages extends AbstractAction {
+public abstract class ExportImages extends AbstractAction {
 	private static final long serialVersionUID = 5761525362417025576L;
 	private final ImageType type;
 	/** The {@link JScrollPane} where the data image will be painted. */
 	protected JScrollPane scrollPane;
+
+	private final JCheckBox askBeforeOverwrite = new JCheckBox(
+			"Ask before overwrite", true);
+
+	private final JComboBox fileFormat = new JComboBox();
 
 	/**
 	 * @param type
@@ -85,6 +92,10 @@ abstract class ExportImages extends AbstractAction {
 			final ImageType type) {
 		super(name, icon);
 		this.type = type;
+		for (final ImageType value : ImageType.values()) {
+			fileFormat.addItem(value);
+		}
+		fileFormat.setSelectedItem(type);
 	}
 
 	@Override
@@ -109,6 +120,8 @@ abstract class ExportImages extends AbstractAction {
 		final JSpinner height = new JSpinner(new SpinnerNumberModel(600, 50,
 				20000, 100));
 		contentPane.add(height);
+		// contentPane.add(fileFormat);
+		contentPane.add(askBeforeOverwrite);
 		final JComponent component = createAdditionalControls();
 		if (component != null) {
 			contentPane.add(component);
@@ -166,67 +179,70 @@ abstract class ExportImages extends AbstractAction {
 						frame.dispose();
 					}
 				};
-				final Callable<Boolean> worker = new Callable<Boolean>() {
-					@Override
-					public Boolean call() throws Exception {
-						traversable.traverse(new Callable<Boolean>() {
-							@Override
-							public Boolean call() throws Exception {
-								if (stopped[0]) {
-									JOptionPane.showMessageDialog(null,
-											"Save cancelled.",
-											"Save cancelled",
-											JOptionPane.INFORMATION_MESSAGE);
-									return Boolean.FALSE;
-								}
-								final StringBuilder fileName = new StringBuilder(
-										fileNameModel.getStringValue());
-								fileName.append(File.separatorChar);
-								fileName.append(traversable.getState());
-								fileName.append(".png");
-								final Runnable doRun = new Runnable() {
-									@Override
-									public void run() {
-										setupComponent(traversable);
-										final JComponent component = traversable
-												.getElement();
-										component.setDoubleBuffered(false);
-										final SaveAs action = SaveAs
-												.createAction(null, fileName
-														.toString(), component,
-														type);
-										final File file = new File(fileName
-												.toString());
-										action.getFileChooser()
-												.setSelectedFile(file);
-										stopped[0] = !action.saveToFile(false);
-									}
-								};
-								if (SwingUtilities.isEventDispatchThread()) {
-									doRun.run();
-								} else {
-									try {
-										SwingUtilities.invokeAndWait(doRun);
-									} catch (final InterruptedException e1) {
-										JOptionPane.showMessageDialog(null,
-												"Interrupted", "Interrupted",
-												JOptionPane.ERROR_MESSAGE);
-									} catch (final InvocationTargetException e1) {
-										JOptionPane.showMessageDialog(null,
-												"Interrupted", "Interrupted",
-												JOptionPane.ERROR_MESSAGE);
-									}
-								}
-								return Boolean.TRUE;
-							}
-						});
-						return Boolean.valueOf(!stopped[0]);
-					}
-				};
 				try {
-					worker.call();
-				} catch (final Exception e2) {
-					throw new RuntimeException(e2);
+					traversable.traverse(new Callable<Boolean>() {
+						@Override
+						public Boolean call() throws Exception {
+							if (stopped[0]) {
+								return Boolean.FALSE;
+							}
+							final StringBuilder fileName = new StringBuilder(
+									fileNameModel.getStringValue());
+							fileName.append(File.separatorChar);
+							fileName.append(traversable.getState().trim());
+							final Runnable doRun = new Runnable() {
+								@Override
+								public void run() {
+									setupComponent(traversable);
+									final JComponent component = traversable
+											.getElement();
+									component.setDoubleBuffered(false);
+									final SaveAs action = SaveAs.createAction(
+											null, fileName.toString(),
+											component, (ImageType) fileFormat
+													.getSelectedItem());
+									final File file = new File(fileName
+											.toString());
+									action.getFileChooser().setSelectedFile(
+											file);
+									stopped[0] = !action.saveToFile(false,
+											askBeforeOverwrite.getModel()
+													.isSelected());
+									if (stopped[0]) {
+										JOptionPane
+												.showMessageDialog(
+														null,
+														"Save cancelled.",
+														"Save cancelled",
+														JOptionPane.INFORMATION_MESSAGE);
+									}
+								}
+							};
+							if (SwingUtilities.isEventDispatchThread()) {
+								doRun.run();
+							} else {
+								try {
+									SwingUtilities.invokeAndWait(doRun);
+								} catch (final InterruptedException e1) {
+									JOptionPane.showMessageDialog(null,
+											"Interrupted", "Interrupted",
+											JOptionPane.ERROR_MESSAGE);
+								} catch (final InvocationTargetException e1) {
+									JOptionPane.showMessageDialog(null,
+											"Interrupted", "Interrupted",
+											JOptionPane.ERROR_MESSAGE);
+								}
+							}
+							return Boolean.TRUE;
+						}
+					});
+					if (!stopped[0]) {
+						JOptionPane.showMessageDialog(null,
+								"Images successfully exported to "
+										+ fileNameModel.getStringValue(),
+								"Images successfully exported",
+								JOptionPane.INFORMATION_MESSAGE);
+					}
 				} finally {
 					if (SwingUtilities.isEventDispatchThread()) {
 						frameDispose.run();

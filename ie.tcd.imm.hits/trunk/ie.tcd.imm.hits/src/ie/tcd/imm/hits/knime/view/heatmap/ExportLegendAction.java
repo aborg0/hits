@@ -1,12 +1,19 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.util.swing.colour;
+package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.knime.view.ExportImages;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.swing.ImageType;
+import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
+import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
+import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
+import ie.tcd.imm.hits.util.swing.colour.Orientation;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 import java.util.Collection;
@@ -44,7 +51,9 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 
 	/**
 	 * @param colourSelector
+	 *            The {@link ColourSelector} component.
 	 * @param type
+	 *            The image format to save.
 	 * 
 	 * @see #ExportLegendAction(String, ColourSelector, ImageType)
 	 */

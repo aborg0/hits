@@ -106,6 +106,13 @@ public class HeatmapDendrogramPlotterProperties extends
 	}
 
 	/**
+	 * @return The {@link ColourSelector} of the heatmap.
+	 */
+	public ColourSelector getColourSelector() {
+		return colourSelector;
+	}
+
+	/**
 	 * Updates the ranges for the heatmap.
 	 * 
 	 * @param parameters

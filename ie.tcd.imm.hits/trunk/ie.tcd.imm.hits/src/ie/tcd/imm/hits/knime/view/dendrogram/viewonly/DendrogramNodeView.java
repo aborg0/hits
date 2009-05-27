@@ -22,8 +22,10 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
+import ie.tcd.imm.hits.knime.view.heatmap.ExportLegendAction;
 import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.SaveAs;
+import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,6 +193,9 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 				.getComponent(), "Export view as SVG", heatmapDendrogramPlotter
 				.getDrawingPane(), ImageType.svg));
 		file.add(exportSVG);
+		file.add(new ExportLegendAction<ComplexModel>(
+				((HeatmapDendrogramPlotterProperties) heatmapDendrogramPlotter
+						.getProperties()).getColourSelector(), ImageType.png));
 		final JMenu dataMenu = new JMenu(DATA_MENU);
 		final ButtonGroup group = new ButtonGroup();
 		for (final DataOrder order : DataOrder.values()) {

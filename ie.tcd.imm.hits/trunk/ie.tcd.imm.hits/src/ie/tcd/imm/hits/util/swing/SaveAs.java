@@ -39,7 +39,7 @@ public abstract class SaveAs extends AbstractAction {
 	@Nullable
 	private final Component parent;
 	/** The drawing component */
-	private final Component component;
+	private final JComponent component;
 	private final ImageType type;
 	private final JFileChooser fileChooser;
 
@@ -57,7 +57,8 @@ public abstract class SaveAs extends AbstractAction {
 	 * @return The new {@link SaveAs} {@link Action}.
 	 */
 	public static SaveAs createAction(@Nullable final Component parent,
-			final String name, final Component drawingPane, final ImageType type) {
+			final String name, final JComponent drawingPane,
+			final ImageType type) {
 		switch (type) {
 		case png:
 			return new PngSaveAs(parent, name, drawingPane);
@@ -80,7 +81,7 @@ public abstract class SaveAs extends AbstractAction {
 	 *            Type of image to save.
 	 */
 	protected SaveAs(@Nullable final Component parent, final String name,
-			final Component drawingPane, final ImageType type) {
+			final JComponent drawingPane, final ImageType type) {
 		super(name);
 		this.parent = parent;
 		this.component = drawingPane;
@@ -93,7 +94,7 @@ public abstract class SaveAs extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		saveToFile(true);
+		saveToFile(true, true);
 		getFileChooser().setSelectedFile(null);
 	}
 
@@ -102,11 +103,14 @@ public abstract class SaveAs extends AbstractAction {
 	 * 
 	 * @param infoMessage
 	 *            On success it should popup an information dialog, or not.
+	 * @param askOverwrite
+	 *            Ask before overwriting files.
 	 * @return On success {@code true} else {@code false}.
 	 */
-	public boolean saveToFile(final boolean infoMessage) {
+	public boolean saveToFile(final boolean infoMessage,
+			final boolean askOverwrite) {
 		final boolean db = component.isDoubleBuffered();
-		((JComponent) component).setDoubleBuffered(false);
+		component.setDoubleBuffered(false);
 		checkForOverwrite: while (true) {
 			try {
 				if (getFileChooser().getSelectedFile() == null) {
@@ -119,7 +123,7 @@ public abstract class SaveAs extends AbstractAction {
 				}
 				final File selectedFile = addMissingExtension(getFileChooser()
 						.getSelectedFile(), type.getExtensions()[0]);
-				if (selectedFile.exists()) {
+				if (selectedFile.exists() && askOverwrite) {
 					switch (JOptionPane.showConfirmDialog(parent, "Overwrite "
 							+ selectedFile.getAbsolutePath() + "?",
 							"Overwrite existing file?",
@@ -151,7 +155,7 @@ public abstract class SaveAs extends AbstractAction {
 						"Error occured during save: " + t.getMessage(),
 						"Error saving", JOptionPane.ERROR_MESSAGE);
 			} finally {
-				((JComponent) component).setDoubleBuffered(db);
+				component.setDoubleBuffered(db);
 			}
 		}
 	}
@@ -181,7 +185,7 @@ public abstract class SaveAs extends AbstractAction {
 	 * @param selectedFile
 	 *            The selected file.
 	 */
-	protected abstract void saveToFile(Component component, File selectedFile);
+	protected abstract void saveToFile(JComponent component, File selectedFile);
 
 	/**
 	 * @return the fileChooser
@@ -194,12 +198,12 @@ public abstract class SaveAs extends AbstractAction {
 		private static final long serialVersionUID = 4335469648086107939L;
 
 		PngSaveAs(@Nullable final Component parent, final String name,
-				final Component drawingPane) {
+				final JComponent drawingPane) {
 			super(parent, name, drawingPane, ImageType.png);
 		}
 
 		@Override
-		protected void saveToFile(final Component component,
+		protected void saveToFile(final JComponent component,
 				final File selectedFile) {
 			final BufferedImage bi = new BufferedImage(component.getWidth(),
 					component.getHeight(), ColorSpace.TYPE_RGB);
@@ -221,12 +225,12 @@ public abstract class SaveAs extends AbstractAction {
 		private static final long serialVersionUID = 59357548575248851L;
 
 		SvgSaveAs(@Nullable final Component parent, final String name,
-				final Component drawingPane) {
+				final JComponent drawingPane) {
 			super(parent, name, drawingPane, ImageType.svg);
 		}
 
 		@Override
-		protected void saveToFile(final Component component,
+		protected void saveToFile(final JComponent component,
 				final File selectedFile) {
 			try {
 				final Class<?> SVGGraphics2DClass = Class
@@ -245,6 +249,11 @@ public abstract class SaveAs extends AbstractAction {
 				// Create an instance of the SVG Generator.
 				final Graphics2D svgGenerator = (Graphics2D) SVGGraphics2DClass
 						.getConstructor(Document.class).newInstance(document);
+				svgGenerator.setColor(Color.BLACK);
+				svgGenerator.setBackground(Color.WHITE);
+				svgGenerator.setClip(0, 0, component.getWidth(), component
+						.getHeight());
+
 				// Ask the test to render into the SVG Graphics2D
 				// implementation.
 				component.paintAll(svgGenerator);
