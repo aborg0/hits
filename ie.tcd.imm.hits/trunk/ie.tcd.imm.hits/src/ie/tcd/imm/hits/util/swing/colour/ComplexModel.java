@@ -155,10 +155,10 @@ public class ComplexModel implements ColourComputer, Serializable {
 					.append(
 							Integer
 									.toHexString(entry.getValue() instanceof Color ? ((Color) entry
-											.getValue()).getRGB()
+											.getValue()).getRGB() & 0x00ffffff
 											: ((Pair<Color, Color>) entry
 													.getValue()).getLeft()
-													.getRGB() & 0xffffff))
+													.getRGB() & 0x00ffffff))
 					.append("\">").append(
 							Math.round(entry.getKey().getLow() * 100) / 100.0)
 					.append("</font>").append(
@@ -168,10 +168,10 @@ public class ComplexModel implements ColourComputer, Serializable {
 					.append(
 							Integer
 									.toHexString(entry.getValue() instanceof Color ? ((Color) entry
-											.getValue()).getRGB()
+											.getValue()).getRGB() & 0x00ffffff
 											: ((Pair<Color, Color>) entry
 													.getValue()).getRight()
-													.getRGB() & 0xffffff))
+													.getRGB() & 0x00ffffff))
 					.append("\">").append(
 							Math.round(entry.getKey().getHigh() * 100) / 100.0)
 					.append("</font>").append(", ");
