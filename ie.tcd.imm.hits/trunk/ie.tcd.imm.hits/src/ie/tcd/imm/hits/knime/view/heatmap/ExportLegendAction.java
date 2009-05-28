@@ -29,6 +29,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -164,6 +165,7 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 	@Override
 	protected JComponent createAdditionalControls() {
 		final JPanel ret = new JPanel();
+		ret.add(new JLabel("Position of numbers: "));
 		orientationCombobox = new JComboBox();
 		orientationCombobox.addItem("East");
 		orientationCombobox.addItem("West");

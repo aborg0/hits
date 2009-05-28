@@ -146,8 +146,8 @@ the positive and negative controls (on that specific plate for that parameter)</
 <h4>Row ID</h4>
 <p>An integral starting from <samp>1</samp>.</p>
 <h2><a name="htmlOverview">HTML overview</a></h2>
-<p>The main overview of the results.</p>
-<h3>Structure</h3>
+<p>Layout of HTML result differs with cellHTS2 2.6.x, and later: with 2.6.x the results are in two different kind of pages, while in newer version the results are on tabs.</p>
+<h3>Main overview structure in cellHTS2 2.6.x</h3>
 <table border="1">
 <tr><td>Experiment title</td></tr>
 <tr><td>Overview of replicates (some stats)</td></tr>
@@ -155,9 +155,8 @@ the positive and negative controls (on that specific plate for that parameter)</
 <tr><td>Replicate data distribution graphs</td></tr>
 <tr><td>Scored values heatmap (with <a href="#topTable">topTable.txt</a> link)</td></tr>
 </table>
-<h2><a name="htmlPlateOverview">HTML plate overview</a></h2>
+<h3>Plate overview structure in cellHTS2 2.6.x</h3>
 <p>The plate specific view of the data.</p>
-<h3>Structure</h3>
 <table border="1">
 <tr><td>Title</td></tr>
 <tr><td>Metrics of that plate</td></tr>
@@ -165,6 +164,19 @@ the positive and negative controls (on that specific plate for that parameter)</
 <tr><td>Replicate histograms</td></tr>
 <tr><td>Heatmap of standard deviation accross replicates</td></tr>
 <tr><td>Heatmap of raw replicate values</td></tr>
+</table>
+<h3>Structure of HTML results with cellHTS2 2.8.x</h3>
+<table border="1">
+<tr><td>Plate List</td><td>Plate Configuration</td><td>Plate Summaries</td><td>Screen Summary</td><td>Screen Results</td><td>Screen Description</td></tr>
+<tr><td colspan="6">
+  <table border="1" style="width: 100%">
+  <tr><td>Parameters</td></tr>
+  <tr><td>
+    <table border="1" style="width: 100%">
+    <tr><td>Possibly more options</td></tr>
+    <tr><td>Figures/statistics</td></tr>
+    </table></td></tr>
+  </table></td></tr>
 </table>
 <h2><a name="topTable">topTable.txt</a></h2>
 <p>It contains the specified statistics in a tab separated file.</p>

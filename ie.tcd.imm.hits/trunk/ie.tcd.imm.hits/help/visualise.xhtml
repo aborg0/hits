@@ -19,6 +19,7 @@
 <p>See <a href="settings.xhtml#colours">this page</a>.</p>
 <h2><a name="colourSettings">Colour Settings</a></h2>
 <h3><a name="changeAll">Changing all in a row</a>/table</h3>
+<p><img src="iqrColours.png"/></p>
 <p>By clicking on the <code>Statistics</code>, or any of the possible statistics buttons you are able to set the ranges and colours for each parameter at once. (The <code>Statistics</code> changes every parameter for all statistics, while one of the statistics buttons changes the colours only for that statistics.)</p>
 <p>You may remove existing, or add new ranges from the right click menu.</p>
 <p>If the <code>Connect neighbours</code> is checked, the change in a range's higher value will be copied to the lower value of the range just above it, and vice versa.</p>
@@ -38,9 +39,13 @@
 <p>If the formula is not interpretable the background of the box will be red.</p>
 <p><span class="hint">Do not hit <code>OK</code> if you removed all ranges!</span></p>
 <h3><a name="changeIndependently">Changing independently</a></h3>
+<p><img src="individualColourSettings.png"/></p>
 <p>The user interface is really similar to the one described in the <a href="#changeAll">change all</a> section of this page. The only difference that it does not support formulae, those are replaced by spinners, which only accept real numbers.</p>
+<h3><a name="exportColourLegend">Export colour legend</a></h3>
+<p>From the visual nodes you can export the colour legend as png files using the <code>File</code>/<code>Export colour legend</code> command.</p>
+<p>The parameters window is similar to the <a href="heatmap.xhtml#exportAll">Export all</a> except that you can additionally determine the position of the numbers on the images. The resulting file names will have the format: <a href="settings.xhtml#colOrder">statistics type</a> (<em>score</em>, <em>normalised</em>, <em>raw</em>, or <em>raw/(plate, replicate mean)</em>) followed by <code>_</code> and the parameter name. <img src="exportColourLegend.png"/></p>
 <h2><a name="usefulPatterns">Useful Patterns</a></h2>
-<h3><a name="simple">Simple (general default)</a></h3>
+<h3><a name="simple">Simple (initial)</a></h3>
 <p>There are three values and colours in this case. The gradient colours are going from a maximum to the median, then to the minimum.</p>
 <p>So the layout is the following:</p>
 <ul>

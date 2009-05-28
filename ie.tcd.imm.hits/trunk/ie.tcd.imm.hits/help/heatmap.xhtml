@@ -87,7 +87,7 @@
 <p>The default format is:</p>
 <pre>
 &lt;html&gt;
-Plate: &lt;b&gt;${plate}&lt;/b&gt; Well: &lt;b&gt;${well}&lt;/b&gt; Gene: ${gene id} &lt;b&gt;${gene symbol}&lt;/b&gt; Normalisation: ${Normalisation method} - ${Normalisation kind}&lt;table&gt;
+Plate: &lt;b&gt;${plate}&lt;/b&gt; Well: &lt;b&gt;${well}&lt;/b&gt; Gene: ${Gene id} &lt;b&gt;${Gene symbol}&lt;/b&gt; Normalisation: ${Normalisation method} - ${Normalisation kind}&lt;table&gt;
 ${score}&lt;/table&gt;
 &lt;table&gt;${normalised}&lt;/table&gt;
 &lt;/html&gt;
@@ -126,7 +126,7 @@ ${score}&lt;/table&gt;
 <h3><a name="settingsArea">Settings</a></h3>
 <p>Currently nothing is adjustable on this tab. The idea is to save the actual layout of your view, and later reload it. Currently not implemented.</p>
 <h3><a name="legendArea">Legend</a></h3>
-<p>Shows a legend of the wells similarly to the other legend views on the <a href="#rightLegend">sidebar</a> and on <a href="#controlsTab">controls tab</a>.</p>
+<p>Shows a legend of the wells similarly to the other legend views on the <a href="#rightLegend">sidebar</a> and on <a href="#controlsTab">controls tab</a>. The tooltips tells you what is the primary and secondary value at that position, or on colour legends the actual values with the proper colours.</p>
 <h3><a name="coloursArea">Colours</a></h3>
 <p>The controls on this tab allows to set the bounds and colours of the continuous (two colours) and discrete (one colour) colouring.</p>
 <p><img src="heatmapColours.png"/></p>
@@ -169,6 +169,8 @@ There are some special concepts related to these nodes:</p>
 <h1>Menu</h1>
 <h3><a name="exportAll">Export all</a></h3>
 <p><img src="heatmapExportAll.png"/></p>
+<p>With this option you are able to export all combination of heatmaps (fixing the <a href="#primary">primary</a> and <a href="secondary">secondary</a> control values are fixed) to png files. The file name will contain the varying parameter name followed by <code>-</code> and the parameter's value.</p>
+<p>In the export dialog you can set the size of the images, the result folder. You can also uncheck to ask for overwrites.</p>
 <h2><a name="hiLite">HiLite</a></h2>
 <p>For general overview check the <a href="PLUGINS_ROOT/org.knime.workbench.help/html/quickstartguide.html#HiLite">KNIME help</a>.</p>
 <h3>HiLite selected</h3>
