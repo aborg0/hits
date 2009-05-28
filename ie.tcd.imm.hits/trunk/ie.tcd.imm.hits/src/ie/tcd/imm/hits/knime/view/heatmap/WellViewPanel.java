@@ -299,8 +299,26 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 *            parameter values are.
 	 */
 	public void setColors(final Color... colors) {
-		this.colors = colors == null ? sampleColors : colors;
+		setColorsButNotRepaint(colors);
 		repaint();
+	}
+
+	/**
+	 * Sets to colours to draw, but does not repaint the panel.
+	 * 
+	 * @param colors
+	 *            Some colours. It should be as many as primary times secondary
+	 *            parameter values are.
+	 */
+	protected void setColorsButNotRepaint(final Color... colors) {
+		this.colors = colors == null ? sampleColors : colors;
+	}
+
+	/**
+	 * @return The current set of colours to show.
+	 */
+	protected Color[] getColors() {
+		return colors == null ? null : colors.clone();
 	}
 
 	/**

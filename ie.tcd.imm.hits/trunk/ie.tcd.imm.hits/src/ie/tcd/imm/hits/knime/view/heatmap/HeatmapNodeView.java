@@ -225,7 +225,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param stopped
 		 *            The stopped pointer
 		 * @param callable
-		 *            The scrollpane for the drawing.
+		 *            The {@link Callable} for the drawing.
 		 * @param w
 		 *            The width of the image.
 		 * @param h

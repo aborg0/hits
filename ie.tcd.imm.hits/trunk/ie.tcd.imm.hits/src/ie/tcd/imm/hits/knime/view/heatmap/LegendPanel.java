@@ -36,6 +36,11 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -170,6 +175,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 		private final Color borderColor = Color.BLACK;
 
+		private BufferedImage image;
+
 		/**
 		 * Constructs a {@link ShapeLegendPanel}.
 		 * 
@@ -181,6 +188,110 @@ public class LegendPanel extends JPanel implements ActionListener {
 		public ShapeLegendPanel(final boolean isSelectable,
 				final ViewModel model) {
 			super(isSelectable, model, -1);
+			addComponentListener(new ComponentAdapter() {
+				@Override
+				public void componentResized(final ComponentEvent e) {
+					updateImage();
+				}
+
+			});
+			addMouseMotionListener(new MouseAdapter() {
+				@Override
+				public void mouseMoved(final MouseEvent e) {
+					final Collection<SliderModel> sliders = getModel()
+							.getMain().getArrangementModel().getSliderModels();
+					final List<ParameterModel> seconderParameters = getModel()
+							.getMain().getSeconderParameters();
+					int secondaryCount = WellViewPanel.selectValueCount(
+							seconderParameters, sliders);
+					secondaryCount = secondaryCount == 0 ? 1 : secondaryCount;
+					final int index = image.getRGB(e.getX(), e.getY()) - 1 & 0x00ffffff;
+					final int prim = index / secondaryCount;
+					final int sec = index == (-1 & 0xffffff) ? -1 : index
+							% secondaryCount;
+					final List<ParameterModel> primerParameters = getModel()
+							.getMain().getPrimerParameters();
+					final ParameterModel primary = primerParameters.isEmpty() ? null
+							: primerParameters.iterator().next();
+					final ParameterModel secondary = seconderParameters
+							.isEmpty() ? null : seconderParameters.iterator()
+							.next();
+					final SliderModel primSlider = LegendPanel
+							.getCurrentSlider(sliders, primary);
+					final SliderModel secSlider = LegendPanel.getCurrentSlider(
+							sliders, secondary);
+					final Pair<ParameterModel, Object> primPair = selectPair(
+							prim, primSlider);
+					final Pair<ParameterModel, Object> secPair = selectPair(
+							sec, secSlider);
+					setToolTipText("<html>" + prettyPrint(primPair)
+							+ (secPair == null ? "" : "<br>")
+							+ prettyPrint(secPair) + "</html>");
+				}
+
+				/**
+				 * @param pair
+				 * @return
+				 */
+				private String prettyPrint(
+						final Pair<ParameterModel, Object> pair) {
+					return pair == null ? "" : pair.getLeft()
+							.getShortName()
+							+ ": " + pair.getRight().toString();
+				}
+
+				/**
+				 * @param index
+				 * @param slider
+				 * @return
+				 */
+				private Pair<ParameterModel, Object> selectPair(
+						final int index, final SliderModel slider) {
+					if (slider == null) {
+						return null;
+					}
+					int i = 0;
+					for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
+							.getValueMapping().entrySet()) {
+						if (slider.getSelections().contains(entry.getKey())) {
+							if (i++ == index) {
+								return entry.getValue();
+							}
+						}
+					}
+					return null;
+				}
+			});
+		}
+
+		private void updateImage() {
+			if (getSize().height == 0 || getSize().width == 0) {
+				return;
+			}
+			image = new BufferedImage(getSize().width, getSize().height,
+					BufferedImage.TYPE_INT_ARGB);
+			final Color[] origColors = getColors();
+			final boolean origShowLabels = showLabels;
+			final Collection<SliderModel> sliders = getModel().getMain()
+					.getArrangementModel().getSliderModels();
+			final int primaryCount = Math.max(1, WellViewPanel
+					.selectValueCount(getModel().getMain()
+							.getPrimerParameters(), sliders));
+			final int secondaryCount = Math.max(1, WellViewPanel
+					.selectValueCount(getModel().getMain()
+							.getSeconderParameters(), sliders));
+			final Color[] tmpColors = new Color[primaryCount * secondaryCount];
+			for (int i = primaryCount; i-- > 0;) {
+				for (int j = secondaryCount; j-- > 0;) {
+					final int index = i * secondaryCount + j;
+					tmpColors[j * primaryCount + i] = new Color(index + 1);
+				}
+			}
+			showLabels = false;
+			setColorsButNotRepaint(tmpColors);
+			paintComponent(image.getGraphics());
+			showLabels = origShowLabels;
+			setColorsButNotRepaint(origColors);
 		}
 
 		/**
@@ -197,7 +308,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					.getArrangementModel().getSliderModels();
 			final int primaryCount = WellViewPanel.selectValueCount(getModel()
 					.getMain().getPrimerParameters(), sliders);
-			final int secundaryCount = WellViewPanel.selectValueCount(
+			final int secondaryCount = WellViewPanel.selectValueCount(
 					getModel().getMain().getSeconderParameters(), sliders);
 			switch (getModel().getShape()) {
 			case Circle:
@@ -273,6 +384,9 @@ public class LegendPanel extends JPanel implements ActionListener {
 								(int) (radius * 1.2));
 						final SliderModel slider = LegendPanel
 								.getCurrentSlider(sliders, paramModel);
+						if (slider == null) {
+							return;
+						}
 						final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 								.getValueMapping();
 						final int[] radiuses = WellViewPanel.getRadiuses(
@@ -326,7 +440,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 							if (slider.getSelections().contains(entry.getKey())) {
 								g.drawString(entry.getValue().getRight()
 										.toString(), 5 - (i + 1) * bounds.width
-										/ secundaryCount, 30 + i % 2 * 15);
+										/ secondaryCount, 30 + i % 2 * 15);
 								++i;
 							}
 						}
@@ -346,6 +460,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 		public void setShowLabels(final boolean showLabels) {
 			this.showLabels = showLabels;
 			repaint();
+		}
+
+		@Override
+		public void setModel(final ViewModel model) {
+			super.setModel(model);
+			updateImage();
 		}
 	}
 
