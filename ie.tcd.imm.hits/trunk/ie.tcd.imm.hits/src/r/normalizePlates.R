@@ -98,7 +98,8 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
         object <- adjustVariance(object, method=varianceAdjust)
 
     object@state[["normalized"]] <- TRUE
-    object@processingInfo[["normalized"]] <- method
+    if (regexpr("2\\.[67]\\..", package.version("cellHTS2")) != 1)
+        object@processingInfo[["normalized"]] <- method
     validObject(object)
     return(object)
 }
