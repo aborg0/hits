@@ -502,7 +502,7 @@
         <provided namespace='org.eclipse.equinox.p2.iu' name='HiTS' version='0.0.0'/>
       </provides>
       <requires size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.2.0,0.2.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.2.0,0.3.0]'/>
       </requires>
       <touchpoint id='null' version='0.0.0'/>
     </unit>
