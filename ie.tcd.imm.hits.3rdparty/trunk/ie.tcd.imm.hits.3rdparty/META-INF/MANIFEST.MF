@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HiTS 3rd party jars Plug-in
 Bundle-SymbolicName: ie.tcd.imm.hits.3rdparty;singleton:=true
-Bundle-Version: 0.1.0
+Bundle-Version: 0.3.0
 Bundle-Vendor: TCD
 Bundle-ClassPath: lib/poi-3.2-FINAL-20081019.jar,
- lib/REngine_2.5.2.jar,
- lib/Rserve_2.5.2.jar,
  lib/annotations.jar,
  lib/jsr305.jar,
+ lib/REngine-0.6.0.jar,
+ lib/Rserve-0.6.0.jar,
  .
 Export-Package: edu.umd.cs.findbugs.annotations,
  javax.annotation,
@@ -46,9 +46,9 @@ Export-Package: edu.umd.cs.findbugs.annotations,
  org.apache.poi.poifs.storage,
  org.apache.poi.ss.formula,
  org.apache.poi.util,
- org.rosuda.REngine,
- org.rosuda.REngine.Rserve,
- org.rosuda.REngine.Rserve.protocol
+ org.rosuda.REngine;version="0.6.0",
+ org.rosuda.REngine.Rserve;version="0.6.0",
+ org.rosuda.REngine.Rserve.protocol;version="0.6.0"
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
