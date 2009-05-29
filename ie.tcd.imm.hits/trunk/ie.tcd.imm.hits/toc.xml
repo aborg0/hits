@@ -65,9 +65,6 @@
 				<topic label="HTML overview" href="help/cellHTS2.xhtml#htmlOverview">
 					<anchor id="cellHTS2HTMLOverview"/>
 				</topic>
-				<topic label="HTML plate overview" href="help/cellHTS2.xhtml#htmlPlateOverview">
-					<anchor id="cellHTS2HTMLPlateOverview"/>
-				</topic>
 				<topic label="topTable.txt" href="help/cellHTS2.xhtml#topTable">
 					<anchor id="cellHTS2TopTable"/>
 				</topic>
