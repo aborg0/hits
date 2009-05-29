@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./sorter.png" type="Predictor">
+    <name>Sort by Cluster</name>
+    
+    <shortDescription>
+        Sorts the data by the order defined by the clustering.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro><p>Sorts the data according to the position in the clusters. This ensures that the order of the rows in the dendrogram is maintained in the table.</p><p>Detailed description: <a href="../../help/sortByCluster.xhtml">Sort by Cluster node</a></p></intro>
+        
+        
+        <option name="ascending">Selects one of the possible orders.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Cluster tree">A tree model from the <b>New Hierarchical Clustering</b> node.</inPort>
+        <inPort index="1" name="Data">Data with same keys (in the same order) as the Cluster tree has.</inPort>
+        <outPort index="0" name="Ordered data">Sorted data</outPort>
+    </ports>    
+    <!-- views>
+        <view index="0" name="name of first view">Description of first view...</view>
+    </views-->
+</knimeNode>

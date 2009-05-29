@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./biomaRt.png" type="Manipulator">
+    <name>biomaRt Annotator</name>
+    
+    <shortDescription>
+        Adds some annotations from the BioMart databases using the biomaRt R package.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Adds some annotations from the BioMart databases using the biomaRt R package. There must be a running RServe instance (on default port) on the machine running R.
+        Details <a href="../../help/biomaRt.xhtml">here</a>.
+        </intro>
+        
+        
+        <option name="biomaRt database">The database to use</option>
+        <option name="biomaRt dataset">The selected dataset from the database</option>
+        <option name="attributes">The attributes to add to the results</option>
+    </fullDescription>
+    
+    <ports>
+        <dataIn index="0" name="gene IDs">Any kind of input table which has a geneID column</dataIn>
+        <!-- possibly more ports here-->
+        <dataOut index="0" name="annotated results">The same as the input table with the annotations from biomart.</dataOut>
+        <!--modelIn index="0">Description of first model input port...</modelIn-->
+        <!--modelOut index="0">Description of first model output port...</modelOut-->
+    </ports>    
+    <!--views-->
+        <!--view index="0" name="name of first view">Description of first view...</view-->
+        <!--view index="1" name="name of second view">Description of second view...</view-->
+    <!--/views-->
+</knimeNode>
