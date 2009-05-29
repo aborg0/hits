@@ -1,6 +1,25 @@
 #summary Changes in the project
 
 = HiTS =
+
+== Changes from 0.2.0 to 0.3.0 ==
+Date: 29th May 2009
+
+No new nodes, no incompatible updates.
+
+Updated the the 3rd party dependencies project, to prevent any problems with possibly old Rserve. The bundled Rserve client is now 0.6.0.
+
+ * Issue 13 fixed, the update site should work correctly with eclipse 3.4, or above.
+ * Issue 15 done, added new example workflows, check [Usage#Try_it Usage] for details.
+ * Issue 18 fixed, this release is compatible with both cellHTS2 2.6.x, and cellHTS2 2.8.x. (Some problems identified in cellHTS2 2.8.0 also fixed.)
+ * Issue 19 fixed, before overwrites now it asks.
+ * Issue 20 fixed, the Distance Calculator Feature is now optional.
+
+New features:
+ * There is a tooltip in the well layout legend, indicating what is at that area.
+ * It is possible to use custom normalisation/scoring methods when {{{knime.expert.mode}}} is {{{true}}} (put {{{-Dknime.expert.mode=true}}} after {{{-vmargs}}} in your knime.ini file to access this feature).
+ * It is possible to save the colour legend in the heatmap nodes.
+
 == Changes from 0.1.1 to 0.2.0 ==
 Date: 5th May 2009 (available since 30th April 2009)
 
