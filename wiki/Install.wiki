@@ -38,7 +38,7 @@ The possible options are:
  # update all nodes with compatible updates
  # update just the HiTS nodes
 
-For the first option go to Help/Software Updates.../Find and Install.../_Search for updates of the currently_ installed features, than click *Finish*. (Here you may be promted to your proxy user and password.) 
+For the first option go to Help/Software Updates.../Find and Install.../_Search for updates of the currently_ installed features, than click *Finish*. (Here you may be promted to your proxy user and password.) If you have selected service updates, you might have to select Help/Software Updates.../Find and Install.../_Search for new features to install_.
 
 For the second option go to Help/Software Updates.../Find and Install.../_Search for new features to install_ *Next* and select the _HiTS_ site. Click on *Finish*. (Here you may be promted to your proxy user and password.) If there are updates you will have an option to select them. (If there are no updates you will get a message: _No updates to the currently installed feature(s) found, try again later._ And you do not have to do anything.) You have to accept the licenses. And install the features. When you are asked to restart your KNIME, please do that, by answering *Yes*.
 
