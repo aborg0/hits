@@ -3,14 +3,27 @@
 <repository name='HiTS official update site - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1241091458970'/>
+    <property name='p2.timestamp' value='1243597751166'/>
   </properties>
   <mappings size='3'>
     <rule filter='(&amp; (classifier=osgi.bundle))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
     <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
   </mappings>
-  <artifacts size='5'>
+  <artifacts size='8'>
+    <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.3.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='1195'/>
+        <property name='download.size' value='1195'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.3rdparty' version='0.3.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='1365052'/>
+        <property name='download.size' value='1365052'/>
+        <property name='download.contentType' value='application/zip'/>
+      </properties>
+    </artifact>
     <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.2.0'>
       <properties size='3'>
         <property name='artifact.size' value='2355121'/>
@@ -36,6 +49,13 @@
       <properties size='2'>
         <property name='artifact.size' value='914'/>
         <property name='download.size' value='914'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.3.0'>
+      <properties size='3'>
+        <property name='artifact.size' value='2556410'/>
+        <property name='download.size' value='2556410'/>
+        <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
     <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.2.0'>
