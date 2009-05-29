@@ -33,7 +33,7 @@ The usage of the nodes is similar to the other KNIME nodes. You can get more hel
 This [http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/usage.xhtml page] shows some usecases of the program with KNIME.
 
 == Try it ==
-You can find workflows in [http://code.google.com/p/hits/source/browse/#svn/ie.tcd.imm.knime.test/trunk/testdata this folder]'s subfolders if you want to try without problems. For sample data check [http://code.google.com/p/hits/source/browse/#svn/ie.tcd.imm.knime.test/trunk/testdata/plate8 this folder]. Sample data created with Amanda Birmingham's NoiseMaker program.
+You can find workflows in [http://code.google.com/p/hits/source/browse/#svn/ie.tcd.imm.knime.test/trunk/testdata this folder]'s subfolders if you want to try this without problems. For sample data check [http://code.google.com/p/hits/source/browse/#svn/ie.tcd.imm.knime.test/trunk/testdata/plate8 this folder]. Sample data created with Amanda Birmingham's NoiseMaker program.
 
 == Reporting Bugs, Request Features ==
 If you encounter a bug, please report it at [http://code.google.com/p/hits/issues/list this page]. It is also for feature requests. Please be so kind if you see the same request or bug there then just *star* it. Thank you.
