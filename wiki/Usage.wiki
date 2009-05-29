@@ -10,6 +10,8 @@ If you want to use the *[CellHTS2Node CellHTS2]*, or *[biomaRtAnnotatorNode biom
 == Starting KNIME ==
 When you are analysing large experiments your default memory size set for KNIME may be not enough. In that case you should increase the memory, by changing the line starting with {{{-Xmx}}} in your knime.ini file. {{{-Xmx1024M}}} is not a bad choice if your computer has enough physical memory installed.
 
+You might want to add {{{-Dknime.expert.mode=true}}} to your knime.ini file. This will allow you to use the Dendrogram with Heatmap node, and the looping support of KNIME. It also allows you to select [CustomNormalisationMethods custom normalisation/scoring methods] too.
+
 After this you can start your KNIME installation.
 
 == Configure your preferences ==
