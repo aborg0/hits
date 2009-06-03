@@ -60,7 +60,7 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 	 */
 	public ExportLegendAction(final ColourSelector colourSelector,
 			final ImageType type) {
-		this("", colourSelector, type);
+		this("Export colour legend", colourSelector, type);
 	}
 
 	/**
