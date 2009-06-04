@@ -3,7 +3,12 @@
  */
 package ie.tcd.imm.knime.util.product;
 
+import ie.tcd.imm.knime.util.HiLite;
+import ie.tcd.imm.knime.util.TransformingNodeModel;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
  * <code>NodeDialog</code> for the "DirectProduct" Node. This node takes input
@@ -23,5 +28,9 @@ public class DirectProductNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	protected DirectProductNodeDialog() {
 		super();
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
+						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
+				"HiLite Strategy: ", HiLite.asDisplayTexts()));
 	}
 }
