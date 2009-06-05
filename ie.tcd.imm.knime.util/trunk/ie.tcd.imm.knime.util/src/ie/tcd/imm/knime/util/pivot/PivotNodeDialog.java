@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.knime.util.pivot;
 
+import ie.tcd.imm.knime.util.HiLite;
+import ie.tcd.imm.knime.util.TransformingNodeModel;
 import ie.tcd.imm.knime.util.pivot.PivotNodeModel.Behaviour;
 
 import java.util.ArrayList;
@@ -73,6 +75,10 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 				Behaviour.fillEmpty.name(), Behaviour.signalError.name()));
 		final UpdatableComponent updatableComponent = new org.knime.core.node.defaultnodesettings.UpdatableComponent();
 		addDialogComponent(updatableComponent);
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
+						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
+				"HiLite Strategy: ", HiLite.asDisplayTexts()));
 		// createNewTab("Value Columns");
 		// final SettingsModelFilterString valColModel = new
 		// SettingsModelFilterString(

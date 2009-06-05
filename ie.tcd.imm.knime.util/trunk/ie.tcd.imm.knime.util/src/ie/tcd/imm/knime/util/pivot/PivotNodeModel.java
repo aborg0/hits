@@ -3,13 +3,14 @@
  */
 package ie.tcd.imm.knime.util.pivot;
 
+import ie.tcd.imm.knime.util.TransformingNodeModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import java.io.File;
-import java.io.IOException;
+import java.util.Set;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
@@ -18,16 +19,14 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
@@ -42,13 +41,11 @@ import org.knime.core.node.port.flowvariable.FlowVariablePortObjectSpec;
  * This is the model implementation of Pivot. Converts some information present
  * in rows to columns.
  * 
- * TODO add HiLite support!
- * 
  * TODO improve row key generation
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class PivotNodeModel extends NodeModel {
+public class PivotNodeModel extends TransformingNodeModel {
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(PivotNodeModel.class);
@@ -98,7 +95,7 @@ public class PivotNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected PortObject[] execute(final PortObject[] inData,
+	protected PortObject[] executeDerived(final PortObject[] inData,
 			final ExecutionContext exec) throws Exception {
 		logger.debug("Pivoting start");
 		final Behaviour behaviour = Behaviour.valueOf(behaviourModel
@@ -130,6 +127,7 @@ public class PivotNodeModel extends NodeModel {
 		final List<DataCell> keyValues = new ArrayList<DataCell>();
 		int newRowCount = 0;
 		int origRow = 0;
+		final Map<RowKey, Set<RowKey>> mapping = createMapping();
 		for (final DataRow row : table) {
 			if (i < vals.size()) {
 				if (i == 0) {
@@ -146,7 +144,7 @@ public class PivotNodeModel extends NodeModel {
 							newRowCount = createNewRow(container, vals,
 									keyIndices, valueIndices,
 									connectByPivotValues, keyValues,
-									newRowCount, row);
+									newRowCount, row, mapping);
 							break;
 						case signalError:
 							throw new IllegalStateException("Wrong structure: "
@@ -163,7 +161,7 @@ public class PivotNodeModel extends NodeModel {
 				i = 0;
 				newRowCount = createNewRow(container, vals, keyIndices,
 						valueIndices, connectByPivotValues, keyValues,
-						newRowCount, row);
+						newRowCount, row, mapping);
 				processRow(pivotIndices, cols, connectByPivotValues, row);
 			}
 			++i;
@@ -171,7 +169,10 @@ public class PivotNodeModel extends NodeModel {
 			exec.setProgress(origRow++ * 1.0 / table.getRowCount());
 		}
 		createNewRow(container, vals, keyIndices, valueIndices,
-				connectByPivotValues, keyValues, newRowCount, null);
+				connectByPivotValues, keyValues, newRowCount, null, mapping);
+		if (mapping != null) {
+			setMapping(true, 0, 0, mapping);
+		}
 		container.close();
 		logger.debug("Pivoting finished");
 		final BufferedDataTable out = container.getTable();
@@ -179,6 +180,13 @@ public class PivotNodeModel extends NodeModel {
 		pushScopeVariableString("reversePattern", getReversePattern(pattern
 				.getStringValue()));
 		return new PortObject[] { out, portObject };
+	}
+
+	@Override
+	protected BufferedDataTable[] executeDerived(
+			final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -219,6 +227,8 @@ public class PivotNodeModel extends NodeModel {
 	 *            The actual row number.
 	 * @param row
 	 *            A row to fill the {@code keyValues} list.
+	 * @param mapping
+	 *            The mapping from the new row keys to the original ones.
 	 * @return The next row identifier.
 	 */
 	private static int createNewRow(final DataContainer container,
@@ -226,7 +236,8 @@ public class PivotNodeModel extends NodeModel {
 			final int[] valueIndices,
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
 			final List<DataCell> keyValues, final int newRowCount,
-			final DataRow row) {
+			// @Nullable
+			final DataRow row, final Map<RowKey, Set<RowKey>> mapping) {
 		if (!connectByPivotValues.isEmpty()) {
 			final List<DataCell> cells = new ArrayList<DataCell>();
 			for (final DataCell dataCell : keyValues) {
@@ -234,6 +245,10 @@ public class PivotNodeModel extends NodeModel {
 			}
 			addValues(connectByPivotValues, valueIndices, vals, cells);
 			final DataRow newRow = new DefaultRow("Row" + newRowCount, cells);
+			if (mapping != null) {
+				final Set<RowKey> rowKeySet = collectOrigKeys(connectByPivotValues);
+				mapping.put(newRow.getKey(), rowKeySet);
+			}
 			container.addRowToTable(newRow);
 		}
 		keyValues.clear();
@@ -244,6 +259,22 @@ public class PivotNodeModel extends NodeModel {
 			}
 		}
 		return newRowCount + 1;
+	}
+
+	/**
+	 * @param connectByPivotValues
+	 *            Some adjacent rows in a map structure.
+	 * @return A {@link Set} of original {@link RowKey}s from {@code
+	 *         connectByPivotValues}'s {@link DataRow} values.
+	 */
+	private static Set<RowKey> collectOrigKeys(
+			final Map<Map<Column, String>, DataRow> connectByPivotValues) {
+		final Set<RowKey> rowKeySet = new HashSet<RowKey>(
+				(int) (connectByPivotValues.size() * 1.5), .7f);
+		for (final DataRow origRow : connectByPivotValues.values()) {
+			rowKeySet.add(origRow.getKey());
+		}
+		return rowKeySet;
 	}
 
 	/**
@@ -551,7 +582,7 @@ public class PivotNodeModel extends NodeModel {
 	 * @return The reverse regular expression.
 	 */
 	private String getReversePattern(final String patternString) {
-		// TODO Auto-generated method stub
+		// TODO Generate reverse pattern
 		return "";
 	}
 
@@ -589,6 +620,7 @@ public class PivotNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		// TODO save user settings to the config object.
+		super.saveSettingsTo(settings);
 		toColumns.saveSettingsTo(settings);
 		keys.saveSettingsTo(settings);
 		pattern.saveSettingsTo(settings);
@@ -604,6 +636,7 @@ public class PivotNodeModel extends NodeModel {
 		// TODO load (valid) settings from the config object.
 		// It can be safely assumed that the settings are valided by the
 		// method below.
+		super.loadValidatedSettingsFrom(settings);
 		toColumns.loadSettingsFrom(settings);
 		keys.loadSettingsFrom(settings);
 		pattern.loadSettingsFrom(settings);
@@ -620,29 +653,10 @@ public class PivotNodeModel extends NodeModel {
 		// e.g. if the count is in a certain range (which is ensured by the
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
+		super.validateSettings(settings);
 		toColumns.validateSettings(settings);
 		keys.validateSettings(settings);
 		pattern.validateSettings(settings);
 		behaviourModel.validateSettings(settings);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		// No internal state
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		// No internal state
 	}
 }

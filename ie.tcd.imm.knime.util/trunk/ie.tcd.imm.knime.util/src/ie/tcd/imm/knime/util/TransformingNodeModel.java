@@ -62,7 +62,8 @@ import org.knime.core.util.Pair;
 public abstract class TransformingNodeModel extends NodeModel {
 
 	/**
-	 * 
+	 * TODO replace {@link HiLiteTranslator} with something like this to support
+	 * more sophisticated HiLiting.
 	 */
 	private final class HiLiteListenerMapper implements HiLiteListener {
 		/**  */
@@ -353,9 +354,20 @@ public abstract class TransformingNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Please override if you need special PortObjects. If only
+	 * {@link BufferedDataTable}s used, it is not necessary, override instead
+	 * {@link #executeDerived(BufferedDataTable[], ExecutionContext)}.
+	 * 
 	 * @param inObjects
+	 *            The input {@link PortObject}s.
 	 * @param exec
-	 * @return
+	 *            An {@link ExecutionContext}.
+	 * @return The result {@link PortObject}s.
+	 * @throws Exception
+	 *             Any problem from the derived method:
+	 *             {@link #executeDerived(BufferedDataTable[], ExecutionContext)}
+	 *             .
+	 * @see NodeModel#execute(PortObject[], ExecutionContext)
 	 */
 	protected PortObject[] executeDerived(final PortObject[] inObjects,
 			final ExecutionContext exec) throws Exception {
@@ -381,6 +393,21 @@ public abstract class TransformingNodeModel extends NodeModel {
 
 	}
 
+	/**
+	 * Sets a mapping from one direction to another. When {@code forward} is
+	 * {@code true}, then {@code mapping} goes from the new row keys to the
+	 * original row keys, else the opposite.
+	 * 
+	 * @param forward
+	 *            Declares the direction of {@code mapping}.
+	 * @param from
+	 *            The input port index (from {@code 0}).
+	 * @param to
+	 *            The output port index (from {@code 0}).
+	 * @param mapping
+	 *            The mapping from output to input, or input to output depending
+	 *            on the value of {@code forward} ({@code true}/{@code false}).
+	 */
 	protected void setMapping(final boolean forward, final int from,
 			final int to, final Map<RowKey, Set<RowKey>> mapping) {
 		assert forward;
@@ -408,9 +435,20 @@ public abstract class TransformingNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Replaces the call of
+	 * {@link NodeModel#execute(BufferedDataTable[], ExecutionContext)}. <br/>
+	 * Override with real code if using only {@link BufferedDataTable}s, else
+	 * with method throwing an {@link UnsupportedOperationException}.
+	 * 
 	 * @param inData
+	 *            The input {@link BufferedDataTable data tables}.
 	 * @param exec
-	 * @return
+	 *            The {@link ExecutionContext}.
+	 * @return The result {@link BufferedDataTable data tables}.
+	 * @throws Exception
+	 *             Any problem.
+	 * @see #executeDerived(PortObject[], ExecutionContext)
+	 * @see NodeModel#execute(BufferedDataTable[], ExecutionContext)
 	 */
 	protected abstract BufferedDataTable[] executeDerived(
 			BufferedDataTable[] inData, ExecutionContext exec) throws Exception;
@@ -490,7 +528,7 @@ public abstract class TransformingNodeModel extends NodeModel {
 			final int toIndex = entry.getKey().getSecond().intValue();
 			final File file = new File(nodeInternDir, generateFileName(
 					fromIndex, toIndex, suffix));
-			saveMaping(file, entry.getValue(), exec);
+			saveMapping(file, entry.getValue(), exec);
 		}
 	}
 
@@ -501,7 +539,7 @@ public abstract class TransformingNodeModel extends NodeModel {
 	 * @throws CanceledExecutionException
 	 * @throws IOException
 	 */
-	private static void saveMaping(final File file,
+	private static void saveMapping(final File file,
 			final Map<String, List<String>> mapping, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		int tableSize = 0;
@@ -610,6 +648,18 @@ public abstract class TransformingNodeModel extends NodeModel {
 				}
 				mapping.put(pair, ret);
 			}
+		}
+	}
+
+	/**
+	 * @return If HiLite is supported a new {@link HashMap}, else {@code null}.
+	 */
+	protected Map<RowKey, Set<RowKey>> createMapping() {
+		switch (getHiLite()) {
+		case NoHiLite:
+			return null;
+		default:
+			return new HashMap<RowKey, Set<RowKey>>();
 		}
 	}
 }

@@ -3,7 +3,10 @@
  */
 package ie.tcd.imm.knime.util.unpivot;
 
+import ie.tcd.imm.knime.util.TransformingNodeModel;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,25 +16,20 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -43,7 +41,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class UnpivotNodeModel extends NodeModel {
+public class UnpivotNodeModel extends TransformingNodeModel {
 
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
@@ -75,8 +73,9 @@ public class UnpivotNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-			final ExecutionContext exec) throws Exception {
+	protected BufferedDataTable[] executeDerived(
+			final BufferedDataTable[] inData, final ExecutionContext exec)
+			throws Exception {
 		logger.debug("Unpivot start");
 
 		final BufferedDataTable table = inData[0];
@@ -91,6 +90,12 @@ public class UnpivotNodeModel extends NodeModel {
 				participantColumns.add(i);
 			}
 		}
+		// final DataTableSpec origSpec = table.getDataTableSpec();
+		// final DataTableSpec newSpec = container.getTableSpec();
+		// final ColorHandler colourHandler = find(newSpec, ColorHandler.class);
+		// final ShapeHandler shapeHandler = find(newSpec, ShapeHandler.class);
+		// final SizeHandler sizeHandler = find(newSpec, SizeHandler.class);
+		final Map<RowKey, Set<RowKey>> mapping = createMapping();
 		int origRow = 0;
 		for (final DataRow dataRow : table) {
 			final List<List<DataCell>> newRowContents = new ArrayList<List<DataCell>>(
@@ -120,14 +125,25 @@ public class UnpivotNodeModel extends NodeModel {
 				++j;
 			}
 			j = 0;
+			// final ColorAttr rowColor = origSpec.getRowColor(dataRow);
+			// final Shape rowShape = origSpec.getRowShape(dataRow);
+			// final double rowSizeFactor = origSpec.getRowSizeFactor(dataRow);
 			for (final List<DataCell> rowContent : newRowContents) {
-				container.addRowToTable(new DefaultRow("Row_"
-						+ (origRow * parts.size() + j++), rowContent));
+				final DefaultRow row = new DefaultRow("Row_"
+						+ (origRow * parts.size() + j++), rowContent);
+				if (mapping != null) {
+					mapping.put(row.getKey(), Collections.singleton(dataRow
+							.getKey()));
+				}
+				container.addRowToTable(row);
 			}
 			exec.checkCanceled();
 			exec.setProgress(origRow++ * 1.0 / table.getRowCount());
 		}
 		// once we are done, we close the container and return its table
+		if (mapping != null) {
+			setMapping(true, 0, 0, mapping);
+		}
 		container.close();
 		logger.debug("Unpivot finished");
 		final BufferedDataTable out = container.getTable();
@@ -245,8 +261,8 @@ public class UnpivotNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-
 		// TODO save user settings to the config object.
+		super.saveSettingsTo(settings);
 		patternModel.saveSettingsTo(settings);
 		newColumnsModel.saveSettingsTo(settings);
 	}
@@ -257,10 +273,10 @@ public class UnpivotNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
 		// TODO load (valid) settings from the config object.
 		// It can be safely assumed that the settings are valided by the
 		// method below.
+		super.loadValidatedSettingsFrom(settings);
 		patternModel.loadSettingsFrom(settings);
 		newColumnsModel.loadSettingsFrom(settings);
 	}
@@ -271,32 +287,12 @@ public class UnpivotNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-
 		// TODO check if the settings could be applied to our model
 		// e.g. if the count is in a certain range (which is ensured by the
 		// SettingsModel).
 		// Do not actually set any values of any member variables.
+		super.validateSettings(settings);
 		patternModel.validateSettings(settings);
 		newColumnsModel.validateSettings(settings);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		// No internal data
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-			CanceledExecutionException {
-		// No internal data
 	}
 }

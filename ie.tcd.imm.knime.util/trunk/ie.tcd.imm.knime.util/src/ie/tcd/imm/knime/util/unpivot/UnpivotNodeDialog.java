@@ -3,8 +3,12 @@
  */
 package ie.tcd.imm.knime.util.unpivot;
 
+import ie.tcd.imm.knime.util.HiLite;
+import ie.tcd.imm.knime.util.TransformingNodeModel;
+
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
@@ -38,5 +42,9 @@ public class UnpivotNodeDialog extends DefaultNodeSettingsPane {
 						UnpivotNodeModel.DEFAULT_NEW_COLUMNS), patternModel, 0);
 		patternModel.addChangeListener(table);
 		addDialogComponent(table);
+		addDialogComponent(new DialogComponentStringSelection(
+				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
+						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
+				"Enable HiLite support", HiLite.asDisplayTexts()));
 	}
 }
