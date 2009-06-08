@@ -507,7 +507,17 @@ public abstract class TransformingNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		hiLiteBehaviourModel.validateSettings(settings);
+		try {
+			hiLiteBehaviourModel.validateSettings(settings);
+		} catch (final InvalidSettingsException e) {
+			if (settings instanceof NodeSettingsWO) {
+				final NodeSettingsWO set = (NodeSettingsWO) settings;
+				set.addString(TransformingNodeModel.CFGKEY_HILITE,
+						TransformingNodeModel.DEFAULT_HILITE.getDisplayText());
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	/**
