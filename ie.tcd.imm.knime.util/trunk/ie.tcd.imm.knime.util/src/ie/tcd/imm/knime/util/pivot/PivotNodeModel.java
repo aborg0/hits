@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
@@ -178,7 +179,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 		final BufferedDataTable out = container.getTable();
 		final FlowVariablePortObject portObject = new FlowVariablePortObject();
 		pushScopeVariableString("reversePattern", getReversePattern(pattern
-				.getStringValue()));
+				.getStringValue(), parts));
 		return new PortObject[] { out, portObject };
 	}
 
@@ -581,9 +582,79 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 *            A pattern to generate the columns.
 	 * @return The reverse regular expression.
 	 */
-	private String getReversePattern(final String patternString) {
-		// TODO Generate reverse pattern
-		return "";
+	private String getReversePattern(final String patternString,
+	// final List<Map<Column, String>> vals) {
+			final List<?> parts) {
+		// final Pattern patternOfGroups =
+		// Pattern.compile("(\\$\\{[^\\}]*\\})");
+		final StringBuilder sb = new StringBuilder();
+		// final Matcher matcher = patternOfGroups.matcher(patternString);
+		// int lastFound = 0;
+		// boolean found = true;
+		// while (found) {
+		// found = matcher.find(lastFound);
+		// if (found) {
+		// sb.append("(?:").append(
+		// Matcher.quoteReplacement(patternString.substring(
+		// lastFound, matcher.start()))).append(")");
+		// lastFound = matcher.end();
+		// final String group = matcher.group();
+		// sb.append("(");
+		// if (group.length() > 3) {
+		// final String colName = group.substring(2,
+		// group.length() - 1);
+		// for (final Map<Column, String> map : vals) {
+		// for (final Entry<Column, String> entry : map.entrySet()) {
+		// if (entry.getKey().spec.getName().equals(colName)) {
+		// sb.append(
+		// Matcher.quoteReplacement(entry
+		// .getValue())).append("|");
+		// }
+		// }
+		// }
+		// } else// ${}
+		// {
+		// for (final Map<Column, String> map : vals) {
+		//
+		// }
+		// }
+		// sb.append(")");
+		// }
+		// }
+		// final String[] nonGroupingParts = patternString
+		// .split("\\$\\{[^\\}]*\\}");
+
+		for (final Object object : parts) {
+			if (object instanceof Column) {
+				final Column col = (Column) object;
+				sb.append("(");
+				final Set<DataCell> domValues = col.spec.getDomain()
+						.getValues();
+				for (final DataCell cell : domValues) {
+					sb.append(Matcher.quoteReplacement(cell.toString()))
+							.append("|");
+				}
+				sb.setLength(sb.length() - (domValues.isEmpty() ? 0 : 1));
+				sb.append(")");
+			}
+			if (object instanceof VarColumn) {
+				sb.append("(?:");
+				for (final String keyColName : keys.getExcludeList()) {
+					sb.append(Matcher.quoteReplacement(keyColName)).append("|");
+				}
+				sb.setLength(sb.length()
+						- (keys.getExcludeList().isEmpty() ? 0 : 1));
+				sb.append(")");
+			}
+			if (object instanceof String) {
+				final String str = (String) object;
+				if (!str.isEmpty()) {
+					sb.append("(?:").append(Matcher.quoteReplacement(str))
+							.append(")");
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 	/**
