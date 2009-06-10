@@ -10,16 +10,19 @@ import ie.tcd.imm.util.SuffixFilenameFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -37,6 +40,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -47,6 +51,7 @@ import org.knime.core.node.property.hilite.DefaultHiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.HiLiteManager;
+import org.knime.core.node.property.hilite.HiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteTranslator;
 import org.knime.core.node.property.hilite.KeyEvent;
 import org.knime.core.util.Pair;
@@ -61,87 +66,17 @@ import org.knime.core.util.Pair;
 // @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TransformingNodeModel extends NodeModel {
 
-	/**
-	 * TODO replace {@link HiLiteTranslator} with something like this to support
-	 * more sophisticated HiLiting.
-	 */
-	private final class HiLiteListenerMapper implements HiLiteListener {
-		/**  */
-		private final Integer inIndex;
-		private final boolean forward;
-
-		/**
-		 * @param inIndex
-		 * @param forward
-		 */
-		HiLiteListenerMapper(final Integer inIndex, final boolean forward) {
-			super();
-			this.inIndex = inIndex;
-			this.forward = forward;
-		}
-
-		@SuppressWarnings("synthetic-access")
-		private boolean checkHiLiteEnabled() {
-			return getHiLite() != HiLite.NoHiLite
-					&& !empty(connections.get(inIndex));
-		}
-
-		private boolean empty(final List<Integer> list) {
-			return list != null && !list.isEmpty();
-		}
-
-		@SuppressWarnings("synthetic-access")
-		@Override
-		public void unHiLiteAll(final KeyEvent event) {
-			if (checkHiLiteEnabled()) {
-				for (final Integer out : connections.get(inIndex)) {
-					getOutHiLiteHandler(out.intValue()).fireClearHiLiteEvent();
-				}
-			}
-		}
-
-		@Override
-		public void unHiLite(final KeyEvent event) {
-			hilite(event, false);
-		}
-
-		/**
-		 * @param event
-		 * @param hilite
-		 */
-		@SuppressWarnings("synthetic-access")
-		private void hilite(final KeyEvent event, final boolean hilite) {
-			if (checkHiLiteEnabled()) {
-				for (final Entry<Pair<Integer, Integer>, Map<String, List<String>>> entry : (forward ? rowKeyBackwardMapping
-						: rowKeyBackwardMapping).entrySet()) {
-					final Map<String, List<String>> map = entry.getValue();
-					final HashSet<RowKey> otherKeys = new HashSet<RowKey>();
-					for (final RowKey key : event.keys()) {
-						final List<String> list = map.get(key.getString());
-						if (list != null) {
-							for (final String otherKey : list) {
-								otherKeys.add(new RowKey(otherKey));
-							}
-						}
-					}
-					final int otherIndex = entry.getKey().getSecond()
-							.intValue();
-					final HiLiteHandler outHiLiteHandler = forward ? getOutHiLiteHandler(otherIndex)
-							: getInHiLiteHandler(otherIndex);
-					if (hilite) {
-						outHiLiteHandler.fireHiLiteEvent(otherKeys);
-					} else {
-						outHiLiteHandler.fireUnHiLiteEvent(otherKeys);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void hiLite(final KeyEvent event) {
-			hilite(event, true);
-		}
+	private enum HiLiteAction {
+		/** HiLite values */
+		HiLite,
+		/** UnHiLite specific values */
+		UnHiLite,
+		/** UnHiLite all/clear HiLite */
+		ClearHiLite;
 	}
+
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(TransformingNodeModel.class);
 
 	/** Configuration key for the HiLite support. */
 	public static final String CFGKEY_HILITE = "hilite";
@@ -281,8 +216,10 @@ public abstract class TransformingNodeModel extends NodeModel {
 					.entrySet()) {
 				for (final Integer out : entry.getValue()) {
 					if (out.intValue() == i) {
-						manager.addToHiLiteHandler(translators.get(
-								entry.getKey()).getFromHiLiteHandler());
+						final HiLiteTranslator translator = translators
+								.get(entry.getKey());
+						manager.addToHiLiteHandler(translator
+								.getFromHiLiteHandler());
 					}
 				}
 			}
@@ -307,6 +244,108 @@ public abstract class TransformingNodeModel extends NodeModel {
 		final HiLiteTranslator hiLiteTranslator = translators.get(Integer
 				.valueOf(inIndex));
 		hiLiteTranslator.removeAllToHiliteHandlers();
+		// hiLiteTranslator.addToHiLiteHandler();
+		new HiLiteHandler() {
+			private final CopyOnWriteArrayList<HiLiteListener> listenerList = new CopyOnWriteArrayList<HiLiteListener>();
+
+			/**
+			 * Set of non-<code>null</code> hilit items.
+			 */
+			private final Set<RowKey> hiLitKeys = new LinkedHashSet<RowKey>();
+
+			@Override
+			public void addHiLiteListener(final HiLiteListener listener) {
+				if (!listenerList.contains(listener)) {
+					listenerList.add(listener);
+				}
+			}
+
+			@Override
+			public void removeAllHiLiteListeners() {
+				listenerList.clear();
+			}
+
+			@Override
+			public void removeHiLiteListener(final HiLiteListener listener) {
+				listenerList.remove(listener);
+			}
+
+			@Override
+			public synchronized void fireHiLiteEventInternal(
+					final KeyEvent event) {
+				final Set<RowKey> ids = event.keys();
+				// create list of row keys from
+				// input key array
+				final Set<RowKey> changedIDs = new LinkedHashSet<RowKey>();
+				// iterates over all keys and
+				// adds them to the
+				// changed set
+				for (final RowKey id : ids) {
+					if (id == null) {
+						throw new IllegalArgumentException(
+								"Key array must not contains null elements.");
+					}
+					// if the key is already
+					// hilit, do not add
+					// it
+					final HiLiteMapper mapper = hiLiteTranslator.getMapper();
+					final Set<RowKey> keys = mapper.getKeys(id);
+					if (hiLitKeys.add(id)) {
+						changedIDs.add(id);
+					}
+				}
+				// if at least on key changed
+				if (changedIDs.size() > 0) {
+					final KeyEvent fireEvent = new KeyEvent(event.getSource(),
+							changedIDs);
+					final Runnable r = createRunnable(HiLiteAction.HiLite,
+							fireEvent);
+					runRunnable(r);
+				}
+			}
+
+			private Runnable createRunnable(final HiLiteAction hiLite,
+					final KeyEvent event) {
+				return new Runnable() {
+
+					@SuppressWarnings("synthetic-access")
+					public void run() {
+						for (final HiLiteListener l : listenerList) {
+							try {
+								switch (hiLite) {
+								case HiLite:
+									l.hiLite(event);
+									break;
+								case UnHiLite:
+									l.unHiLite(event);
+									break;
+								case ClearHiLite:
+									l.unHiLiteAll(event);
+									break;
+								default:
+									throw new UnsupportedOperationException(
+											"Not supported action: " + hiLite);
+								}
+							} catch (final Throwable t) {
+								logger.coding(
+										"Exception while notifying listeners, "
+												+ "reason: " + t.getMessage(),
+										t);
+							}
+						}
+					}
+				};
+			}
+
+			private void runRunnable(final Runnable r) {
+				if (SwingUtilities.isEventDispatchThread()) {
+					r.run();
+				} else {
+					SwingUtilities.invokeLater(r);
+				}
+			}
+		}// )
+		;
 		hiLiteTranslator.addToHiLiteHandler(hiLiteHdl);
 	}
 
