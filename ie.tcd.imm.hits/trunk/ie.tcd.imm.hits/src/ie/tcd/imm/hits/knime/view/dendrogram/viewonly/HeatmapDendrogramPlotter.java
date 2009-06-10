@@ -453,8 +453,12 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			// final DataRow row = node.getLeafDataPoint();
 			final RowKey key = getKey(node);
 			final DataArray table = getDataProvider().getDataArray(1);
-			final DataRow row = table.getRow(mapFromKeysToIndices.get(key)
-					.intValue());
+			final Integer rowIndex = mapFromKeysToIndices.get(key);
+			if (rowIndex == null) {
+				throw new IllegalStateException("Not found the " + key
+						+ " key in the second table's rows.");
+			}
+			final DataRow row = table.getRow(rowIndex.intValue());
 			y = dim.height
 					- (int) getYAxis().getCoordinate().calculateMappedValue(
 							new StringCell(getKey(node)

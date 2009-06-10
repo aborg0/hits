@@ -187,8 +187,14 @@ public class ImporterNodeModel extends NodeModel {
 													.getStringValue(), e);
 						}
 					} else {
-						assert getDataTableSpecFromRow(row).equalStructure(
-								container.getTableSpec());
+						if (!getDataTableSpecFromRow(row).equalStructure(
+								container.getTableSpec())) {
+							assert false : "The table specification "
+									+ getDataTableSpecFromRow(row)
+									+ " is not the same as the original "
+									+ container.getTableSpec() + " in file: "
+									+ file.getAbsolutePath();
+						}
 					}
 					final int replicateCount = replicateCountModel
 							.getIntValue();
