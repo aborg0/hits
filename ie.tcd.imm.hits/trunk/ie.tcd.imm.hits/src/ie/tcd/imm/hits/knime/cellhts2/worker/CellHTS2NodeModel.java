@@ -702,19 +702,18 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			final File tempFile = version.isPre28() ? File.createTempFile(
 					"topTable", ".txt") : null;
-			final REXP topTable = conn
-					.eval("getTopTable(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc), file="
-							+ (version.isPre28() ? "\""
-									+ tempFile.getAbsolutePath().replace('\\',
-											'/') + "\"" : "NULL")
-							+ (version == CellHTS2Version.modified28OrCompat ? ", channels="
-									+ createChannelList(selectParameters(
-											parametersModel.getIncludeList(),
-											version))
-									+ ", orderBy=\""
-									+ parametersModel.getIncludeList().get(0)
-									+ "\""
-									: "") + additionalParams + ")");
+			final String topTableGenerate = "getTopTable(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc), file="
+					+ (version.isPre28() ? "\""
+							+ tempFile.getAbsolutePath().replace('\\', '/')
+							+ "\"" : "NULL")
+					+ (version == CellHTS2Version.modified28OrCompat ? ", channels="
+							+ createChannelList(selectParameters(
+									parametersModel.getIncludeList(), version))
+							+ ", orderBy=\""
+							+ parametersModel.getIncludeList().get(0) + "\""
+							: "") + additionalParams + ")";
+			logger.debug(topTableGenerate);
+			final REXP topTable = conn.eval(topTableGenerate);
 			final int tableLength = ((REXP) topTable.asList().get(0)).length();
 			if (tempFile != null && !tempFile.delete()) {
 				tempFile.deleteOnExit();
@@ -1071,7 +1070,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		switch (version) {
 		case modified28OrCompat:
 			final List<String> ret = new ArrayList<String>(includeList);
-			Collections.sort(ret);
+			Collections.sort(ret, String.CASE_INSENSITIVE_ORDER);
 			return ret;
 		case modifiedPre28:
 		case original28OrCompat:
