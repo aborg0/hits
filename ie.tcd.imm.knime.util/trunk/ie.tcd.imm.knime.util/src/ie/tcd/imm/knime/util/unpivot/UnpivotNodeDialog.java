@@ -45,6 +45,7 @@ public class UnpivotNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(new DialogComponentStringSelection(
 				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
 						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
-				"Enable HiLite support", HiLite.asDisplayTexts()));
+				"Enable HiLite support", HiLite
+						.asDisplayTexts(TransformingNodeModel.supportedHiLites)));
 	}
 }

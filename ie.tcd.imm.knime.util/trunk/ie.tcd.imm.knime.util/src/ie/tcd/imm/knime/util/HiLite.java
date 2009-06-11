@@ -20,7 +20,7 @@ import java.util.Map;
 // @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public enum HiLite {
 	/** HiLite is propagated only if all of the generated are selected */
-	OnlyIfAllSelected("Total selection"),
+	OnlyIfAllSelected("HiLite if all selected in a group"),
 	/** HiLite is propagated if at least half of the generated rows are selected */
 	AtLeastHalf("At least semi selection"),
 	/** HiLite is propagated if at least on of the generated rows are selected */
@@ -68,6 +68,7 @@ public enum HiLite {
 	/**
 	 * @return The {@link #values()}s' {@link #getDisplayText()}s.
 	 */
+	@Deprecated
 	public static String[] asDisplayTexts() {
 		final HiLite[] values = values();
 		final String[] ret = new String[values.length];
@@ -75,5 +76,20 @@ public enum HiLite {
 			ret[i] = values[i].getDisplayText();
 		}
 		return ret;
+	}
+
+	/**
+	 * @param hiLites
+	 *            Some {@link HiLite} values.
+	 * @return The {@link #getDisplayText() display texts} of the {@code
+	 *         hiLites}.
+	 */
+	public static String[] asDisplayTexts(final HiLite... hiLites) {
+		final String[] ret = new String[hiLites.length];
+		for (int i = hiLites.length; i-- > 0;) {
+			ret[i] = hiLites[i].getDisplayText();
+		}
+		return ret;
+
 	}
 }

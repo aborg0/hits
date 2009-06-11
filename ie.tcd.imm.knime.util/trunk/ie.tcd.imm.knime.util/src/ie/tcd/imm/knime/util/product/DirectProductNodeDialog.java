@@ -31,6 +31,7 @@ public class DirectProductNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(new DialogComponentStringSelection(
 				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
 						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
-				"HiLite Strategy: ", HiLite.asDisplayTexts()));
+				"HiLite Strategy: ", HiLite
+						.asDisplayTexts(TransformingNodeModel.supportedHiLites)));
 	}
 }

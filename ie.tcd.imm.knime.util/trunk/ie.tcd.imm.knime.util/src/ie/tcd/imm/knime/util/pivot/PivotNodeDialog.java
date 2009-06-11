@@ -78,7 +78,8 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(new DialogComponentStringSelection(
 				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,
 						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
-				"HiLite Strategy: ", HiLite.asDisplayTexts()));
+				"HiLite Strategy: ", HiLite
+						.asDisplayTexts(TransformingNodeModel.supportedHiLites)));
 		// createNewTab("Value Columns");
 		// final SettingsModelFilterString valColModel = new
 		// SettingsModelFilterString(
