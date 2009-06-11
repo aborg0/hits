@@ -80,65 +80,29 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 						TransformingNodeModel.DEFAULT_HILITE.getDisplayText()),
 				"HiLite Strategy: ", HiLite
 						.asDisplayTexts(TransformingNodeModel.supportedHiLites)));
-		// createNewTab("Value Columns");
-		// final SettingsModelFilterString valColModel = new
-		// SettingsModelFilterString(
-		// PivotNodeModel.CFGKEY_VALUES);
-		// final DialogComponentColumnFilter valuesDialog = new
-		// DialogComponentColumnFilter(
-		// valColModel, 0);
-		// addDialogComponent(valuesDialog);
-		// createNewTab("Key Columns");
-		// final SettingsModelFilterString keyColModel = new
-		// SettingsModelFilterString(
-		// PivotNodeModel.CFGKEY_KEYS);
-		// final DialogComponentColumnFilter keysDialog = new
-		// DialogComponentColumnFilter(
-		// keyColModel, 0);
-		// addDialogComponent(keysDialog);
 		createNewTab("Other Columns");
 		final SettingsModelFilterString keyColModel = new SettingsModelFilterString(
 				PivotNodeModel.CFGKEY_KEYS);
 		final DialogComponentTwoColumnStrings keysDialog = new DialogComponentTwoColumnStrings(
 				keyColModel, "Keys", "Values");
-		// final DialogComponentColumnFilter keysDialog = new
-		// DialogComponentColumnFilter(
-		// keyColModel, 0);
-		// keysDialog.setExcludeTitle("Values columns");
-		// keysDialog.setIncludeTitle("Keys columns");
 		addDialogComponent(keysDialog);
 		pivotModel.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
 				final List<String> excludeList = pivotModel.getExcludeList();
 				final List<String> includeList = pivotModel.getIncludeList();
-				// final List<String> valColExclude = new ArrayList<String>(
-				// valColModel.getExcludeList());
-				// final List<String> valColInclude = new ArrayList<String>(
-				// valColModel.getIncludeList());
 				final List<String> keyColExclude = new ArrayList<String>(
 						keyColModel.getExcludeList());
 				final List<String> keyColInclude = new ArrayList<String>(
 						keyColModel.getIncludeList());
-				// valColInclude.removeAll(includeList);
-				// valColExclude.removeAll(includeList);
 				keyColInclude.removeAll(includeList);
 				keyColExclude.removeAll(includeList);
 				for (final String excluded : excludeList) {
-					if (keyColInclude.contains(excluded)) {
-						// valColInclude.remove(excluded);
-						// valColExclude.add(excluded);
-						// } else if (valColInclude.contains(excluded)) {
-						// keyColInclude.remove(excluded);
-						// keyColExclude.add(excluded);
-					} else if (!keyColExclude.contains(excluded)) {
-						// valColInclude.add(excluded);
-						// valColExclude.remove(excluded);
+					if (!keyColInclude.contains(excluded)
+							&& !keyColExclude.contains(excluded)) {
 						keyColExclude.add(excluded);
 					}
 				}
-				// valColModel.setIncludeList(valColInclude);
-				// valColModel.setExcludeList(valColExclude);
 				final PortObjectSpec[] lastSpecs = updatableComponent
 						.getLastPortObjectSpecs();
 				if (lastSpecs == null) {
@@ -157,8 +121,6 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 				keyColModel.setExcludeList(keyColExclude);
 				keysDialog.setAllPossibleValues(new LinkedHashSet<String>(
 						excludeList));
-				// ((ColumnFilterPanel) keysDialog.getComponentPanel()
-				// .getComponent(0)).hideColumns(cols);
 			}
 		});
 	}

@@ -3,15 +3,19 @@
  */
 package ie.tcd.imm.knime.util.pivot;
 
+import ie.tcd.imm.knime.util.Misc;
 import ie.tcd.imm.knime.util.TransformingNodeModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
@@ -89,7 +93,9 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 */
 	protected PivotNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
-				BufferedDataTable.TYPE, FlowVariablePortObject.TYPE });
+				BufferedDataTable.TYPE, FlowVariablePortObject.TYPE },
+				Collections.singletonMap(Integer.valueOf(0), Collections
+						.singletonList(Integer.valueOf(0))));
 	}
 
 	/**
@@ -178,8 +184,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 		logger.debug("Pivoting finished");
 		final BufferedDataTable out = container.getTable();
 		final FlowVariablePortObject portObject = new FlowVariablePortObject();
-		pushScopeVariableString("reversePattern", getReversePattern(pattern
-				.getStringValue(), parts));
+		pushScopeVariableString("reversePattern", getReversePattern(parts));
 		return new PortObject[] { out, portObject };
 	}
 
@@ -578,52 +583,13 @@ public class PivotNodeModel extends TransformingNodeModel {
 	/**
 	 * Finds a reverse pattern to be applied with an <code>Unpivot</code> node.
 	 * 
-	 * @param patternString
-	 *            A pattern to generate the columns.
+	 * @param parts
+	 *            The parsed pattern parts.
 	 * @return The reverse regular expression.
+	 * @see #getParts(DataTableSpec)
 	 */
-	private String getReversePattern(final String patternString,
-	// final List<Map<Column, String>> vals) {
-			final List<?> parts) {
-		// final Pattern patternOfGroups =
-		// Pattern.compile("(\\$\\{[^\\}]*\\})");
+	private String getReversePattern(final List<?> parts) {
 		final StringBuilder sb = new StringBuilder();
-		// final Matcher matcher = patternOfGroups.matcher(patternString);
-		// int lastFound = 0;
-		// boolean found = true;
-		// while (found) {
-		// found = matcher.find(lastFound);
-		// if (found) {
-		// sb.append("(?:").append(
-		// Matcher.quoteReplacement(patternString.substring(
-		// lastFound, matcher.start()))).append(")");
-		// lastFound = matcher.end();
-		// final String group = matcher.group();
-		// sb.append("(");
-		// if (group.length() > 3) {
-		// final String colName = group.substring(2,
-		// group.length() - 1);
-		// for (final Map<Column, String> map : vals) {
-		// for (final Entry<Column, String> entry : map.entrySet()) {
-		// if (entry.getKey().spec.getName().equals(colName)) {
-		// sb.append(
-		// Matcher.quoteReplacement(entry
-		// .getValue())).append("|");
-		// }
-		// }
-		// }
-		// } else// ${}
-		// {
-		// for (final Map<Column, String> map : vals) {
-		//
-		// }
-		// }
-		// sb.append(")");
-		// }
-		// }
-		// final String[] nonGroupingParts = patternString
-		// .split("\\$\\{[^\\}]*\\}");
-
 		for (final Object object : parts) {
 			if (object instanceof Column) {
 				final Column col = (Column) object;
@@ -662,9 +628,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO Code executed on reset.
-		// Models build during execute are cleared here.
-		// Also data handled in load/saveInternals will be erased here.
+		// No internal state
 	}
 
 	/**
@@ -673,13 +637,26 @@ public class PivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
-
+		try {
+			Pattern.compile(pattern.getStringValue());
+		} catch (final PatternSyntaxException e) {
+			throw new InvalidSettingsException(e);
+		}
+		Misc.checkList(keys.getIncludeList(), (DataTableSpec) inSpecs[0]);
+		Misc.checkList(keys.getExcludeList(), (DataTableSpec) inSpecs[0]);
+		Misc.checkList(toColumns.getIncludeList(), (DataTableSpec) inSpecs[0]);
+		Misc.checkList(toColumns.getExcludeList(), (DataTableSpec) inSpecs[0]);
+		if (!toColumns.getExcludeList().containsAll(keys.getIncludeList())
+				|| !toColumns.getExcludeList().containsAll(
+						keys.getExcludeList())) {
+			throw new InvalidSettingsException(
+					"The values or the key columns are not consistent. Try reconnect the inport.");
+		}
+		if (toColumns.getExcludeList().size() != keys.getIncludeList().size()
+				+ keys.getExcludeList().size()) {
+			throw new InvalidSettingsException(
+					"There is an inconsistency in the pivot, keys, values columns. Try reconnect the inport.");
+		}
 		return new PortObjectSpec[] {
 				createTableSpec((DataTableSpec) inSpecs[0]),
 				FlowVariablePortObjectSpec.INSTANCE };
@@ -690,7 +667,6 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO save user settings to the config object.
 		super.saveSettingsTo(settings);
 		toColumns.saveSettingsTo(settings);
 		keys.saveSettingsTo(settings);
@@ -704,9 +680,6 @@ public class PivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO load (valid) settings from the config object.
-		// It can be safely assumed that the settings are valided by the
-		// method below.
 		super.loadValidatedSettingsFrom(settings);
 		toColumns.loadSettingsFrom(settings);
 		keys.loadSettingsFrom(settings);
@@ -720,10 +693,6 @@ public class PivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO check if the settings could be applied to our model
-		// e.g. if the count is in a certain range (which is ensured by the
-		// SettingsModel).
-		// Do not actually set any values of any member variables.
 		super.validateSettings(settings);
 		toColumns.validateSettings(settings);
 		keys.validateSettings(settings);

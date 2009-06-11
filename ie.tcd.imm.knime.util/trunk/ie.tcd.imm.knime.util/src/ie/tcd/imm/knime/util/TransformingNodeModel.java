@@ -10,20 +10,16 @@ import ie.tcd.imm.util.SuffixFilenameFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -50,10 +46,8 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.property.hilite.DefaultHiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteHandler;
-import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.HiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteTranslator;
-import org.knime.core.node.property.hilite.KeyEvent;
 import org.knime.core.util.Pair;
 
 //import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -77,210 +71,17 @@ public abstract class TransformingNodeModel extends NodeModel {
 		}
 	};
 
-	private static final MapperConstructor twoWayMapping = new MapperConstructor() {
-		@Override
-		public HiLiteMapper create(final Map<RowKey, Set<RowKey>> map) {
-			return new TwoWayHiLiteMapper(map);
-		}
-	};
-
+	/**
+	 * The currently supported HiLiting strategies.<br/>
+	 * Note: Others strategies require to implement a class similar to
+	 * {@link HiLiteTranslator} (something like was in this file as
+	 * HiLiteListenerMapper in r340).<br/>
+	 * The HiLiteHandler custom class might be also useful (last present at
+	 * r348), and also the ie.tcd.imm.knime.util.TwoWayHiLiteMapper, last
+	 * present at r348.
+	 */
 	public static HiLite[] supportedHiLites = new HiLite[] { HiLite.NoHiLite,
 			HiLite.OnlyIfAllSelected };
-
-	/**
-	 * 
-	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
-	 */
-	@Deprecated
-	private final class HiLiteHandlerCustom extends HiLiteHandler {
-		/**  */
-		private HiLiteMapper mapper;
-		private final CopyOnWriteArrayList<HiLiteListener> listenerList = new CopyOnWriteArrayList<HiLiteListener>();
-		/**
-		 * Set of non-<code>null</code> hilit items.
-		 */
-		private final Set<RowKey> hiLitKeys = new LinkedHashSet<RowKey>();
-
-		/**
-		 */
-		@Deprecated
-		HiLiteHandlerCustom() {
-			super();
-		}
-
-		HiLiteHandler init(final HiLiteMapper newMapper) {
-			this.mapper = newMapper;
-			return this;
-		}
-
-		@Override
-		public void addHiLiteListener(final HiLiteListener listener) {
-			if (!listenerList.contains(listener)) {
-				listenerList.add(listener);
-			}
-		}
-
-		@Override
-		public void removeAllHiLiteListeners() {
-			listenerList.clear();
-		}
-
-		@Override
-		public void removeHiLiteListener(final HiLiteListener listener) {
-			listenerList.remove(listener);
-		}
-
-		@Override
-		public synchronized void fireHiLiteEventInternal(final KeyEvent event) {
-			final Set<RowKey> ids = event.keys();
-			// create list of row keys from
-			// input key array
-			final Set<RowKey> changedIDs = new LinkedHashSet<RowKey>();
-			// iterates over all keys and
-			// adds them to the
-			// changed set
-			for (final RowKey id : ids) {
-				if (id == null) {
-					throw new IllegalArgumentException(
-							"Key array must not contains null elements.");
-				}
-				// if the key is already
-				// hilit, do not add
-				// it
-				// final HiLiteMapper mapper = hiLiteTranslator.getMapper();
-				if (mapper != null) {
-					final Set<RowKey> keys = mapper.getKeys(id);
-					switch (getHiLite()) {
-					case AtLeastHalf: {
-						// assert mapper instanceof TwoWayHiLiteMapper : mapper
-						// .getClass();
-						// final Map<RowKey, RowKey> inverseMap =
-						// ((TwoWayHiLiteMapper) mapper)
-						// .getInverseMap();
-						// final RowKey inverseKey = inverseMap.get(id);
-						final HashSet<RowKey> diff = new HashSet<RowKey>(keys);
-						diff.removeAll(hiLitKeys);
-						if (diff.size() >= keys.size() / 2) {
-							if (hiLitKeys.add(id)) {
-								changedIDs.add(id);
-							}
-						}
-						break;
-					}
-					case AtLeastOne:
-						if (hiLitKeys.add(id)) {
-							changedIDs.add(id);
-						}
-						break;
-					case OnlyIfAllSelected: {
-						// assert mapper instanceof TwoWayHiLiteMapper : mapper
-						// .getClass();
-						// final Map<RowKey, RowKey> inverseMap =
-						// ((TwoWayHiLiteMapper) mapper)
-						// .getInverseMap();
-						final HashSet<RowKey> diff = new HashSet<RowKey>(keys);
-						diff.removeAll(hiLitKeys);
-						if (diff.size() == 0) {
-							if (hiLitKeys.add(id)) {
-								changedIDs.add(id);
-							}
-						}
-						break;
-					}
-					case NoHiLite:
-						break;
-					default:
-						break;
-					}
-					// for (final RowKey rowKey : mapper.keySet()) {
-					// final Set<RowKey> keys2 = mapper.getKeys(rowKey);
-					// if (keys2 != null) {
-					// for (final RowKey rowKey2 : keys2) {
-					// if (id.equals(rowKey2)) {
-					// System.out.println(rowKey2);
-					// }
-					// }
-					// }
-					// }
-				}
-				// if (hiLitKeys.add(id)) {
-				// changedIDs.add(id);
-				// }
-			}
-			// if at least on key changed
-			if (changedIDs.size() > 0) {
-				final KeyEvent fireEvent = new KeyEvent(event.getSource(),
-						changedIDs);
-				final Runnable r = createRunnable(HiLiteAction.HiLite,
-						fireEvent);
-				runRunnable(r);
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @seeorg.knime.core.node.property.hilite.HiLiteHandler#
-		 * fireClearHiLiteEventInternal
-		 * (org.knime.core.node.property.hilite.KeyEvent)
-		 */
-		@Override
-		protected void fireClearHiLiteEventInternal(final KeyEvent event) {
-			if (hiLitKeys.size() > 0) {
-				hiLitKeys.clear();
-				runRunnable(createRunnable(HiLiteAction.ClearHiLite, event));
-			}
-		}
-
-		private Runnable createRunnable(final HiLiteAction hiLite,
-				final KeyEvent event) {
-			return new Runnable() {
-
-				@SuppressWarnings("synthetic-access")
-				public void run() {
-					for (final HiLiteListener l : listenerList) {
-						try {
-							switch (hiLite) {
-							case HiLite:
-								l.hiLite(event);
-								break;
-							case UnHiLite:
-								l.unHiLite(event);
-								break;
-							case ClearHiLite:
-								l.unHiLiteAll(event);
-								break;
-							default:
-								throw new UnsupportedOperationException(
-										"Not supported action: " + hiLite);
-							}
-						} catch (final Throwable t) {
-							logger.coding(
-									"Exception while notifying listeners, "
-											+ "reason: " + t.getMessage(), t);
-						}
-					}
-				}
-			};
-		}
-
-		private void runRunnable(final Runnable r) {
-			if (SwingUtilities.isEventDispatchThread()) {
-				r.run();
-			} else {
-				SwingUtilities.invokeLater(r);
-			}
-		}
-	}
-
-	private enum HiLiteAction {
-		/** HiLite values */
-		HiLite,
-		/** UnHiLite specific values */
-		UnHiLite,
-		/** UnHiLite all/clear HiLite */
-		ClearHiLite;
-	}
 
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(TransformingNodeModel.class);
@@ -298,25 +99,15 @@ public abstract class TransformingNodeModel extends NodeModel {
 
 	/** File name suffix for the forward mapping tables. */
 	protected static final String forwardMappingSuffix = "ForwardMapping.zip";
-	/** File name suffix for the backward mapping tables. */
-	protected static final String backwardMappingSuffix = "BackwardMapping.zip";
 
 	// The pair's first elem is the "from", the second is the "to" port index
 	// (0-based), the value maps are mapping the row keys from "from" to "to".
 	private final Map<Pair<Integer, Integer>, Map<RowKey, Set<RowKey>>> rowKeyForwardMapping = new HashMap<Pair<Integer, Integer>, Map<RowKey, Set<RowKey>>>();
-	// The pair's first elem is the "from", the second is the "to" port index
-	// (0-based), the value maps are mapping the row keys from "to" to "from".
-	// private final Map<Pair<Integer, Integer>, Map<String, List<String>>>
-	// rowKeyBackwardMapping = new HashMap<Pair<Integer, Integer>, Map<String,
-	// List<String>>>();
 
 	/** inports &rArr; outports */
 	private final Map<Integer, List<Integer>> connections = new HashMap<Integer, List<Integer>>();
 
 	private final Map<Integer, HiLiteTranslator> translators = new HashMap<Integer, HiLiteTranslator>();
-
-	// private final Map<Integer, HiLiteManager> outHiliteHandlers = new
-	// HashMap<Integer, HiLiteManager>();
 
 	/**
 	 * @param nrInDataPorts
@@ -368,7 +159,7 @@ public abstract class TransformingNodeModel extends NodeModel {
 			final Map<Integer, List<Integer>> connections) {
 		super(nrInDataPorts, nrOutDataPorts);
 		this.connections.putAll(copyConnections(connections));
-		addHiLiteHandlers(nrInDataPorts, nrOutDataPorts);
+		addHiLiteHandlers(nrInDataPorts);
 	}
 
 	/**
@@ -413,44 +204,14 @@ public abstract class TransformingNodeModel extends NodeModel {
 			final Map<Integer, List<Integer>> connections) {
 		super(inPortTypes, outPortTypes);
 		this.connections.putAll(copyConnections(connections));
-		addHiLiteHandlers(inPortTypes.length, outPortTypes.length);
+		addHiLiteHandlers(inPortTypes.length);
 	}
 
-	private void addHiLiteHandlers(final int nrInDataPorts,
-			final int nrOutDataPorts) {
+	private void addHiLiteHandlers(final int nrInDataPorts) {
 		for (int i = nrInDataPorts; i-- > 0;) {
-			// final HiLiteHandlerCustom handler = new HiLiteHandlerCustom();
-			final HiLiteTranslator hiLiteTranslator = new HiLiteTranslator(
-			/* handler */);
-			// handler.init(hiLiteTranslator.getMapper());
+			final HiLiteTranslator hiLiteTranslator = new HiLiteTranslator();
 			translators.put(Integer.valueOf(i), hiLiteTranslator);
 		}
-		// for (int i = nrOutDataPorts; i-- > 0;) {
-		// // final HiLiteManager manager = new HiLiteManager();
-		// for (final Entry<Integer, List<Integer>> entry : connections
-		// .entrySet()) {
-		// for (final Integer out : entry.getValue()) {
-		// if (out.intValue() == i) {
-		// final HiLiteTranslator translator = translators
-		// .get(entry.getKey());
-		// // manager.addToHiLiteHandler(translator
-		// // .getFromHiLiteHandler());
-		// }
-		// }
-		// }
-		// // outHiliteHandlers.put(Integer.valueOf(i), manager);
-		// }
-		// for (int i = nrInDataPorts; i-- > 0;) {
-		// final HiLiteHandler inHiLiteHandler = getInHiLiteHandler(i);
-		// final Integer inIndex = Integer.valueOf(i);
-		// inHiLiteHandler.addHiLiteListener(new HiLiteListenerMapper(inIndex,
-		// true));
-		// }
-		// for (int i = nrOutDataPorts; i-- > 0;) {
-		// final HiLiteHandler outHiLiteHandler = getOutHiLiteHandler(i);
-		// outHiLiteHandler.addHiLiteListener(new HiLiteListenerMapper(Integer
-		// .valueOf(i), false));
-		// }
 	}
 
 	@Override
@@ -459,30 +220,15 @@ public abstract class TransformingNodeModel extends NodeModel {
 		final HiLiteTranslator hiLiteTranslator = translators.get(Integer
 				.valueOf(inIndex));
 		hiLiteTranslator.removeAllToHiliteHandlers();
-		// hiLiteTranslator.addToHiLiteHandler(new HiLiteHandlerCustom()
-		// .init(hiLiteTranslator.getMapper()));
 		hiLiteTranslator.addToHiLiteHandler(hiLiteHdl);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.knime.core.node.NodeModel#getOutHiLiteHandler(int)
-	 */
 	@Override
 	protected HiLiteHandler getOutHiLiteHandler(final int outIndex) {
-		return // outHiliteHandlers.get(Integer.valueOf(outIndex))
-		translators.get(Integer.valueOf(0))//
+		return translators.get(Integer.valueOf(0))//
 				.getFromHiLiteHandler();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.NodeModel#execute(org.knime.core.node.BufferedDataTable
-	 * [], org.knime.core.node.ExecutionContext)
-	 */
 	@Override
 	protected final BufferedDataTable[] execute(
 			final BufferedDataTable[] inData, final ExecutionContext exec)
@@ -492,13 +238,6 @@ public abstract class TransformingNodeModel extends NodeModel {
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.NodeModel#execute(org.knime.core.node.port.PortObject
-	 * [], org.knime.core.node.ExecutionContext)
-	 */
 	@Override
 	protected PortObject[] execute(final PortObject[] inObjects,
 			final ExecutionContext exec) throws Exception {
@@ -570,16 +309,12 @@ public abstract class TransformingNodeModel extends NodeModel {
 		final HiLiteTranslator hiLiteTranslator = translators.get(Integer
 				.valueOf(from));
 		if (getHiLite() != HiLite.NoHiLite) {
-			hiLiteTranslator
-					.setMapper(/* (getHiLite() == HiLite.AtLeastOne ? */singleMapping
-					/* : twoWayMapping) */.create(mapping));
+			hiLiteTranslator.setMapper(singleMapping.create(mapping));
 		}
-		// ((HiLiteHandlerCustom) hiLiteTranslator.getFromHiLiteHandler())
-		// .init(hiLiteTranslator.getMapper());
 	}
 
 	/**
-	 * 
+	 * Adjust the HiLites according to the new state.
 	 */
 	private void adjustHiLite() {
 		if (getHiLite() != HiLite.NoHiLite) {
@@ -588,17 +323,10 @@ public abstract class TransformingNodeModel extends NodeModel {
 				final HiLiteTranslator hiLiteTranslator = translators.get(entry
 						.getKey());
 				for (final Integer other : connections.get(entry.getKey())) {
-					hiLiteTranslator.setMapper(/*
-												 * (getHiLite() ==
-												 * HiLite.AtLeastOne ?
-												 */singleMapping
-					/* : twoWayMapping) */
-					.create(rowKeyForwardMapping
-							.get(new Pair<Integer, Integer>(entry.getKey(),
-									other))));
-					// ((HiLiteHandlerCustom) hiLiteTranslator
-					// .getFromHiLiteHandler()).init(hiLiteTranslator
-					// .getMapper());
+					hiLiteTranslator.setMapper(singleMapping
+							.create(rowKeyForwardMapping
+									.get(new Pair<Integer, Integer>(entry
+											.getKey(), other))));
 				}
 			}
 		}
@@ -639,41 +367,20 @@ public abstract class TransformingNodeModel extends NodeModel {
 		if (getHiLite() != HiLite.NoHiLite) {
 			saveMapping(nodeInternDir, exec, forwardMappingSuffix,
 					rowKeyForwardMapping);
-			// saveMapping(nodeInternDir, exec, backwardMappingSuffix,
-			// rowKeyBackwardMapping);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.knime.core.node.NodeModel#saveSettingsTo(org.knime.core.node.
-	 * NodeSettingsWO)
-	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		hiLiteBehaviourModel.saveSettingsTo(settings);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.NodeModel#loadValidatedSettingsFrom(org.knime.core
-	 * .node.NodeSettingsRO)
-	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		hiLiteBehaviourModel.loadSettingsFrom(settings);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.knime.core.node.NodeModel#validateSettings(org.knime.core.node.
-	 * NodeSettingsRO)
-	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
@@ -692,11 +399,17 @@ public abstract class TransformingNodeModel extends NodeModel {
 
 	/**
 	 * @param nodeInternDir
+	 *            The node's internal folder.
 	 * @param exec
+	 *            The {@link ExecutionMonitor}.
 	 * @param suffix
+	 *            The suffix of file names.
 	 * @param mapping
+	 *            The mapping to save.
 	 * @throws IOException
+	 *             File write problem
 	 * @throws CanceledExecutionException
+	 *             Save cancelled
 	 */
 	private void saveMapping(final File nodeInternDir,
 			final ExecutionMonitor exec, final String suffix,
@@ -714,10 +427,15 @@ public abstract class TransformingNodeModel extends NodeModel {
 
 	/**
 	 * @param file
+	 *            The file where the table will be saved.
 	 * @param map
+	 *            The mapping to save.
 	 * @param exec
+	 *            The {@link ExecutionMonitor}.
 	 * @throws CanceledExecutionException
+	 *             Save cancelled
 	 * @throws IOException
+	 *             File write error
 	 */
 	private static void saveMapping(final File file,
 			final Map<RowKey, Set<RowKey>> map, final ExecutionMonitor exec)
@@ -785,20 +503,24 @@ public abstract class TransformingNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 		if (getHiLite() != HiLite.NoHiLite) {
+			logger.debug("loading mapping");
 			loadMapping(nodeInternDir, forwardMappingSuffix,
 					rowKeyForwardMapping, exec);
-			// loadMapping(nodeInternDir, backwardMappingSuffix,
-			// rowKeyBackwardMapping, exec);
 			adjustHiLite();
 		}
 	}
 
 	/**
 	 * @param nodeInternDir
+	 *            The node's internal folder.
 	 * @param suffix
+	 *            The suffix of filename.
 	 * @param mapping
+	 *            The result mapping (should be empty, mutable).
 	 * @param exec
+	 *            The {@link ExecutionMonitor}.
 	 * @throws IOException
+	 *             Problem loading files.
 	 */
 	private void loadMapping(
 			final File nodeInternDir,

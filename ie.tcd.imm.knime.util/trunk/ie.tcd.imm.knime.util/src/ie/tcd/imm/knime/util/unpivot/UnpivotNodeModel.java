@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -90,11 +91,6 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 				participantColumns.add(i);
 			}
 		}
-		// final DataTableSpec origSpec = table.getDataTableSpec();
-		// final DataTableSpec newSpec = container.getTableSpec();
-		// final ColorHandler colourHandler = find(newSpec, ColorHandler.class);
-		// final ShapeHandler shapeHandler = find(newSpec, ShapeHandler.class);
-		// final SizeHandler sizeHandler = find(newSpec, SizeHandler.class);
 		final Map<RowKey, Set<RowKey>> mapping = createMapping();
 		int origRow = 0;
 		for (final DataRow dataRow : table) {
@@ -125,9 +121,6 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 				++j;
 			}
 			j = 0;
-			// final ColorAttr rowColor = origSpec.getRowColor(dataRow);
-			// final Shape rowShape = origSpec.getRowShape(dataRow);
-			// final double rowSizeFactor = origSpec.getRowSizeFactor(dataRow);
 			for (final List<DataCell> rowContent : newRowContents) {
 				final DefaultRow row = new DefaultRow("Row_"
 						+ (origRow * parts.size() + j++), rowContent);
@@ -192,9 +185,7 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO Code executed on reset.
-		// Models build during execute are cleared here.
-		// Also data handled in load/saveInternals will be erased here.
+		// No internal state
 	}
 
 	/**
@@ -203,6 +194,11 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
+		try {
+			Pattern.compile(patternModel.getStringValue());
+		} catch (final PatternSyntaxException e) {
+			throw new InvalidSettingsException(e);
+		}
 		return new DataTableSpec[] { createTableSpec(inSpecs[0]) };
 	}
 
@@ -261,7 +257,6 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO save user settings to the config object.
 		super.saveSettingsTo(settings);
 		patternModel.saveSettingsTo(settings);
 		newColumnsModel.saveSettingsTo(settings);
@@ -273,9 +268,6 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO load (valid) settings from the config object.
-		// It can be safely assumed that the settings are valided by the
-		// method below.
 		super.loadValidatedSettingsFrom(settings);
 		patternModel.loadSettingsFrom(settings);
 		newColumnsModel.loadSettingsFrom(settings);
@@ -287,10 +279,6 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO check if the settings could be applied to our model
-		// e.g. if the count is in a certain range (which is ensured by the
-		// SettingsModel).
-		// Do not actually set any values of any member variables.
 		super.validateSettings(settings);
 		patternModel.validateSettings(settings);
 		newColumnsModel.validateSettings(settings);

@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.knime.util.merge;
 
+import ie.tcd.imm.knime.util.Misc;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,12 +59,8 @@ public class MergeNodeModel extends NodeModel {
 	/** Configuration key for columns to work with. */
 	static final String CFGKEY_MERGE_COLUMNS = "mergeColumns";
 
-	// static final String CFGKEY_MERGE_ORDER = "mergeOrder";
-
 	/** No selection */
 	static final String[] DEFAULT_MERGE_COLUMNS = new String[0];
-
-	// static final boolean[] DEFAULT_SORT_ORDERS = new boolean[0];
 
 	/** Configuration key for work in memory. */
 	static final String CFGKEY_SORT_IN_MEMORY = "sortInMemory";
@@ -145,7 +143,6 @@ public class MergeNodeModel extends NodeModel {
 				return new Iterator<List<Integer>>() {
 					private static final String HEADER = "Problem with value | column\n";
 
-					// private int lastRowIndex = -1;
 					private boolean hasNext = rowCount > 0;
 
 					@SuppressWarnings("synthetic-access")
@@ -242,7 +239,6 @@ public class MergeNodeModel extends NodeModel {
 						final ArrayList<Integer> list = new ArrayList<Integer>(
 								ret);
 						Collections.sort(list);
-						// lastRowIndex = list.get(list.size() - 1).intValue();
 						if (reverse) {
 							Collections.reverse(list);
 						}
@@ -332,8 +328,7 @@ public class MergeNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// Models build during execute are cleared here.
-		// Also data handled in load/saveInternals will be erased here.
+		// No internal state
 	}
 
 	/**
@@ -343,12 +338,16 @@ public class MergeNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
-
+		if (!sortInMemory.getBooleanValue()) {
+			throw new InvalidSettingsException(
+					"Only in-memory sorting is implemented yet.");
+		}
+		if (mergeColumns.getIncludeList().isEmpty()) {
+			throw new IllegalArgumentException(
+					"At least one column have to be selected.");
+		}
+		Misc.checkList(mergeColumns.getIncludeList(), inSpecs[0]);
+		Misc.checkList(mergeColumns.getExcludeList(), inSpecs[0]);
 		return inSpecs;
 	}
 
@@ -394,13 +393,7 @@ public class MergeNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-
-		// Everything handed to output ports is loaded automatically (data
-		// returned by the execute method, models loaded in loadModelContent,
-		// and user settings set through loadSettingsFrom - is all taken care
-		// of). Load here only the other internals that need to be restored
-		// (e.g. data used by the views).
-
+		// No internal state
 	}
 
 	/**
@@ -410,11 +403,7 @@ public class MergeNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// Everything written to output ports is saved automatically (data
-		// returned by the execute method, models saved in the saveModelContent,
-		// and user settings saved through saveSettingsTo - is all taken care
-		// of). Save here only the other internals that need to be preserved
-		// (e.g. data used by the views).
+		// No internal state
 	}
 
 }

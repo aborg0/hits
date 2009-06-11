@@ -85,14 +85,6 @@ public class DirectProductNodeModel extends TransformingNodeModel {
 	/**
 	 * {@inheritDoc}
 	 */
-	// @Override
-	// protected PortObject[] executeDerived(final PortObject[] inObjects,
-	// final ExecutionContext exec) throws Exception {
-	// return super.executeDerived(inObjects, exec);
-	// }
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void reset() {
 		// Do nothing
@@ -104,7 +96,6 @@ public class DirectProductNodeModel extends TransformingNodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
 		return new DataTableSpec[] { new DataTableSpec(inSpecs[0], inSpecs[1]) };
 	}
 }

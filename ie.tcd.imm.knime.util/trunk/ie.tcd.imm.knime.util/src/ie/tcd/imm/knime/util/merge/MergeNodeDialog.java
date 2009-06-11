@@ -26,6 +26,7 @@ public class MergeNodeDialog extends DefaultNodeSettingsPane {
 	 * New pane for configuring Merge node dialog. This is just a suggestion to
 	 * demonstrate possible default dialog components.
 	 */
+	@SuppressWarnings("deprecation")
 	protected MergeNodeDialog() {
 		super();
 		addDialogComponent(new DialogComponentColumnFilter(
@@ -35,17 +36,12 @@ public class MergeNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelBoolean(MergeNodeModel.CFGKEY_SORT_IN_MEMORY,
 						MergeNodeModel.DEFAULT_SORT_IN_MEMORY),
 				"Sort in Memory?");
-		sortInMemory.getModel().setEnabled(false);
+		sortInMemory.setEnabled(false);
 		addDialogComponent(sortInMemory);
 		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
 				MergeNodeModel.CFGKEY_SORT_ORDER_REVERSED,
 				MergeNodeModel.DEFAULT_SORT_ORDER_REVERSED),
 				"Reverse the order in a block?"));
-		// addDialogComponent(new DialogComponentSortOrder(
-		// new SettingsModelSortOrder(MergeNodeModel.MERGE_ORDER,
-		// MergeNodeModel.DEFAULT_MERGE_COLUMNS,
-		// MergeNodeModel.DEFAULT_SORT_IN_MEMORY,
-		// MergeNodeModel.DEFAULT_SORT_ORDERS), 0));
 		final DialogComponentBoolean haltOnErrorDialog = new DialogComponentBoolean(
 				new SettingsModelBoolean(MergeNodeModel.CFGKEY_HALT_ON_ERROR,
 						MergeNodeModel.DEFAULT_HALT_ON_ERROR), "Halt on error?");
