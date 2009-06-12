@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
@@ -637,11 +635,6 @@ public class PivotNodeModel extends TransformingNodeModel {
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			Pattern.compile(pattern.getStringValue());
-		} catch (final PatternSyntaxException e) {
-			throw new InvalidSettingsException(e);
-		}
 		Misc.checkList(keys.getIncludeList(), (DataTableSpec) inSpecs[0]);
 		Misc.checkList(keys.getExcludeList(), (DataTableSpec) inSpecs[0]);
 		Misc.checkList(toColumns.getIncludeList(), (DataTableSpec) inSpecs[0]);
@@ -656,6 +649,14 @@ public class PivotNodeModel extends TransformingNodeModel {
 				+ keys.getExcludeList().size()) {
 			throw new InvalidSettingsException(
 					"There is an inconsistency in the pivot, keys, values columns. Try reconnect the inport.");
+		}
+		for (final String toColumn : toColumns.getIncludeList()) {
+			if (!pattern.getStringValue().contains("${" + toColumn + "}")) {
+				logger
+						.warn("The column: "
+								+ toColumn
+								+ " is not present in the pattern. You might want to review.");
+			}
 		}
 		return new PortObjectSpec[] {
 				createTableSpec((DataTableSpec) inSpecs[0]),
