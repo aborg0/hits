@@ -139,7 +139,7 @@
         <provided namespace='org.eclipse.equinox.p2.iu' name='KNIME utilities' version='0.0.0'/>
       </provides>
       <requires size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' range='[0.0.1,0.0.1]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' range='[0.0.1,0.1.0]'/>
       </requires>
       <touchpoint id='null' version='0.0.0'/>
     </unit>
