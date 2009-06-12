@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.knime.util.feature"
       label="KNIME utilities"
-      version="0.0.1"
+      version="0.1.0"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.knime.util.feature">
 
