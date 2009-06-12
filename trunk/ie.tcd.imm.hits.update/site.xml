@@ -18,6 +18,9 @@
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.3.0.jar" id="ie.tcd.imm.hits.feature" version="0.3.0">
       <category name="HiTS"/>
    </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.1.0.jar" id="ie.tcd.imm.knime.util.feature" version="0.1.0">
+      <category name="KNIME utilities"/>
+   </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.3.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
@@ -25,6 +28,7 @@
    <archive path="plugins/ie.tcd.imm.hits_0.2.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.2.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.3.0.jar"/>
    <archive path="plugins/ie.tcd.imm.knime.util_0.0.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.0.1.jar"/>
+   <archive path="plugins/ie.tcd.imm.knime.util_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.1.0.jar"/>
    <category-def name="HiTS" label="HiTS main">
       <description>
          Contains the nodes, and the non-standard dependencies.
@@ -32,7 +36,7 @@
    </category-def>
    <category-def name="KNIME utilities" label="KNIME utilities">
       <description>
-         Contains some maybe useful feature missing from KNIME.
+         Contains some -maybe useful- features missing from KNIME.
       </description>
    </category-def>
 </site>
