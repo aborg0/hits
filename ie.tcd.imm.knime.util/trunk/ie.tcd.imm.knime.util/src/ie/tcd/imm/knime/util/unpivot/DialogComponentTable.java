@@ -4,6 +4,7 @@
 package ie.tcd.imm.knime.util.unpivot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,9 +13,15 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.knime.base.data.replace.ReplacedCellFactory;
+import org.knime.base.data.replace.ReplacedColumnsTable;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -46,10 +53,20 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 
 	private final List<String> newColumns = new ArrayList<String>();
 
+	private volatile int singleCount;
+
+	private volatile boolean beforeLoad = true;
+
 	/**
+	 * Creates a {@link DialogComponentTable} with {@code model, pattern,
+	 * portIndex} parameters.
+	 * 
 	 * @param model
+	 *            The associated model of the name of new columns.
 	 * @param pattern
+	 *            The associated pattern model.
 	 * @param portIndex
+	 *            The port index to check for column matches.
 	 */
 	public DialogComponentTable(final SettingsModelStringArray model,
 			final SettingsModelString pattern, final int portIndex) {
@@ -58,12 +75,60 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 		this.portIndex = portIndex;
 		table = new TableView();
 		getComponentPanel().add(table);
+		table.getContentTable().getTableHeader().addMouseListener(
+				new MouseAdapter() {
+					private volatile long lastAccessTime;
+
+					@SuppressWarnings("synthetic-access")
+					@Override
+					public void mouseClicked(final MouseEvent e) {
+						if (e.getWhen() == this.lastAccessTime
+								|| e.getButton() != MouseEvent.BUTTON1) {
+							return;
+						}
+						this.lastAccessTime = e.getWhen();
+						final int column = table.getContentTable()
+								.columnAtPoint(e.getPoint());
+						final DataTableSpec dataTableSpec = table
+								.getContentTable().getContentModel()
+								.getDataTableSpec();
+						if (column < singleCount
+								|| column >= singleCount + newColumns.size()) {
+							return;
+						}
+						final DataColumnSpec columnSpec = dataTableSpec
+								.getColumnSpec(column);
+						final DataColumnSpecCreator dataColumnSpecCreator = new DataColumnSpecCreator(
+								columnSpec);
+						final String newValue = JOptionPane
+								.showInputDialog("New name of the column: ");
+						if (newValue != null) {
+							dataColumnSpecCreator.setName(newValue);
+							newColumns.set(column - singleCount, newValue);
+							final DataColumnSpec newColSpec = dataColumnSpecCreator
+									.createSpec();
+							final ReplacedColumnsTable replacedColumnsTable = new ReplacedColumnsTable(
+									table.getContentModel().getDataTable(),
+									newColSpec, column,
+									new ReplacedCellFactory() {
+										@Override
+										public DataCell getReplacement(
+												final DataRow row,
+												final int index) {
+											return row.getCell(index);
+										}
+									});
+							table.setDataTable(replacedColumnsTable);
+						}
+						e.consume();
+					}
+				});
 	}
 
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
-		// Do nothing.
+		beforeLoad = true;
 	}
 
 	@Override
@@ -73,11 +138,18 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 
 	@Override
 	public void setToolTipText(final String text) {
-		// No tooltip yet
+		table.setToolTipText(text);
 	}
 
 	@Override
 	protected void updateComponent() {
+		if (beforeLoad) {// This is immediately *after* load!
+			newColumns.clear();
+			newColumns.addAll(Arrays
+					.asList(((SettingsModelStringArray) getModel())
+							.getStringArrayValue()));
+			beforeLoad = false;// Never again
+		}
 		final PortObjectSpec lastTableSpec = getLastTableSpec(portIndex);
 		final List<DataRow> dataRows = new ArrayList<DataRow>();
 		final List<DataColumnSpec> colSpecs = new ArrayList<DataColumnSpec>();
@@ -86,7 +158,6 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 			try {
 				final Map<List<String>, Map<String, Integer>> parts = UnpivotNodeModel
 						.createParts(pattern.getStringValue(), spec);
-				newColumns.clear();
 				final Set<Integer> participating = new HashSet<Integer>();
 				for (final Map<String, Integer> map : parts.values()) {
 					for (final Integer i : map.values()) {
@@ -98,14 +169,25 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 						colSpecs.add(spec.getColumnSpec(i));
 					}
 				}
-				final int singleCount = colSpecs.size();
+				singleCount = colSpecs.size();
 				int rowCount = 0;
-				if (!parts.isEmpty()) {
-					for (int i = parts.keySet().iterator().next().size(); i-- > 0;) {
-						final String colName = "Col_" + i;
-						newColumns.add(colName);
+				if (parts.isEmpty()
+						|| newColumns.size() != parts.keySet().iterator()
+								.next().size()) {
+					newColumns.clear();
+					if (!parts.isEmpty()) {// Fill with defaults
+						for (int i = parts.keySet().iterator().next().size(); i-- > 0;) {
+							final String colName = "Col_" + i;
+							newColumns.add(colName);
+							colSpecs.add(new DataColumnSpecCreator(colName,
+									StringCell.TYPE).createSpec());
+						}
+					}
+				} else {
+					for (final String colName : newColumns) {
 						colSpecs.add(new DataColumnSpecCreator(colName,
 								StringCell.TYPE).createSpec());
+
 					}
 				}
 				final Map<String, DataType> types = new LinkedHashMap<String, DataType>();
@@ -159,6 +241,7 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 				}
 			}
 		}
+
 		@SuppressWarnings("deprecation")
 		final DataTable data = new org.knime.core.data.def.DefaultTable(
 				dataRows.toArray(new DataRow[dataRows.size()]),
@@ -176,7 +259,9 @@ class DialogComponentTable extends DialogComponent implements ChangeListener {
 
 	@Override
 	public void stateChanged(final ChangeEvent e) {
+		newColumns.clear();
+		newColumns.addAll(Arrays.asList(((SettingsModelStringArray) getModel())
+				.getStringArrayValue()));
 		updateComponent();
 	}
-
 }
