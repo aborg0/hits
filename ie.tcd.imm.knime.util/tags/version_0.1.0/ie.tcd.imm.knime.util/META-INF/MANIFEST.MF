@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Export-Package: org.knime.core.node.defaultnodesettings
+Require-Bundle: org.eclipse.core.runtime,org.knime.core;bundle-version
+ ="[2.0.0,3.0.0)",org.knime.base;bundle-version="[2.0.2,3.0.0)",org.ec
+ lipse.help,org.eclipse.help.ui
+Bundle-Vendor: TCD
+Eclipse-LazyStart: true
+Bundle-Version: 0.1.0
+Bundle-Name: Useful KNIME Nodes Plug-in
+Bundle-Activator: ie.tcd.imm.knime.util.Activator
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: ie.tcd.imm.knime.util;singleton:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+
