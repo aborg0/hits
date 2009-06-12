@@ -14,6 +14,7 @@
         <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present).</option>
         <option name="Pattern">The format of the new columns (<tt>${}</tt> - values, <tt>${pivot column name}</tt> values of that nominal column).</option>
         <option name="Behaviour">What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error</li></ul>.</option>
+        <option name="HiLite Strategy">Support HiLite or not.</option>
         <option name="Values">The values of these columns will add a part to the new columns to the place of <tt>${}</tt>.</option>
         <option name="Keys">These will remain in the results.</option>
     </fullDescription>
@@ -25,8 +26,4 @@
         <outPort index="1" name="Reverse pattern">An indicator of the pushed variable</outPort>
         <!-- possibly more output ports here-->
     </ports>    
-    <!--<views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        view index="1" name="name of second view">Description of second view...</view
-    </views>
---></knimeNode>
+</knimeNode>

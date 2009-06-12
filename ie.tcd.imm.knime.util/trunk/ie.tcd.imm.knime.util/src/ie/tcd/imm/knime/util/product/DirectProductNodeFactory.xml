@@ -33,6 +33,7 @@ b    |2    |z</pre>
 <br/>
 The row ids will be the combination of the original row ids, separated by the _ character. (This may cause problem in some cases.)
 		</intro>
+        <option name="HiLite Strategy">Support HiLite or not.</option>
 	</fullDescription>
 
 	<ports>

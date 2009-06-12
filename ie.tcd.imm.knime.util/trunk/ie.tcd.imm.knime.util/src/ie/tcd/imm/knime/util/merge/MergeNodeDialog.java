@@ -29,14 +29,18 @@ public class MergeNodeDialog extends DefaultNodeSettingsPane {
 	@SuppressWarnings("deprecation")
 	protected MergeNodeDialog() {
 		super();
-		addDialogComponent(new DialogComponentColumnFilter(
+		final DialogComponentColumnFilter mergeColumns = new DialogComponentColumnFilter(
 				new SettingsModelFilterString(
-						MergeNodeModel.CFGKEY_MERGE_COLUMNS), 0));
+						MergeNodeModel.CFGKEY_MERGE_COLUMNS), 0);
+		mergeColumns.setExcludeTitle("Independent columns");
+		mergeColumns.setIncludeTitle("Columns used to reorder");
+		addDialogComponent(mergeColumns);
 		final DialogComponentBoolean sortInMemory = new DialogComponentBoolean(
 				new SettingsModelBoolean(MergeNodeModel.CFGKEY_SORT_IN_MEMORY,
 						MergeNodeModel.DEFAULT_SORT_IN_MEMORY),
-				"Sort in Memory?");
+				"Sort in memory?");
 		sortInMemory.setEnabled(false);
+		sortInMemory.getModel().setEnabled(false);
 		addDialogComponent(sortInMemory);
 		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
 				MergeNodeModel.CFGKEY_SORT_ORDER_REVERSED,
