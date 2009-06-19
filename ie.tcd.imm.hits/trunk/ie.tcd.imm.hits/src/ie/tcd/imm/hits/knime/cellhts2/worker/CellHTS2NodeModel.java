@@ -844,6 +844,7 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
 							+ "\")");
 					conn.voidEval("source(\"perPlateScaling.R\")\n"
+							+ "source(\"adjustVariance.R\")\n"
 							+ "source(\"normalizePlates.R\")\n"
 							+ "source(\"customNormalisation.R\")\n"
 							+ "source(\"customScoring.R\")\n"
