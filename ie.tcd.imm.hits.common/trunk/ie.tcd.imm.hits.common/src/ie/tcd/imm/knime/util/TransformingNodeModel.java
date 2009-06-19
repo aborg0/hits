@@ -3,9 +3,6 @@
  */
 package ie.tcd.imm.knime.util;
 
-//import javax.annotation.CheckReturnValue;
-//import javax.annotation.Nonnull;
-
 import ie.tcd.imm.util.SuffixFilenameFilter;
 
 import java.util.ArrayList;
@@ -20,6 +17,10 @@ import java.util.regex.Pattern;
 
 import java.io.File;
 import java.io.IOException;
+
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -50,14 +51,14 @@ import org.knime.core.node.property.hilite.HiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteTranslator;
 import org.knime.core.util.Pair;
 
-//import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * Common base class for the transforming {@link NodeModel}s. Supports HiLite.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-// @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TransformingNodeModel extends NodeModel {
 
 	private static interface MapperConstructor {
@@ -556,6 +557,7 @@ public abstract class TransformingNodeModel extends NodeModel {
 	/**
 	 * @return If HiLite is supported a new {@link HashMap}, else {@code null}.
 	 */
+	@Nullable
 	protected Map<RowKey, Set<RowKey>> createMapping() {
 		switch (getHiLite()) {
 		case NoHiLite:

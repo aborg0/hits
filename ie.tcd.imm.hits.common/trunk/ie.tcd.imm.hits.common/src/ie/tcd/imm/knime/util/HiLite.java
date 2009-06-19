@@ -6,10 +6,10 @@ package ie.tcd.imm.knime.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//import javax.annotation.CheckReturnValue;
-//import javax.annotation.Nonnull;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 
-//import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * An annotation that describes the possible behaviours of HiLites when the
@@ -17,7 +17,7 @@ import java.util.Map;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-// @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public enum HiLite {
 	/** HiLite is propagated only if all of the generated are selected */
 	OnlyIfAllSelected("HiLite if all selected in a group"),

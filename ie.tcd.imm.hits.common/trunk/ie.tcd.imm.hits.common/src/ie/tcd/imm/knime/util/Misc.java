@@ -5,20 +5,20 @@ package ie.tcd.imm.knime.util;
 
 import java.util.List;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 
-//import javax.annotation.CheckReturnValue;
-//import javax.annotation.Nonnull;
-
-//import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * Some utility methods to related to KNIME.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-// @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class Misc {
 
 	/**
@@ -41,5 +41,4 @@ public class Misc {
 			}
 		}
 	}
-
 }
