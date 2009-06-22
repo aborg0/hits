@@ -48,7 +48,12 @@ public interface PublicConstants {
 	/** The gene annotation column name in the result table. */
 	public static final String GENE_ANNOTATION_COL_NAME = "GeneSymbol";
 
+	/**
+	 * Utility methods related to the constants.
+	 */
 	public static class StaticUtil implements Serializable {
+		private static final long serialVersionUID = -6260847102729522225L;
+
 		// Hide constructor
 		private StaticUtil() {
 			super();

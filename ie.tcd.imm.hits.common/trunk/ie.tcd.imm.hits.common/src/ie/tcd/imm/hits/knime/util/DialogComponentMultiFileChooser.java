@@ -135,6 +135,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		dirPanel.add(dirNameComboBox);
 		dirPanel.add(browseButton);
 		browseButton.addActionListener(new ActionListener() {
+			@java.lang.SuppressWarnings("synthetic-access")
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final String selectedDir = getCurrentSelection();
@@ -198,7 +199,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * @param newDir
 	 *            A folder name. (Not {@code null}.)
 	 */
-	private void updateList(final String newDir) {
+	void updateList(final String newDir) {
 		fileNameModel.clear();
 		if (newDir != null) {
 			final File dir = new File(newDir);
