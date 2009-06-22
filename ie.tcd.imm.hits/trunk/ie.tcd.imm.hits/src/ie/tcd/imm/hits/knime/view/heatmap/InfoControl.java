@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
+import ie.tcd.imm.hits.common.PossibleStatistics;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
 import java.awt.event.ActionEvent;

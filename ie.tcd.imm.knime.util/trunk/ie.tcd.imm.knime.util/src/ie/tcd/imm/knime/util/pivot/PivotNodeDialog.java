@@ -3,8 +3,8 @@
  */
 package ie.tcd.imm.knime.util.pivot;
 
-import ie.tcd.imm.knime.util.HiLite;
-import ie.tcd.imm.knime.util.TransformingNodeModel;
+import ie.tcd.imm.hits.knime.util.HiLite;
+import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 import ie.tcd.imm.knime.util.pivot.PivotNodeModel.Behaviour;
 
 import java.util.ArrayList;

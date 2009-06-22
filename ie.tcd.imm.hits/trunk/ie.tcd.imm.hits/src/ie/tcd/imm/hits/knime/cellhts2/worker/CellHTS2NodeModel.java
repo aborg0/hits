@@ -4,13 +4,13 @@
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.common.PossibleStatistics;
+import ie.tcd.imm.hits.common.PublicConstants;
+import ie.tcd.imm.hits.common.PossibleStatistics.Multiplicity;
+import ie.tcd.imm.hits.common.PublicConstants.StaticUtil;
 import ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeModel;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants;
-import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
-import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics.Multiplicity;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
-import ie.tcd.imm.hits.knime.util.ModelBuilder;
-import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Pair;
@@ -237,11 +237,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			CellHTS2NodeModel.DEFAULT_EXPERIMENT_NAME);
 	private final SettingsModelFilterString parametersModel = new SettingsModelFilterString(
 			CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0], new String[] {
-					ImporterNodeModel.PLATE_COL_NAME,
-					ImporterNodeModel.REPLICATE_COL_NAME,
-					ImporterNodeModel.WELL_COL_NAME,
-					ImporterNodeModel.GENE_ID_COL_NAME,
-					ImporterNodeModel.GENE_ANNOTATION_COL_NAME });
+					PublicConstants.PLATE_COL_NAME,
+					PublicConstants.REPLICATE_COL_NAME,
+					PublicConstants.WELL_COL_NAME,
+					PublicConstants.GENE_ID_COL_NAME,
+					PublicConstants.GENE_ANNOTATION_COL_NAME });
 
 	private final SettingsModelDoubleRange scoreRange = new SettingsModelDoubleRange(
 			CellHTS2NodeModel.CFGKEY_SCORE_RANGE,
@@ -258,22 +258,25 @@ public class CellHTS2NodeModel extends NodeModel {
 			new DataColumnSpecCreator("Value", StringCell.TYPE).createSpec());
 
 	private static final DataTableSpec aggregateValuesSpec = new DataTableSpec(
-			new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN,
-					StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE)
+			new DataColumnSpecCreator(PublicConstants.EXPERIMENT_COLUMN,
+					StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(
+					PublicConstants.NORMALISATION_METHOD_COLUMN,
+					StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(PublicConstants.LOG_TRANSFORM_COLUMN,
+					StringCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(
+					PublicConstants.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
+					.createSpec(),
+			new DataColumnSpecCreator(
+					PublicConstants.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.LOG_TRANSFORM_COLUMN, StringCell.TYPE)
+					PublicConstants.SCORING_METHOD_COLUMN, StringCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
+					PublicConstants.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
 					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.SCORING_METHOD_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
-					.createSpec(), new DataColumnSpecCreator(
-					ModelBuilder.PLATE_COLUMN, IntCell.TYPE).createSpec(),
-			new DataColumnSpecCreator(ModelBuilder.REPLICATE_COLUMN,
+					PublicConstants.PLATE_COLUMN, IntCell.TYPE).createSpec(),
+			new DataColumnSpecCreator(PublicConstants.REPLICATE_COLUMN,
 					IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
 					"Parameter", StringCell.TYPE).createSpec(),
 			new DataColumnSpecCreator("Replicate dynamic range",
@@ -396,11 +399,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			int wellRowCount = 0;
 			int wellColCount = 0;
 			final int plateIdx = CellHTS2NodeModel.getIndex(inData,
-					ImporterNodeModel.PLATE_COL_NAME);
+					PublicConstants.PLATE_COL_NAME);
 			final int replicateIdx = CellHTS2NodeModel.getIndex(inData,
-					ImporterNodeModel.REPLICATE_COL_NAME);
+					PublicConstants.REPLICATE_COL_NAME);
 			final int wellIdx = CellHTS2NodeModel.getIndex(inData,
-					ImporterNodeModel.WELL_COL_NAME);
+					PublicConstants.WELL_COL_NAME);
 			for (final DataRow dataRow : inData[0]) {
 				final int plate = ((IntCell) dataRow.getCell(plateIdx))
 						.getIntValue();
@@ -720,13 +723,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			exec.checkCanceled();
 			final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
-					.parseString(
-							PreferenceConstants.PossibleStatistics.class,
-							ImporterNodePlugin
-									.getDefault()
-									.getPreferenceStore()
-									.getString(
-											PreferenceConstants.RESULT_COL_ORDER));
+					.parseString(PossibleStatistics.class, ImporterNodePlugin
+							.getDefault().getPreferenceStore().getString(
+									PreferenceConstants.RESULT_COL_ORDER));
 			final DataColumnSpec[] additionalColumns = selectAdditionalColumns(inData[0]
 					.getDataTableSpec());
 			final StringCell logTransformCell = new StringCell(
@@ -1231,8 +1230,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	private String createColOrderString() {
 		final List<PossibleStatistics> statsEnums = ColumnSelectionFieldEditor
-				.<PreferenceConstants.PossibleStatistics> parseString(
-						PreferenceConstants.PossibleStatistics.class,
+				.<PossibleStatistics> parseString(
+						PossibleStatistics.class,
 						ImporterNodePlugin
 								.getDefault()
 								.getPreferenceStore()
@@ -2209,11 +2208,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		final int plateIdx = checkColumn(inSpecs,
-				ImporterNodeModel.PLATE_COL_NAME);
+				PublicConstants.PLATE_COL_NAME);
 		final int replicateIdx = checkColumn(inSpecs,
-				ImporterNodeModel.REPLICATE_COL_NAME);
-		final int wellIdx = checkColumn(inSpecs,
-				ImporterNodeModel.WELL_COL_NAME);
+				PublicConstants.REPLICATE_COL_NAME);
+		final int wellIdx = checkColumn(inSpecs, PublicConstants.WELL_COL_NAME);
 		if (!inSpecs[0].getColumnSpec(plateIdx).getType().equals(IntCell.TYPE)
 				|| !inSpecs[0].getColumnSpec(replicateIdx).getType().equals(
 						IntCell.TYPE)
@@ -2222,11 +2220,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input type on first port");
 		}
 		if (!inSpecs[0].getColumnSpec(plateIdx).getName().equalsIgnoreCase(
-				ImporterNodeModel.PLATE_COL_NAME)
+				PublicConstants.PLATE_COL_NAME)
 				|| !inSpecs[0].getColumnSpec(replicateIdx).getName()
-						.equalsIgnoreCase(ImporterNodeModel.REPLICATE_COL_NAME)
+						.equalsIgnoreCase(PublicConstants.REPLICATE_COL_NAME)
 				|| !inSpecs[0].getColumnSpec(wellIdx).getName()
-						.equalsIgnoreCase(ImporterNodeModel.WELL_COL_NAME)) {
+						.equalsIgnoreCase(PublicConstants.WELL_COL_NAME)) {
 			throw new InvalidSettingsException("Wrong input name on first port");
 		}
 		{
@@ -2235,9 +2233,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			// firstIt.next();
 			// firstIt.next();
 			final Set<String> checkedNames = new HashSet<String>();
-			checkedNames.add(ImporterNodeModel.PLATE_COL_NAME);
-			checkedNames.add(ImporterNodeModel.REPLICATE_COL_NAME);
-			checkedNames.add(ImporterNodeModel.WELL_COL_NAME);
+			checkedNames.add(PublicConstants.PLATE_COL_NAME);
+			checkedNames.add(PublicConstants.REPLICATE_COL_NAME);
+			checkedNames.add(PublicConstants.WELL_COL_NAME);
 			while (firstIt.hasNext()) {
 				final DataColumnSpec spec = firstIt.next();
 				if (!checkedNames.contains(spec.getName())) {
@@ -2316,30 +2314,29 @@ public class CellHTS2NodeModel extends NodeModel {
 	private DataColumnSpec[] computeTopTableSpec(
 			final DataTableSpec inputSpecs, final boolean replicateTable) {
 		final List<DataColumnSpec> ret = new ArrayList<DataColumnSpec>();
-		ret.add(new DataColumnSpecCreator(ModelBuilder.EXPERIMENT_COLUMN,
+		ret.add(new DataColumnSpecCreator(PublicConstants.EXPERIMENT_COLUMN,
 				StringCell.TYPE).createSpec());
 		ret.add(new DataColumnSpecCreator(
-				ModelBuilder.NORMALISATION_METHOD_COLUMN, StringCell.TYPE)
+				PublicConstants.NORMALISATION_METHOD_COLUMN, StringCell.TYPE)
 				.createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.LOG_TRANSFORM_COLUMN,
+		ret.add(new DataColumnSpecCreator(PublicConstants.LOG_TRANSFORM_COLUMN,
 				StringCell.TYPE).createSpec());
 		ret.add(new DataColumnSpecCreator(
-				ModelBuilder.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
+				PublicConstants.NORMALISATION_KIND_COLUMN, StringCell.TYPE)
 				.createSpec());
 		ret.add(new DataColumnSpecCreator(
-				ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
+				PublicConstants.VARIANCE_ADJUSTMENT_COLUMN, StringCell.TYPE)
 				.createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.SCORING_METHOD_COLUMN,
-				StringCell.TYPE).createSpec());
-		ret.add(new DataColumnSpecCreator(ModelBuilder.SUMMARISE_METHOD_COLUMN,
-				StringCell.TYPE).createSpec());
+		ret.add(new DataColumnSpecCreator(
+				PublicConstants.SCORING_METHOD_COLUMN, StringCell.TYPE)
+				.createSpec());
+		ret.add(new DataColumnSpecCreator(
+				PublicConstants.SUMMARISE_METHOD_COLUMN, StringCell.TYPE)
+				.createSpec());
 		final List<PossibleStatistics> stats = ColumnSelectionFieldEditor
-				.parseString(
-						PreferenceConstants.PossibleStatistics.class,
-						ImporterNodePlugin
-								.getDefault()
-								.getPreferenceStore()
-								.getString(PreferenceConstants.RESULT_COL_ORDER));
+				.parseString(PossibleStatistics.class, ImporterNodePlugin
+						.getDefault().getPreferenceStore().getString(
+								PreferenceConstants.RESULT_COL_ORDER));
 		final DataColumnSpec[] additionalColumns = selectAdditionalColumns(inputSpecs);
 		CellHTS2NodeModel.computeTableSpec(ret, replicateTable, stats, null,
 				parametersModel.getIncludeList(), additionalColumns);
@@ -2396,7 +2393,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			case GROUP_BY_CHANNELS_START: {
 				int nextEnd = 0;
 				for (; nextEnd < stats.size(); ++nextEnd) {
-					if (stats.get(nextEnd) == PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END) {
+					if (stats.get(nextEnd) == PossibleStatistics.GROUP_BY_CHANNELS_END) {
 						break;
 					}
 				}
@@ -2419,7 +2416,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			case GROUP_BY_REPLICATES_START:
 				int nextEnd = 0;
 				for (; nextEnd < stats.size(); ++nextEnd) {
-					if (stats.get(nextEnd) == PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END) {
+					if (stats.get(nextEnd) == PossibleStatistics.GROUP_BY_REPLICATES_END) {
 						break;
 					}
 				}
@@ -2630,7 +2627,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			case GROUP_BY_CHANNELS_START: {
 				int nextEnd = 0;
 				for (; nextEnd < stats.size(); ++nextEnd) {
-					if (stats.get(nextEnd) == PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END) {
+					if (stats.get(nextEnd) == PossibleStatistics.GROUP_BY_CHANNELS_END) {
 						break;
 					}
 				}
@@ -2650,7 +2647,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			case GROUP_BY_REPLICATES_START:
 				int nextEnd = 0;
 				for (; nextEnd < stats.size(); ++nextEnd) {
-					if (stats.get(nextEnd) == PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END) {
+					if (stats.get(nextEnd) == PossibleStatistics.GROUP_BY_REPLICATES_END) {
 						break;
 					}
 				}
@@ -2679,7 +2676,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					columnSpecs);
 			break;
 		case CHANNELS:
-			ret.add(new DataColumnSpecCreator(ModelBuilder
+			ret.add(new DataColumnSpecCreator(StaticUtil
 					.createPrefix(possibleStatistics)
 					+ ch, CellHTS2NodeModel.getType(possibleStatistics))
 					.createSpec());
@@ -2698,7 +2695,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					columnSpecs);
 			break;
 		case CHANNELS_AND_REPLICATES:
-			ret.add(new DataColumnSpecCreator(ModelBuilder
+			ret.add(new DataColumnSpecCreator(StaticUtil
 					.createPrefix(possibleStatistics)
 					+ ch, CellHTS2NodeModel.getType(possibleStatistics))
 					.createSpec());

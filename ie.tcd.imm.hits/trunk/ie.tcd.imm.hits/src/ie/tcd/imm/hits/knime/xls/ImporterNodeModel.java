@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.xls;
 
-import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.common.PublicConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,16 +62,6 @@ public class ImporterNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(ImporterNodeModel.class);
 
-	/** The plate column name in the result table. */
-	public static final String PLATE_COL_NAME = ModelBuilder.PLATE_COLUMN;
-	/** The replicate column name in the result table. */
-	public static final String REPLICATE_COL_NAME = ModelBuilder.REPLICATE_COLUMN;
-	/** The well column name in the result table. */
-	public static final String WELL_COL_NAME = "Well";
-	/** The gene id column name in the result table. */
-	public static final String GENE_ID_COL_NAME = "GeneID";
-	/** The gene annotation column name in the result table. */
-	public static final String GENE_ANNOTATION_COL_NAME = "GeneSymbol";
 	/** The configuration key for the files. */
 	static final String CFGKEY_FILES = "ie.tcd.imm.hits.knime.xls.files";
 
@@ -389,12 +379,12 @@ public class ImporterNodeModel extends NodeModel {
 		cellTypes[0] = IntCell.TYPE;// plate
 		cellTypes[1] = IntCell.TYPE;// replicate
 		cellTypes[2] = StringCell.TYPE;// Well
-		header.add(0, WELL_COL_NAME);
-		header.add(0, REPLICATE_COL_NAME);
-		header.add(0, PLATE_COL_NAME);
+		header.add(0, PublicConstants.WELL_COL_NAME);
+		header.add(0, PublicConstants.REPLICATE_COL_NAME);
+		header.add(0, PublicConstants.PLATE_COL_NAME);
 		if (addAnnotations) {
-			header.add(GENE_ID_COL_NAME);
-			header.add(GENE_ANNOTATION_COL_NAME);
+			header.add(PublicConstants.GENE_ID_COL_NAME);
+			header.add(PublicConstants.GENE_ANNOTATION_COL_NAME);
 			cellTypes[cellTypes.length - 2] = StringCell.TYPE;
 			cellTypes[cellTypes.length - 1] = StringCell.TYPE;
 		}

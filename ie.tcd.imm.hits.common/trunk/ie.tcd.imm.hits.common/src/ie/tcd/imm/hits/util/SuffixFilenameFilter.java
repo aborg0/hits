@@ -1,4 +1,4 @@
-package ie.tcd.imm.util;
+package ie.tcd.imm.hits.util;
 
 import java.io.File;
 import java.io.FilenameFilter;

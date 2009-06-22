@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.knime.util.product;
 
-import ie.tcd.imm.knime.util.TransformingNodeModel;
+import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 
 import java.util.ArrayList;
 import java.util.Collections;

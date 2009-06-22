@@ -3,8 +3,8 @@
  */
 package ie.tcd.imm.knime.util.product;
 
-import ie.tcd.imm.knime.util.HiLite;
-import ie.tcd.imm.knime.util.TransformingNodeModel;
+import ie.tcd.imm.hits.knime.util.HiLite;
+import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;

@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs;
 
+import ie.tcd.imm.hits.common.PossibleStatistics;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 
@@ -84,12 +85,12 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 		// useTCDExtensionsFieldEditor.getPreferenceName()),
 		// getFieldEditorParent());
 
-		final ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics> columnSelectionFieldEditor = new ColumnSelectionFieldEditor<PreferenceConstants.PossibleStatistics>(
+		final ColumnSelectionFieldEditor<PossibleStatistics> columnSelectionFieldEditor = new ColumnSelectionFieldEditor<PossibleStatistics>(
 				PreferenceConstants.RESULT_COL_ORDER,
 				"&Column order:",
 				getFieldEditorParent(),
 				Arrays
-						.<PreferenceConstants.PossibleStatistics> asList(PreferenceConstants.PossibleStatistics
+						.<PossibleStatistics> asList(PossibleStatistics
 								.values()));
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(
 				columnSelectionFieldEditor

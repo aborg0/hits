@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
-import ie.tcd.imm.hits.knime.xls.ImporterNodeModel;
+import ie.tcd.imm.hits.common.PublicConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,9 +58,9 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 	/** Column name of content */
 	public static final String CONTENT_COL_NAME = "Content";
 	/** Column name of wells */
-	public static final String WELL_COL_NAME = ImporterNodeModel.WELL_COL_NAME;
+	public static final String WELL_COL_NAME = PublicConstants.WELL_COL_NAME;
 	/** Column name of plates */
-	public static final String PLATE_COL_NAME = ImporterNodeModel.PLATE_COL_NAME;
+	public static final String PLATE_COL_NAME = PublicConstants.PLATE_COL_NAME;
 
 	/** Configuration key for the plate configuration file parameter */
 	static final String CFGKEY_PLATE_CONFIG = "ie.tcd.imm.hits.knime.cellhts2.configurator.simple.plateconfig";

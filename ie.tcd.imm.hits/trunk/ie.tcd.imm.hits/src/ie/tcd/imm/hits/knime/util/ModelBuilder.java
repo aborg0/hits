@@ -4,7 +4,9 @@
 package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
+import ie.tcd.imm.hits.common.PossibleStatistics;
+import ie.tcd.imm.hits.common.PublicConstants;
+import ie.tcd.imm.hits.common.PublicConstants.StaticUtil;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
@@ -78,68 +80,28 @@ public class ModelBuilder extends SimpleModelBuilder {
 		generate(specAnalyser);
 	}
 
-	/**
-	 * Constructs the common column prefix for the {@code stat}
-	 * {@link PossibleStatistics}.
-	 * 
-	 * @param stat
-	 *            A {@link PossibleStatistics} value.
-	 * @return The {@link PossibleStatistics#getDisplayText() display text}
-	 *         followed by {@code _}.
-	 */
-	public static String createPrefix(final PossibleStatistics stat) {
-		return stat.getDisplayText() + "_";
-	}
-
 	/** The prefix for {@link PossibleStatistics#RAW_PER_PLATE_REPLICATE_MEAN}. */
-	public static final String RAW_PLATE_REPLICATE_MEDIAN_START = createPrefix(PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
+	public static final String RAW_PLATE_REPLICATE_MEDIAN_START = StaticUtil.createPrefix(PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
 
 	/** The prefix for {@link PossibleStatistics#MEAN_OR_DIFF}. */
-	public static final String MEAN_OR_DIFF_START = createPrefix(PossibleStatistics.MEAN_OR_DIFF);
+	public static final String MEAN_OR_DIFF_START = StaticUtil.createPrefix(PossibleStatistics.MEAN_OR_DIFF);
 
 	/** The prefix for {@link PossibleStatistics#NORMALISED}. */
-	public static final String NORMALISED_START = createPrefix(PossibleStatistics.NORMALISED);
+	public static final String NORMALISED_START = StaticUtil.createPrefix(PossibleStatistics.NORMALISED);
 
 	/** The prefix for {@link PossibleStatistics#MEDIAN}. */
-	public static final String MEDIAN_START = createPrefix(PossibleStatistics.MEDIAN);
+	public static final String MEDIAN_START = StaticUtil.createPrefix(PossibleStatistics.MEDIAN);
 
 	/** The prefix for {@link PossibleStatistics#RAW}. */
-	public static final String RAW_START = createPrefix(PossibleStatistics.RAW);
+	public static final String RAW_START = StaticUtil.createPrefix(PossibleStatistics.RAW);
 
 	/** The prefix for {@link PossibleStatistics#SCORE}. */
-	public static final String SCORE_START = createPrefix(PossibleStatistics.SCORE);
+	public static final String SCORE_START = StaticUtil.createPrefix(PossibleStatistics.SCORE);
 
 	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = new TreeMap<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, String[]>>>> texts = new TreeMap<String, Map<String, Map<Integer, Map<String, String[]>>>>();
 	private final Map<String, Map<String, Map<Integer, Color[]>>> colours = new TreeMap<String, Map<String, Map<Integer, Color[]>>>();
-
-	/** The name of the replicate column. */
-	public static final String REPLICATE_COLUMN = "Replicate";
-
-	/** The name of the plate column. */
-	public static final String PLATE_COLUMN = "Plate";
-
-	/** The name of the experiment column. */
-	public static final String EXPERIMENT_COLUMN = "Experiment";
-
-	/** The name of the normalisation method column. */
-	public static final String NORMALISATION_METHOD_COLUMN = "Normalisation method";
-
-	/** The name of the log transform column. */
-	public static final String LOG_TRANSFORM_COLUMN = "log transform";
-
-	/** The name of the normalisation kind (additive/multiplicative) column. */
-	public static final String NORMALISATION_KIND_COLUMN = "Normalisation kind";
-
-	/** The name of the variance adjustment column. */
-	public static final String VARIANCE_ADJUSTMENT_COLUMN = "Variance adjustment";
-
-	/** The name of the scoring method column. */
-	public static final String SCORING_METHOD_COLUMN = "Scoring method";
-
-	/** The name of the summarise method column. */
-	public static final String SUMMARISE_METHOD_COLUMN = "Summarise method";
 
 	private int minReplicate;
 
@@ -263,12 +225,12 @@ public class ModelBuilder extends SimpleModelBuilder {
 									.length()), Integer.valueOf(idx));
 					continue;
 				}
-				if (specName.equalsIgnoreCase(ModelBuilder.PLATE_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.PLATE_COLUMN)) {
 					hasPlate = true;
 					plateIndex = Integer.valueOf(idx);
 					continue;
 				}
-				if (specName.equalsIgnoreCase(ModelBuilder.REPLICATE_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.REPLICATE_COLUMN)) {
 					hasReplicate = true;
 					replicateIndex = idx;
 					continue;
@@ -277,25 +239,25 @@ public class ModelBuilder extends SimpleModelBuilder {
 					wellIndex = idx;
 					continue;
 				}
-				if (specName.equalsIgnoreCase(ModelBuilder.EXPERIMENT_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.EXPERIMENT_COLUMN)) {
 					experimentIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(NORMALISATION_METHOD_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.NORMALISATION_METHOD_COLUMN)) {
 					normMethodIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(LOG_TRANSFORM_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.LOG_TRANSFORM_COLUMN)) {
 					logTransformIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(NORMALISATION_KIND_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.NORMALISATION_KIND_COLUMN)) {
 					normKindIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(VARIANCE_ADJUSTMENT_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.VARIANCE_ADJUSTMENT_COLUMN)) {
 					varianceAdjustmentIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(SCORING_METHOD_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.SCORING_METHOD_COLUMN)) {
 					scoreMethodIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(SUMMARISE_METHOD_COLUMN)) {
+				if (specName.equalsIgnoreCase(PublicConstants.SUMMARISE_METHOD_COLUMN)) {
 					sumMethodIndex = idx;
 				}
 				if (spec.getType().isCompatible(StringValue.class)) {

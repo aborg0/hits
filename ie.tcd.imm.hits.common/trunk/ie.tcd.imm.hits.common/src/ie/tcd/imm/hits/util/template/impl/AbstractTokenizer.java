@@ -1,13 +1,13 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.util.template.impl;
+package ie.tcd.imm.hits.util.template.impl;
 
-import ie.tcd.imm.util.template.AbstractToken;
-import ie.tcd.imm.util.template.SimpleToken;
-import ie.tcd.imm.util.template.Token;
-import ie.tcd.imm.util.template.TokenizeException;
-import ie.tcd.imm.util.template.Tokenizer;
+import ie.tcd.imm.hits.util.template.AbstractToken;
+import ie.tcd.imm.hits.util.template.SimpleToken;
+import ie.tcd.imm.hits.util.template.Token;
+import ie.tcd.imm.hits.util.template.TokenizeException;
+import ie.tcd.imm.hits.util.template.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;

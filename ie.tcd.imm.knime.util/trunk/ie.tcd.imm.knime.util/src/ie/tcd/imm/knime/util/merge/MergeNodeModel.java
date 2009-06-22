@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.knime.util.merge;
 
-import ie.tcd.imm.knime.util.Misc;
+import ie.tcd.imm.hits.knime.util.Misc;
 
 import java.util.ArrayList;
 import java.util.Collections;

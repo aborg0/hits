@@ -3,7 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.knime.cellhts2.prefs.PreferenceConstants.PossibleStatistics;
+import ie.tcd.imm.hits.common.PossibleStatistics;
+import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.util.ModelBuilder.SpecAnalyser;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
@@ -288,7 +289,7 @@ public class HeatmapNodeModel extends NodeModel {
 		logger.debug(experiments);
 		possibleParameters.add(new ParameterModel("experiment",
 				StatTypes.experimentName, null, Collections
-						.singletonList(ModelBuilder.EXPERIMENT_COLUMN),
+						.singletonList(PublicConstants.EXPERIMENT_COLUMN),
 				new ArrayList<String>(experiments)));
 		final Set<String> normalisations = new TreeSet<String>();
 		for (final Entry<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> entry : modelBuilder
@@ -302,12 +303,12 @@ public class HeatmapNodeModel extends NodeModel {
 		logger.debug(normalisations);
 		possibleParameters.add(new ParameterModel("normalisation",
 				StatTypes.normalisation, null, Arrays.asList(new String[] {
-						ModelBuilder.NORMALISATION_METHOD_COLUMN,
-						ModelBuilder.LOG_TRANSFORM_COLUMN,
-						ModelBuilder.NORMALISATION_KIND_COLUMN,
-						ModelBuilder.VARIANCE_ADJUSTMENT_COLUMN,
-						ModelBuilder.SCORING_METHOD_COLUMN,
-						ModelBuilder.SUMMARISE_METHOD_COLUMN }),
+						PublicConstants.NORMALISATION_METHOD_COLUMN,
+						PublicConstants.LOG_TRANSFORM_COLUMN,
+						PublicConstants.NORMALISATION_KIND_COLUMN,
+						PublicConstants.VARIANCE_ADJUSTMENT_COLUMN,
+						PublicConstants.SCORING_METHOD_COLUMN,
+						PublicConstants.SUMMARISE_METHOD_COLUMN }),
 				new ArrayList<String>(normalisations)));
 		setInHiLiteHandler(0, hiliteManager.getFromHiLiteHandler());
 	}

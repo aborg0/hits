@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs;
 
+import ie.tcd.imm.hits.common.PossibleStatistics;
 import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
 import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
 
@@ -30,38 +31,38 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 						PreferenceConstants.RESULT_COL_ORDER,
 						ColumnSelectionFieldEditor
 								.createList(
-										PreferenceConstants.PossibleStatistics.PLATE,
-										PreferenceConstants.PossibleStatistics.POSITION,
-										PreferenceConstants.PossibleStatistics.WELL,
-										PreferenceConstants.PossibleStatistics.REPLICATE,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.FINAL_WELL_ANNOTATION,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.SCORE,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GENE_ID,
-										PreferenceConstants.PossibleStatistics.GENE_SYMBOL,
-										PreferenceConstants.PossibleStatistics.GENE_ANNOTATION,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_START,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.RAW,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.MEDIAN,
-										PreferenceConstants.PossibleStatistics.MEAN_OR_DIFF,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_START,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_START,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_START,
-										PreferenceConstants.PossibleStatistics.NORMALISED,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_CHANNELS_END,
-										PreferenceConstants.PossibleStatistics.GROUP_BY_REPLICATES_END));
+										PossibleStatistics.PLATE,
+										PossibleStatistics.POSITION,
+										PossibleStatistics.WELL,
+										PossibleStatistics.REPLICATE,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.FINAL_WELL_ANNOTATION,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.SCORE,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GENE_ID,
+										PossibleStatistics.GENE_SYMBOL,
+										PossibleStatistics.GENE_ANNOTATION,
+										PossibleStatistics.GROUP_BY_REPLICATES_START,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.RAW,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GROUP_BY_REPLICATES_END,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.MEDIAN,
+										PossibleStatistics.MEAN_OR_DIFF,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GROUP_BY_REPLICATES_START,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GROUP_BY_REPLICATES_END,
+										PossibleStatistics.GROUP_BY_REPLICATES_START,
+										PossibleStatistics.GROUP_BY_CHANNELS_START,
+										PossibleStatistics.NORMALISED,
+										PossibleStatistics.GROUP_BY_CHANNELS_END,
+										PossibleStatistics.GROUP_BY_REPLICATES_END));
 		store.setDefault(PreferenceConstants.USE_TCD_EXTENSIONS, true);
 		store.setDefault(PreferenceConstants.USE_NAMES_INSTEAD_OF_CHANNELS,
 				true);

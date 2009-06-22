@@ -1,7 +1,7 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.util.template;
+package ie.tcd.imm.hits.util.template;
 
 import java.io.Serializable;
 
