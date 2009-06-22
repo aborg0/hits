@@ -30,4 +30,10 @@ public class SimpleToken extends AbstractToken {
 		super(startPosition, endPosition, content);
 	}
 
+	@Override
+	public boolean equals(final Object obj) {
+		return this == obj || obj != null
+				&& obj.getClass().equals(SimpleToken.class)
+				&& super.equals(obj);
+	}
 }

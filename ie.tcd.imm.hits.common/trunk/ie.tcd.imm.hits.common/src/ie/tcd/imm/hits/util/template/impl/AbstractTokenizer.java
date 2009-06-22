@@ -27,7 +27,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public abstract class AbstractTokenizer implements Tokenizer, Serializable {
+public class AbstractTokenizer implements Tokenizer, Serializable {
 	private static final long serialVersionUID = 7828487000830931865L;
 
 	/**
@@ -48,6 +48,13 @@ public abstract class AbstractTokenizer implements Tokenizer, Serializable {
 		public SplitToken(final int startPosition, final int endPosition,
 				final String content) {
 			super(startPosition, endPosition, content);
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			return this == obj || obj != null
+					&& obj.getClass().equals(SplitToken.class)
+					&& super.equals(obj);
 		}
 	}
 
@@ -81,14 +88,73 @@ public abstract class AbstractTokenizer implements Tokenizer, Serializable {
 		final List<Token> ret = new ArrayList<Token>();
 		int beginOffset = offset;
 		for (final String part : parts) {
-			final boolean found = matcher.find(beginOffset - offset);
-			assert found;
-			beginOffset += matcher.group().length();
-			ret.add(new SplitToken(beginOffset + matcher.start() - offset,
-					beginOffset + matcher.end() - offset, matcher.group()));
 			if (!part.isEmpty()) {
 				ret.add(new SimpleToken(beginOffset, part.length(), part));
 				beginOffset += part.length();
+			}
+			final boolean found = matcher.find(beginOffset - offset);
+			if (!found)// Only empty strings
+			{
+				break;
+			}
+			ret.add(new SplitToken(matcher.start() - offset, matcher.end()
+					- offset, matcher.group()));
+			beginOffset += matcher.group().length();
+		}
+		return ret;
+	}
+
+	@Override
+	public List<Token> parse(final String text) throws TokenizeException {
+		return filter(splitter(text), SimpleToken.class, true);
+	}
+
+	/**
+	 * Selects a proper elements from {@code tokens} with type {@code
+	 * tokenClass}.
+	 * 
+	 * @param <T>
+	 *            Type of the filtered {@link Token}s.
+	 * @param tokens
+	 *            A list of tokens.
+	 * @param tokenClass
+	 *            A class of a {@link Token}.
+	 * @return A {@link List} of {@link Token}s with type of {@code T}.
+	 */
+	protected <T extends Token> List<T> filter(final Iterable<Token> tokens,
+			final Class<T> tokenClass) {
+		final List<T> ret = new ArrayList<T>();
+		for (final Token token : tokens) {
+			if (tokenClass.isInstance(token)) {
+				final boolean b = ret.add(tokenClass.cast(token));
+				assert b;
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Selects a proper elements from {@code tokens} with type {@code
+	 * tokenClass}. (Depending on {@code instance} value it will be included, or
+	 * excluded with that type of tokens.)
+	 * 
+	 * @param tokens
+	 *            A list of tokens.
+	 * @param tokenClass
+	 *            A class of a {@link Token}.
+	 * @param instance
+	 *            If {@code true} the instance of {@code tokenClass} included,
+	 *            else those will be excluded.
+	 * @return The list of filtered elements. Does not contain {@code null}
+	 *         values.
+	 */
+	protected List<Token> filter(final Iterable<Token> tokens,
+			final Class<? extends Token> tokenClass, final boolean instance) {
+		final List<Token> ret = new ArrayList<Token>();
+		for (final Token token : tokens) {
+			if (token != null && tokenClass.isInstance(token) ^ !instance) {
+				final boolean b = ret.add(token);
+				assert b;
 			}
 		}
 		return ret;
