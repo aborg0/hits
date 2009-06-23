@@ -8,6 +8,7 @@ import ie.tcd.imm.hits.util.template.SimpleToken;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
+import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.RegEx;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -33,7 +35,7 @@ public class AbstractTokenizer implements Tokenizer, Serializable {
 	/**
 	 * A simple class for the {@link Token}s of splits.
 	 */
-	protected class SplitToken extends AbstractToken {
+	public static final class SplitToken extends AbstractToken {
 		private static final long serialVersionUID = -8082977893154016447L;
 
 		/**
@@ -58,8 +60,8 @@ public class AbstractTokenizer implements Tokenizer, Serializable {
 		}
 	}
 
-	private final String splitExpression;
 	private final int offset;
+	private final Pattern pattern;
 
 	/**
 	 * @param offset
@@ -69,10 +71,11 @@ public class AbstractTokenizer implements Tokenizer, Serializable {
 	 *            ).
 	 * 
 	 */
-	public AbstractTokenizer(final int offset, final String splitExpression) {
+	public AbstractTokenizer(final int offset,
+			@RegEx final String splitExpression) {
 		super();
 		this.offset = offset;
-		this.splitExpression = splitExpression;
+		pattern = Pattern.compile(splitExpression);
 	}
 
 	/**
@@ -82,15 +85,17 @@ public class AbstractTokenizer implements Tokenizer, Serializable {
 	 * @throws TokenizeException
 	 */
 	protected List<Token> splitter(final String text) throws TokenizeException {
-		final Pattern pattern = Pattern.compile(splitExpression);
 		final Matcher matcher = pattern.matcher(text.substring(offset));
-		final String[] parts = text.substring(offset).split(splitExpression);
+		final String[] parts = pattern.split(text.substring(offset), -1);
 		final List<Token> ret = new ArrayList<Token>();
 		int beginOffset = offset;
 		for (final String part : parts) {
 			if (!part.isEmpty()) {
-				ret.add(new SimpleToken(beginOffset, part.length(), part));
+				ret.add(new SimpleToken(beginOffset, beginOffset
+						+ part.length(), part));
 				beginOffset += part.length();
+			} else {
+				ret.add(EmptyToken.get(beginOffset));
 			}
 			final boolean found = matcher.find(beginOffset - offset);
 			if (!found)// Only empty strings

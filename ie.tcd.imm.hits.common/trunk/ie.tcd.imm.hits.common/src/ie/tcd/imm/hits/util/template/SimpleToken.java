@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class SimpleToken extends AbstractToken {
+public final class SimpleToken extends AbstractToken {
 	private static final long serialVersionUID = -4055509769254551505L;
 
 	/**

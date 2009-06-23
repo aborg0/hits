@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.hits.util.template;
 
+import java.util.WeakHashMap;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
@@ -16,6 +18,45 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class AbstractToken implements Token {
 	private static final long serialVersionUID = -4749109768887755365L;
+
+	/**
+	 * A {@link Token} without content.
+	 */
+	public static final class EmptyToken extends AbstractToken {
+		private static final long serialVersionUID = -7916615759761665791L;
+
+		/**
+		 * @param position
+		 *            The position where the gap is.
+		 */
+		private EmptyToken(final int position) {
+			super(position, position, "");
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			return other != null && other.getClass().equals(EmptyToken.class)
+					&& super.equals(other);
+		}
+
+		private static WeakHashMap<Integer, EmptyToken> cache = new WeakHashMap<Integer, EmptyToken>();
+
+		/**
+		 * Factory method to find a proper {@link EmptyToken}.
+		 * 
+		 * @param position
+		 *            The position of the gap.
+		 * @return A cached, or a new instance of {@link EmptyToken}.
+		 */
+		public synchronized static EmptyToken get(final int position) {
+			final Integer pos = Integer.valueOf(position);
+			final EmptyToken emptyToken = new EmptyToken(position);
+			if (!cache.containsKey(pos)) {
+				cache.put(pos, emptyToken);
+			}
+			return cache.get(pos);
+		}
+	}
 
 	private final String content;
 	private final int startPosition;
