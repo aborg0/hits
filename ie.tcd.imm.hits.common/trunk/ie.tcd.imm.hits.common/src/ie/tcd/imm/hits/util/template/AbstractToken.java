@@ -58,7 +58,7 @@ public abstract class AbstractToken implements Token {
 		}
 	}
 
-	private final String content;
+	private final String text;
 	private final int startPosition;
 	private final int endPosition;
 
@@ -76,7 +76,7 @@ public abstract class AbstractToken implements Token {
 		super();
 		this.startPosition = startPosition;
 		this.endPosition = endPosition;
-		this.content = content;
+		this.text = content;
 	}
 
 	@Override
@@ -89,16 +89,26 @@ public abstract class AbstractToken implements Token {
 		return startPosition;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.util.template.Token#getText()
+	 */
+	@Override
+	public String getText() {
+		return text;
+	}
+
 	@Override
 	public String toString() {
-		return content;
+		return "#" + text + "#(" + startPosition + ")";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (content == null ? 0 : content.hashCode());
+		result = prime * result + (text == null ? 0 : text.hashCode());
 		result = prime * result + endPosition;
 		result = prime * result + startPosition;
 		return result;
@@ -116,11 +126,11 @@ public abstract class AbstractToken implements Token {
 			return false;
 		}
 		final AbstractToken other = (AbstractToken) obj;
-		if (content == null) {
-			if (other.content != null) {
+		if (text == null) {
+			if (other.text != null) {
 				return false;
 			}
-		} else if (!content.equals(other.content)) {
+		} else if (!text.equals(other.text)) {
 			return false;
 		}
 		if (endPosition != other.endPosition) {

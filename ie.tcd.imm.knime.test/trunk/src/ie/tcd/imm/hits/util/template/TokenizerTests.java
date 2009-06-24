@@ -7,6 +7,9 @@ import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 import ie.tcd.imm.hits.util.template.impl.AbstractTokenizer.SplitToken;
 import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer.GroupToken;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
@@ -20,24 +23,61 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TokenizerTests {
 
-	protected static GroupToken<SplitToken, EmptyToken> group(final String first, final String last, final int start) {
+	protected static GroupToken<SplitToken, EmptyToken> group(
+			final String first, final String last, final int start) {
 		return new GroupToken<SplitToken, EmptyToken>(new SplitToken(start,
 				start + first.length(), first), EmptyToken.get(start
 				+ first.length()), new SplitToken(start + first.length(), start
 				+ (first + last).length(), last));
 	}
 
-	protected static GroupToken<SplitToken, SimpleToken> group(final String first, final String last, final int start,
+	protected static GroupToken<SplitToken, SimpleToken> group(
+			final String first, final String last, final int start,
 			final String content) {
-				return new GroupToken<SplitToken, SimpleToken>(new SplitToken(start,
-						start + first.length(), first), new SimpleToken(start
-						+ first.length(), start + (first + content).length(), content),
-						new SplitToken(start + (first + content).length(), start
-								+ (first + content + last).length(), last));
-			}
+		return new GroupToken<SplitToken, SimpleToken>(new SplitToken(start,
+				start + first.length(), first), new SimpleToken(start
+				+ first.length(), start + (first + content).length(), content),
+				new SplitToken(start + (first + content).length(), start
+						+ (first + content + last).length(), last));
+	}
 
 	protected static SimpleToken simple(final String content, final int start) {
 		return new SimpleToken(start, start + content.length(), content);
+	}
+
+	protected static Token shift(final Token token, final int amount) {
+		if (token instanceof EmptyToken) {
+			final EmptyToken t = (EmptyToken) token;
+			return EmptyToken.get(t.getStartPosition() + amount);
+		}
+		if (token instanceof SimpleToken) {
+			final SimpleToken s = (SimpleToken) token;
+			return new SimpleToken(s.getStartPosition() + amount, s
+					.getEndPosition()
+					+ amount, s.getText());
+		}
+		if (token instanceof SplitToken) {
+			final SplitToken s = (SplitToken) token;
+			return new SplitToken(s.getStartPosition() + amount, s
+					.getEndPosition()
+					+ amount, s.getText());
+		}
+		if (token instanceof GroupToken) {
+			final GroupToken<? extends Token, ? extends Token> g = (GroupToken<?, ?>) token;
+			return new GroupToken(shift(g.getGroupStart(), amount), shift(g
+					.getContent(), amount), shift(g.getGroupEnd(), amount));
+		}
+		throw new UnsupportedOperationException("Not yet supported: "
+				+ token.getClass());
+	}
+
+	protected static List<Token> shift(final Iterable<? extends Token> tokens,
+			final int amount) {
+		final List<Token> ret = new ArrayList<Token>();
+		for (final Token token : tokens) {
+			ret.add(shift(token, amount));
+		}
+		return ret;
 	}
 
 	protected abstract Tokenizer create();

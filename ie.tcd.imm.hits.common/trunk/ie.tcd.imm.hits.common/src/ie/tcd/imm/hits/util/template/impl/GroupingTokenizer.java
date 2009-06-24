@@ -52,7 +52,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 		public GroupToken(final GroupTokenType groupStart,
 				final ContentTokenType content, final GroupTokenType groupEnd) {
 			super(content.getStartPosition(), content.getEndPosition(), content
-					.toString());
+					.getText());
 			this.groupStart = groupStart;
 			this.content = content;
 			this.groupEnd = groupEnd;
@@ -160,7 +160,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 		for (final Token token : splittedTokens) {
 			if (token instanceof SplitToken) {
 				final SplitToken splitToken = (SplitToken) token;
-				if (groupStart.matcher(splitToken.toString()).matches()) {
+				if (groupStart.matcher(splitToken.getText()).matches()) {
 					if (startToken != null) {
 						throw new<Pair<SplitToken, List<Token>>> TokenizeException(
 								"This part does not support embedded groups.",
@@ -173,7 +173,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 					assert puffer.isEmpty() : puffer;
 					startToken = splitToken;
 				}
-				if (groupEnd.matcher(splitToken.toString()).matches()) {
+				if (groupEnd.matcher(splitToken.getText()).matches()) {
 					if (startToken != null) {
 						switch (puffer.size()) {
 						case 0:
@@ -190,6 +190,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 									"Not supported multiple content in a group.");
 						}
 						startToken = null;
+						puffer.clear();
 					} else {
 						throw new<Pair<SplitToken, List<Token>>> TokenizeException(
 								"Group end without group start. Please review you expressions.",

@@ -102,8 +102,8 @@ public class AbstractTokenizer implements Tokenizer, Serializable {
 			{
 				break;
 			}
-			ret.add(new SplitToken(matcher.start() - offset, matcher.end()
-					- offset, matcher.group()));
+			ret.add(new SplitToken(matcher.start() + offset, matcher.end()
+					+ offset, matcher.group()));
 			beginOffset += matcher.group().length();
 		}
 		return ret;

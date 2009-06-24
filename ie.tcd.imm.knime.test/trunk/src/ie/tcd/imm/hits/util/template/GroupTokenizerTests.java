@@ -45,7 +45,7 @@ public class GroupTokenizerTests extends TokenizerTests {
 						Arrays.asList(new Token[] { simple("a", 0),
 								group("${", "}", 1), group("${", "}", 4) }) },
 				{ "${a}${}", Arrays.asList((Token) group("${", "}", 0, "a")),
-						group("${", "}", 4) },
+						group("${", "}", 4) },// Gives error in TestNG
 				{
 						"a${}b${}",
 						Arrays.asList(simple("a", 0), group("${", "}", 1),
@@ -60,13 +60,23 @@ public class GroupTokenizerTests extends TokenizerTests {
 								group("${", "}", 4, "b")) },
 				{ "${}a${}",
 						Arrays.asList(group("${", "}", 0), simple("a", 3)),
-						group("${", "}", 4) }, };
+						group("${", "}", 4) },// Gives error in TestNG
+		};
 	}
 
 	@Test(dataProvider = "default")
 	public void defaultTests(final String input, final List<Token> expected)
 			throws TokenizeException {
 		Assert.assertEquals(create().parse(input), expected);
+	}
+
+	@Test(dataProvider = "default")
+	public void shiftedDefaultTests(final String input,
+			final List<Token> expected) throws TokenizeException {
+		Assert.assertEquals(new GroupingTokenizer(1, "\\$\\{", "\\}").parse("x"
+				+ input), shift(expected, 1));
+		Assert.assertEquals(new GroupingTokenizer(2, "\\$\\{", "\\}")
+				.parse("xy" + input), shift(expected, 2));
 	}
 
 	@DataProvider(name = "failingTests")

@@ -22,4 +22,7 @@ public interface Token extends Serializable {
 
 	/** @return the position from {@code 0}, end of the token {@code + 1} */
 	int getEndPosition();
+
+	/** @return the text matched */
+	public String getText();
 }
