@@ -11,7 +11,9 @@ import ie.tcd.imm.hits.util.template.Tokenizer;
 import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -28,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class GroupingTokenizer extends AbstractTokenizer {
+public class GroupingTokenizer extends RegExpTokenizer {
 	private static final long serialVersionUID = -1774408671215139193L;
 
 	/**
@@ -37,7 +39,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 	 * @param <ContentTokenType>
 	 */
 	public static class GroupToken<GroupTokenType extends Token, ContentTokenType extends Token>
-			extends AbstractToken {
+			extends AbstractToken implements Iterable<Token> {
 
 		private static final long serialVersionUID = 795301323098532142L;
 		private final GroupTokenType groupStart;
@@ -127,6 +129,11 @@ public class GroupingTokenizer extends AbstractTokenizer {
 			}
 			return true;
 		}
+
+		@Override
+		public Iterator<Token> iterator() {
+			return Arrays.asList(groupStart, content, groupEnd).listIterator();
+		}
 	}
 
 	private final Pattern groupStart;
@@ -142,6 +149,19 @@ public class GroupingTokenizer extends AbstractTokenizer {
 		super(offset, "(?:" + groupStart + ")|(?:" + groupEnd + ")");
 		this.groupStart = Pattern.compile(groupStart);
 		this.groupEnd = Pattern.compile(groupEnd);
+	}
+
+	/**
+	 * @param offset
+	 * @param groupStart
+	 * @param groupEnd
+	 */
+	public GroupingTokenizer(final int offset, final Pattern groupStart,
+			final Pattern groupEnd) {
+		super(offset, "(?:" + groupStart.pattern() + ")|(?:"
+				+ groupEnd.pattern() + ")");
+		this.groupStart = groupStart;
+		this.groupEnd = groupEnd;
 	}
 
 	/*
@@ -160,7 +180,8 @@ public class GroupingTokenizer extends AbstractTokenizer {
 		for (final Token token : splittedTokens) {
 			if (token instanceof SplitToken) {
 				final SplitToken splitToken = (SplitToken) token;
-				if (groupStart.matcher(splitToken.getText()).matches()) {
+				if (groupStart.matcher(splitToken.getText()).matches()
+						&& (!groupEnd.matcher(splitToken.getText()).matches() || startToken == null)) {
 					if (startToken != null) {
 						throw new<Pair<SplitToken, List<Token>>> TokenizeException(
 								"This part does not support embedded groups.",
@@ -172,8 +193,7 @@ public class GroupingTokenizer extends AbstractTokenizer {
 					}
 					assert puffer.isEmpty() : puffer;
 					startToken = splitToken;
-				}
-				if (groupEnd.matcher(splitToken.getText()).matches()) {
+				} else if (groupEnd.matcher(splitToken.getText()).matches()) {
 					if (startToken != null) {
 						switch (puffer.size()) {
 						case 0:

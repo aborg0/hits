@@ -3,11 +3,10 @@
  */
 package ie.tcd.imm.hits.util.template;
 
-import ie.tcd.imm.hits.util.template.impl.AbstractTokenizer;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -25,6 +24,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class RegExpTokenizerTests extends TokenizerTests {
 
+	/**  */
+	private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_");
+
+	/**
+	 * @return Simple test cases for split by {@code _}.
+	 */
 	@DataProvider(name = "simple")
 	public static Object[][] simpleTests() {
 		return new Object[][] {
@@ -74,9 +79,16 @@ public class RegExpTokenizerTests extends TokenizerTests {
 
 	@Override
 	protected Tokenizer create() {
-		return new AbstractTokenizer(0, "_");
+		return new TokenizerFactory().createSplitTokenizer(UNDERSCORE_PATTERN,
+				0);
 	}
 
+	/**
+	 * 
+	 * @param input
+	 * @param expectedTokens
+	 * @throws TokenizeException
+	 */
 	@Test(dataProvider = "simple")
 	public void simple(final String input, final List<Token> expectedTokens)
 			throws TokenizeException {

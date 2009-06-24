@@ -4,8 +4,8 @@
 package ie.tcd.imm.hits.util.template;
 
 import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
-import ie.tcd.imm.hits.util.template.impl.AbstractTokenizer.SplitToken;
 import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer.GroupToken;
+import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer.SplitToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,16 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@SuppressWarnings("restriction")
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TokenizerTests {
 
+	/**
+	 * @param first
+	 * @param last
+	 * @param start
+	 * @return A {@link GroupToken}.
+	 */
 	protected static GroupToken<SplitToken, EmptyToken> group(
 			final String first, final String last, final int start) {
 		return new GroupToken<SplitToken, EmptyToken>(new SplitToken(start,
@@ -31,6 +38,13 @@ public abstract class TokenizerTests {
 				+ (first + last).length(), last));
 	}
 
+	/**
+	 * @param first
+	 * @param last
+	 * @param start
+	 * @param content
+	 * @return A {@link GroupToken}.
+	 */
 	protected static GroupToken<SplitToken, SimpleToken> group(
 			final String first, final String last, final int start,
 			final String content) {
@@ -41,10 +55,21 @@ public abstract class TokenizerTests {
 						+ (first + content + last).length(), last));
 	}
 
+	/**
+	 * 
+	 * @param content
+	 * @param start
+	 * @return A {@link SimpleToken}.
+	 */
 	protected static SimpleToken simple(final String content, final int start) {
 		return new SimpleToken(start, start + content.length(), content);
 	}
 
+	/**
+	 * @param token
+	 * @param amount
+	 * @return Shifted token.
+	 */
 	protected static Token shift(final Token token, final int amount) {
 		if (token instanceof EmptyToken) {
 			final EmptyToken t = (EmptyToken) token;
@@ -64,13 +89,19 @@ public abstract class TokenizerTests {
 		}
 		if (token instanceof GroupToken) {
 			final GroupToken<? extends Token, ? extends Token> g = (GroupToken<?, ?>) token;
-			return new GroupToken(shift(g.getGroupStart(), amount), shift(g
-					.getContent(), amount), shift(g.getGroupEnd(), amount));
+			return new GroupToken<Token, Token>(
+					shift(g.getGroupStart(), amount), shift(g.getContent(),
+							amount), shift(g.getGroupEnd(), amount));
 		}
 		throw new UnsupportedOperationException("Not yet supported: "
 				+ token.getClass());
 	}
 
+	/**
+	 * @param tokens
+	 * @param amount
+	 * @return Shifted tokens.
+	 */
 	protected static List<Token> shift(final Iterable<? extends Token> tokens,
 			final int amount) {
 		final List<Token> ret = new ArrayList<Token>();
@@ -80,6 +111,9 @@ public abstract class TokenizerTests {
 		return ret;
 	}
 
+	/**
+	 * @return Creates a {@link Tokenizer} for simple tests.
+	 */
 	protected abstract Tokenizer create();
 
 	/**
