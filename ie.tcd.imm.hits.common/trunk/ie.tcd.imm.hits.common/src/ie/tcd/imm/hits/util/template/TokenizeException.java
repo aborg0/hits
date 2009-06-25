@@ -19,8 +19,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class TokenizeException extends ParseException {
 	private static final long serialVersionUID = -419497436622379860L;
+	@Nullable
 	private final Object errorState;
 	private final int continueOffset;
+	@Nullable
 	private final Object continueState;
 
 	/**
@@ -38,7 +40,8 @@ public class TokenizeException extends ParseException {
 	 * @param continueState
 	 */
 	public <T> TokenizeException(final String s, final int errorOffset,
-			final T errorState, final int continueOffset, final T continueState) {
+			@Nullable final T errorState, final int continueOffset,
+			@Nullable final T continueState) {
 		super(s, errorOffset);
 		this.errorState = errorState;
 		this.continueOffset = continueOffset;
@@ -51,6 +54,7 @@ public class TokenizeException extends ParseException {
 	 *            parameter, but not possible.)
 	 * @return The actual {@link Tokenizer} state when the exception occurred.
 	 */
+	@Nullable
 	@SuppressWarnings("unchecked")
 	public <T> T getErrorState() {
 		return (T) errorState;

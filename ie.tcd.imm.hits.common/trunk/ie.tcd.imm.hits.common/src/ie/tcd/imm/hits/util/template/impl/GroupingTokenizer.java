@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.util.template.impl;
 
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.AbstractToken;
+import ie.tcd.imm.hits.util.template.CompoundToken;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
@@ -12,6 +13,7 @@ import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.RegEx;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
@@ -39,7 +42,7 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	 * @param <ContentTokenType>
 	 */
 	public static class GroupToken<GroupTokenType extends Token, ContentTokenType extends Token>
-			extends AbstractToken implements Iterable<Token> {
+			extends AbstractToken implements CompoundToken<Token> {
 
 		private static final long serialVersionUID = 795301323098532142L;
 		private final GroupTokenType groupStart;
@@ -138,6 +141,12 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 	private final Pattern groupStart;
 	private final Pattern groupEnd;
+	@Nullable
+	private final SplitToken origStartToken;
+	private final Collection<? extends Token> origPuffer;
+
+	private static final Pair<SplitToken, List<Token>> startState = new Pair<SplitToken, List<Token>>(
+			null, Collections.<Token> emptyList());
 
 	/**
 	 * @param offset
@@ -146,9 +155,22 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	 */
 	public GroupingTokenizer(final int offset, @RegEx final String groupStart,
 			@RegEx final String groupEnd) {
-		super(offset, "(?:" + groupStart + ")|(?:" + groupEnd + ")");
-		this.groupStart = Pattern.compile(groupStart);
-		this.groupEnd = Pattern.compile(groupEnd);
+		this(offset, groupStart, groupEnd, null, Collections
+				.<Token> emptyList());
+	}
+
+	/**
+	 * @param offset
+	 * @param groupStart
+	 * @param groupEnd
+	 * @param origStartToken
+	 * @param origPuffer
+	 */
+	public GroupingTokenizer(final int offset, @RegEx final String groupStart,
+			@RegEx final String groupEnd, @Nullable final Token origStartToken,
+			final Collection<? extends Token> origPuffer) {
+		this(offset, Pattern.compile(groupStart), Pattern.compile(groupEnd),
+				origStartToken, origPuffer);
 	}
 
 	/**
@@ -158,25 +180,40 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	 */
 	public GroupingTokenizer(final int offset, final Pattern groupStart,
 			final Pattern groupEnd) {
+		this(offset, groupStart, groupEnd, null, Collections
+				.<Token> emptyList());
+	}
+
+	/**
+	 * @param offset
+	 * @param groupStart
+	 * @param groupEnd
+	 * @param origStartToken
+	 * @param origPuffer
+	 */
+	public GroupingTokenizer(final int offset, final Pattern groupStart,
+			final Pattern groupEnd, @Nullable final Token origStartToken,
+			final Collection<? extends Token> origPuffer) {
 		super(offset, "(?:" + groupStart.pattern() + ")|(?:"
 				+ groupEnd.pattern() + ")");
 		this.groupStart = groupStart;
 		this.groupEnd = groupEnd;
+		if (origStartToken instanceof SplitToken || origStartToken == null) {
+			final SplitToken split = (SplitToken) origStartToken;
+			this.origStartToken = split;
+		} else {
+			throw new IllegalArgumentException("Wrong type: "
+					+ origStartToken.getClass());
+		}
+		this.origPuffer = new ArrayList<Token>(origPuffer);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * ie.tcd.imm.hits.util.template.impl.AbstractTokenizer#parse(java.lang.
-	 * String)
-	 */
 	@Override
 	public List<Token> parse(final String text) throws TokenizeException {
 		final List<Token> splittedTokens = splitter(text);
 		final List<Token> ret = new ArrayList<Token>(splittedTokens.size());
-		SplitToken startToken = null;
-		final List<Token> puffer = new ArrayList<Token>();
+		SplitToken startToken = origStartToken;
+		final List<Token> puffer = new ArrayList<Token>(origPuffer);
 		for (final Token token : splittedTokens) {
 			if (token instanceof SplitToken) {
 				final SplitToken splitToken = (SplitToken) token;
@@ -188,8 +225,7 @@ public class GroupingTokenizer extends RegExpTokenizer {
 								token.getStartPosition(),
 								new Pair<SplitToken, List<Token>>(startToken,
 										puffer), token.getStartPosition(),
-								new Pair<SplitToken, List<Token>>(null,
-										new ArrayList<Token>()));
+								startState);
 					}
 					assert puffer.isEmpty() : puffer;
 					startToken = splitToken;
@@ -214,12 +250,8 @@ public class GroupingTokenizer extends RegExpTokenizer {
 					} else {
 						throw new<Pair<SplitToken, List<Token>>> TokenizeException(
 								"Group end without group start. Please review you expressions.",
-								token.getStartPosition(),
-								new Pair<SplitToken, List<Token>>(null,
-										Collections.<Token> emptyList()), token
-										.getEndPosition(),
-								new Pair<SplitToken, List<Token>>(null,
-										Collections.<Token> emptyList()));
+								token.getStartPosition(), startState, token
+										.getEndPosition(), startState);
 					}
 				}
 			} else if (!(token instanceof EmptyToken)) {
@@ -233,8 +265,7 @@ public class GroupingTokenizer extends RegExpTokenizer {
 					"Not closed group: " + startToken + " @ "
 							+ (startToken.getStartPosition() + 1), errorPos,
 					new Pair<SplitToken, List<Token>>(startToken, puffer),
-					errorPos, new Pair<SplitToken, List<Token>>(null,
-							new ArrayList<Token>()));
+					errorPos, startState);
 		}
 		return ret;
 	}

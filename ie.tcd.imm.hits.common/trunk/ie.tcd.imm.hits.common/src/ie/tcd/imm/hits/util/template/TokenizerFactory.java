@@ -3,9 +3,12 @@
  */
 package ie.tcd.imm.hits.util.template;
 
+import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.template.impl.FilterTokenizer;
 import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer;
 import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
@@ -87,5 +90,20 @@ public class TokenizerFactory {
 	Tokenizer createGroupingTokenizer(final Pattern groupStart,
 			final Pattern groupEnd, final int offset) {
 		return new GroupingTokenizer(offset, groupStart, groupEnd);
+	}
+
+	/**
+	 * 
+	 * @param continueState
+	 * @param groupStart
+	 * @param groupEnd
+	 * @param offset
+	 * @return A {@link Tokenizer} with only {@link SimpleToken} results.
+	 */
+	public Tokenizer createGroupingTokenizer(
+			final Pair<? extends Token, ? extends List<? extends Token>> continueState,
+			final Pattern groupStart, final Pattern groupEnd, final int offset) {
+		return new FilterTokenizer(new GroupingTokenizer(offset, groupStart,
+				groupEnd, continueState.getLeft(), continueState.getRight()));
 	}
 }
