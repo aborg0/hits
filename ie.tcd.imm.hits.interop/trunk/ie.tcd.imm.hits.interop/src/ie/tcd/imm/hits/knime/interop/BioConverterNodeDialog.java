@@ -15,12 +15,15 @@ import java.util.Map.Entry;
 
 import java.lang.reflect.Array;
 
+import org.knime.core.data.DataValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentWithDefaults;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -131,10 +134,18 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				DialogType.name, PublicConstants.PLATE_COLUMN);
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, true,
 				DialogType.format, "\\d+");
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
+				DialogType.name, PublicConstants.PLATE_COL_NAME);
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
+				DialogType.format, "\\d+");
 		setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
 				DialogType.name, "barcode");
 		setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
-				DialogType.format, "(?:[^\\d]*(\\d+)_(?:\\d+)");
+				DialogType.format, "(?:[^\\d]*)(\\d+)_(?:\\d+)");
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+				DialogType.name, PublicConstants.PLATE_COLUMN);
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+				DialogType.format, "${Plate}");
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
 				DialogType.name, PublicConstants.PLATE_COL_NAME);
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
@@ -147,10 +158,18 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				DialogType.name, PublicConstants.REPLICATE_COLUMN);
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate, true,
 				DialogType.format, "\\d+");
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+				true, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+				true, DialogType.format, "\\d+");
 		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
 				DialogType.name, "barcode");
 		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
 				DialogType.format, "(?:[^_]*_(\\d+)");
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+				false, DialogType.name, PublicConstants.REPLICATE_COLUMN);
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+				false, DialogType.format, "\\d+");
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
 				false, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
@@ -318,17 +337,27 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				for (final boolean left : new boolean[] { true, false }) {
 					final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
 							.get(colType);
-					(left ? pair.getLeft() : pair.getRight()).put(dialogType,
-							new DialogComponentString(new SettingsModelString(
-									cfgKeys.get(colType).get(
-											Boolean.valueOf(left)).get(
-											dialogType), defaults.get(colType)
-											.get(Boolean.valueOf(left)).get(
-													dialogType)),
-									(left ? "input " : "output ")
-											+ colType.getDisplayText() + " "
-											+ dialogType.name() + ": ", false,
-									40));
+					final String configName = cfgKeys.get(colType).get(
+							Boolean.valueOf(left)).get(dialogType);
+					final String defaultValue = defaults.get(colType).get(
+							Boolean.valueOf(left)).get(dialogType);
+					final boolean colSelection = dialogType == DialogType.name
+							&& left;
+					final SettingsModelString stringModel = colSelection ? new SettingsModelColumnName(
+							configName, defaultValue)
+							: new SettingsModelString(configName, defaultValue);
+					final String label = (left ? "input " : "output ")
+							+ colType.getDisplayText() + " "
+							+ dialogType.name() + ": ";
+					(left ? pair.getLeft() : pair.getRight())
+							.put(
+									dialogType,
+									colSelection ? new DialogComponentColumnNameSelection(
+											stringModel, label, 0,
+											DataValue.class)
+											: new DialogComponentString(
+													stringModel, label, false,
+													40));
 				}
 			}
 		}

@@ -2,15 +2,32 @@ package ie.tcd.imm.hits.knime.interop;
 
 import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 import ie.tcd.imm.hits.util.Displayable;
+import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.template.Token;
+import ie.tcd.imm.hits.util.template.Tokenizer;
+import ie.tcd.imm.hits.util.template.TokenizerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
+import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.container.ColumnRearranger;
+import org.knime.core.data.container.SingleCellFactory;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -103,7 +120,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/** Configuration key for output plate format. */
 	static final String CFGKEY_PLATE_OUT_FORMAT = "plateOut.format";
 	/** Default value for output plate format. */
-	static final String DEFAULT_PLATE_OUT_FORMAT = "%d";
+	static final String DEFAULT_PLATE_OUT_FORMAT = "${Plate}";
 
 	/** Configuration key for input replicate group. */
 	static final String CFGKEY_REPLICATE_IN_GROUP = "replicate.in.group";
@@ -132,7 +149,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/** Configuration key for output replicate format. */
 	static final String CFGKEY_REPLICATE_OUT_FORMAT = "replicateOut.format";
 	/** Default value for output replicate format. */
-	static final String DEFAULT_REPLICATE_OUT_FORMAT = "%d";
+	static final String DEFAULT_REPLICATE_OUT_FORMAT = "${Replicate}";
+	protected static final NodeLogger logger = NodeLogger
+			.getLogger(BioConverterNodeModel.class);
 
 	private final SettingsModelString generalInGroup = new SettingsModelString(
 			CFGKEY_GENERAL_IN_GROUP, DEFAULT_GENERAL_IN_GROUP);
@@ -167,11 +186,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	private final SettingsModelColumnName plateInModel = new SettingsModelColumnName(
 			CFGKEY_PLATE_IN, DEFAULT_PLATE_IN);
-	private final SettingsModelColumnName plateInFormatModel = new SettingsModelColumnName(
+	private final SettingsModelString plateInFormatModel = new SettingsModelString(
 			CFGKEY_PLATE_IN_FORMAT, DEFAULT_PLATE_IN_FORMAT);
-	private final SettingsModelColumnName plateOutModel = new SettingsModelColumnName(
+	private final SettingsModelString plateOutModel = new SettingsModelString(
 			CFGKEY_PLATE_OUT, DEFAULT_PLATE_OUT);
-	private final SettingsModelColumnName plateOutFormatModel = new SettingsModelColumnName(
+	private final SettingsModelString plateOutFormatModel = new SettingsModelString(
 			CFGKEY_PLATE_OUT_FORMAT, DEFAULT_PLATE_OUT_FORMAT);
 
 	private final SettingsModelString replicateInGroup = new SettingsModelString(
@@ -181,11 +200,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	private final SettingsModelColumnName replicateInModel = new SettingsModelColumnName(
 			CFGKEY_REPLICATE_IN, DEFAULT_REPLICATE_IN);
-	private final SettingsModelColumnName replicateInFormatModel = new SettingsModelColumnName(
+	private final SettingsModelString replicateInFormatModel = new SettingsModelString(
 			CFGKEY_REPLICATE_IN_FORMAT, DEFAULT_REPLICATE_IN_FORMAT);
-	private final SettingsModelColumnName replicateOutModel = new SettingsModelColumnName(
+	private final SettingsModelString replicateOutModel = new SettingsModelString(
 			CFGKEY_REPLICATE_OUT, DEFAULT_REPLICATE_OUT);
-	private final SettingsModelColumnName replicateOutFormatModel = new SettingsModelColumnName(
+	private final SettingsModelString replicateOutFormatModel = new SettingsModelString(
 			CFGKEY_REPLICATE_OUT_FORMAT, DEFAULT_REPLICATE_OUT_FORMAT);
 
 	private final SettingsModelString[] inNames = new SettingsModelString[] {
@@ -208,25 +227,92 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return null;
+		return new DataTableSpec[] { createRearranger(inSpecs[0]).createSpec() };
 	}
 
 	@Override
 	protected BufferedDataTable[] executeDerived(
 			final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		final ColumnRearranger rearranger = new ColumnRearranger(inData[0]
+		final ColumnRearranger rearranger = createRearranger(inData[0]
 				.getDataTableSpec());
 		// rearranger.
-		if (addUnmatched.getBooleanValue()) {
-			final int[] allButMatched = allButMatched(
-					computeMatchedColumnIndices(rearranger.createSpec()),
-					inData[0].getDataTableSpec().getNumColumns());
-			rearranger.remove(allButMatched);
-		}
 		final BufferedDataTable table = exec.createColumnRearrangeTable(
 				inData[0], rearranger, exec);
 		return new BufferedDataTable[] { table };
+	}
+
+	/**
+	 * @param dataTableSpec
+	 * @return
+	 */
+	private ColumnRearranger createRearranger(final DataTableSpec dataTableSpec) {
+		final ColumnRearranger ret = new ColumnRearranger(dataTableSpec);
+		if (!addUnmatched.getBooleanValue()) {
+			final int[] allButMatched = allButMatched(
+					computeMatchedColumnIndices(ret.createSpec()),
+					dataTableSpec.getNumColumns());
+			ret.remove(allButMatched);
+		}
+		if (!keepOriginal.getBooleanValue())// Remove later not matched columns
+		{
+
+		}
+		if (generateMissing.getBooleanValue())// Try to generate missing column
+		// values
+		{
+
+		}
+		final String plateOutName = plateOutModel.getStringValue();
+		final String replicateOutName = replicateOutModel.getStringValue();
+		ret.append(new SingleCellFactory(new DataColumnSpecCreator(
+				plateOutName, IntCell.TYPE).createSpec()) {
+			int origColumnIndex = dataTableSpec.findColumnIndex(plateInModel
+					.getColumnName());
+
+			Pattern selectPattern = Pattern.compile(plateInFormatModel
+					.getStringValue());
+
+			int count = 0;
+
+			@Override
+			public DataCell getCell(final DataRow row) {
+				final DataCell cell = row.getCell(origColumnIndex);
+				final DataCell result;
+				if (cell.isMissing()) {
+					if (generateMissing.getBooleanValue()) {
+						// FIXME
+						result = new IntCell(count++);
+					} else {
+						result = DataType.getMissingCell();
+					}
+				} else if (cell instanceof DoubleValue) {
+					final DoubleValue v = (DoubleValue) cell;
+					result = (DataCell) v;
+				} else if (cell instanceof IntValue) {
+					final IntValue v = (IntValue) cell;
+					result = (DataCell) v;
+				} else if (cell instanceof StringValue) {
+					final StringValue str = (StringValue) cell;
+					final String pattern = plateOutFormatModel.getStringValue();
+					final Tokenizer groupingTokenizer = new TokenizerFactory()
+							.createGroupingTokenizer(
+									new Pair<Token, List<? extends Token>>(
+											null, Collections
+													.<Token> emptyList()),
+									Pattern.compile("\\$\\{"), Pattern
+											.compile("\\}"), 0);
+					result = new IntCell(Integer.parseInt(selectPattern
+							.matcher(str.getStringValue()).group(1)));
+				} else {
+					throw new IllegalStateException("Unknown type: "
+							+ cell.getType());
+				}
+
+				return result;
+			}
+		});
+		return ret;
 	}
 
 	/**

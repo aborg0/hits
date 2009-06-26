@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -62,15 +62,18 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		for (final String option : defaultValues.keySet()) {
 			selectionBox.addItem(option);
 		}
-		selectionBox.addActionListener(new ActionListener() {
+		selectionBox.setEditable(false);
+		selectionBox.addItemListener(new ItemListener() {
+
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void itemStateChanged(final ItemEvent e) {
+				// TODO Auto-generated method stub
+
 				((SettingsModelString) getModel())
 						.setStringValue((String) selectionBox.getSelectedItem());
 				updateComponent();
 			}
 		});
-		selectionBox.setEditable(false);
 		getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
@@ -112,7 +115,9 @@ public class DialogComponentWithDefaults extends DialogComponent {
 	protected void updateComponent() {
 		final String newSelection = ((SettingsModelString) getModel())
 				.getStringValue();
-		selectionBox.setSelectedItem(newSelection);
+		if (!newSelection.equals(selectionBox.getSelectedItem())) {
+			selectionBox.setSelectedItem(newSelection);
+		}
 		final String selection = (String) selectionBox.getSelectedItem();
 		final Boolean[] enablements = enablementOptions.get(selection);
 		final Object[] defaults = defaultValues.get(selection);
@@ -120,8 +125,14 @@ public class DialogComponentWithDefaults extends DialogComponent {
 			components[i].getModel().setEnabled(enablements[i].booleanValue());
 			if (defaults[i] instanceof String) {
 				final String newValue = (String) defaults[i];
-				((SettingsModelString) components[i].getModel())
-						.setStringValue(newValue);
+				if (components[i] instanceof DialogComponentColumnNameSelection) {
+					final DialogComponentColumnNameSelection nameSelector = (DialogComponentColumnNameSelection) components[i];
+					((SettingsModelColumnName) nameSelector.getModel())
+							.setSelection(newValue, false);
+				} else {
+					((SettingsModelString) components[i].getModel())
+							.setStringValue(newValue);
+				}
 			} else if (defaults[i] instanceof String[]) {
 				final String[] newValue = (String[]) defaults[i];
 				((SettingsModelStringArray) components[i].getModel())
@@ -142,18 +153,21 @@ public class DialogComponentWithDefaults extends DialogComponent {
 											.getClass()));
 				}
 			}
+			components[i].updateComponent();
 		}
+		selectionBox.setEnabled(getModel().isEnabled());
 	}
 
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
 		// Done in construction.
-		final String selection = ((SettingsModelString) getModel())
-				.getStringValue();
+		final String selection = (String) selectionBox.getSelectedItem();
 		if (!defaultValues.containsKey(selection)) {
 			throw new InvalidSettingsException("No valid defaults found for "
 					+ selection);
 		}
+		// updateComponent();
+		// ((SettingsModelString) getModel()).setStringValue(selection);
 	}
 
 	@Override
@@ -171,4 +185,5 @@ public class DialogComponentWithDefaults extends DialogComponent {
 	public void setToolTipText(final String text) {
 		getComponentPanel().setToolTipText(text);
 	}
+
 }
