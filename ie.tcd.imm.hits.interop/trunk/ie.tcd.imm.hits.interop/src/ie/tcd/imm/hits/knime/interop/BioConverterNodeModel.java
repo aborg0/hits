@@ -198,6 +198,19 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		super(1, 1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.knime.core.node.NodeModel#configure(org.knime.core.data.DataTableSpec
+	 * [])
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+			throws InvalidSettingsException {
+		return null;
+	}
+
 	@Override
 	protected BufferedDataTable[] executeDerived(
 			final BufferedDataTable[] inData, final ExecutionContext exec)

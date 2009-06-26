@@ -14,6 +14,8 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
@@ -63,10 +65,19 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		selectionBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				((SettingsModelString) getModel())
+						.setStringValue((String) selectionBox.getSelectedItem());
 				updateComponent();
 			}
 		});
 		selectionBox.setEditable(false);
+		getModel().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				updateComponent();
+			}
+		});
+		updateComponent();
 	}
 
 	/**
@@ -99,6 +110,9 @@ public class DialogComponentWithDefaults extends DialogComponent {
 
 	@Override
 	protected void updateComponent() {
+		final String newSelection = ((SettingsModelString) getModel())
+				.getStringValue();
+		selectionBox.setSelectedItem(newSelection);
 		final String selection = (String) selectionBox.getSelectedItem();
 		final Boolean[] enablements = enablementOptions.get(selection);
 		final Object[] defaults = defaultValues.get(selection);
@@ -121,8 +135,12 @@ public class DialogComponentWithDefaults extends DialogComponent {
 				((SettingsModelDouble) components[i].getModel())
 						.setDoubleValue(newValue.doubleValue());
 			} else {
-				throw new UnsupportedOperationException(
-						"Not supported value type: " + defaults[i].getClass());
+				if (defaults[i] != null) {
+					throw new UnsupportedOperationException(
+							"Not supported value type: "
+									+ (defaults[i] == null ? null : defaults[i]
+											.getClass()));
+				}
 			}
 		}
 	}
@@ -132,7 +150,7 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		// Done in construction.
 		final String selection = ((SettingsModelString) getModel())
 				.getStringValue();
-		if (!defaultValues.containsValue(selection)) {
+		if (!defaultValues.containsKey(selection)) {
 			throw new InvalidSettingsException("No valid defaults found for "
 					+ selection);
 		}
