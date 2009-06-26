@@ -1,16 +1,23 @@
 package ie.tcd.imm.hits.knime.interop;
 
+import ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType;
 import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 import ie.tcd.imm.hits.util.Displayable;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.Token;
-import ie.tcd.imm.hits.util.template.Tokenizer;
+import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.TokenizerFactory;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.knime.core.data.DataCell;
@@ -23,7 +30,9 @@ import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -41,6 +50,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BioConverterNodeModel extends TransformingNodeModel {
+	/** A {@link NodeLogger}. */
+	protected static final NodeLogger logger = NodeLogger
+			.getLogger(BioConverterNodeModel.class);
+
 	/**
 	 * Possible conversion targets.
 	 */
@@ -121,6 +134,10 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	static final String CFGKEY_PLATE_OUT_FORMAT = "plateOut.format";
 	/** Default value for output plate format. */
 	static final String DEFAULT_PLATE_OUT_FORMAT = "${Plate}";
+	/** Configuration key for output plate column type. */
+	static final String CFGKEY_PLATE_OUT_TYPE = "plateOut.type";
+	/** Default value for output plate column type. */
+	static final String DEFAULT_PLATE_OUT_TYPE = "Integer";
 
 	/** Configuration key for input replicate group. */
 	static final String CFGKEY_REPLICATE_IN_GROUP = "replicate.in.group";
@@ -150,8 +167,13 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	static final String CFGKEY_REPLICATE_OUT_FORMAT = "replicateOut.format";
 	/** Default value for output replicate format. */
 	static final String DEFAULT_REPLICATE_OUT_FORMAT = "${Replicate}";
-	protected static final NodeLogger logger = NodeLogger
-			.getLogger(BioConverterNodeModel.class);
+	/** Configuration key for output replicate column type. */
+	static final String CFGKEY_REPLICATE_OUT_TYPE = "replicateOut.type";
+	/** Default value for output replicate column type. */
+	static final String DEFAULT_REPLICATE_OUT_TYPE = "Integer";
+
+	private static final Pattern groupStart = Pattern.compile("\\$\\{");
+	private static final Pattern groupEnd = Pattern.compile("\\}");
 
 	private final SettingsModelString generalInGroup = new SettingsModelString(
 			CFGKEY_GENERAL_IN_GROUP, DEFAULT_GENERAL_IN_GROUP);
@@ -192,6 +214,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			CFGKEY_PLATE_OUT, DEFAULT_PLATE_OUT);
 	private final SettingsModelString plateOutFormatModel = new SettingsModelString(
 			CFGKEY_PLATE_OUT_FORMAT, DEFAULT_PLATE_OUT_FORMAT);
+	private final SettingsModelString plateOutTypeModel = new SettingsModelString(
+			CFGKEY_PLATE_OUT_TYPE, DEFAULT_PLATE_OUT_TYPE);
 
 	private final SettingsModelString replicateInGroup = new SettingsModelString(
 			CFGKEY_REPLICATE_IN_GROUP, DEFAULT_REPLICATE_IN_GROUP);
@@ -206,6 +230,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			CFGKEY_REPLICATE_OUT, DEFAULT_REPLICATE_OUT);
 	private final SettingsModelString replicateOutFormatModel = new SettingsModelString(
 			CFGKEY_REPLICATE_OUT_FORMAT, DEFAULT_REPLICATE_OUT_FORMAT);
+	private final SettingsModelString replicateOutTypeModel = new SettingsModelString(
+			CFGKEY_REPLICATE_OUT_TYPE, DEFAULT_REPLICATE_OUT_TYPE);
 
 	private final SettingsModelString[] inNames = new SettingsModelString[] {
 			plateInModel, replicateInModel };
@@ -227,7 +253,13 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new DataTableSpec[] { createRearranger(inSpecs[0]).createSpec() };
+		try {
+			return new DataTableSpec[] { createRearranger(inSpecs[0])
+					.createSpec() };
+		} catch (final TokenizeException e) {
+			logger.warn("Problem: " + e.getMessage(), e);
+			throw new InvalidSettingsException(e);
+		}
 	}
 
 	@Override
@@ -245,8 +277,10 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**
 	 * @param dataTableSpec
 	 * @return
+	 * @throws TokenizeException
 	 */
-	private ColumnRearranger createRearranger(final DataTableSpec dataTableSpec) {
+	private ColumnRearranger createRearranger(final DataTableSpec dataTableSpec)
+			throws TokenizeException {
 		final ColumnRearranger ret = new ColumnRearranger(dataTableSpec);
 		if (!addUnmatched.getBooleanValue()) {
 			final int[] allButMatched = allButMatched(
@@ -265,54 +299,200 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		}
 		final String plateOutName = plateOutModel.getStringValue();
 		final String replicateOutName = replicateOutModel.getStringValue();
-		ret.append(new SingleCellFactory(new DataColumnSpecCreator(
-				plateOutName, IntCell.TYPE).createSpec()) {
-			int origColumnIndex = dataTableSpec.findColumnIndex(plateInModel
-					.getColumnName());
+		final Map<String, List<ColumnType>> newColumns = new LinkedHashMap<String, List<ColumnType>>();
+		putOrAdd(newColumns, plateOutName, ColumnType.Plate);
+		putOrAdd(newColumns, replicateOutName, ColumnType.Replicate);
+		final Map<ColumnType, Pattern> patterns = new EnumMap<ColumnType, Pattern>(
+				ColumnType.class);
+		patterns.put(ColumnType.Plate, Pattern.compile(plateInFormatModel
+				.getStringValue()));
+		patterns.put(ColumnType.Replicate, Pattern
+				.compile(replicateInFormatModel.getStringValue()));
+		final Map<ColumnType, List<Token>> outFormats = new EnumMap<ColumnType, List<Token>>(
+				ColumnType.class);
+		outFormats.put(ColumnType.Plate, new TokenizerFactory()
+				.createGroupingTokenizer(
+						new Pair<Token, List<? extends Token>>(null,
+								new ArrayList<Token>()), groupStart, groupEnd,
+						0).parse(plateOutFormatModel.getStringValue()));
+		outFormats.put(ColumnType.Replicate, new TokenizerFactory()
+				.createGroupingTokenizer(
+						new Pair<Token, List<? extends Token>>(null,
+								new ArrayList<Token>()), groupStart, groupEnd,
+						0).parse(replicateOutFormatModel.getStringValue()));
+		final EnumMap<ColumnType, Pattern> inPatterns = new EnumMap<ColumnType, Pattern>(
+				ColumnType.class);
+		inPatterns.put(ColumnType.Plate, Pattern.compile(plateInFormatModel
+				.getStringValue()));
+		inPatterns.put(ColumnType.Replicate, Pattern
+				.compile(replicateInFormatModel.getStringValue()));
+		final EnumMap<ColumnType, DataType> outTypes = new EnumMap<ColumnType, DataType>(
+				ColumnType.class);
+		outTypes.put(ColumnType.Plate, findType(plateOutTypeModel
+				.getStringValue()));
+		outTypes.put(ColumnType.Replicate, findType(replicateOutTypeModel
+				.getStringValue()));
+		final NavigableMap<String, ColumnType> dictionary = new TreeMap<String, ColumnType>(
+				String.CASE_INSENSITIVE_ORDER);
+		for (final ColumnType ct : ColumnType.values()) {
+			dictionary.put(ct.getDisplayText(), ct);
+		}
+		for (final Entry<String, List<ColumnType>> entry : newColumns
+				.entrySet()) {
+			final String newColumn = entry.getKey();
+			final ColumnType columnType = entry.getValue().iterator().next();// assert
+			// sameall
+			final SingleCellFactory factory = new SingleCellFactory(
+					new DataColumnSpecCreator(newColumn, outTypes
+							.get(columnType)).createSpec()) {
+				Map<ColumnType, Integer> origColumnIndices = new EnumMap<ColumnType, Integer>(
+						ColumnType.class);
+				{
+					origColumnIndices.put(ColumnType.Plate, Integer
+							.valueOf(dataTableSpec.findColumnIndex(plateInModel
+									.getColumnName())));
+					origColumnIndices.put(ColumnType.Replicate, Integer
+							.valueOf(dataTableSpec
+									.findColumnIndex(replicateInModel
+											.getColumnName())));
 
-			Pattern selectPattern = Pattern.compile(plateInFormatModel
-					.getStringValue());
-
-			int count = 0;
-
-			@Override
-			public DataCell getCell(final DataRow row) {
-				final DataCell cell = row.getCell(origColumnIndex);
-				final DataCell result;
-				if (cell.isMissing()) {
-					if (generateMissing.getBooleanValue()) {
-						// FIXME
-						result = new IntCell(count++);
-					} else {
-						result = DataType.getMissingCell();
+					if (outFormats.get(entry.getValue().iterator().next())
+							.size() != 1
+							&& outTypes.get(entry.getValue().iterator().next()) != StringCell.TYPE) {
+						throw new IllegalStateException("Wrong format for "
+								+ entry.getValue().iterator().next());
 					}
-				} else if (cell instanceof DoubleValue) {
-					final DoubleValue v = (DoubleValue) cell;
-					result = (DataCell) v;
-				} else if (cell instanceof IntValue) {
-					final IntValue v = (IntValue) cell;
-					result = (DataCell) v;
-				} else if (cell instanceof StringValue) {
-					final StringValue str = (StringValue) cell;
-					final String pattern = plateOutFormatModel.getStringValue();
-					final Tokenizer groupingTokenizer = new TokenizerFactory()
-							.createGroupingTokenizer(
-									new Pair<Token, List<? extends Token>>(
-											null, Collections
-													.<Token> emptyList()),
-									Pattern.compile("\\$\\{"), Pattern
-											.compile("\\}"), 0);
-					result = new IntCell(Integer.parseInt(selectPattern
-							.matcher(str.getStringValue()).group(1)));
-				} else {
-					throw new IllegalStateException("Unknown type: "
-							+ cell.getType());
 				}
 
-				return result;
+				// Pattern selectPattern = Pattern.compile(plateInFormatModel
+				// .getStringValue());
+
+				int count = 0;
+
+				@Override
+				public DataCell getCell(final DataRow row) {
+					final Map<ColumnType, DataCell> cells = new EnumMap<ColumnType, DataCell>(
+							ColumnType.class);
+					for (final ColumnType ct : ColumnType.values()) {
+						cells.put(ct, row.getCell(origColumnIndices.get(ct)));
+					}
+					// final DataCell cell = row.getCell(origColumnIndex);
+					final DataCell result;
+					final DataType type = outTypes.get(columnType);
+					final Token firstToken = outFormats.get(columnType)
+							.iterator().next();
+					if (type == IntCell.TYPE) {
+						final ColumnType origType = dictionary.get(firstToken
+								.getText());
+						final DataCell cell = row.getCell(origColumnIndices
+								.get(origType).intValue());
+						if (cell.isMissing()) {
+							if (generateMissing.getBooleanValue()) {
+								// FIXME
+								result = new IntCell(count++);
+							} else {
+								result = DataType.getMissingCell();
+							}
+						} else if (cell instanceof IntValue) {
+							final IntValue v = (IntValue) cell;
+							result = (DataCell) v;
+						} else if (cell instanceof DoubleValue) {
+							final DoubleValue v = (DoubleValue) cell;
+							result = new IntCell((int) Math.round(v
+									.getDoubleValue()));
+						} else if (cell instanceof StringValue) {
+							final StringValue str = (StringValue) cell;
+							result = new IntCell(Integer.parseInt(inPatterns
+									.get(origType)
+									.matcher(str.getStringValue()).group(1)));
+						} else {
+							throw new IllegalStateException(
+									"Unsupported cell type: " + cell.getClass());
+						}
+					} else if (type == DoubleCell.TYPE) {
+						final ColumnType origType = dictionary.get(firstToken
+								.getText());
+						final DataCell cell = row.getCell(origColumnIndices
+								.get(origType).intValue());
+						if (cell.isMissing()) {
+							if (generateMissing.getBooleanValue()) {
+								// FIXME
+								result = new DoubleCell(count++);
+							} else {
+								result = DataType.getMissingCell();
+							}
+						} else if (cell instanceof DoubleValue) {
+							final DoubleValue v = (DoubleValue) cell;
+							result = (DataCell) v;
+						} else if (cell instanceof StringValue) {
+							final StringValue str = (StringValue) cell;
+							result = new DoubleCell(Double
+									.parseDouble(inPatterns.get(origType)
+											.matcher(str.getStringValue())
+											.group(1)));
+						} else {
+							throw new IllegalStateException(
+									"Unsupported cell type: " + cell.getClass());
+						}
+
+					} else if (type == StringCell.TYPE) {
+						final StringBuilder sb = new StringBuilder();
+						for (final Token token : outFormats.get(columnType)) {
+							if (dictionary.containsKey(token.getText())) {
+								sb.append(cells.get(
+										dictionary.get(token.getText()))
+										.toString());
+							} else {
+								sb.append(token.getText());
+							}
+						}
+						result = new StringCell(sb.toString());
+					} else {
+						throw new IllegalStateException("Wrong type: " + type);
+					}
+
+					return result;
+				}
+			};
+			if (ret.createSpec().containsName(newColumn)) {
+				ret.replace(factory, newColumn);
+			} else {
+				ret.append(factory);
 			}
-		});
+		}
 		return ret;
+	}
+
+	/**
+	 * @param typeName
+	 * @return
+	 */
+	private DataType findType(final String typeName) {
+		if ("Integer".equalsIgnoreCase(typeName)) {
+			return IntCell.TYPE;
+		}
+		if ("Real".equalsIgnoreCase(typeName)) {
+			return DoubleCell.TYPE;
+		}
+		if ("String".equalsIgnoreCase(typeName)) {
+			return StringCell.TYPE;
+		}
+		throw new IllegalArgumentException("Unsupported type: " + typeName);
+	}
+
+	/**
+	 * @param <K>
+	 * @param <V>
+	 * @param map
+	 * @param key
+	 * @param value
+	 */
+	private static <K, V> void putOrAdd(final Map<K, List<V>> map, final K key,
+			final V value) {
+		if (!map.containsKey(key)) {
+			map.put(key, new ArrayList<V>());
+		}
+		map.get(key).add(value);
 	}
 
 	/**
@@ -370,6 +550,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		plateOutGroup.saveSettingsTo(settings);
 		plateOutModel.saveSettingsTo(settings);
 		plateOutFormatModel.saveSettingsTo(settings);
+		plateOutTypeModel.saveSettingsTo(settings);
 		// Replicates
 		replicateInGroup.saveSettingsTo(settings);
 		replicateInModel.saveSettingsTo(settings);
@@ -377,6 +558,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		replicateOutGroup.saveSettingsTo(settings);
 		replicateOutModel.saveSettingsTo(settings);
 		replicateOutFormatModel.saveSettingsTo(settings);
+		replicateOutTypeModel.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -395,6 +577,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		plateOutGroup.loadSettingsFrom(settings);
 		plateOutModel.loadSettingsFrom(settings);
 		plateOutFormatModel.loadSettingsFrom(settings);
+		plateOutTypeModel.loadSettingsFrom(settings);
 		// Replicates
 		replicateInGroup.loadSettingsFrom(settings);
 		replicateInModel.loadSettingsFrom(settings);
@@ -402,6 +585,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		replicateOutGroup.loadSettingsFrom(settings);
 		replicateOutModel.loadSettingsFrom(settings);
 		replicateOutFormatModel.loadSettingsFrom(settings);
+		replicateOutTypeModel.loadSettingsFrom(settings);
 	}
 
 	@Override
@@ -420,6 +604,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		plateOutGroup.validateSettings(settings);
 		plateOutModel.validateSettings(settings);
 		plateOutFormatModel.validateSettings(settings);
+		plateOutTypeModel.validateSettings(settings);
 		// Replicates
 		replicateInGroup.validateSettings(settings);
 		replicateInModel.validateSettings(settings);
@@ -427,5 +612,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		replicateOutGroup.validateSettings(settings);
 		replicateOutModel.validateSettings(settings);
 		replicateOutFormatModel.validateSettings(settings);
+		replicateOutTypeModel.validateSettings(settings);
 	}
 }

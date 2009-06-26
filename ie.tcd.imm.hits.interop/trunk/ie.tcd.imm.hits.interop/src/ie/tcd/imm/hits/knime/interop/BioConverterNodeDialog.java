@@ -15,12 +15,14 @@ import java.util.Map.Entry;
 
 import java.lang.reflect.Array;
 
-import org.knime.core.data.DataValue;
+import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentWithDefaults;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
@@ -40,17 +42,20 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 
 	public static enum DialogType {
-		group, name, format, /* type */;
+		group, name, format, type;
 
 		private static final DialogType[] nonGroups = new DialogType[] { name,
-				format };
+				format, type };
 
-		public static DialogType[] nonGroups() {
-			return nonGroups;
+		private static final DialogType[] inNonGroups = new DialogType[] {
+				name, format };
+
+		public static DialogType[] nonGroups(final boolean input) {
+			return input ? inNonGroups : nonGroups;
 		}
 	}
 
-	private static enum ColumnType implements Displayable {
+	static enum ColumnType implements Displayable {
 		Plate("Plate"), Replicate("Replicate");
 		private final String displayText;
 
@@ -82,6 +87,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				BioConverterNodeModel.CFGKEY_PLATE_OUT);
 		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.format,
 				BioConverterNodeModel.CFGKEY_PLATE_OUT_FORMAT);
+		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
+				BioConverterNodeModel.CFGKEY_PLATE_OUT_TYPE);
 		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
 				BioConverterNodeModel.CFGKEY_PLATE_OUT_GROUP);
 		defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.name,
@@ -95,6 +102,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(
 				DialogType.format,
 				BioConverterNodeModel.DEFAULT_PLATE_OUT_FORMAT);
+		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
+				BioConverterNodeModel.DEFAULT_PLATE_OUT_TYPE);
 		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
 				BioConverterNodeModel.DEFAULT_PLATE_OUT_GROUP);
 		cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
@@ -111,6 +120,9 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				DialogType.format,
 				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_FORMAT);
 		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+				DialogType.type,
+				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_TYPE);
+		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
 				DialogType.group,
 				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_GROUP);
 		defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
@@ -126,6 +138,9 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
 				DialogType.format,
 				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_FORMAT);
+		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+				DialogType.type,
+				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_TYPE);
 		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
 				DialogType.group,
 				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_GROUP);
@@ -146,14 +161,20 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				DialogType.name, PublicConstants.PLATE_COLUMN);
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
 				DialogType.format, "${Plate}");
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+				DialogType.type, "Integer");
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
 				DialogType.name, PublicConstants.PLATE_COL_NAME);
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
 				DialogType.format, "${Plate}");
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
+				DialogType.type, "Integer");
 		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
 				DialogType.name, "barcode");
 		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
 				DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
+		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
+				DialogType.type, "String");
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate, true,
 				DialogType.name, PublicConstants.REPLICATE_COLUMN);
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate, true,
@@ -170,14 +191,20 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				false, DialogType.name, PublicConstants.REPLICATE_COLUMN);
 		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
 				false, DialogType.format, "\\d+");
+		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+				false, DialogType.type, "Integer");
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
 				false, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
 		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
 				false, DialogType.format, "\\d+");
+		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+				false, DialogType.type, "Integer");
 		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
 				DialogType.name, PublicConstants.REPLICATE_COL_NAME);
 		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
 				DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
+		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
+				DialogType.type, "String");
 	}
 
 	private static Map<ColumnType, Map<Boolean, Map<DialogType, String>>> createOuterEmptyMap() {
@@ -217,14 +244,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		// key: name of concept
 		final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components = new LinkedHashMap<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>>();
 		addSimpleComponents(components);
-		final Map<String, Boolean[]> enablementMap = new HashMap<String, Boolean[]>();
-		for (final ConversionDefault cd : ConversionDefault.values()) {
-			enablementMap.put(cd.getDisplayText(), fill(Boolean.FALSE,
-					DialogType.nonGroups().length, Boolean.class));
-		}
-		enablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
-				Boolean.TRUE, DialogType.nonGroups().length, Boolean.class));
-		addPatterns(components, enablementMap);
+		addPatterns(components);
 		for (final ConversionDefault v : ConversionDefault.values()) {
 			genInEnablementMap.put(v.getDisplayText(), fill(Boolean.FALSE,
 					components.size(), Boolean.class));
@@ -269,26 +289,44 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
+	 * @param nonGroups
+	 * @return
+	 */
+	private Map<String, Boolean[]> createEnablementMap(
+			final DialogType[] nonGroups) {
+		final Map<String, Boolean[]> enablementMap = new HashMap<String, Boolean[]>();
+		for (final ConversionDefault cd : ConversionDefault.values()) {
+			enablementMap.put(cd.getDisplayText(), fill(Boolean.FALSE,
+					nonGroups.length, Boolean.class));
+		}
+		enablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
+				Boolean.TRUE, nonGroups.length, Boolean.class));
+		return enablementMap;
+	}
+
+	/**
 	 * @param components
 	 * @param enablementMap
 	 */
 	private void addPatterns(
-			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components,
-			final Map<String, Boolean[]> enablementMap) {
+			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components) {
 		for (final Entry<ColumnType, Map<Boolean, Map<DialogType, String>>> colEntry : cfgKeys
 				.entrySet()) {
 			final ColumnType columnType = colEntry.getKey();
 			for (final Entry<Boolean, Map<DialogType, String>> inOutEntry : colEntry
 					.getValue().entrySet()) {
 				final Boolean input = inOutEntry.getKey();
+				final DialogType[] nonGroups = DialogType.nonGroups(input
+						.booleanValue());
 				final DialogComponentWithDefaults groupComponent = new DialogComponentWithDefaults(
 						new SettingsModelString(cfgKeys.get(columnType).get(
 								input).get(DialogType.group), defaults.get(
 								columnType).get(input).get(DialogType.group)),
-						DialogType.group.name(), enablementMap,
-						collectPatterns(columnType, input), select(components,
-								columnType, Arrays.asList(DialogType
-										.nonGroups()), input.booleanValue()));
+						DialogType.group.name(),
+						createEnablementMap(nonGroups), collectPatterns(
+								columnType, input), select(components,
+								columnType, Arrays.asList(nonGroups), input
+										.booleanValue()));
 				final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
 						.get(columnType);
 				(input.booleanValue() ? pair.getLeft() : pair.getRight()).put(
@@ -304,7 +342,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	private Map<String, Object[]> collectPatterns(final ColumnType columnType,
 			final Boolean input) {
-		final DialogType[] nonGroups = DialogType.nonGroups();
+		final DialogType[] nonGroups = DialogType.nonGroups(input);
 		final Map<String, Object[]> ret = new LinkedHashMap<String, Object[]>();
 		for (final Entry<ConversionDefault, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> entry : patterns
 				.entrySet()) {
@@ -333,8 +371,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 											DialogType.class),
 									new EnumMap<DialogType, DialogComponent>(
 											DialogType.class)));
-			for (final DialogType dialogType : DialogType.nonGroups()) {
-				for (final boolean left : new boolean[] { true, false }) {
+			for (final boolean left : new boolean[] { true, false }) {
+				for (final DialogType dialogType : DialogType.nonGroups(left)) {
 					final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
 							.get(colType);
 					final String configName = cfgKeys.get(colType).get(
@@ -349,15 +387,32 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 					final String label = (left ? "input " : "output ")
 							+ colType.getDisplayText() + " "
 							+ dialogType.name() + ": ";
-					(left ? pair.getLeft() : pair.getRight())
-							.put(
-									dialogType,
-									colSelection ? new DialogComponentColumnNameSelection(
-											stringModel, label, 0,
-											DataValue.class)
-											: new DialogComponentString(
-													stringModel, label, false,
-													40));
+					DialogComponent dialog;
+					switch (dialogType) {
+					case name:
+						dialog = colSelection ? new DialogComponentColumnNameSelection(
+								stringModel, label, 0, IntValue.class,
+								StringValue.class)
+								: new DialogComponentString(stringModel, label,
+										false, 15);
+						break;
+					case format:
+						dialog = new DialogComponentString(stringModel, label,
+								false, 30);
+						break;
+					case type:
+						dialog = new DialogComponentStringSelection(
+								stringModel, label, "Integer", "Real", "String");
+						break;
+					case group:
+						throw new IllegalStateException(
+								"group is not allowed here");
+					default:
+						throw new UnsupportedOperationException(
+								"Not supported type: " + dialogType.getClass());
+					}
+					(left ? pair.getLeft() : pair.getRight()).put(dialogType,
+							dialog);
 				}
 			}
 		}
@@ -387,6 +442,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(select(columnType, components, DialogType.name,
 				false));
 		addDialogComponent(select(columnType, components, DialogType.format,
+				false));
+		addDialogComponent(select(columnType, components, DialogType.type,
 				false));
 	}
 
@@ -439,7 +496,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components,
 			final ColumnType columnType, final List<DialogType> types,
 			final boolean left) {
-		final DialogComponent[] ret = new DialogComponent[components.size()];
+		final DialogComponent[] ret = new DialogComponent[types.size()];
 		int i = 0;
 		final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> value = components
 				.get(columnType);
