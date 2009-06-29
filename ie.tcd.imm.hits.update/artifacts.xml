@@ -5,10 +5,14 @@
     <property name='p2.compressed' value='false'/>
     <property name='p2.timestamp' value='1246278619454'/>
   </properties>
-  <mappings size='3'>
+  <mappings size='7'>
     <rule filter='(&amp; (classifier=osgi.bundle))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=osgi.bundle.knime))' output='http://www.knime.org/update_2.x/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=osgi.bundle.knime.labs))' output='http://www.knime.org/update_2.x/labs/plugins/${id}_${version}.jar'/>
     <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
     <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='http://hits.googlecode.com/files/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature.knime))' output='http://www.knime.org/update_2.x/features/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature.knime.labs))' output='http://www.knime.org/update_2.x/labs/features/${id}_${version}.jar'/>
   </mappings>
   <artifacts size='15'>
     <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.3.0'>
@@ -17,7 +21,7 @@
         <property name='download.size' value='1195'/>
       </properties>
     </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='org.knime.features.distmatrix' version='2.0.1.0020189'>
+    <artifact classifier='org.eclipse.update.feature.knime.labs' id='org.knime.features.distmatrix' version='2.0.1.0020189'>
       <properties size='2'>
         <property name='artifact.size' value='8566'/>
         <property name='download.size' value='8566'/>
@@ -44,7 +48,7 @@
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
-    <artifact classifier='osgi.bundle' id='org.knime.distmatrix' version='2.0.1.0020189'>
+    <artifact classifier='osgi.bundle.knime.labs' id='org.knime.distmatrix' version='2.0.1.0020189'>
       <properties size='3'>
         <property name='artifact.size' value='174924'/>
         <property name='download.size' value='174924'/>
@@ -57,13 +61,13 @@
         <property name='download.size' value='1197'/>
       </properties>
     </artifact>
-    <artifact classifier='org.eclipse.update.feature' id='org.knime.features.ext.jep' version='2.0.3.0021120'>
+    <artifact classifier='org.eclipse.update.feature.knime' id='org.knime.features.ext.jep' version='2.0.3.0021120'>
       <properties size='2'>
         <property name='artifact.size' value='10413'/>
         <property name='download.size' value='10413'/>
       </properties>
     </artifact>
-    <artifact classifier='osgi.bundle' id='org.knime.features.ext.jep.source' version='2.0.3.0021120'>
+    <artifact classifier='osgi.bundle.knime' id='org.knime.features.ext.jep.source' version='2.0.3.0021120'>
       <properties size='3'>
         <property name='artifact.size' value='22096'/>
         <property name='download.size' value='22096'/>
@@ -90,7 +94,7 @@
         <property name='download.contentType' value='application/zip'/>
       </properties>
     </artifact>
-    <artifact classifier='osgi.bundle' id='org.knime.ext.jep' version='2.0.3.0021120'>
+    <artifact classifier='osgi.bundle.knime' id='org.knime.ext.jep' version='2.0.3.0021120'>
       <properties size='3'>
         <property name='artifact.size' value='365457'/>
         <property name='download.size' value='365457'/>
