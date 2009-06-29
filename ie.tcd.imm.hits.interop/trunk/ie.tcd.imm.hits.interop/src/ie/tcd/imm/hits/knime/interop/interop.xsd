@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+	targetNamespace="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	xmlns:p="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	>
+
+	<element name="root">
+		<complexType>
+			<sequence maxOccurs="1" minOccurs="1">
+				<element ref="tns:defaults"></element>
+				<element ref="tns:profiles"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="defaults">
+		<complexType>
+			<sequence maxOccurs="unbounded">
+				<element ref="tns:default"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="profiles">
+		<complexType>
+			<sequence maxOccurs="unbounded">
+				<element ref="tns:profile"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="default" >
+		<complexType>
+			<simpleContent>
+				<extension base="string">
+					<attribute ref="tns:column" use="required"></attribute>
+					<attribute ref="tns:input" use="required"></attribute>
+					<attribute ref="tns:dialog" use="required"></attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+
+	<element name="profile">
+		<complexType>
+			<sequence maxOccurs="unbounded" minOccurs="0">
+				<element ref="tns:value"></element>
+			</sequence>
+			<attribute ref="tns:name" use="required"></attribute>
+			<attribute ref="tns:modifiable" use="required"></attribute>
+			<attribute ref="tns:extends" use="optional"></attribute>
+			<attribute ref="tns:input" use="required"></attribute>
+		</complexType>
+	</element>
+
+	<attribute name="column">
+		<simpleType>
+			<restriction base="string">
+				<enumeration value="Plate"></enumeration>
+				<enumeration value="Replicate"></enumeration>
+			</restriction>
+		</simpleType>
+	</attribute>
+
+	<attribute name="input" type="boolean"></attribute>
+
+	<attribute name="dialog">
+		<simpleType>
+			<restriction base="string">
+				<enumeration value="group"></enumeration>
+				<enumeration value="name"></enumeration>
+				<enumeration value="format"></enumeration>
+				<enumeration value="type"></enumeration>
+			</restriction>
+		</simpleType>
+	</attribute>
+
+
+
+	<element name="value">
+		<complexType>
+			<simpleContent>
+				<extension base="string">
+					<attribute ref="tns:column"></attribute>
+					<attribute ref="tns:dialog"></attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+
+	<attribute name="name" type="string"></attribute>
+
+	<attribute name="modifiable" type="boolean"></attribute>
+
+	<attribute name="extends" type="string"></attribute>
+</schema>
