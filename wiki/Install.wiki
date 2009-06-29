@@ -44,6 +44,10 @@ For the second option go to Help/Software Updates.../Find and Install.../_Search
 
 = Troubleshooting =
 
+== The HiTS nodes are not visible in Node Repository ==
+
+This might be because the labs' Distance Matrix feature was not installed before the install of HiTS. You have to uninstall HiTS, install the Distance Matrix feature, then install HiTS. Sorry about the confusion.
+
 == Network problems ==
 
 If you have not set properly the proxy configuration in your KNIME installation, you will have an error like this when you try to update or install your plugins:
