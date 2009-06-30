@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema
 	targetNamespace="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
-	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="unqualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
-	xmlns:p="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+	jxb:version="1.0"
 	>
-
+	<annotation>
+		<appinfo>
+			<jxb:globalBindings>
+					<!-- jxb:bindings node="//xsi:attribute[@name='column']/xsi:simpleType">
+						<jxb:property>
+							<jxb:baseType- - >
+								<jxb:javaType name="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType"
+									parseMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.valueOf"
+									printMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.name"
+								/>
+							<!- - /jxb:baseType>
+						</jxb:property> 
+					</jxb:bindings-->
+			</jxb:globalBindings>
+		</appinfo>
+	</annotation>
 	<element name="root">
 		<complexType>
 			<sequence maxOccurs="1" minOccurs="1">
@@ -57,6 +74,24 @@
 
 	<attribute name="column">
 		<simpleType>
+			<annotation>
+				<appinfo>
+					<!-- jxb:bindings node="//xsi:attribute[@name='column']/xsi:simpleType"-->
+						<!-- jxb:property>
+							<jxb:baseType-->
+								<jxb:javaType name="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType"
+									parseMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.valueOf"
+									printMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.nameOf"
+								/>
+							<!-- /jxb:baseType>
+						</jxb:property-->
+					<!-- /jxb:bindings-->
+					<!-- jxb:typesafeEnumClass name="ColumnType">
+						<jxb:typesafeEnumMember name="Plate" value="Plate"/>
+						<jxb:typesafeEnumMember name="Replicate" value="Replicate"/>
+					</jxb:typesafeEnumClass-->
+				</appinfo>
+			</annotation>
 			<restriction base="string">
 				<enumeration value="Plate"></enumeration>
 				<enumeration value="Replicate"></enumeration>
@@ -68,6 +103,25 @@
 
 	<attribute name="dialog">
 		<simpleType>
+			<annotation>
+				<appinfo>
+								<jxb:javaType name="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType"
+									parseMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType.valueOf"
+									printMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType.nameOf"
+								/>
+				</appinfo>
+			</annotation>
+		
+			<!-- annotation>
+				<appinfo>
+					<jxb:typesafeEnumClass name="DialogType">
+						<jxb:typesafeEnumMember name="group" value="group"/>
+						<jxb:typesafeEnumMember name="name" value="name"/>
+						<jxb:typesafeEnumMember name="format" value="format"/>
+						<jxb:typesafeEnumMember name="type" value="type"/>
+					</jxb:typesafeEnumClass>
+				</appinfo>
+			</annotation-->
 			<restriction base="string">
 				<enumeration value="group"></enumeration>
 				<enumeration value="name"></enumeration>

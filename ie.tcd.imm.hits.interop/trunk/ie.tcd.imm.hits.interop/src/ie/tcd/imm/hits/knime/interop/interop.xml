@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<p:root xmlns:p="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop interop.xsd ">
+<p:root
+	xmlns:p="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop interop.xsd ">
   <p:defaults>
     <p:default p:column="Plate" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="Plate" p:dialog="name" p:input="true">Plate</p:default>
