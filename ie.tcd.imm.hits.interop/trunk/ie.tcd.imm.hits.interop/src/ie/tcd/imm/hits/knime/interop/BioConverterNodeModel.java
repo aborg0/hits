@@ -52,6 +52,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -64,6 +65,12 @@ import org.xml.sax.SAXException;
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BioConverterNodeModel extends TransformingNodeModel {
+	/**  */
+	private static final String CONFIGURATION_XSD = "interop.xsd";
+
+	/**  */
+	private static final String CONFIGURATION_XML = "interop.xml";
+
 	/** A {@link NodeLogger}. */
 	protected static final NodeLogger logger = NodeLogger
 			.getLogger(BioConverterNodeModel.class);
@@ -93,54 +100,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		}
 	}
 
-	static final Root root;
-
-	static {
-		// final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-		// final InputStream inputStream = BioConverterNodeModel.class
-		// .getResourceAsStream("interop.xml");
-		// try {
-		// final XMLEventReader eventReader = inputFactory
-		// .createXMLEventReader(inputStream);
-		// while (eventReader.hasNext()) {
-		// final XMLEvent event = eventReader.nextEvent();
-		// if (event.isStartElement()) {
-		// final StartElement eventStart = event.asStartElement();
-		// if ("default".equals(eventStart.getName().getLocalPart())) {
-		// continue;
-		// }
-		// if ("profile".equals(eventStart.getName().getLocalPart())) {
-		// for (final Iterator<?> iterator = eventStart
-		// .getAttributes(); iterator.hasNext();) {
-		// final Attribute attrib = (Attribute) iterator
-		// .next();
-		// final String name = attrib.getName().getLocalPart();
-		// final String value = attrib.getValue();
-		// if ("name".equals(name)) {
-		//
-		// }
-		// }
-		// final XMLEvent profileEvent = eventReader.nextEvent();
-		// while (!profileEvent.isEndElement()
-		// && "profile".equals(profileEvent.asEndElement()
-		// .getName().getLocalPart())) {
-		// if (profileEvent.isStartElement()
-		// && "value".equals(profileEvent
-		// .asStartElement().getName()
-		// .getLocalPart())) {
-		//
-		// }
-		// }
-		// continue;
-		// }
-		// }
-		// }
-		// } catch (final XMLStreamException e) {
-		// logger.error("Problem: " + e.getMessage(), e);
-		// throw new RuntimeException(e);
-		// }
-		root = BioConverterNodeModel.loadProperties();
-	}
+	/** The read static configuration. */
+	static final Root root = BioConverterNodeModel.loadProperties();
 
 	/** Configuration key for input general group. */
 	static final String CFGKEY_GENERAL_IN_GROUP = "general.in.group";
@@ -230,11 +191,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	private final SettingsModelBoolean generateMissing = new SettingsModelBoolean(
 			CFGKEY_GENERATE_MISSING, DEFAULT_GENERATE_MISSING);
 
-	private static final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settingsModels;
-
-	static {
-		settingsModels = generateSettingsModels();
-	}
+	/** The {@link SettingsModelString}s used in the model. */
+	static final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settingsModels = generateSettingsModels();
 
 	private final SettingsModelString[] inNames = new SettingsModelString[] {
 			settingsModels.get(ColumnType.Plate).get(Boolean.TRUE).get(
@@ -250,7 +208,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	}
 
 	/**
-	 * @return
+	 * @return The {@link SettingsModel}s based on the values from {@link #root}
+	 *         , and the {@link #possibleKeys()}.
+	 * @see #generateKey(ColumnType, boolean, DialogType)
 	 */
 	private static Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> generateSettingsModels() {
 		final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> ret = new EnumMap<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>>(
@@ -302,13 +262,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.node.NodeModel#configure(org.knime.core.data.DataTableSpec
-	 * [])
-	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
@@ -327,16 +280,20 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			throws Exception {
 		final ColumnRearranger rearranger = createRearranger(inData[0]
 				.getDataTableSpec());
-		// rearranger.
 		final BufferedDataTable table = exec.createColumnRearrangeTable(
 				inData[0], rearranger, exec);
 		return new BufferedDataTable[] { table };
 	}
 
 	/**
+	 * Creates a {@link ColumnRearranger} based on the {@code dataTableSpec} and
+	 * the {@link #settingsModels}.
+	 * 
 	 * @param dataTableSpec
-	 * @return
+	 *            A {@link DataTableSpec}.
+	 * @return A new {@link ColumnRearranger}.
 	 * @throws TokenizeException
+	 *             If there is a problem with one of the output formats.
 	 */
 	private ColumnRearranger createRearranger(final DataTableSpec dataTableSpec)
 			throws TokenizeException {
@@ -348,33 +305,20 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			ret.remove(allButMatched);
 		}
 		if (!keepOriginal.getBooleanValue())// Remove later not matched columns
-		{
+		{// TODO
 
 		}
-		if (generateMissing.getBooleanValue())// Try to generate missing column
-		// values
-		{
-
-		}
-		// final String plateOutName = plateOutModel.getStringValue();
-		// final String replicateOutName = replicateOutModel.getStringValue();
 		final Map<String, List<ColumnType>> newColumns = new LinkedHashMap<String, List<ColumnType>>();
 		for (final ColumnType ct : ColumnType.values()) {
 			putOrAdd(newColumns, settingsModels.get(ct).get(Boolean.FALSE).get(
 					DialogType.name).getStringValue(), ct);
 		}
-		// putOrAdd(newColumns, plateOutName, ColumnType.Plate);
-		// putOrAdd(newColumns, replicateOutName, ColumnType.Replicate);
 		final Map<ColumnType, Pattern> patterns = new EnumMap<ColumnType, Pattern>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
 			patterns.put(ct, Pattern.compile(settingsModels.get(ct).get(
 					Boolean.TRUE).get(DialogType.format).getStringValue()));
 		}
-		// patterns.put(ColumnType.Plate, Pattern.compile(plateInFormatModel
-		// .getStringValue()));
-		// patterns.put(ColumnType.Replicate, Pattern
-		// .compile(replicateInFormatModel.getStringValue()));
 		final Map<ColumnType, List<Token>> outFormats = new EnumMap<ColumnType, List<Token>>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
@@ -385,36 +329,18 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 							settingsModels.get(ct).get(Boolean.FALSE).get(
 									DialogType.format).getStringValue()));
 		}
-		// outFormats.put(ColumnType.Plate, new TokenizerFactory()
-		// .createGroupingTokenizer(
-		// new Pair<Token, List<? extends Token>>(null,
-		// new ArrayList<Token>()), groupStart, groupEnd,
-		// 0).parse(plateOutFormatModel.getStringValue()));
-		// outFormats.put(ColumnType.Replicate, new TokenizerFactory()
-		// .createGroupingTokenizer(
-		// new Pair<Token, List<? extends Token>>(null,
-		// new ArrayList<Token>()), groupStart, groupEnd,
-		// 0).parse(replicateOutFormatModel.getStringValue()));
 		final EnumMap<ColumnType, Pattern> inPatterns = new EnumMap<ColumnType, Pattern>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
 			inPatterns.put(ct, Pattern.compile(settingsModels.get(ct).get(
 					Boolean.TRUE).get(DialogType.format).getStringValue()));
 		}
-		// inPatterns.put(ColumnType.Plate, Pattern.compile(plateInFormatModel
-		// .getStringValue()));
-		// inPatterns.put(ColumnType.Replicate, Pattern
-		// .compile(replicateInFormatModel.getStringValue()));
 		final EnumMap<ColumnType, DataType> outTypes = new EnumMap<ColumnType, DataType>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
 			outTypes.put(ct, findType(settingsModels.get(ct).get(Boolean.FALSE)
 					.get(DialogType.type).getStringValue()));
 		}
-		// outTypes.put(ColumnType.Plate, findType(plateOutTypeModel
-		// .getStringValue()));
-		// outTypes.put(ColumnType.Replicate, findType(replicateOutTypeModel
-		// .getStringValue()));
 		final NavigableMap<String, ColumnType> dictionary = new TreeMap<String, ColumnType>(
 				String.CASE_INSENSITIVE_ORDER);
 		for (final ColumnType ct : ColumnType.values()) {
@@ -424,11 +350,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 				.entrySet()) {
 			final String newColumn = entry.getKey();
 			final ColumnType columnType = entry.getValue().iterator().next();// assert
-			// sameall
+			// same all
 			final SingleCellFactory factory = new SingleCellFactory(
 					new DataColumnSpecCreator(newColumn, outTypes
 							.get(columnType)).createSpec()) {
-				Map<ColumnType, Integer> origColumnIndices = new EnumMap<ColumnType, Integer>(
+				private final Map<ColumnType, Integer> origColumnIndices = new EnumMap<ColumnType, Integer>(
 						ColumnType.class);
 				{
 					for (final ColumnType ct : ColumnType.values()) {
@@ -437,13 +363,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 										Boolean.TRUE).get(DialogType.name)
 										.getStringValue())));
 					}
-					// origColumnIndices.put(ColumnType.Plate, Integer
-					// .valueOf(dataTableSpec.findColumnIndex(plateInModel
-					// .getColumnName())));
-					// origColumnIndices.put(ColumnType.Replicate, Integer
-					// .valueOf(dataTableSpec
-					// .findColumnIndex(replicateInModel
-					// .getColumnName())));
 
 					if (outFormats.get(entry.getValue().iterator().next())
 							.size() != 1
@@ -453,17 +372,19 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					}
 				}
 
-				// Pattern selectPattern = Pattern.compile(plateInFormatModel
-				// .getStringValue());
+				private int count = 0;
 
-				int count = 0;
+				@SuppressWarnings("synthetic-access")
+				private final boolean genMissing = generateMissing
+						.getBooleanValue();
 
 				@Override
 				public DataCell getCell(final DataRow row) {
 					final Map<ColumnType, DataCell> cells = new EnumMap<ColumnType, DataCell>(
 							ColumnType.class);
 					for (final ColumnType ct : ColumnType.values()) {
-						cells.put(ct, row.getCell(origColumnIndices.get(ct)));
+						cells.put(ct, row.getCell(origColumnIndices.get(ct)
+								.intValue()));
 					}
 					// final DataCell cell = row.getCell(origColumnIndex);
 					final DataCell result;
@@ -476,7 +397,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 						final DataCell cell = row.getCell(origColumnIndices
 								.get(origType).intValue());
 						if (cell.isMissing()) {
-							if (generateMissing.getBooleanValue()) {
+							if (genMissing) {
 								// FIXME
 								result = new IntCell(count++);
 							} else {
@@ -504,7 +425,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 						final DataCell cell = row.getCell(origColumnIndices
 								.get(origType).intValue());
 						if (cell.isMissing()) {
-							if (generateMissing.getBooleanValue()) {
+							if (genMissing) {
 								// FIXME
 								result = new DoubleCell(count++);
 							} else {
@@ -554,7 +475,13 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	/**
 	 * @param typeName
-	 * @return
+	 *            A {@link String} with one of these values:
+	 *            <ul>
+	 *            <li>{@code Integer}</li>
+	 *            <li>{@code Real}</li>
+	 *            <li>{@code String}</li>
+	 *            </ul>
+	 * @return The associated DataType.
 	 */
 	private DataType findType(final String typeName) {
 		if ("Integer".equalsIgnoreCase(typeName)) {
@@ -569,6 +496,17 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		throw new IllegalArgumentException("Unsupported type: " + typeName);
 	}
 
+	/**
+	 * Generates a configuration key based on the parameters.
+	 * 
+	 * @param colType
+	 *            The {@link ColumnType}.
+	 * @param input
+	 *            The input ({@code true}), or output ({@code false}) kind.
+	 * @param dialogType
+	 *            The {@link DialogType}.
+	 * @return A unique {@link String} for the combination of parameters.
+	 */
 	static final String generateKey(final ColumnType colType,
 			final boolean input, final DialogType dialogType) {
 		assert !input || dialogType != DialogType.type;
@@ -576,16 +514,26 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 				+ dialogType.name();
 	}
 
+	/**
+	 * @return The possible keys to iterate over.
+	 */
 	static List<Pair<Pair<ColumnType, Boolean>, DialogType>> possibleKeys() {
 		return possibleKeys;
 	}
 
 	/**
+	 * Puts, or adds {@code value} to the {@code map} multimap.
+	 * 
 	 * @param <K>
+	 *            Type of keys.
 	 * @param <V>
+	 *            Type of values.
 	 * @param map
+	 *            A multimap.
 	 * @param key
+	 *            The key.
 	 * @param value
+	 *            The value.
 	 */
 	private static <K, V> void putOrAdd(final Map<K, List<V>> map, final K key,
 			final V value) {
@@ -596,13 +544,17 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	}
 
 	/**
-	 * @param columnIndices
+	 * @param columnIndicesToRemove
+	 *            The column indices to remove. (Starting from {@code 0}.)
 	 * @param numColumns
-	 * @return
+	 *            The number of original columns.
+	 * @return All of the original indices, except the {@code columnIndices}.
+	 *         The others are shifted as necessary.
 	 */
-	private int[] allButMatched(final int[] columnIndices, final int numColumns) {
+	private int[] allButMatched(final int[] columnIndicesToRemove,
+			final int numColumns) {
 		final Set<Integer> indicesToFilter = new HashSet<Integer>();
-		for (final int colIndex : columnIndices) {
+		for (final int colIndex : columnIndicesToRemove) {
 			indicesToFilter.add(Integer.valueOf(colIndex));
 		}
 		indicesToFilter.remove(Integer.valueOf(-1));
@@ -619,6 +571,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	/**
 	 * @param dataTableSpec
+	 *            A {@link DataTableSpec}.
 	 * @return Might contain duplicates, these indices are present in {@code
 	 *         dataTableSpec} (or not, because it might contain {@code -1}s).
 	 */
@@ -648,18 +601,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					outPair.getLeft().getRight()).get(outPair.getRight())
 					.saveSettingsTo(settings);
 		}
-		// for (final ColumnType ct : ColumnType.values()) {
-		// for (final Boolean input : new Boolean[] { Boolean.TRUE,
-		// Boolean.FALSE }) {
-		// for (final DialogType dt : DialogType.nonGroups(input
-		// .booleanValue())) {
-		// settingsModels.get(ct).get(input).get(dt).saveSettingsTo(
-		// settings);
-		// }
-		// settingsModels.get(ct).get(input).get(DialogType.group)
-		// .saveSettingsTo(settings);
-		// }
-		// }
 	}
 
 	@Override
@@ -676,19 +617,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					outPair.getLeft().getRight()).get(outPair.getRight())
 					.loadSettingsFrom(settings);
 		}
-
-		// for (final ColumnType ct : ColumnType.values()) {
-		// for (final Boolean input : new Boolean[] { Boolean.TRUE,
-		// Boolean.FALSE }) {
-		// for (final DialogType dt : DialogType.nonGroups(input
-		// .booleanValue())) {
-		// settingsModels.get(ct).get(input).get(dt).loadSettingsFrom(
-		// settings);
-		// }
-		// settingsModels.get(ct).get(input).get(DialogType.group)
-		// .loadSettingsFrom(settings);
-		// }
-		// }
 	}
 
 	@Override
@@ -705,39 +633,26 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					outPair.getLeft().getRight()).get(outPair.getRight())
 					.validateSettings(settings);
 		}
-		// for (final ColumnType ct : ColumnType.values()) {
-		// for (final Boolean input : new Boolean[] { Boolean.TRUE,
-		// Boolean.FALSE }) {
-		// for (final DialogType dt : DialogType.nonGroups(input
-		// .booleanValue())) {
-		// settingsModels.get(ct).get(input).get(dt).validateSettings(
-		// settings);
-		// }
-		// settingsModels.get(ct).get(input).get(DialogType.group)
-		// .validateSettings(settings);
-		// }
-		// }
 	}
 
 	/**
-	 * @return
-	 * @throws JAXBException
-	 * @throws SAXException
+	 * @return The {@link Root} element read from the {@link #CONFIGURATION_XML}
+	 *         ({@value #CONFIGURATION_XML}).
 	 */
 	static Root loadProperties() {
 		try {
-			final JAXBContext context = JAXBContext
-					.newInstance("ie.tcd.imm.hits.knime.interop.config");
+			final JAXBContext context = JAXBContext.newInstance(Root.class
+					.getPackage().getName());
 			final Unmarshaller unmarshaller = context.createUnmarshaller();
 			final SchemaFactory schemaFactory = SchemaFactory
 					.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			final Schema schema = schemaFactory.newSchema(new StreamSource(
 					BioConverterNodeModel.class
-							.getResourceAsStream("interop.xsd")));
+							.getResourceAsStream(CONFIGURATION_XSD)));
 			unmarshaller.setSchema(schema);
 			final Root ret = (Root) unmarshaller
 					.unmarshal(BioConverterNodeModel.class
-							.getResource("interop.xml"));
+							.getResource(CONFIGURATION_XML));
 			return ret;
 		} catch (final SAXException e) {
 			logger.fatal("Unable to load configuration: " + e.getMessage(), e);
@@ -749,10 +664,18 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	}
 
 	/**
+	 * Finds the default value for {@link SettingsModelString}s, based on the
+	 * values present in {@link #root}.
+	 * <p>
+	 * Note: This is an inefficient solution.
+	 * 
 	 * @param columnType
+	 *            The {@link ColumnType}.
 	 * @param input
-	 * @param right
-	 * @return
+	 *            The input ({@code true}), or output ({@code false}) kind.
+	 * @param dialogType
+	 *            The {@link DialogType}.
+	 * @return The found default value.
 	 */
 	public static String findDefault(final ColumnType columnType,
 			final boolean input, final DialogType dialogType) {

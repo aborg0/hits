@@ -42,10 +42,15 @@ public class DialogComponentWithDefaults extends DialogComponent {
 
 	/**
 	 * @param model
+	 *            The {@link SettingsModelString} to use.
 	 * @param label
+	 *            The label to show.
 	 * @param enablementOptions
+	 *            The enabled components for different options.
 	 * @param defaultValues
+	 *            The values for the options.
 	 * @param components
+	 *            The handled {@link DialogComponent}s.
 	 */
 	public DialogComponentWithDefaults(final SettingsModelString model,
 			final String label, final Map<String, Boolean[]> enablementOptions,
@@ -64,11 +69,9 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		}
 		selectionBox.setEditable(false);
 		selectionBox.addItemListener(new ItemListener() {
-
+			@SuppressWarnings("synthetic-access")
 			@Override
 			public void itemStateChanged(final ItemEvent e) {
-				// TODO Auto-generated method stub
-
 				((SettingsModelString) getModel())
 						.setStringValue((String) selectionBox.getSelectedItem());
 				updateComponent();
@@ -84,8 +87,12 @@ public class DialogComponentWithDefaults extends DialogComponent {
 	}
 
 	/**
+	 * Creates a {@link Map} with cloned values.
+	 * 
 	 * @param map
+	 *            The map to clone.
 	 * @param <T>
+	 *            Type of the values array elements.
 	 * @return The cloned (not deep, just the array is cloned) map.
 	 */
 	private <T> Map<String, T[]> clone(final Map<String, T[]> map) {
@@ -97,12 +104,20 @@ public class DialogComponentWithDefaults extends DialogComponent {
 	}
 
 	/**
+	 * Checks whether all of the associated {@code values} have the same,
+	 * {@code valueCount} array length .
+	 * 
+	 * @param <K>
+	 *            Type of the keys.
+	 * 
 	 * @param values
+	 *            A {@link Map} to arrays.
 	 * @param valueCount
+	 *            The expected array length.
 	 */
-	private void checkMaps(final Map<String, ? extends Object[]> values,
+	private <K> void checkMaps(final Map<K, ? extends Object[]> values,
 			final int valueCount) {
-		for (final Entry<String, ? extends Object[]> entry : values.entrySet()) {
+		for (final Entry<K, ? extends Object[]> entry : values.entrySet()) {
 			if (entry.getValue().length != valueCount) {
 				throw new IllegalArgumentException("Wrong number of values: "
 						+ entry.getValue().length + " expected: " + valueCount
@@ -166,14 +181,12 @@ public class DialogComponentWithDefaults extends DialogComponent {
 			throw new InvalidSettingsException("No valid defaults found for "
 					+ selection);
 		}
-		// updateComponent();
-		// ((SettingsModelString) getModel()).setStringValue(selection);
 	}
 
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
-		// Should be OK.
+		// Should be OK, put here the save of last used values.
 	}
 
 	@Override
