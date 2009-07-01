@@ -46,6 +46,14 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * @see BioConverterNodeModel#root
  */
 public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
+	/** Integer result type. */
+	static final String INTEGER = "Integer";
+	/** Real result type. */
+	static final String REAL = "Real";
+	/** String result type. */
+	static final String STRING = "String";
+	/** Not generating that column. */
+	static final String DO_NOT_GENERATE = "Do not generate";
 
 	/**
 	 * Type of possible dialogs. For inputs there is no need of {@link #type}.
@@ -93,7 +101,11 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		/** The plate information */
 		Plate("Plate"),
 		/** The replicate information */
-		Replicate("Replicate");
+		Replicate("Replicate"),
+		/** Row of a well */
+		WellRow("Well Row"),
+		/** Column of a well */
+		WellColumn("Well Column"), ;
 		private final String displayText;
 
 		private ColumnType(final String displayText) {
@@ -225,6 +237,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				"Try generate missing column values?"));
 		createTab(components, ColumnType.Plate);
 		createTab(components, ColumnType.Replicate);
+		createTab(components, ColumnType.WellRow);
+		createTab(components, ColumnType.WellColumn);
 	}
 
 	/**
@@ -361,7 +375,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 						break;
 					case type:
 						dialog = new DialogComponentStringSelection(
-								stringModel, label, "Integer", "Real", "String");
+								stringModel, label, INTEGER, REAL, STRING,
+								DO_NOT_GENERATE);
 						break;
 					case group:
 						throw new IllegalStateException(

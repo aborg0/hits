@@ -67,6 +67,8 @@
 			<restriction base="string">
 				<enumeration value="Plate"></enumeration>
 				<enumeration value="Replicate"></enumeration>
+				<enumeration value="WellRow"></enumeration>
+				<enumeration value="WellColumn"></enumeration>
 			</restriction>
 		</simpleType>
 	</attribute>

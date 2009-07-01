@@ -23,8 +23,10 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -38,9 +40,6 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
-import org.knime.core.data.DoubleValue;
-import org.knime.core.data.IntValue;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
 import org.knime.core.data.def.DoubleCell;
@@ -308,10 +307,22 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		{// TODO
 
 		}
+		final EnumMap<ColumnType, DataType> outTypes = new EnumMap<ColumnType, DataType>(
+				ColumnType.class);
+		for (final ColumnType ct : ColumnType.values()) {
+			final DataType outputType = findType(settingsModels.get(ct).get(
+					Boolean.FALSE).get(DialogType.type).getStringValue());
+			if (outputType != null) {
+				outTypes.put(ct, outputType);
+			}
+		}
 		final Map<String, List<ColumnType>> newColumns = new LinkedHashMap<String, List<ColumnType>>();
 		for (final ColumnType ct : ColumnType.values()) {
-			putOrAdd(newColumns, settingsModels.get(ct).get(Boolean.FALSE).get(
-					DialogType.name).getStringValue(), ct);
+			final String colName = settingsModels.get(ct).get(Boolean.FALSE)
+					.get(DialogType.name).getStringValue();
+			if (!colName.isEmpty() && outTypes.get(ct) != null) {
+				putOrAdd(newColumns, colName, ct);
+			}
 		}
 		final Map<ColumnType, Pattern> patterns = new EnumMap<ColumnType, Pattern>(
 				ColumnType.class);
@@ -322,24 +333,21 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		final Map<ColumnType, List<Token>> outFormats = new EnumMap<ColumnType, List<Token>>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
-			outFormats.put(ct, new TokenizerFactory().createGroupingTokenizer(
-					new Pair<Token, List<? extends Token>>(null,
-							new ArrayList<Token>()), groupStart, groupEnd, 0)
-					.parse(
-							settingsModels.get(ct).get(Boolean.FALSE).get(
-									DialogType.format).getStringValue()));
+			if (outTypes.get(ct) != null) {
+				outFormats.put(ct, new TokenizerFactory()
+						.createGroupingTokenizer(
+								new Pair<Token, List<? extends Token>>(null,
+										new ArrayList<Token>()), groupStart,
+								groupEnd, 0).parse(
+								settingsModels.get(ct).get(Boolean.FALSE).get(
+										DialogType.format).getStringValue()));
+			}
 		}
 		final EnumMap<ColumnType, Pattern> inPatterns = new EnumMap<ColumnType, Pattern>(
 				ColumnType.class);
 		for (final ColumnType ct : ColumnType.values()) {
 			inPatterns.put(ct, Pattern.compile(settingsModels.get(ct).get(
 					Boolean.TRUE).get(DialogType.format).getStringValue()));
-		}
-		final EnumMap<ColumnType, DataType> outTypes = new EnumMap<ColumnType, DataType>(
-				ColumnType.class);
-		for (final ColumnType ct : ColumnType.values()) {
-			outTypes.put(ct, findType(settingsModels.get(ct).get(Boolean.FALSE)
-					.get(DialogType.type).getStringValue()));
 		}
 		final NavigableMap<String, ColumnType> dictionary = new TreeMap<String, ColumnType>(
 				String.CASE_INSENSITIVE_ORDER);
@@ -380,78 +388,48 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 				@Override
 				public DataCell getCell(final DataRow row) {
-					final Map<ColumnType, DataCell> cells = new EnumMap<ColumnType, DataCell>(
+					final Map<ColumnType, String> cells = new EnumMap<ColumnType, String>(
 							ColumnType.class);
 					for (final ColumnType ct : ColumnType.values()) {
-						cells.put(ct, row.getCell(origColumnIndices.get(ct)
-								.intValue()));
+						final Pattern pattern = inPatterns.get(ct);
+						final int index = origColumnIndices.get(ct).intValue();
+						if (index != -1) {
+							final DataCell cell = row.getCell(index);
+							final Matcher matcher = pattern.matcher(cell
+									.toString());
+							cells.put(ct, matcher.matches()
+									&& matcher.groupCount() >= 1 ? matcher
+									.group(1) : "");
+						} else {
+							cells.put(ct, "");
+						}
 					}
-					// final DataCell cell = row.getCell(origColumnIndex);
 					final DataCell result;
 					final DataType type = outTypes.get(columnType);
 					final Token firstToken = outFormats.get(columnType)
 							.iterator().next();
-					if (type == IntCell.TYPE) {
-						final ColumnType origType = dictionary.get(firstToken
-								.getText());
-						final DataCell cell = row.getCell(origColumnIndices
-								.get(origType).intValue());
-						if (cell.isMissing()) {
+					final ColumnType origType = dictionary.get(firstToken
+							.getText());
+					final String value = cells.get(columnType);
+					if (type == IntCell.TYPE || type == DoubleCell.TYPE) {
+						if (value.isEmpty()) {
 							if (genMissing) {
 								// FIXME
 								result = new IntCell(count++);
 							} else {
 								result = DataType.getMissingCell();
 							}
-						} else if (cell instanceof IntValue) {
-							final IntValue v = (IntValue) cell;
-							result = (DataCell) v;
-						} else if (cell instanceof DoubleValue) {
-							final DoubleValue v = (DoubleValue) cell;
-							result = new IntCell((int) Math.round(v
-									.getDoubleValue()));
-						} else if (cell instanceof StringValue) {
-							final StringValue str = (StringValue) cell;
-							result = new IntCell(Integer.parseInt(inPatterns
-									.get(origType)
-									.matcher(str.getStringValue()).group(1)));
 						} else {
-							throw new IllegalStateException(
-									"Unsupported cell type: " + cell.getClass());
+							result = type == IntCell.TYPE ? new IntCell(Integer
+									.parseInt(value)) : new DoubleCell(Double
+									.parseDouble(value));
 						}
-					} else if (type == DoubleCell.TYPE) {
-						final ColumnType origType = dictionary.get(firstToken
-								.getText());
-						final DataCell cell = row.getCell(origColumnIndices
-								.get(origType).intValue());
-						if (cell.isMissing()) {
-							if (genMissing) {
-								// FIXME
-								result = new DoubleCell(count++);
-							} else {
-								result = DataType.getMissingCell();
-							}
-						} else if (cell instanceof DoubleValue) {
-							final DoubleValue v = (DoubleValue) cell;
-							result = (DataCell) v;
-						} else if (cell instanceof StringValue) {
-							final StringValue str = (StringValue) cell;
-							result = new DoubleCell(Double
-									.parseDouble(inPatterns.get(origType)
-											.matcher(str.getStringValue())
-											.group(1)));
-						} else {
-							throw new IllegalStateException(
-									"Unsupported cell type: " + cell.getClass());
-						}
-
 					} else if (type == StringCell.TYPE) {
 						final StringBuilder sb = new StringBuilder();
 						for (final Token token : outFormats.get(columnType)) {
 							if (dictionary.containsKey(token.getText())) {
-								sb.append(cells.get(
-										dictionary.get(token.getText()))
-										.toString());
+								sb.append(cells.get(dictionary.get(token
+										.getText())));
 							} else {
 								sb.append(token.getText());
 							}
@@ -460,7 +438,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					} else {
 						throw new IllegalStateException("Wrong type: " + type);
 					}
-
 					return result;
 				}
 			};
@@ -483,15 +460,19 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	 *            </ul>
 	 * @return The associated DataType.
 	 */
-	private DataType findType(final String typeName) {
-		if ("Integer".equalsIgnoreCase(typeName)) {
+	@Nullable
+	private static DataType findType(final String typeName) {
+		if (BioConverterNodeDialog.INTEGER.equalsIgnoreCase(typeName)) {
 			return IntCell.TYPE;
 		}
-		if ("Real".equalsIgnoreCase(typeName)) {
+		if (BioConverterNodeDialog.REAL.equalsIgnoreCase(typeName)) {
 			return DoubleCell.TYPE;
 		}
-		if ("String".equalsIgnoreCase(typeName)) {
+		if (BioConverterNodeDialog.STRING.equalsIgnoreCase(typeName)) {
 			return StringCell.TYPE;
+		}
+		if (BioConverterNodeDialog.DO_NOT_GENERATE.equalsIgnoreCase(typeName)) {
+			return null;
 		}
 		throw new IllegalArgumentException("Unsupported type: " + typeName);
 	}
