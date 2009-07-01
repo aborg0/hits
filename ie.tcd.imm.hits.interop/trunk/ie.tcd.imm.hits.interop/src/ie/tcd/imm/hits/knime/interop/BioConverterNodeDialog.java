@@ -1,7 +1,8 @@
 package ie.tcd.imm.hits.knime.interop;
 
-import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.knime.interop.BioConverterNodeModel.ConversionDefault;
+import ie.tcd.imm.hits.knime.interop.config.Profile;
+import ie.tcd.imm.hits.knime.interop.config.Value;
 import ie.tcd.imm.hits.util.Displayable;
 import ie.tcd.imm.hits.util.Pair;
 
@@ -11,9 +12,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import java.lang.reflect.Array;
+
 
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
@@ -41,8 +44,18 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  */
 public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 
+	/**
+	 * Type of possible dialogs. For inputs there is no need of {@link #type}.
+	 */
 	public static enum DialogType {
-		group, name, format, type;
+		/** Group of {@link #name}, {@link #format}, and possibly {@link #type}. */
+		group,
+		/** Name of the column. */
+		name,
+		/** The format describing the input value structure, or the output. */
+		format,
+		/** Type of the output column. */
+		type;
 
 		private static final DialogType[] nonGroups = new DialogType[] { name,
 				format, type };
@@ -50,13 +63,34 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		private static final DialogType[] inNonGroups = new DialogType[] {
 				name, format };
 
+		/**
+		 * @param input
+		 *            Selects the input ({@code true}) or output ({@code false})
+		 *            group of {@link DialogType}s.
+		 * @return The non-{@link #group} values for input or output columns.
+		 */
 		public static DialogType[] nonGroups(final boolean input) {
 			return input ? inNonGroups : nonGroups;
 		}
+
+		/**
+		 * @param value
+		 *            The value to marshal.
+		 * @return The name to use in marshaled xmls.
+		 */
+		public static String nameOf(final DialogType value) {
+			return value.name();
+		}
 	}
 
-	static enum ColumnType implements Displayable {
-		Plate("Plate"), Replicate("Replicate");
+	/**
+	 * The handled column types.
+	 */
+	public static enum ColumnType implements Displayable {
+		/** The plate information */
+		Plate("Plate"),
+		/** The replicate information */
+		Replicate("Replicate");
 		private final String displayText;
 
 		private ColumnType(final String displayText) {
@@ -67,144 +101,165 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		public String getDisplayText() {
 			return displayText;
 		}
+
+		/**
+		 * @param value
+		 *            The value to marshal.
+		 * @return The name to use in marshaled xmls.
+		 */
+		public static String nameOf(final ColumnType value) {
+			return value.name();
+		}
+
 	}
 
-	private static final Map<ColumnType, Map<Boolean, Map<DialogType, String>>> cfgKeys = createOuterEmptyMap();
-	private static final Map<ColumnType, Map<Boolean, Map<DialogType, String>>> defaults = createOuterEmptyMap();
-	private static final Map<ConversionDefault, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> patterns = new HashMap<ConversionDefault, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>>();
+	// private static final Map<ColumnType, Map<Boolean, Map<DialogType,
+	// String>>> cfgKeys = createOuterEmptyMap();
+	// private static final Map<ColumnType, Map<Boolean, Map<DialogType,
+	// String>>> defaults = createOuterEmptyMap();
+	private static final Map</* ConversionDefault */String, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> patterns = new TreeMap</* ConversionDefault */String, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>>();
 	static {
 		// TODO refactor!!!
-		for (final ConversionDefault d : ConversionDefault.values()) {
-			patterns.put(d, createOuterEmptyMap());
+		// for (final ConversionDefault d : ConversionDefault.values()) {
+		final List<Profile> profiles = BioConverterNodeModel.root.getProfiles()
+				.getProfile();
+		for (final Profile profile : profiles) {
+			patterns.put(profile.getName(), createOuterEmptyMap());
+			for (final Value value : profile.getValue()) {
+				setPattern(profile.getName(), value.getColumn(), profile
+						.isInput(), value.getDialog(), value.getValue());
+			}
 		}
-		cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.name,
-				BioConverterNodeModel.CFGKEY_PLATE_IN);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.format,
-				BioConverterNodeModel.CFGKEY_PLATE_IN_FORMAT);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.group,
-				BioConverterNodeModel.CFGKEY_PLATE_IN_GROUP);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.name,
-				BioConverterNodeModel.CFGKEY_PLATE_OUT);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.format,
-				BioConverterNodeModel.CFGKEY_PLATE_OUT_FORMAT);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
-				BioConverterNodeModel.CFGKEY_PLATE_OUT_TYPE);
-		cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
-				BioConverterNodeModel.CFGKEY_PLATE_OUT_GROUP);
-		defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.name,
-				BioConverterNodeModel.DEFAULT_PLATE_IN);
-		defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.format,
-				BioConverterNodeModel.DEFAULT_PLATE_IN_FORMAT);
-		defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.group,
-				BioConverterNodeModel.DEFAULT_PLATE_IN_GROUP);
-		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.name,
-				BioConverterNodeModel.DEFAULT_PLATE_OUT);
-		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(
-				DialogType.format,
-				BioConverterNodeModel.DEFAULT_PLATE_OUT_FORMAT);
-		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
-				BioConverterNodeModel.DEFAULT_PLATE_OUT_TYPE);
-		defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
-				BioConverterNodeModel.DEFAULT_PLATE_OUT_GROUP);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.name, BioConverterNodeModel.CFGKEY_REPLICATE_IN);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.format,
-				BioConverterNodeModel.CFGKEY_REPLICATE_IN_FORMAT);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.group,
-				BioConverterNodeModel.CFGKEY_REPLICATE_IN_GROUP);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.name, BioConverterNodeModel.CFGKEY_REPLICATE_OUT);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.format,
-				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_FORMAT);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.type,
-				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_TYPE);
-		cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.group,
-				BioConverterNodeModel.CFGKEY_REPLICATE_OUT_GROUP);
-		defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.name, BioConverterNodeModel.DEFAULT_REPLICATE_IN);
-		defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.format,
-				BioConverterNodeModel.DEFAULT_REPLICATE_IN_FORMAT);
-		defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
-				DialogType.group,
-				BioConverterNodeModel.DEFAULT_REPLICATE_IN_GROUP);
-		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.name, BioConverterNodeModel.DEFAULT_REPLICATE_OUT);
-		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.format,
-				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_FORMAT);
-		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.type,
-				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_TYPE);
-		defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
-				DialogType.group,
-				BioConverterNodeModel.DEFAULT_REPLICATE_OUT_GROUP);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.name,
+		// BioConverterNodeModel.CFGKEY_PLATE_IN);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.format,
+		// BioConverterNodeModel.CFGKEY_PLATE_IN_FORMAT);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.group,
+		// BioConverterNodeModel.CFGKEY_PLATE_IN_GROUP);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.name,
+		// BioConverterNodeModel.CFGKEY_PLATE_OUT);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.format,
+		// BioConverterNodeModel.CFGKEY_PLATE_OUT_FORMAT);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
+		// BioConverterNodeModel.CFGKEY_PLATE_OUT_TYPE);
+		// cfgKeys.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
+		// BioConverterNodeModel.CFGKEY_PLATE_OUT_GROUP);
+		// defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.name,
+		// BioConverterNodeModel.DEFAULT_PLATE_IN);
+		// defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.format,
+		// BioConverterNodeModel.DEFAULT_PLATE_IN_FORMAT);
+		// defaults.get(ColumnType.Plate).get(Boolean.TRUE).put(DialogType.group,
+		// BioConverterNodeModel.DEFAULT_PLATE_IN_GROUP);
+		// defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.name,
+		// BioConverterNodeModel.DEFAULT_PLATE_OUT);
+		// defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(
+		// DialogType.format,
+		// BioConverterNodeModel.DEFAULT_PLATE_OUT_FORMAT);
+		// defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.type,
+		// BioConverterNodeModel.DEFAULT_PLATE_OUT_TYPE);
+		// defaults.get(ColumnType.Plate).get(Boolean.FALSE).put(DialogType.group,
+		// BioConverterNodeModel.DEFAULT_PLATE_OUT_GROUP);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.name, BioConverterNodeModel.CFGKEY_REPLICATE_IN);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.format,
+		// BioConverterNodeModel.CFGKEY_REPLICATE_IN_FORMAT);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.group,
+		// BioConverterNodeModel.CFGKEY_REPLICATE_IN_GROUP);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.name, BioConverterNodeModel.CFGKEY_REPLICATE_OUT);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.format,
+		// BioConverterNodeModel.CFGKEY_REPLICATE_OUT_FORMAT);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.type,
+		// BioConverterNodeModel.CFGKEY_REPLICATE_OUT_TYPE);
+		// cfgKeys.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.group,
+		// BioConverterNodeModel.CFGKEY_REPLICATE_OUT_GROUP);
+		// defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.name, BioConverterNodeModel.DEFAULT_REPLICATE_IN);
+		// defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.format,
+		// BioConverterNodeModel.DEFAULT_REPLICATE_IN_FORMAT);
+		// defaults.get(ColumnType.Replicate).get(Boolean.TRUE).put(
+		// DialogType.group,
+		// BioConverterNodeModel.DEFAULT_REPLICATE_IN_GROUP);
+		// defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.name, BioConverterNodeModel.DEFAULT_REPLICATE_OUT);
+		// defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.format,
+		// BioConverterNodeModel.DEFAULT_REPLICATE_OUT_FORMAT);
+		// defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.type,
+		// BioConverterNodeModel.DEFAULT_REPLICATE_OUT_TYPE);
+		// defaults.get(ColumnType.Replicate).get(Boolean.FALSE).put(
+		// DialogType.group,
+		// BioConverterNodeModel.DEFAULT_REPLICATE_OUT_GROUP);
 
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, true,
-				DialogType.name, PublicConstants.PLATE_COLUMN);
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, true,
-				DialogType.format, "\\d+");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
-				DialogType.name, PublicConstants.PLATE_COL_NAME);
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
-				DialogType.format, "\\d+");
-		setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
-				DialogType.name, "barcode");
-		setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
-				DialogType.format, "(?:[^\\d]*)(\\d+)_(?:\\d+)");
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
-				DialogType.name, PublicConstants.PLATE_COLUMN);
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
-				DialogType.format, "${Plate}");
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
-				DialogType.type, "Integer");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
-				DialogType.name, PublicConstants.PLATE_COL_NAME);
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
-				DialogType.format, "${Plate}");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
-				DialogType.type, "Integer");
-		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
-				DialogType.name, "barcode");
-		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
-				DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
-		setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
-				DialogType.type, "String");
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate, true,
-				DialogType.name, PublicConstants.REPLICATE_COLUMN);
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate, true,
-				DialogType.format, "\\d+");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
-				true, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
-				true, DialogType.format, "\\d+");
-		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
-				DialogType.name, "barcode");
-		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
-				DialogType.format, "(?:[^_]*_(\\d+)");
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
-				false, DialogType.name, PublicConstants.REPLICATE_COLUMN);
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
-				false, DialogType.format, "\\d+");
-		setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
-				false, DialogType.type, "Integer");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
-				false, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
-				false, DialogType.format, "\\d+");
-		setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
-				false, DialogType.type, "Integer");
-		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
-				DialogType.name, PublicConstants.REPLICATE_COL_NAME);
-		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
-				DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
-		setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
-				DialogType.type, "String");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, true,
+		// DialogType.name, PublicConstants.PLATE_COLUMN);
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, true,
+		// DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
+		// DialogType.name, PublicConstants.PLATE_COL_NAME);
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, true,
+		// DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
+		// DialogType.name, "barcode");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Plate, true,
+		// DialogType.format, "(?:[^\\d]*)(\\d+)_(?:\\d+)");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+		// DialogType.name, PublicConstants.PLATE_COLUMN);
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+		// DialogType.format, "${Plate}");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Plate, false,
+		// DialogType.type, "Integer");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
+		// DialogType.name, PublicConstants.PLATE_COL_NAME);
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
+		// DialogType.format, "${Plate}");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Plate, false,
+		// DialogType.type, "Integer");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
+		// DialogType.name, "barcode");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
+		// DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Plate, false,
+		// DialogType.type, "String");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+		// true,
+		// DialogType.name, PublicConstants.REPLICATE_COLUMN);
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+		// true,
+		// DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+		// true, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+		// true, DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
+		// DialogType.name, "barcode");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Replicate, true,
+		// DialogType.format, "(?:[^_]*_(\\d+)");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+		// false, DialogType.name, PublicConstants.REPLICATE_COLUMN);
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+		// false, DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.cellHTS2Input, ColumnType.Replicate,
+		// false, DialogType.type, "Integer");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+		// false, DialogType.name, PublicConstants.REPLICATE_COL_NAME);
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+		// false, DialogType.format, "\\d+");
+		// setPattern(ConversionDefault.cellHTS2Output, ColumnType.Replicate,
+		// false, DialogType.type, "Integer");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
+		// DialogType.name, PublicConstants.REPLICATE_COL_NAME);
+		// setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
+		// DialogType.format, "${Experiment}${03Plate}_${03Replicate}");
+		// setPattern(ConversionDefault.hcdc, ColumnType.Replicate, false,
+		// DialogType.type, "String");
 	}
 
 	private static Map<ColumnType, Map<Boolean, Map<DialogType, String>>> createOuterEmptyMap() {
@@ -216,10 +271,11 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		return ret;
 	}
 
-	private static void setPattern(final ConversionDefault conv,
+	private static void setPattern(
+			final String profileName,// final ConversionDefault conv,
 			final ColumnType col, final boolean input, final DialogType type,
 			final String value) {
-		patterns.get(conv).get(col).get(Boolean.valueOf(input))
+		patterns.get(/* conv */profileName).get(col).get(Boolean.valueOf(input))
 				.put(type, value);
 	}
 
@@ -310,29 +366,56 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	 */
 	private void addPatterns(
 			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components) {
-		for (final Entry<ColumnType, Map<Boolean, Map<DialogType, String>>> colEntry : cfgKeys
-				.entrySet()) {
-			final ColumnType columnType = colEntry.getKey();
-			for (final Entry<Boolean, Map<DialogType, String>> inOutEntry : colEntry
-					.getValue().entrySet()) {
-				final Boolean input = inOutEntry.getKey();
-				final DialogType[] nonGroups = DialogType.nonGroups(input
-						.booleanValue());
+		for (final Pair<Pair<ColumnType, Boolean>, DialogType> pair : BioConverterNodeModel
+				.possibleKeys()) {
+			if (pair.getRight() == DialogType.group) {
+				final ColumnType columnType = pair.getLeft().getLeft();
+				final boolean input = pair.getLeft().getRight().booleanValue();
+				final DialogType[] nonGroups = DialogType.nonGroups(input);
 				final DialogComponentWithDefaults groupComponent = new DialogComponentWithDefaults(
-						new SettingsModelString(cfgKeys.get(columnType).get(
-								input).get(DialogType.group), defaults.get(
-								columnType).get(input).get(DialogType.group)),
+						new SettingsModelString(
+								BioConverterNodeModel.generateKey(columnType,
+										input, pair.getRight()),
+								BioConverterNodeModel.findDefault(columnType,
+										input, pair.getRight())),
 						DialogType.group.name(),
 						createEnablementMap(nonGroups), collectPatterns(
-								columnType, input), select(components,
-								columnType, Arrays.asList(nonGroups), input
-										.booleanValue()));
-				final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
+								columnType, pair.getLeft().getRight()), select(
+								components, columnType, Arrays
+										.asList(nonGroups), input));
+				final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> p = components
 						.get(columnType);
-				(input.booleanValue() ? pair.getLeft() : pair.getRight()).put(
-						DialogType.group, groupComponent);
+				(input ? p.getLeft() : p.getRight()).put(DialogType.group,
+						groupComponent);
 			}
 		}
+		// for (final Entry<ColumnType, Map<Boolean, Map<DialogType, String>>>
+		// colEntry : cfgKeys
+		// .entrySet()) {
+		// final ColumnType columnType = colEntry.getKey();
+		// for (final Entry<Boolean, Map<DialogType, String>> inOutEntry :
+		// colEntry
+		// .getValue().entrySet()) {
+		// final Boolean input = inOutEntry.getKey();
+		// final DialogType[] nonGroups = DialogType.nonGroups(input
+		// .booleanValue());
+		// final DialogComponentWithDefaults groupComponent = new
+		// DialogComponentWithDefaults(
+		// new SettingsModelString(cfgKeys.get(columnType).get(
+		// input).get(DialogType.group), defaults.get(
+		// columnType).get(input).get(DialogType.group)),
+		// DialogType.group.name(),
+		// createEnablementMap(nonGroups), collectPatterns(
+		// columnType, input), select(components,
+		// columnType, Arrays.asList(nonGroups), input
+		// .booleanValue()));
+		// final Pair<Map<DialogType, DialogComponent>, Map<DialogType,
+		// DialogComponent>> pair = components
+		// .get(columnType);
+		// (input.booleanValue() ? pair.getLeft() : pair.getRight()).put(
+		// DialogType.group, groupComponent);
+		// }
+		// }
 	}
 
 	/**
@@ -344,9 +427,9 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final Boolean input) {
 		final DialogType[] nonGroups = DialogType.nonGroups(input);
 		final Map<String, Object[]> ret = new LinkedHashMap<String, Object[]>();
-		for (final Entry<ConversionDefault, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> entry : patterns
+		for (final Entry</* ConversionDefault */String, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> entry : patterns
 				.entrySet()) {
-			final String displayText = entry.getKey().getDisplayText();
+			final String displayText = entry.getKey()/* .getDisplayText() */;
 			final String[] value = new String[nonGroups.length];
 			for (int i = nonGroups.length; i-- > 0;) {
 				value[i] = entry.getValue().get(columnType).get(input).get(
@@ -375,10 +458,14 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				for (final DialogType dialogType : DialogType.nonGroups(left)) {
 					final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
 							.get(colType);
-					final String configName = cfgKeys.get(colType).get(
-							Boolean.valueOf(left)).get(dialogType);
-					final String defaultValue = defaults.get(colType).get(
-							Boolean.valueOf(left)).get(dialogType);
+					// final String configName = cfgKeys.get(colType).get(
+					// Boolean.valueOf(left)).get(dialogType);
+					// final String defaultValue = defaults.get(colType).get(
+					// Boolean.valueOf(left)).get(dialogType);
+					final String configName = BioConverterNodeModel
+							.generateKey(colType, left, dialogType);
+					final String defaultValue = BioConverterNodeModel
+							.findDefault(colType, left, dialogType);
 					final boolean colSelection = dialogType == DialogType.name
 							&& left;
 					final SettingsModelString stringModel = colSelection ? new SettingsModelColumnName(
