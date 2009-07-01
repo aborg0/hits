@@ -6,14 +6,14 @@
   <p:defaults>
     <p:default p:column="Plate" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="Plate" p:dialog="name" p:input="true">Plate</p:default>
-    <p:default p:column="Plate" p:dialog="format" p:input="true">%d</p:default>
+    <p:default p:column="Plate" p:dialog="format" p:input="true">(\d+)</p:default>
     <p:default p:column="Plate" p:dialog="group" p:input="false">custom</p:default>
     <p:default p:column="Plate" p:dialog="name" p:input="false">Plate</p:default>
     <p:default p:column="Plate" p:dialog="format" p:input="false">${Plate}</p:default>
     <p:default p:column="Plate" p:dialog="type" p:input="false">Integer</p:default>
     <p:default p:column="Replicate" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="Replicate" p:dialog="name" p:input="true">Replicate</p:default>
-    <p:default p:column="Replicate" p:dialog="format" p:input="true">%d</p:default>
+    <p:default p:column="Replicate" p:dialog="format" p:input="true">(\d+)</p:default>
     <p:default p:column="Replicate" p:dialog="group" p:input="false">custom</p:default>
     <p:default p:column="Replicate" p:dialog="name" p:input="false">Replicate</p:default>
     <p:default p:column="Replicate" p:dialog="format" p:input="false">${Replicate}</p:default>
@@ -22,9 +22,9 @@
   <p:profiles>
     <p:profile p:name="custom" p:modifiable="true" p:input="true">
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
-      <p:value p:column="Plate" p:dialog="format">\d+</p:value>
+      <p:value p:column="Plate" p:dialog="format">(\d+)</p:value>
       <p:value p:column="Replicate" p:dialog="name">Replicate</p:value>
-      <p:value p:column="Replicate" p:dialog="format">\d+</p:value>
+      <p:value p:column="Replicate" p:dialog="format">(\d+)</p:value>
     </p:profile>
     <p:profile p:name="custom" p:modifiable="true" p:input="false">
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
@@ -36,9 +36,9 @@
     </p:profile>
     <p:profile p:name="cellHTS2Input" p:modifiable="false" p:input="true">
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
-      <p:value p:column="Plate" p:dialog="format">\d+</p:value>
+      <p:value p:column="Plate" p:dialog="format">(\d+)</p:value>
       <p:value p:column="Replicate" p:dialog="name">Replicate</p:value>
-      <p:value p:column="Replicate" p:dialog="format">\d+</p:value>
+      <p:value p:column="Replicate" p:dialog="format">(\d+)</p:value>
     </p:profile>
     <p:profile p:name="cellHTS2Input" p:modifiable="false" p:input="false">
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
@@ -54,7 +54,7 @@
     </p:profile>
     <p:profile p:name="HCDC" p:modifiable="false" p:input="true">
       <p:value p:column="Plate" p:dialog="name">barcode</p:value>
-      <p:value p:column="Plate" p:dialog="format">[^\d](\d+)_(:?\d+)$</p:value>
+      <p:value p:column="Plate" p:dialog="format">.*?(\d+)_(?:\d+)$</p:value>
       <p:value p:column="Replicate" p:dialog="name">barcode</p:value>
       <p:value p:column="Replicate" p:dialog="format">(?:[^_])_(\d+)$</p:value>
     </p:profile>

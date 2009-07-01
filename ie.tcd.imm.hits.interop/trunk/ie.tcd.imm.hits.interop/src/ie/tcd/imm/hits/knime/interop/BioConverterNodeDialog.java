@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 
 import java.lang.reflect.Array;
 
-
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
@@ -124,7 +123,22 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		final List<Profile> profiles = BioConverterNodeModel.root.getProfiles()
 				.getProfile();
 		for (final Profile profile : profiles) {
-			patterns.put(profile.getName(), createOuterEmptyMap());
+			if (!patterns.containsKey(profile.getName())) {
+				patterns.put(profile.getName(), createOuterEmptyMap());
+			}
+			if (profile.getExtends() != null) {
+				final Map<ColumnType, Map<Boolean, Map<DialogType, String>>> ancestor = patterns
+						.get(profile.getExtends());
+				for (final Pair<Pair<ColumnType, Boolean>, DialogType> pair : BioConverterNodeModel
+						.possibleKeys()) {
+					setPattern(profile.getName(), pair.getLeft().getLeft(),
+							pair.getLeft().getRight().booleanValue(), pair
+									.getRight(), ancestor.get(
+									pair.getLeft().getLeft()).get(
+									pair.getLeft().getRight()).get(
+									pair.getRight()));
+				}
+			}
 			for (final Value value : profile.getValue()) {
 				setPattern(profile.getName(), value.getColumn(), profile
 						.isInput(), value.getDialog(), value.getValue());
@@ -301,16 +315,20 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components = new LinkedHashMap<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>>();
 		addSimpleComponents(components);
 		addPatterns(components);
-		for (final ConversionDefault v : ConversionDefault.values()) {
-			genInEnablementMap.put(v.getDisplayText(), fill(Boolean.FALSE,
-					components.size(), Boolean.class));
+		// for (final ConversionDefault v : ConversionDefault.values()) {
+		for (final Profile p : BioConverterNodeModel.root.getProfiles()
+				.getProfile()) {
+			genInEnablementMap.put(p.getName(), fill(Boolean.FALSE, components
+					.size(), Boolean.class));
 		}
 		genInEnablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
 				Boolean.TRUE, components.size(), Boolean.class));
 		final Map<String, Object[]> genInDefaultsMap = new LinkedHashMap<String, Object[]>();
-		for (final ConversionDefault v : ConversionDefault.values()) {
-			genInDefaultsMap.put(v.getDisplayText(), fill(v.getDisplayText(),
-					components.size(), String.class));
+		// for (final ConversionDefault v : ConversionDefault.values()) {
+		for (final Profile p : BioConverterNodeModel.root.getProfiles()
+				.getProfile()) {
+			genInDefaultsMap.put(p.getName(), fill(p.getName(), components
+					.size(), String.class));
 		}
 		final DialogComponentWithDefaults dialogGeneralIn = new DialogComponentWithDefaults(
 				new SettingsModelString(
@@ -351,8 +369,11 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	private Map<String, Boolean[]> createEnablementMap(
 			final DialogType[] nonGroups) {
 		final Map<String, Boolean[]> enablementMap = new HashMap<String, Boolean[]>();
-		for (final ConversionDefault cd : ConversionDefault.values()) {
-			enablementMap.put(cd.getDisplayText(), fill(Boolean.FALSE,
+		// for (final ConversionDefault cd : ConversionDefault.values()) {
+		ConversionDefault.values();
+		for (final Profile p : BioConverterNodeModel.root.getProfiles()
+				.getProfile()) {
+			enablementMap.put(p.getName(), fill(Boolean.FALSE,
 					nonGroups.length, Boolean.class));
 		}
 		enablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
@@ -424,7 +445,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	 * @return
 	 */
 	private Map<String, Object[]> collectPatterns(final ColumnType columnType,
-			final Boolean input) {
+			final boolean input) {
 		final DialogType[] nonGroups = DialogType.nonGroups(input);
 		final Map<String, Object[]> ret = new LinkedHashMap<String, Object[]>();
 		for (final Entry</* ConversionDefault */String, Map<ColumnType, Map<Boolean, Map<DialogType, String>>>> entry : patterns
@@ -432,8 +453,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final String displayText = entry.getKey()/* .getDisplayText() */;
 			final String[] value = new String[nonGroups.length];
 			for (int i = nonGroups.length; i-- > 0;) {
-				value[i] = entry.getValue().get(columnType).get(input).get(
-						nonGroups[i]);
+				value[i] = entry.getValue().get(columnType).get(
+						Boolean.valueOf(input)).get(nonGroups[i]);
 			}
 			ret.put(displayText, value);
 		}
