@@ -1,6 +1,5 @@
 package ie.tcd.imm.hits.knime.interop;
 
-import ie.tcd.imm.hits.knime.interop.BioConverterNodeModel.ConversionDefault;
 import ie.tcd.imm.hits.knime.interop.config.Profile;
 import ie.tcd.imm.hits.knime.interop.config.Root;
 import ie.tcd.imm.hits.knime.interop.config.Value;
@@ -205,33 +204,23 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		super();
 		fillPatterns(root);
 		setDefaultTabTitle("General");
-		final Map<String, Boolean[]> genInEnablementMap = new LinkedHashMap<String, Boolean[]>();
 		// key: name of concept
 		final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components = new LinkedHashMap<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>>();
 		addSimpleComponents(root, components);
 		addPatterns(root, components);
-		for (final Profile p : root.getProfiles().getProfile()) {
-			genInEnablementMap.put(p.getName(), fill(Boolean.FALSE, components
-					.size(), Boolean.class));
-		}
-		genInEnablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
-				Boolean.TRUE, components.size(), Boolean.class));
-		final Map<String, Object[]> genInDefaultsMap = new LinkedHashMap<String, Object[]>();
-		for (final Profile p : root.getProfiles().getProfile()) {
-			genInDefaultsMap.put(p.getName(), fill(p.getName(), components
-					.size(), String.class));
-		}
 		final DialogComponentWithDefaults dialogGeneralIn = new DialogComponentWithDefaults(
 				new SettingsModelString(
 						BioConverterNodeModel.CFGKEY_GENERAL_IN_GROUP,
 						BioConverterNodeModel.DEFAULT_GENERAL_IN_GROUP),
-				"Input", genInEnablementMap, genInDefaultsMap, select(
+				"Input", generateDefaultsMap(root, true, components.size()),
+				generateProfilesMap(root, true, components.size()), select(
 						components, DialogType.group, true));
 		final DialogComponentWithDefaults dialogGeneralOut = new DialogComponentWithDefaults(
 				new SettingsModelString(
 						BioConverterNodeModel.CFGKEY_GENERAL_OUT_GROUP,
 						BioConverterNodeModel.DEFAULT_GENERAL_OUT_GROUP),
-				"Output", genInEnablementMap, genInDefaultsMap, select(
+				"Output", generateDefaultsMap(root, false, components.size()),
+				generateProfilesMap(root, false, components.size()), select(
 						components, DialogType.group, false));
 		createNewGroup("Conversion");
 		addDialogComponent(dialogGeneralIn);
@@ -255,8 +244,57 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
+	 * Generates the default values map.
+	 * 
+	 * @param root
+	 *            The configuration of defaults/profiles.
+	 * @param input
+	 *            Input, or output defaults.
+	 * @param componentsSize
+	 *            Size of the components map.
+	 * @return The keys are the profiles. The values are the default values.
+	 */
+	private Map<String, Object[]> generateProfilesMap(final Root root,
+			final boolean input, final int componentsSize) {
+		final Map<String, Object[]> ret = new LinkedHashMap<String, Object[]>();
+		for (final Profile p : root.getProfiles().getProfile()) {
+			if (p.isInput() == input) {
+				ret.put(p.getName(), fill(p.getName(), componentsSize,
+						String.class));
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Generates the enabledness map.
+	 * 
+	 * @param root
+	 *            The configuration of defaults/profiles.
+	 * @param input
+	 *            Input, or output defaults.
+	 * @param componentsSize
+	 *            Size of the components map.
+	 * @return The keys are the profiles, the values are the values of
+	 *         enabledness.
+	 */
+	private Map<String, Boolean[]> generateDefaultsMap(final Root root,
+			final boolean input, final int componentsSize) {
+		final Map<String, Boolean[]> ret = new LinkedHashMap<String, Boolean[]>();
+		for (final Profile p : root.getProfiles().getProfile()) {
+			if (p.isInput() == input) {
+				ret.put(p.getName(), fill(Boolean.valueOf(p.isModifiable()),
+						componentsSize, Boolean.class));
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * Creates a {@link Map} from the profile names to the enablements.
 	 * 
+	 * @param root
+	 *            The configuration of defaults/profiles.
 	 * @param nonGroups
 	 *            The non-{@link DialogType#group}s.
 	 * @return The map.
@@ -264,13 +302,12 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 	private Map<String, Boolean[]> createEnablementMap(final Root root,
 			final DialogType[] nonGroups) {
 		final Map<String, Boolean[]> enablementMap = new HashMap<String, Boolean[]>();
-		ConversionDefault.values();
 		for (final Profile p : root.getProfiles().getProfile()) {
-			enablementMap.put(p.getName(), fill(Boolean.valueOf(p.isInput()),
-					nonGroups.length, Boolean.class));
+			enablementMap.put(p.getName(), fill(Boolean.valueOf(p
+					.isModifiable()), nonGroups.length, Boolean.class));
 		}
-		enablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
-				Boolean.TRUE, nonGroups.length, Boolean.class));
+		// enablementMap.put(ConversionDefault.custom.getDisplayText(), fill(
+		// Boolean.TRUE, nonGroups.length, Boolean.class));
 		return enablementMap;
 	}
 
@@ -303,9 +340,9 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 										columnType, input, pair.getRight())),
 						DialogType.group.name(), createEnablementMap(root,
 								nonGroups), collectPatterns(columnType, pair
-								.getLeft().getRight().booleanValue()), select(
-								components, columnType, Arrays
-										.asList(nonGroups), input));
+								.getLeft().getRight().booleanValue()),
+						"custom", select(components, columnType, Arrays
+								.asList(nonGroups), input));
 				final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> p = components
 						.get(columnType);
 				(input ? p.getLeft() : p.getRight()).put(DialogType.group,

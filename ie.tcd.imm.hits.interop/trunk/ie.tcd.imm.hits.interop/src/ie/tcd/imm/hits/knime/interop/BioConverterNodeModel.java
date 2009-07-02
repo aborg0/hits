@@ -207,7 +207,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**
 	 * @param root
 	 *            The configuration for defaults/profiles.
-	 * @return The {@link SettingsModel}s based on the values from {@link #root}
+	 * @return The {@link SettingsModel}s based on the values from {@code root}
 	 *         , and the {@link #possibleKeys()}.
 	 * @see #generateKey(ColumnType, boolean, DialogType)
 	 */
@@ -305,8 +305,15 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			ret.remove(allButMatched);
 		}
 		if (!keepOriginal.getBooleanValue())// Remove later not matched columns
-		{// TODO
-
+		{
+			for (final ColumnType ct : ColumnType.values()) {
+				final String origName = settingsModels.get(ct)
+						.get(Boolean.TRUE).get(DialogType.name)
+						.getStringValue();
+				if (origName != null && ret.indexOf(origName) != -1) {
+					ret.remove(origName);
+				}
+			}
 		}
 		final EnumMap<ColumnType, DataType> outTypes = new EnumMap<ColumnType, DataType>(
 				ColumnType.class);
@@ -365,10 +372,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 							.get(columnType)).createSpec()) {
 				private final Map<ColumnType, Integer> origColumnIndices = new EnumMap<ColumnType, Integer>(
 						ColumnType.class);
+				@SuppressWarnings("synthetic-access")
+				private final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settings = settingsModels;
 				{
 					for (final ColumnType ct : ColumnType.values()) {
 						origColumnIndices.put(ct, Integer.valueOf(dataTableSpec
-								.findColumnIndex(settingsModels.get(ct).get(
+								.findColumnIndex(settings.get(ct).get(
 										Boolean.TRUE).get(DialogType.name)
 										.getStringValue())));
 					}
@@ -407,10 +416,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					}
 					final DataCell result;
 					final DataType type = outTypes.get(columnType);
-					final Token firstToken = outFormats.get(columnType)
-							.iterator().next();
-					final ColumnType origType = dictionary.get(firstToken
-							.getText());
 					final String value = cells.get(columnType);
 					if (type == IntCell.TYPE || type == DoubleCell.TYPE) {
 						if (value.isEmpty()) {
@@ -654,10 +659,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	/**
 	 * Finds the default value for {@link SettingsModelString}s, based on the
-	 * values present in {@link #root}.
+	 * values present in {@code root}.
 	 * <p>
 	 * Note: This is an inefficient solution.
 	 * 
+	 * @param root
+	 *            The configuration of defaults/profiles.
 	 * @param columnType
 	 *            The {@link ColumnType}.
 	 * @param input

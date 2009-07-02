@@ -12,6 +12,7 @@ import java.awt.event.ItemListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
@@ -39,6 +40,8 @@ public class DialogComponentWithDefaults extends DialogComponent {
 	private final Map<String, Boolean[]> enablementOptions;
 	private final Map<String, Object[]> defaultValues;
 	private final DialogComponent[] components;
+	@Nullable
+	private final String noClearValue;
 
 	/**
 	 * @param model
@@ -56,7 +59,31 @@ public class DialogComponentWithDefaults extends DialogComponent {
 			final String label, final Map<String, Boolean[]> enablementOptions,
 			final Map<String, Object[]> defaultValues,
 			final DialogComponent... components) {
+		this(model, label, enablementOptions, defaultValues, null, components);
+	}
+
+	/**
+	 * @param model
+	 *            The {@link SettingsModelString} to use.
+	 * @param label
+	 *            The label to show.
+	 * @param enablementOptions
+	 *            The enabled components for different options.
+	 * @param defaultValues
+	 *            The values for the options.
+	 * @param noClearValue
+	 *            When this value is selected it will not modify the associated
+	 *            components.
+	 * @param components
+	 *            The handled {@link DialogComponent}s.
+	 */
+	public DialogComponentWithDefaults(final SettingsModelString model,
+			final String label, final Map<String, Boolean[]> enablementOptions,
+			final Map<String, Object[]> defaultValues,
+			@Nullable final String noClearValue,
+			final DialogComponent... components) {
 		super(model);
+		this.noClearValue = noClearValue;
 		this.components = components;
 		this.enablementOptions = clone(enablementOptions);
 		this.defaultValues = clone(defaultValues);
@@ -138,6 +165,9 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		final Object[] defaults = defaultValues.get(selection);
 		for (int i = components.length; i-- > 0;) {
 			components[i].getModel().setEnabled(enablements[i].booleanValue());
+			if (selection.equals(noClearValue)) {
+				continue;
+			}
 			if (defaults[i] instanceof String) {
 				final String newValue = (String) defaults[i];
 				if (components[i] instanceof DialogComponentColumnNameSelection) {

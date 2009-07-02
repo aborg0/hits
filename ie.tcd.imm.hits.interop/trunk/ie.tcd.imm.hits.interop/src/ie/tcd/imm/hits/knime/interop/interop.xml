@@ -117,7 +117,7 @@
       <p:value p:column="Plate" p:dialog="name">barcode</p:value>
       <p:value p:column="Plate" p:dialog="format">.*?(\d+)_(?:\d+)$</p:value>
       <p:value p:column="Replicate" p:dialog="name">barcode</p:value>
-      <p:value p:column="Replicate" p:dialog="format">(?:[^_])_(\d+)$</p:value>
+      <p:value p:column="Replicate" p:dialog="format">^(?:.*?)_(\d+)$</p:value>
       <p:value p:column="WellRow" p:dialog="name">row</p:value>
       <p:value p:column="WellRow" p:dialog="format">^([A-P])$</p:value>
       <p:value p:column="WellColumn" p:dialog="name">col</p:value>
