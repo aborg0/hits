@@ -1,5 +1,7 @@
 package ie.tcd.imm.hits.knime.interop;
 
+import ie.tcd.imm.hits.knime.interop.config.Root;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -11,13 +13,23 @@ import org.knime.core.node.NodeView;
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BioConverterNodeFactory extends NodeFactory<BioConverterNodeModel> {
+	private final Root root;
+
+	/**
+	 * 
+	 */
+	public BioConverterNodeFactory() {
+		super();
+		root = BioConverterNodeModel
+				.loadProperties(BioConverterNodeModel.CONFIGURATION_XML);
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public BioConverterNodeModel createNodeModel() {
-		return new BioConverterNodeModel();
+		return new BioConverterNodeModel(root);
 	}
 
 	/**
@@ -50,7 +62,7 @@ public class BioConverterNodeFactory extends NodeFactory<BioConverterNodeModel> 
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		return new BioConverterNodeDialog();
+		return new BioConverterNodeDialog(root);
 	}
 
 }

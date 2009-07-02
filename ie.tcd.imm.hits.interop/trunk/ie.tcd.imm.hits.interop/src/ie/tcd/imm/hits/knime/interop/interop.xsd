@@ -65,6 +65,7 @@
 				</appinfo>
 			</annotation>
 			<restriction base="string">
+				<enumeration value="Experiment"></enumeration>
 				<enumeration value="Plate"></enumeration>
 				<enumeration value="Replicate"></enumeration>
 				<enumeration value="WellRow"></enumeration>

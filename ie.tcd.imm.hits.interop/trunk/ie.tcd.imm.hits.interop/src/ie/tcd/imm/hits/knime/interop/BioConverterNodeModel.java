@@ -67,8 +67,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**  */
 	private static final String CONFIGURATION_XSD = "interop.xsd";
 
-	/**  */
-	private static final String CONFIGURATION_XML = "interop.xml";
+	/** The default path (relative to this class) for the configurations. */
+	public static final String CONFIGURATION_XML = "interop.xml";
 
 	/** A {@link NodeLogger}. */
 	protected static final NodeLogger logger = NodeLogger
@@ -77,6 +77,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**
 	 * Possible conversion targets.
 	 */
+	@Deprecated
 	public static enum ConversionDefault implements Displayable {
 		/** custom, user defined */
 		custom("custom"),
@@ -99,9 +100,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		}
 	}
 
-	/** The read static configuration. */
-	static final Root root = BioConverterNodeModel.loadProperties();
-
+	/* * The read static configuration. */
+	// private final Root root = BioConverterNodeModel.loadProperties();
 	/** Configuration key for input general group. */
 	static final String CFGKEY_GENERAL_IN_GROUP = "general.in.group";
 	/** Default value for input general group. */
@@ -191,27 +191,28 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			CFGKEY_GENERATE_MISSING, DEFAULT_GENERATE_MISSING);
 
 	/** The {@link SettingsModelString}s used in the model. */
-	static final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settingsModels = generateSettingsModels();
-
-	private final SettingsModelString[] inNames = new SettingsModelString[] {
-			settingsModels.get(ColumnType.Plate).get(Boolean.TRUE).get(
-					DialogType.name),
-			settingsModels.get(ColumnType.Replicate).get(Boolean.TRUE).get(
-					DialogType.name), };
+	private final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settingsModels;
 
 	/**
 	 * Constructor for the node model.
+	 * 
+	 * @param root
+	 *            The configuration for defaults/profiles.
 	 */
-	protected BioConverterNodeModel() {
+	protected BioConverterNodeModel(final Root root) {
 		super(1, 1);
+		settingsModels = generateSettingsModels(root);
 	}
 
 	/**
+	 * @param root
+	 *            The configuration for defaults/profiles.
 	 * @return The {@link SettingsModel}s based on the values from {@link #root}
 	 *         , and the {@link #possibleKeys()}.
 	 * @see #generateKey(ColumnType, boolean, DialogType)
 	 */
-	private static Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> generateSettingsModels() {
+	static Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> generateSettingsModels(
+			final Root root) {
 		final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> ret = new EnumMap<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>>(
 				ColumnType.class);
 		final List<Default> defaults = root.getDefaults().getDefault();
@@ -557,9 +558,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	 *         dataTableSpec} (or not, because it might contain {@code -1}s).
 	 */
 	private int[] computeMatchedColumnIndices(final DataTableSpec dataTableSpec) {
-		final int[] ret = new int[inNames.length];
+		final int[] ret = new int[settingsModels.size()];
 		for (int i = ret.length; i-- > 0;) {
-			dataTableSpec.findColumnIndex(inNames[i].getStringValue());
+			ret[i] = dataTableSpec.findColumnIndex(settingsModels.get(
+					ColumnType.values()[i]).get(Boolean.TRUE).get(
+					DialogType.name).getStringValue());
 		}
 		return ret;
 	}
@@ -617,10 +620,15 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	}
 
 	/**
+	 * @param xmlFilePath
+	 *            The xml file path to load. It is relative to the model's class
+	 *            path. It should conform to the xsd in
+	 *            {@link BioConverterNodeModel#CONFIGURATION_XSD} (
+	 *            {@value BioConverterNodeModel#CONFIGURATION_XSD}).
 	 * @return The {@link Root} element read from the {@link #CONFIGURATION_XML}
 	 *         ({@value #CONFIGURATION_XML}).
 	 */
-	static Root loadProperties() {
+	static Root loadProperties(final String xmlFilePath) {
 		try {
 			final JAXBContext context = JAXBContext.newInstance(Root.class
 					.getPackage().getName());
@@ -633,7 +641,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			unmarshaller.setSchema(schema);
 			final Root ret = (Root) unmarshaller
 					.unmarshal(BioConverterNodeModel.class
-							.getResource(CONFIGURATION_XML));
+							.getResource(xmlFilePath));
 			return ret;
 		} catch (final SAXException e) {
 			logger.fatal("Unable to load configuration: " + e.getMessage(), e);
@@ -658,8 +666,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	 *            The {@link DialogType}.
 	 * @return The found default value.
 	 */
-	public static String findDefault(final ColumnType columnType,
-			final boolean input, final DialogType dialogType) {
+	public static String findDefault(final Root root,
+			final ColumnType columnType, final boolean input,
+			final DialogType dialogType) {
 		final List<Default> defaults = root.getDefaults().getDefault();
 		for (final Default d : defaults) {
 			if (d.getColumn() == columnType && d.isInput() == input
