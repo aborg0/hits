@@ -23,11 +23,13 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentWithDefaults;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -65,10 +67,12 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		/** The format describing the input value structure, or the output. */
 		format,
 		/** Type of the output column. */
-		type;
+		type,
+		/** The position of the result column. */
+		position;
 
 		private static final DialogType[] nonGroups = new DialogType[] { name,
-				format, type };
+				format, type, position };
 
 		private static final DialogType[] inNonGroups = new DialogType[] {
 				name, format };
@@ -211,14 +215,16 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentWithDefaults dialogGeneralIn = new DialogComponentWithDefaults(
 				new SettingsModelString(
 						BioConverterNodeModel.CFGKEY_GENERAL_IN_GROUP,
-						BioConverterNodeModel.DEFAULT_GENERAL_IN_GROUP),
+						// BioConverterNodeModel.DEFAULT_GENERAL_IN_GROUP
+						root.getProfiles().getProfile().get(0).getName()),
 				"Input", generateDefaultsMap(root, true, components.size()),
 				generateProfilesMap(root, true, components.size()), select(
 						components, DialogType.group, true));
 		final DialogComponentWithDefaults dialogGeneralOut = new DialogComponentWithDefaults(
 				new SettingsModelString(
 						BioConverterNodeModel.CFGKEY_GENERAL_OUT_GROUP,
-						BioConverterNodeModel.DEFAULT_GENERAL_OUT_GROUP),
+						// BioConverterNodeModel.DEFAULT_GENERAL_OUT_GROUP
+						root.getProfiles().getProfile().get(1).getName()),
 				"Output", generateDefaultsMap(root, false, components.size()),
 				generateProfilesMap(root, false, components.size()), select(
 						components, DialogType.group, false));
@@ -328,16 +334,17 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components) {
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> pair : BioConverterNodeModel
 				.possibleKeys()) {
-			if (pair.getRight() == DialogType.group) {
+			DialogType dialogType = pair.getRight();
+			if (dialogType == DialogType.group) {
 				final ColumnType columnType = pair.getLeft().getLeft();
 				final boolean input = pair.getLeft().getRight().booleanValue();
 				final DialogType[] nonGroups = DialogType.nonGroups(input);
 				final DialogComponentWithDefaults groupComponent = new DialogComponentWithDefaults(
 						new SettingsModelString(
 								BioConverterNodeModel.generateKey(columnType,
-										input, pair.getRight()),
+										input, dialogType),
 								BioConverterNodeModel.findDefault(root,
-										columnType, input, pair.getRight())),
+										columnType, input, dialogType)),
 						DialogType.group.name(), createEnablementMap(root,
 								nonGroups), collectPatterns(columnType, pair
 								.getLeft().getRight().booleanValue()),
@@ -413,9 +420,14 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 							.findDefault(root, colType, left, dialogType);
 					final boolean colSelection = dialogType == DialogType.name
 							&& left;
-					final SettingsModelString stringModel = colSelection ? new SettingsModelColumnName(
-							configName, defaultValue)
-							: new SettingsModelString(configName, defaultValue);
+					final SettingsModelString stringModel = dialogType == DialogType.position ? null
+							: colSelection ? new SettingsModelColumnName(
+									configName, defaultValue)
+									: new SettingsModelString(configName,
+											defaultValue);
+					final SettingsModelIntegerBounded numberModel = dialogType == DialogType.position ? new SettingsModelIntegerBounded(
+							configName, Integer.parseInt(defaultValue), -20, 20)
+							: null;
 					final String label = (left ? "input " : "output ")
 							+ colType.getDisplayText() + " "
 							+ dialogType.name() + ": ";
@@ -435,6 +447,10 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 						dialog = new DialogComponentStringSelection(
 								stringModel, label, INTEGER, REAL, STRING,
 								DO_NOT_GENERATE);
+						break;
+					case position:
+						dialog = new DialogComponentNumber(numberModel, label,
+								Integer.valueOf(1));
 						break;
 					case group:
 						throw new IllegalStateException(
@@ -499,6 +515,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(select(columnType, components, DialogType.format,
 				false));
 		addDialogComponent(select(columnType, components, DialogType.type,
+				false));
+		addDialogComponent(select(columnType, components, DialogType.position,
 				false));
 	}
 

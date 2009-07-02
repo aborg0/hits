@@ -11,6 +11,7 @@
     <p:default p:column="Experiment" p:dialog="name" p:input="false">Experiment</p:default>
     <p:default p:column="Experiment" p:dialog="format" p:input="false">${Experiment}</p:default>
     <p:default p:column="Experiment" p:dialog="type" p:input="false">String</p:default>
+    <p:default p:column="Experiment" p:dialog="position" p:input="false">-4</p:default>
     <p:default p:column="Plate" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="Plate" p:dialog="name" p:input="true">Plate</p:default>
     <p:default p:column="Plate" p:dialog="format" p:input="true">(\d+)</p:default>
@@ -18,6 +19,7 @@
     <p:default p:column="Plate" p:dialog="name" p:input="false">Plate</p:default>
     <p:default p:column="Plate" p:dialog="format" p:input="false">${Plate}</p:default>
     <p:default p:column="Plate" p:dialog="type" p:input="false">Integer</p:default>
+    <p:default p:column="Plate" p:dialog="position" p:input="false">-3</p:default>
     <p:default p:column="Replicate" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="Replicate" p:dialog="name" p:input="true">Replicate</p:default>
     <p:default p:column="Replicate" p:dialog="format" p:input="true">(\d+)</p:default>
@@ -25,6 +27,7 @@
     <p:default p:column="Replicate" p:dialog="name" p:input="false">Replicate</p:default>
     <p:default p:column="Replicate" p:dialog="format" p:input="false">${Replicate}</p:default>
     <p:default p:column="Replicate" p:dialog="type" p:input="false">Integer</p:default>
+    <p:default p:column="Replicate" p:dialog="position" p:input="false">-2</p:default>
     <p:default p:column="WellRow" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="WellRow" p:dialog="name" p:input="true">Well</p:default>
     <p:default p:column="WellRow" p:dialog="format" p:input="true">^([A-P])(?:\s)?(?:-)?(?:\s)?(?:\d+)$</p:default>
@@ -32,13 +35,15 @@
     <p:default p:column="WellRow" p:dialog="name" p:input="false">Well</p:default>
     <p:default p:column="WellRow" p:dialog="format" p:input="false">${Well Row} - ${Well Column}</p:default>
     <p:default p:column="WellRow" p:dialog="type" p:input="false">String</p:default>
+    <p:default p:column="WellRow" p:dialog="position" p:input="false">-1</p:default>
     <p:default p:column="WellColumn" p:dialog="group" p:input="true">custom</p:default>
     <p:default p:column="WellColumn" p:dialog="name" p:input="true">Well</p:default>
     <p:default p:column="WellColumn" p:dialog="format" p:input="true">^(?:[A-P])(?:\s)?(?:-)?(?:\s)?(\d+)$</p:default>
     <p:default p:column="WellColumn" p:dialog="group" p:input="false">custom</p:default>
-    <p:default p:column="WellColumn" p:dialog="name" p:input="false">Well</p:default>
-    <p:default p:column="WellColumn" p:dialog="format" p:input="false">${Well Row} - ${Well Column}</p:default>
-    <p:default p:column="WellColumn" p:dialog="type" p:input="false">String</p:default>
+    <p:default p:column="WellColumn" p:dialog="name" p:input="false"></p:default>
+    <p:default p:column="WellColumn" p:dialog="format" p:input="false"></p:default>
+    <p:default p:column="WellColumn" p:dialog="type" p:input="false">Do not generate</p:default>
+    <p:default p:column="WellColumn" p:dialog="position" p:input="false">0</p:default>
   </p:defaults>
   <p:profiles>
     <p:profile p:name="custom" p:modifiable="true" p:input="true">
@@ -57,18 +62,23 @@
       <p:value p:column="Experiment" p:dialog="name">Experiment</p:value>
       <p:value p:column="Experiment" p:dialog="format">${Experiment}</p:value>
       <p:value p:column="Experiment" p:dialog="type">String</p:value>
+      <p:value p:column="Experiment" p:dialog="position">-4</p:value>
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
       <p:value p:column="Plate" p:dialog="format">${Plate}</p:value>
       <p:value p:column="Plate" p:dialog="type">Integer</p:value>
+      <p:value p:column="Plate" p:dialog="position">-3</p:value>
       <p:value p:column="Replicate" p:dialog="name">Replicate</p:value>
       <p:value p:column="Replicate" p:dialog="format">${Replicate}</p:value>
       <p:value p:column="Replicate" p:dialog="type">Integer</p:value>
+      <p:value p:column="Replicate" p:dialog="position">-2</p:value>
       <p:value p:column="WellRow" p:dialog="name">Well</p:value>
       <p:value p:column="WellRow" p:dialog="format">${Well Row} - ${Well Column}</p:value>
       <p:value p:column="WellRow" p:dialog="type">String</p:value>
+      <p:value p:column="WellRow" p:dialog="position">-1</p:value>
       <p:value p:column="WellColumn" p:dialog="name"></p:value>
       <p:value p:column="WellColumn" p:dialog="format"></p:value>
       <p:value p:column="WellColumn" p:dialog="type">Do not generate</p:value>
+      <p:value p:column="WellColumn" p:dialog="position">0</p:value>
     </p:profile>
     <p:profile p:name="cellHTS2Input" p:modifiable="false" p:input="true">
       <p:value p:column="Experiment" p:dialog="name"></p:value>
@@ -86,30 +96,39 @@
       <p:value p:column="Experiment" p:dialog="name"></p:value>
       <p:value p:column="Experiment" p:dialog="format"></p:value>
       <p:value p:column="Experiment" p:dialog="type">Do not generate</p:value>
+      <p:value p:column="Experiment" p:dialog="position">0</p:value>
       <p:value p:column="Plate" p:dialog="name">Plate</p:value>
       <p:value p:column="Plate" p:dialog="format">${Plate}</p:value>
       <p:value p:column="Plate" p:dialog="type">Integer</p:value>
+      <p:value p:column="Plate" p:dialog="position">1</p:value>
       <p:value p:column="Replicate" p:dialog="name">Replicate</p:value>
       <p:value p:column="Replicate" p:dialog="format">${Replicate}</p:value>
       <p:value p:column="Replicate" p:dialog="type">Integer</p:value>
+      <p:value p:column="Replicate" p:dialog="position">2</p:value>
       <p:value p:column="WellRow" p:dialog="name">Well</p:value>
       <p:value p:column="WellRow" p:dialog="format">${Well Row} - ${Well Column}</p:value>
       <p:value p:column="WellRow" p:dialog="type">String</p:value>
+      <p:value p:column="WellRow" p:dialog="position">3</p:value>
       <p:value p:column="WellColumn" p:dialog="name"></p:value>
       <p:value p:column="WellColumn" p:dialog="format"></p:value>
       <p:value p:column="WellColumn" p:dialog="type">Do not generate</p:value>
+      <p:value p:column="WellColumn" p:dialog="position">0</p:value>
     </p:profile>
     <p:profile p:name="cellHTS2Output" p:modifiable="false" p:input="true" p:extends="cellHTS2Input">
       <p:value p:column="Experiment" p:dialog="name">Experiment</p:value>
       <p:value p:column="Experiment" p:dialog="format">(.*)</p:value>
-      <p:value p:column="WellRow" p:dialog="format">^([A-P])\d\d$</p:value>
-      <p:value p:column="WellColumn" p:dialog="format">^[A-P](\d\d)$</p:value>
+      <p:value p:column="WellRow" p:dialog="format">^([A-P])\d?\d$</p:value>
+      <p:value p:column="WellColumn" p:dialog="format">^[A-P](\d?\d)$</p:value>
     </p:profile>
     <p:profile p:name="cellHTS2Output" p:modifiable="false" p:input="false" p:extends="cellHTS2Input">
       <p:value p:column="Experiment" p:dialog="name">Experiment</p:value>
       <p:value p:column="Experiment" p:dialog="format">${Experiment}</p:value>
       <p:value p:column="Experiment" p:dialog="type">String</p:value>
+      <p:value p:column="Experiment" p:dialog="position">1</p:value>
+      <p:value p:column="Plate" p:dialog="position">2</p:value>
+      <p:value p:column="Replicate" p:dialog="position">3</p:value>
       <p:value p:column="WellRow" p:dialog="format">${Well Row}${Well Column}</p:value>
+      <p:value p:column="WellRow" p:dialog="position">4</p:value>
     </p:profile>
     <p:profile p:name="HCDC" p:modifiable="false" p:input="true">
       <p:value p:column="Experiment" p:dialog="name">barcode</p:value>
@@ -127,18 +146,23 @@
       <p:value p:column="Experiment" p:dialog="name">barcode</p:value>
       <p:value p:column="Experiment" p:dialog="format">${Experiment}_${Plate}_${Replicate}</p:value>
       <p:value p:column="Experiment" p:dialog="type">String</p:value>
+      <p:value p:column="Experiment" p:dialog="position">1</p:value>
       <p:value p:column="Plate" p:dialog="name">barcode</p:value>
       <p:value p:column="Plate" p:dialog="format">${Experiment}_${Plate}_${Replicate}</p:value>
       <p:value p:column="Plate" p:dialog="type">String</p:value>
+      <p:value p:column="Plate" p:dialog="position">1</p:value>
       <p:value p:column="Replicate" p:dialog="name">barcode</p:value>
       <p:value p:column="Replicate" p:dialog="format">${Experiment}_${Plate}_${Replicate}</p:value>
       <p:value p:column="Replicate" p:dialog="type">String</p:value>
+      <p:value p:column="Replicate" p:dialog="position">1</p:value>
       <p:value p:column="WellRow" p:dialog="name">row</p:value>
       <p:value p:column="WellRow" p:dialog="format">${Well Row}</p:value>
       <p:value p:column="WellRow" p:dialog="type">String</p:value>
+      <p:value p:column="WellRow" p:dialog="position">2</p:value>
       <p:value p:column="WellColumn" p:dialog="name">col</p:value>
       <p:value p:column="WellColumn" p:dialog="format">${Well Column}</p:value>
       <p:value p:column="WellColumn" p:dialog="type">Integer</p:value>
+      <p:value p:column="WellColumn" p:dialog="position">3</p:value>
     </p:profile>
   </p:profiles>
 </p:root>

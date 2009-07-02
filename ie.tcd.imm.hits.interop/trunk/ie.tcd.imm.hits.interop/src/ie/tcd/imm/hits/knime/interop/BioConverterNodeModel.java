@@ -5,7 +5,6 @@ import ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType;
 import ie.tcd.imm.hits.knime.interop.config.Default;
 import ie.tcd.imm.hits.knime.interop.config.Root;
 import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
-import ie.tcd.imm.hits.util.Displayable;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
@@ -54,6 +53,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.xml.sax.SAXException;
 
@@ -74,46 +75,47 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected static final NodeLogger logger = NodeLogger
 			.getLogger(BioConverterNodeModel.class);
 
-	/**
-	 * Possible conversion targets.
-	 */
-	@Deprecated
-	public static enum ConversionDefault implements Displayable {
-		/** custom, user defined */
-		custom("custom"),
-		/** the input data format of cellHTS2 node */
-		cellHTS2Input("cellHTS2 input"),
-		/** the output data format of cellHTS2 node */
-		cellHTS2Output("cellHTS2 output"),
-		/** HC/DC data format */
-		hcdc("HC/DC");
-
-		private final String displayText;
-
-		private ConversionDefault(final String displayText) {
-			this.displayText = displayText;
-		}
-
-		@Override
-		public String getDisplayText() {
-			return displayText;
-		}
-	}
+	// /**
+	// * Possible conversion targets.
+	// */
+	// @Deprecated
+	// public static enum ConversionDefault implements Displayable {
+	// /** custom, user defined */
+	// custom("custom"),
+	// /** the input data format of cellHTS2 node */
+	// cellHTS2Input("cellHTS2 input"),
+	// /** the output data format of cellHTS2 node */
+	// cellHTS2Output("cellHTS2 output"),
+	// /** HC/DC data format */
+	// hcdc("HC/DC");
+	//
+	// private final String displayText;
+	//
+	// private ConversionDefault(final String displayText) {
+	// this.displayText = displayText;
+	// }
+	//
+	// @Override
+	// public String getDisplayText() {
+	// return displayText;
+	// }
+	// }
 
 	/* * The read static configuration. */
 	// private final Root root = BioConverterNodeModel.loadProperties();
 	/** Configuration key for input general group. */
 	static final String CFGKEY_GENERAL_IN_GROUP = "general.in.group";
 	/** Default value for input general group. */
-	static final String DEFAULT_GENERAL_IN_GROUP = ConversionDefault.cellHTS2Input
-			.getDisplayText();
-
+	// static final String DEFAULT_GENERAL_IN_GROUP =
+	// //ConversionDefault.cellHTS2Input
+	// .getDisplayText();
+	// "custom";
 	/** Configuration key for output general group. */
 	static final String CFGKEY_GENERAL_OUT_GROUP = "general.out.group";
 	/** Default value for output general group. */
-	static final String DEFAULT_GENERAL_OUT_GROUP = ConversionDefault.hcdc
-			.getDisplayText();
-
+	// static final String DEFAULT_GENERAL_OUT_GROUP = //ConversionDefault.hcdc
+	// .getDisplayText();
+	// "custom";
 	/** Configuration key for add unmatched columns. */
 	static final String CFGKEY_ADD_UNMATCHED = "add.unmatched";
 	/** Default value for add unmatched columns. */
@@ -127,19 +129,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/** Configuration key for generate missing values. */
 	static final String CFGKEY_GENERATE_MISSING = "generate.missing";
 	/** Default value for generate missing values. */
-	static final boolean DEFAULT_GENERATE_MISSING = true;
-
-	/** Configuration key for input plate group. */
-	static final String CFGKEY_PLATE_IN_GROUP = "plate.in.group";
-	/** Default value for input plate group. */
-	static final String DEFAULT_PLATE_IN_GROUP = ConversionDefault.cellHTS2Input
-			.getDisplayText();
-
-	/** Configuration key for output plate group. */
-	static final String CFGKEY_PLATE_OUT_GROUP = "plate.out.group";
-	/** Default value for output plate group. */
-	static final String DEFAULT_PLATE_OUT_GROUP = ConversionDefault.hcdc
-			.getDisplayText();
+	static final boolean DEFAULT_GENERATE_MISSING = false;
 
 	private static final Pattern groupStart = Pattern.compile("\\$\\{");
 	private static final Pattern groupEnd = Pattern.compile("\\}");
@@ -164,10 +154,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		possibleKeys = Collections.unmodifiableList(tmp);
 	}
 
-	private final SettingsModelString generalInGroup = new SettingsModelString(
-			CFGKEY_GENERAL_IN_GROUP, DEFAULT_GENERAL_IN_GROUP);
-	private final SettingsModelString generalOutGroup = new SettingsModelString(
-			CFGKEY_GENERAL_OUT_GROUP, DEFAULT_GENERAL_OUT_GROUP);
+	private final SettingsModelString generalInGroup;// = new
+	// SettingsModelString(
+	// CFGKEY_GENERAL_IN_GROUP, DEFAULT_GENERAL_IN_GROUP);
+	private final SettingsModelString generalOutGroup;// = new
+	// SettingsModelString(
+	// CFGKEY_GENERAL_OUT_GROUP, DEFAULT_GENERAL_OUT_GROUP);
 
 	/**
 	 * If {@code true} it will copy the unmatched columns by these rules, else
@@ -192,6 +184,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	/** The {@link SettingsModelString}s used in the model. */
 	private final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settingsModels;
+	/** The {@link SettingsModelInteger}s used in the model. */
+	private final Map<ColumnType, SettingsModelInteger> positionModels;
 
 	/**
 	 * Constructor for the node model.
@@ -202,6 +196,28 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected BioConverterNodeModel(final Root root) {
 		super(1, 1);
 		settingsModels = generateSettingsModels(root);
+		positionModels = generatePositionModels(root);
+		generalInGroup = new SettingsModelString(CFGKEY_GENERAL_IN_GROUP, root
+				.getProfiles().getProfile().get(0).getName());
+		generalOutGroup = new SettingsModelString(CFGKEY_GENERAL_OUT_GROUP,
+				root.getProfiles().getProfile().get(1).getName());
+	}
+
+	/**
+	 * @param root
+	 * @return
+	 */
+	private Map<ColumnType, SettingsModelInteger> generatePositionModels(
+			final Root root) {
+		final Map<ColumnType, SettingsModelInteger> ret = new EnumMap<ColumnType, SettingsModelInteger>(
+				ColumnType.class);
+		for (final ColumnType columnType : ColumnType.values()) {
+			ret.put(columnType, new SettingsModelIntegerBounded(generateKey(
+					columnType, false, DialogType.position), Integer
+					.parseInt(findDefault(root, columnType, false,
+							DialogType.position)), -20, 20));
+		}
+		return ret;
 	}
 
 	/**
@@ -232,7 +248,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 								settings = new EnumMap<DialogType, SettingsModelString>(
 										DialogType.class));
 				for (final DialogType dt : DialogType.values()) {
-					if (input && dt == DialogType.type) {
+					if (input
+							&& (dt == DialogType.type || dt == DialogType.position)) {
 						continue;
 					}
 					final String key = generateKey(ct, input, dt);
@@ -453,6 +470,26 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 				ret.append(factory);
 			}
 		}
+		final Map<String, Integer> newPosition = new HashMap<String, Integer>();
+		for (final Entry<String, List<ColumnType>> entry : newColumns
+				.entrySet()) {
+			final ColumnType columnType = entry.getValue().iterator().next();
+			newPosition.put(entry.getKey(), Integer.valueOf(positionModels.get(
+					columnType).getIntValue()));
+		}
+		final NavigableMap<Integer, String> reverseMap = new TreeMap<Integer, String>();
+		for (final Entry<String, Integer> entry : newPosition.entrySet()) {
+			reverseMap.put(entry.getValue(), entry.getKey());
+		}
+		for (final Entry<Integer, String> entry : reverseMap.tailMap(
+				Integer.valueOf(0), false).entrySet()) {
+			ret.move(entry.getValue(), entry.getKey().intValue() - 1);
+		}
+		for (final Entry<Integer, String> entry : reverseMap.headMap(
+				Integer.valueOf(0), false).descendingMap().entrySet()) {
+			ret.move(entry.getValue(), ret.createSpec().getNumColumns()
+					+ entry.getKey().intValue());
+		}
 		return ret;
 	}
 
@@ -496,7 +533,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	 */
 	static final String generateKey(final ColumnType colType,
 			final boolean input, final DialogType dialogType) {
-		assert !input || dialogType != DialogType.type;
+		assert !input || dialogType != DialogType.type
+				&& dialogType != DialogType.position;
 		return colType.name() + "." + (input ? "in" : "out") + "."
 				+ dialogType.name();
 	}
@@ -586,9 +624,14 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.saveSettingsTo(settings);
 		generateMissing.saveSettingsTo(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			settingsModels.get(outPair.getLeft().getLeft()).get(
-					outPair.getLeft().getRight()).get(outPair.getRight())
-					.saveSettingsTo(settings);
+			if (outPair.getRight() == DialogType.position) {
+				positionModels.get(outPair.getLeft().getLeft()).saveSettingsTo(
+						settings);
+			} else {
+				settingsModels.get(outPair.getLeft().getLeft()).get(
+						outPair.getLeft().getRight()).get(outPair.getRight())
+						.saveSettingsTo(settings);
+			}
 		}
 	}
 
@@ -602,9 +645,14 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.loadSettingsFrom(settings);
 		generateMissing.loadSettingsFrom(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			settingsModels.get(outPair.getLeft().getLeft()).get(
-					outPair.getLeft().getRight()).get(outPair.getRight())
-					.loadSettingsFrom(settings);
+			if (outPair.getRight() == DialogType.position) {
+				positionModels.get(outPair.getLeft().getLeft())
+						.loadSettingsFrom(settings);
+			} else {
+				settingsModels.get(outPair.getLeft().getLeft()).get(
+						outPair.getLeft().getRight()).get(outPair.getRight())
+						.loadSettingsFrom(settings);
+			}
 		}
 	}
 
@@ -618,9 +666,14 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.validateSettings(settings);
 		generateMissing.validateSettings(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			settingsModels.get(outPair.getLeft().getLeft()).get(
-					outPair.getLeft().getRight()).get(outPair.getRight())
-					.validateSettings(settings);
+			if (outPair.getRight() == DialogType.position) {
+				positionModels.get(outPair.getLeft().getLeft())
+						.validateSettings(settings);
+			} else {
+				settingsModels.get(outPair.getLeft().getLeft()).get(
+						outPair.getLeft().getRight()).get(outPair.getRight())
+						.validateSettings(settings);
+			}
 		}
 	}
 

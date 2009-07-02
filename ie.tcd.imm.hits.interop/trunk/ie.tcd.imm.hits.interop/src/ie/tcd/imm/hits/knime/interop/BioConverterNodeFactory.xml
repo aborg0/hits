@@ -1,28 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./default.png" type="Manipulator">
-    <name>BioConverter</name>
-    
-    <shortDescription>
-        Converts between different kind of plate formats.
+	<name>BioConverter</name>
+
+	<shortDescription>
+		Converts between different kind of plate formats.
     </shortDescription>
-    
-    <fullDescription>
-        <intro>Insert long description here...</intro>
-        
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-    </fullDescription>
-    
-    <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
-    </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
+
+	<fullDescription>
+		<intro>
+			<p>This allows you to make advantage of different tools. It is
+				bundled with some predefined profiles to make easier the conversion.
+			</p>
+			<p>You can adjust the different concepts to your needs. In the
+				input part of each concept-tab select the profile you want to use,
+				or select the custom profile, and select the column, the pattern to
+				use, and the type/position of the result column.</p>
+			<p>
+				<b>Input format</b>
+			</p>
+			<p>
+				You can use regular expressions here. The first group
+				<tt>(</tt>
+				,
+				<tt>)</tt>
+				will create the result.
+			</p>
+			<p>
+				<b>Output name</b>
+			</p>
+			<p>
+				You have to use the same type/format for each output with the same
+				name. If not set it will not be generated, in that case you should
+				select the type:
+				<tt>Do not generate</tt>
+				.
+			</p>
+			<p>
+				<b>Output format</b>
+			</p>
+			<p>
+				Here you can create a string using some of the concepts available.
+				You can refer to the concepts like this:
+				<tt>${Well Row}</tt>
+				. Text outside of
+				<tt>${}</tt>
+				groups will remain the same.
+			</p>
+			<p>
+				<b>Output type</b>
+			</p>
+			<p>
+				You can select the output result type. Must be one of these:
+				<ul>
+					<li>Integer</li>
+					<li>Real</li>
+					<li>String</li>
+					<li>Do not generate</li>
+				</ul>
+			</p>
+			<p>
+				<b>Output position</b>
+			</p>
+			<p>You can give a constraint on the position of the generated
+				column. For positive values those will be computed from the
+				beginning. The negative ones are computed from the (after all
+				generated) columns.</p>
+		</intro>
+
+
+		<option name="Input">The template profile applied to the input table
+		</option>
+		<option name="Output">The template profile to use on the result
+			columns</option>
+		<option name="Add unmatched columns?">If checked it will not remove those columns that
+			are not specified in the input columns.</option>
+		<option name="Keep original columns?">If checked it will not just add the new columns,
+			but also keep the input columns (those that are not replaced with a
+			new content).</option>
+		<option name="Try generate missing column values?">If checked it will generate some kind of result
+			instead of missing values. (Currently does not work really well.)
+		</option>
+		<option name="Experiment">You may set the experiment name related columns
+			here.</option>
+		<option name="Plate">You may set the plate related columns here.
+		</option>
+		<option name="Replicate">You may set the replicate related columns here.
+		</option>
+		<option name="Well Row">You may set the row of well (the letter)
+			related columns here.</option>
+		<option name="Well Column">You may set the column of well (the number)
+			related columns here.</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="input">Any table that has rows, columns.</inPort>
+		<outPort index="0" name="output">A table with modified columns.</outPort>
+	</ports>
 </knimeNode>

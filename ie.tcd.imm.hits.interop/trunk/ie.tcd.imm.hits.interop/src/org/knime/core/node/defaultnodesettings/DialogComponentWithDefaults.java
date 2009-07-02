@@ -166,6 +166,7 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		for (int i = components.length; i-- > 0;) {
 			components[i].getModel().setEnabled(enablements[i].booleanValue());
 			if (selection.equals(noClearValue)) {
+				components[i].updateComponent();
 				continue;
 			}
 			if (defaults[i] instanceof String) {
@@ -174,9 +175,14 @@ public class DialogComponentWithDefaults extends DialogComponent {
 					final DialogComponentColumnNameSelection nameSelector = (DialogComponentColumnNameSelection) components[i];
 					((SettingsModelColumnName) nameSelector.getModel())
 							.setSelection(newValue, false);
-				} else {
+				} else if (components[i].getModel() instanceof SettingsModelString) {
 					((SettingsModelString) components[i].getModel())
 							.setStringValue(newValue);
+
+				} else if (components[i] instanceof DialogComponentNumber
+						|| components[i] instanceof DialogComponentNumberEdit) {
+					((SettingsModelInteger) components[i].getModel())
+							.setIntValue(Integer.parseInt(newValue));
 				}
 			} else if (defaults[i] instanceof String[]) {
 				final String[] newValue = (String[]) defaults[i];

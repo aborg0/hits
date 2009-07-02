@@ -91,6 +91,7 @@
 				<enumeration value="name"></enumeration>
 				<enumeration value="format"></enumeration>
 				<enumeration value="type"></enumeration>
+				<enumeration value="position"></enumeration>
 			</restriction>
 		</simpleType>
 	</attribute>
