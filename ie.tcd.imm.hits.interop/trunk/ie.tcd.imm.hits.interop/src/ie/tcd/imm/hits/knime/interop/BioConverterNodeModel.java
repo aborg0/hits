@@ -75,47 +75,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected static final NodeLogger logger = NodeLogger
 			.getLogger(BioConverterNodeModel.class);
 
-	// /**
-	// * Possible conversion targets.
-	// */
-	// @Deprecated
-	// public static enum ConversionDefault implements Displayable {
-	// /** custom, user defined */
-	// custom("custom"),
-	// /** the input data format of cellHTS2 node */
-	// cellHTS2Input("cellHTS2 input"),
-	// /** the output data format of cellHTS2 node */
-	// cellHTS2Output("cellHTS2 output"),
-	// /** HC/DC data format */
-	// hcdc("HC/DC");
-	//
-	// private final String displayText;
-	//
-	// private ConversionDefault(final String displayText) {
-	// this.displayText = displayText;
-	// }
-	//
-	// @Override
-	// public String getDisplayText() {
-	// return displayText;
-	// }
-	// }
-
-	/* * The read static configuration. */
-	// private final Root root = BioConverterNodeModel.loadProperties();
 	/** Configuration key for input general group. */
 	static final String CFGKEY_GENERAL_IN_GROUP = "general.in.group";
 	/** Default value for input general group. */
-	// static final String DEFAULT_GENERAL_IN_GROUP =
-	// //ConversionDefault.cellHTS2Input
-	// .getDisplayText();
-	// "custom";
 	/** Configuration key for output general group. */
 	static final String CFGKEY_GENERAL_OUT_GROUP = "general.out.group";
 	/** Default value for output general group. */
-	// static final String DEFAULT_GENERAL_OUT_GROUP = //ConversionDefault.hcdc
-	// .getDisplayText();
-	// "custom";
 	/** Configuration key for add unmatched columns. */
 	static final String CFGKEY_ADD_UNMATCHED = "add.unmatched";
 	/** Default value for add unmatched columns. */
@@ -154,12 +119,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		possibleKeys = Collections.unmodifiableList(tmp);
 	}
 
-	private final SettingsModelString generalInGroup;// = new
-	// SettingsModelString(
-	// CFGKEY_GENERAL_IN_GROUP, DEFAULT_GENERAL_IN_GROUP);
-	private final SettingsModelString generalOutGroup;// = new
-	// SettingsModelString(
-	// CFGKEY_GENERAL_OUT_GROUP, DEFAULT_GENERAL_OUT_GROUP);
+	private final SettingsModelString generalInGroup;
+	private final SettingsModelString generalOutGroup;
 
 	/**
 	 * If {@code true} it will copy the unmatched columns by these rules, else
@@ -205,7 +166,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 	/**
 	 * @param root
-	 * @return
+	 *            The configuration of defaults/profiles.
+	 * @return The {@link SettingsModelInteger}s of positions.
+	 * @see #generateKey(ColumnType, boolean, DialogType)
 	 */
 	private Map<ColumnType, SettingsModelInteger> generatePositionModels(
 			final Root root) {
@@ -223,8 +186,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**
 	 * @param root
 	 *            The configuration for defaults/profiles.
-	 * @return The {@link SettingsModel}s based on the values from {@code root}
-	 *         , and the {@link #possibleKeys()}.
+	 * @return The {@link SettingsModel}s based on the values from {@code root},
+	 *         and the {@link #possibleKeys()}. (Does not contain the
+	 *         {@link DialogType#position} values.)
 	 * @see #generateKey(ColumnType, boolean, DialogType)
 	 */
 	static Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> generateSettingsModels(
