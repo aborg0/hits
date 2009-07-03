@@ -48,6 +48,25 @@
 				groups will remain the same.
 			</p>
 			<p>
+				Inside the
+				<tt>${}</tt>
+				groups you can perform simple transformations:
+				<ul>
+					<li>0n, where n is a digit will make the result an (at least) n
+						digits number, by prepending 0s.</li>
+					<li>dec(...), inc(...) decreses, increases the argument
+						by
+						1</li>
+					<li>toLowerLetter(...), toUpperLetter(...)
+						converts the (number) argument to a lower case or an upper case
+						letter. 1 -&gt; a</li>
+					<li>toNumber(...) converts the one-letter argument to a number. A=1, a=1</li>
+					<li>single positive (not starting with 0) numbers will be constants</li>
+				</ul>
+				<br/>
+				<b>Example</b>: <tt>${03dec(Plate)}</tt> will create a one-less plate identifier with at least 3 digits.
+			</p>
+			<p>
 				<b>Output type</b>
 			</p>
 			<p>
@@ -94,7 +113,9 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="input">Any table that has rows, columns.</inPort>
-		<outPort index="0" name="output">A table with modified columns.</outPort>
+		<inPort index="0" name="input">Any table that has rows, columns.
+		</inPort>
+		<outPort index="0" name="output">A table with modified columns.
+		</outPort>
 	</ports>
 </knimeNode>
