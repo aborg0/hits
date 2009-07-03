@@ -106,4 +106,24 @@ public class TokenizerFactory {
 		return new FilterTokenizer(new GroupingTokenizer(offset, groupStart,
 				groupEnd, continueState.getLeft(), continueState.getRight()));
 	}
+
+	/**
+	 * 
+	 * @param continueState
+	 * @param groupStart
+	 * @param groupEnd
+	 * @param offset
+	 * @return A {@link Tokenizer} with only {@link SimpleToken} results.
+	 */
+	@SuppressWarnings("unchecked")
+	public Tokenizer createGroupingTokenizer(
+			final Pair<? extends Token, ? extends List<? extends Token>> continueState,
+			final List<Class<? extends Token>> acceptedClasses,
+			final boolean goIntoCompounds, final Pattern groupStart,
+			final Pattern groupEnd, final int offset) {
+		return new FilterTokenizer(new GroupingTokenizer(offset, groupStart,
+				groupEnd, continueState.getLeft(), continueState.getRight()),
+				goIntoCompounds, acceptedClasses
+						.toArray(new Class[acceptedClasses.size()]));
+	}
 }

@@ -5,12 +5,17 @@ import ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType;
 import ie.tcd.imm.hits.knime.interop.config.Default;
 import ie.tcd.imm.hits.knime.interop.config.Root;
 import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
+import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.template.CompoundToken;
+import ie.tcd.imm.hits.util.template.SimpleToken;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
+import ie.tcd.imm.hits.util.template.Tokenizer;
 import ie.tcd.imm.hits.util.template.TokenizerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -24,6 +29,9 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 import javax.xml.XMLConstants;
@@ -266,6 +274,10 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		return new BufferedDataTable[] { table };
 	}
 
+	@SuppressWarnings("unchecked")
+	private static final List<Class<? extends Token>> acceptedTokens = Arrays
+			.asList(SimpleToken.class, CompoundToken.class);
+
 	/**
 	 * Creates a {@link ColumnRearranger} based on the {@code dataTableSpec} and
 	 * the {@link #settingsModels}.
@@ -324,10 +336,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		for (final ColumnType ct : ColumnType.values()) {
 			if (outTypes.get(ct) != null) {
 				outFormats.put(ct, new TokenizerFactory()
-						.createGroupingTokenizer(
-								new Pair<Token, List<? extends Token>>(null,
-										new ArrayList<Token>()), groupStart,
-								groupEnd, 0).parse(
+						.createGroupingTokenizer(createContinueState(),
+								acceptedTokens, false, groupStart, groupEnd, 0)
+						.parse(
 								settingsModels.get(ct).get(Boolean.FALSE).get(
 										DialogType.format).getStringValue()));
 			}
@@ -371,7 +382,13 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					}
 				}
 
-				private int count = 0;
+				private int plateCount = 0;
+				int replicateCount = 0;
+				private int columnCount = 1;
+				private int rowCount = 1;
+
+				private final Map<ColumnType, String> lastValues = new EnumMap<ColumnType, String>(
+						ColumnType.class);
 
 				@SuppressWarnings("synthetic-access")
 				private final boolean genMissing = generateMissing
@@ -379,7 +396,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 
 				@Override
 				public DataCell getCell(final DataRow row) {
-					final Map<ColumnType, String> cells = new EnumMap<ColumnType, String>(
+					final Map<ColumnType, String> inputs = new EnumMap<ColumnType, String>(
 							ColumnType.class);
 					for (final ColumnType ct : ColumnType.values()) {
 						final Pattern pattern = inPatterns.get(ct);
@@ -388,21 +405,83 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 							final DataCell cell = row.getCell(index);
 							final Matcher matcher = pattern.matcher(cell
 									.toString());
-							cells.put(ct, matcher.matches()
+							inputs.put(ct, matcher.matches()
 									&& matcher.groupCount() >= 1 ? matcher
 									.group(1) : "");
 						} else {
-							cells.put(ct, "");
+							inputs.put(ct, "");
 						}
+					}
+					if (!inputs.equals(lastValues)) {
+						final String c = inputs.get(ColumnType.WellColumn)
+								.trim();
+						final String r = inputs.get(ColumnType.WellRow).trim();
+						int col = 0, rr = 0;
+						try {
+							col = Integer.parseInt(c);
+							rr = Integer.parseInt(r);
+						} catch (final NumberFormatException e) {
+							// No problem, we do not care if cannot generate
+							// default.
+						}
+						if (r.length() == 1 && rr == 0) {
+							rr = Character.toLowerCase(r.charAt(0)) - 'a' + 1;
+						}
+						final String p = inputs.get(ColumnType.Plate);
+						if (rr == 1 && col == 1) {
+							if (p.isEmpty()) {
+								++plateCount;
+							} else {
+								if (p.equals(lastValues.get(ColumnType.Plate))) {
+									++replicateCount;
+								} else {
+									replicateCount = 1;
+								}
+							}
+						}
+						lastValues.putAll(inputs);
+						// final String rep = inputs.get(ColumnType.Replicate);
 					}
 					final DataCell result;
 					final DataType type = outTypes.get(columnType);
-					final String value = cells.get(columnType);
+					final String value = inputs.get(columnType);
 					if (type == IntCell.TYPE || type == DoubleCell.TYPE) {
 						if (value.isEmpty()) {
 							if (genMissing) {
-								// FIXME
-								result = new IntCell(count++);
+								switch (columnType) {
+								case Plate:
+									result = type == IntCell.TYPE ? new IntCell(
+											plateCount)
+											: new DoubleCell(plateCount);
+									break;
+								case Replicate:
+									result = type == IntCell.TYPE ? new IntCell(
+											replicateCount)
+											: new DoubleCell(replicateCount);
+									break;
+								case WellColumn:
+									columnCount = columnCount <= 12 ? columnCount + 1
+											: 1;
+									result = type == IntCell.TYPE ? new IntCell(
+											columnCount)
+											: new DoubleCell(columnCount);
+									break;
+								case WellRow:
+									rowCount = rowCount <= 8 ? rowCount + 1 : 1;
+									result = type == IntCell.TYPE ? new IntCell(
+											rowCount)
+											: new DoubleCell(rowCount);
+									break;
+								case Experiment:
+									result = type == IntCell.TYPE ? new IntCell(
+											0)
+											: new DoubleCell(0.0);
+									break;
+								default:
+									throw new UnsupportedOperationException(
+											"Not supported column: "
+													+ columnType);
+								}
 							} else {
 								result = DataType.getMissingCell();
 							}
@@ -414,9 +493,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					} else if (type == StringCell.TYPE) {
 						final StringBuilder sb = new StringBuilder();
 						for (final Token token : outFormats.get(columnType)) {
-							if (dictionary.containsKey(token.getText())) {
-								sb.append(cells.get(dictionary.get(token
-										.getText())));
+							if (token instanceof CompoundToken<?>) {
+								sb.append(evaluate(token.getText(), inputs));
 							} else {
 								sb.append(token.getText());
 							}
@@ -425,7 +503,74 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					} else {
 						throw new IllegalStateException("Wrong type: " + type);
 					}
+					// lastValues.put(columnType, result.toString());
 					return result;
+				}
+
+				private final Pattern leadingDigits = Pattern
+						.compile("0(\\d)(.*)");
+				private final Pattern functionApplication = Pattern
+						.compile("^([\\w.]+)\\((.*)\\)$");
+				private final Pattern integer = Pattern.compile("(\\d+)");
+				private final Pattern string = Pattern.compile("\\\"(.*?)\\\"");
+
+				private String evaluate(final String text,
+						final Map<ColumnType, String> inputs) {
+					if (dictionary.containsKey(text.trim())) {
+						return inputs.get(dictionary.get(text));
+					}
+					final Matcher stringMatcher = string.matcher(text.trim());
+					if (stringMatcher.matches()) {
+						return stringMatcher.group(1);
+					}
+					final Matcher integerMatcher = integer.matcher(text.trim());
+					if (integerMatcher.matches()) {
+						return integerMatcher.group(1);
+					}
+					final Matcher leadingMatcher = leadingDigits.matcher(text
+							.trim());
+					if (leadingMatcher.matches()) {
+						return ie.tcd.imm.hits.util.Misc.addTrailing(Integer
+								.parseInt(evaluate(leadingMatcher.group(2)
+										.trim(), inputs)), Integer
+								.parseInt(leadingMatcher.group(1)));
+					}
+					final Matcher funcMatcher = functionApplication
+							.matcher(text.trim());
+					if (funcMatcher.matches()) {
+						Class<?> cls = Misc.class;
+						if (funcMatcher.group(1).contains(".")) {
+							try {
+								cls = Class.forName(funcMatcher.group(1)
+										.substring(
+												0,
+												funcMatcher.group(1)
+														.lastIndexOf('.')));
+							} catch (final ClassNotFoundException e) {
+								return text.trim();
+							}
+						}
+						try {
+							final Method m = cls.getMethod(funcMatcher.group(1)
+									.substring(
+											funcMatcher.group(1).lastIndexOf(
+													'.') + 1), String.class);
+							final Object o = m.invoke(null, evaluate(
+									funcMatcher.group(2), inputs));
+							return o == null ? "" : o.toString();
+						} catch (final SecurityException e) {
+							return text.trim();
+						} catch (final NoSuchMethodException e) {
+							return text.trim();
+						} catch (final IllegalArgumentException e) {
+							return text.trim();
+						} catch (final IllegalAccessException e) {
+							return text.trim();
+						} catch (final InvocationTargetException e) {
+							return text.trim();
+						}
+					}
+					return text.trim();
 				}
 			};
 			if (ret.createSpec().containsName(newColumn)) {
@@ -455,6 +600,15 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					+ entry.getKey().intValue());
 		}
 		return ret;
+	}
+
+	/**
+	 * @return The initial state of the {@link Tokenizer}.
+	 */
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings("NP")
+	private Pair<Token, List<? extends Token>> createContinueState() {
+		return new Pair<Token, List<? extends Token>>(null,
+				new ArrayList<Token>());
 	}
 
 	/**

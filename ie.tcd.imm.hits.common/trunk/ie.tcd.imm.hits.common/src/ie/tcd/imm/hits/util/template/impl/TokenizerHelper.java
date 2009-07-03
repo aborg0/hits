@@ -80,4 +80,44 @@ public class TokenizerHelper {
 		return ret;
 	}
 
+	/**
+	 * Selects a proper elements from {@code tokens} with type {@code
+	 * tokenClass}. (Depending on {@code instance} value it will be included, or
+	 * excluded with that type of tokens.)
+	 * 
+	 * @param <T>
+	 *            General type of the filter classes.
+	 * 
+	 * @param tokens
+	 *            A list of tokens.
+	 * @param goIntoCompounds
+	 *            If {@code true} it will go inside {@link CompoundToken}s.
+	 * @param tokenClasses
+	 *            The accepted token classes.
+	 * @return The list of filtered elements. Does not contain {@code null}
+	 *         values.
+	 */
+	protected <T extends Token> List<T> filter(
+			final Iterable<? extends Token> tokens,
+			final boolean goIntoCompounds,
+			final Class<? extends T>... tokenClasses) {
+		final List<T> ret = new ArrayList<T>();
+		for (final Token token : tokens) {
+			for (final Class<? extends T> cls : tokenClasses) {
+				if (token != null && cls.isInstance(token)) {
+					final boolean b = ret.add(cls.cast(token));
+					assert b;
+					break;
+				}
+
+			}
+			if (token instanceof CompoundToken && goIntoCompounds) {
+				final CompoundToken<? extends Token> compound = (CompoundToken<?>) token;
+				ret.addAll(filter(compound, goIntoCompounds, tokenClasses));
+				break;
+			}
+		}
+		return ret;
+	}
+
 }
