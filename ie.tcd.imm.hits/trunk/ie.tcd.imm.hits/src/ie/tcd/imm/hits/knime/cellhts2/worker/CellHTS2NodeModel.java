@@ -377,9 +377,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			final REXPString versionExpr;
 			try {
-				conn.voidEval("library(\"Biobase\")");
-				versionExpr = (REXPString) conn
-						.eval("package.version(\"cellHTS2\")");
+				// voidEval(conn, "library(\"biobase\")");
+				voidEval(conn, "library(\"Biobase\")");
+				versionExpr = eval(conn, "package.version(\"cellHTS2\")");
 			} catch (final RserveException e) {
 				throw new IllegalStateException(
 						"This R installation has no supported cellHTS2 installed.");
@@ -462,7 +462,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			exec.checkCanceled();
 			version = setupCellHTS2Extensions(conn, version);
 			double completed = 0.01;
-			CellHTS2NodeModel.logger.debug(conn.eval("state(x)"));
+			CellHTS2NodeModel.logger.debug(eval(conn, "state(x)"));
 			exec.checkCanceled();
 			final String additionalParams;
 			switch (version) {
@@ -664,8 +664,8 @@ public class CellHTS2NodeModel extends NodeModel {
 				|| version.isModified()
 				|| scoreModel.getStringValue().equals("none")) {
 			try {
-				conn
-						.voidEval("xsc <- scoreReplicates(xn, sign=\"+\", method=\""
+				voidEval(conn,
+						"xsc <- scoreReplicates(xn, sign=\"+\", method=\""
 								+ scoreModel.getStringValue() + "\")");
 			} catch (final Exception e) {
 				CellHTS2NodeModel.logger.fatal("scoring the replicates failed",
@@ -674,7 +674,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			exec.checkCanceled();
 			try {
-				conn.voidEval("xsc <- summarizeReplicates(xsc, summary=\""
+				voidEval(conn, "xsc <- summarizeReplicates(xsc, summary=\""
 						+ summariseModel.getStringValue()
 						+ "\""
 						+ (version.isModified() ? ", method=\"per-channel\""
@@ -685,8 +685,9 @@ public class CellHTS2NodeModel extends NodeModel {
 				throw e;
 			}
 			try {
-				conn
-						.voidEval("writeReport("
+				voidEval(
+						conn,
+						"writeReport("
 								+ (version.isPre28() ? ""
 										: "raw=x, normalized=xn, scored=xsc, ")
 								+ "cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
@@ -716,7 +717,7 @@ public class CellHTS2NodeModel extends NodeModel {
 							+ parametersModel.getIncludeList().get(0) + "\""
 							: "") + additionalParams + ")";
 			logger.debug(topTableGenerate);
-			final REXP topTable = conn.eval(topTableGenerate);
+			final REXP topTable = eval(conn, topTableGenerate);
 			final int tableLength = ((REXP) topTable.asList().get(0)).length();
 			if (tempFile != null && !tempFile.delete()) {
 				tempFile.deleteOnExit();
@@ -802,12 +803,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 		} else {
 			try {
-				conn
-						.voidEval("writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
+				voidEval(conn,
+						"writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
 								+ "   force=TRUE, plotPlateArgs = TRUE,\n"
 								+ "   imageScreenArgs = list(zrange=c("
-								+ zRange
-								+ "), ar=1), map=TRUE, outdir=\""
+								+ zRange + "), ar=1), map=TRUE, outdir=\""
 								+ outDir + "\"" + additionalParams + ")");
 			} catch (final Exception e) {
 				CellHTS2NodeModel.logger
@@ -823,10 +823,12 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param version
 	 *            The previous {@link CellHTS2Version} value.
 	 * @return The new {@link CellHTS2Version} value.
+	 * @throws REXPMismatchException
+	 *             If cannot parse the error message.
 	 */
 	@SuppressWarnings("restriction")
 	private CellHTS2Version setupCellHTS2Extensions(final RConnection conn,
-			CellHTS2Version version) {
+			CellHTS2Version version) throws REXPMismatchException {
 		if (ImporterNodePlugin.getDefault().getPreferenceStore().getBoolean(
 				PreferenceConstants.USE_TCD_EXTENSIONS)) {
 			try {
@@ -839,59 +841,52 @@ public class CellHTS2NodeModel extends NodeModel {
 				final File rSpecDir = new File(rSourcesDir,
 						(version.isPre28() ? "2.7" : "2.8"));
 				if (Boolean.parseBoolean(System.getProperty(PROPERTY_EXPERT))) {
-					conn.voidEval("setwd(\""
+					voidEval(conn, "setwd(\""
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
 							+ "\")");
-					conn.voidEval("source(\"perPlateScaling.R\")\n"
-							+ "source(\"adjustVariance.R\")\n"
-							+ "source(\"normalizePlates.R\")\n"
-							+ "source(\"customNormalisation.R\")\n"
-							+ "source(\"customScoring.R\")\n"
-					// +"source(\"\")\n"
-							);
+					voidEval(conn, "source(\"perPlateScaling.R\")\n");
+					voidEval(conn, "source(\"adjustVariance.R\")\n");
+					voidEval(conn, "source(\"normalizePlates.R\")\n");
+					voidEval(conn, "source(\"customNormalisation.R\")\n");
+					voidEval(conn, "source(\"customScoring.R\")\n");
 				}
-				// conn
-				// .voidEval("setwd(\"/home/szalma/workspace/cellHTS2_2.4.1/cellHTS2/R\")\n"
-				// + "");
-				conn
-						.voidEval("setwd(\""
-								+ rSpecDir.getAbsolutePath().replace('\\', '/')
-								+ "\")");
-				conn.voidEval("library(\"cellHTS2\")");
+				voidEval(conn, "setwd(\""
+						+ rSpecDir.getAbsolutePath().replace('\\', '/') + "\")");
+				voidEval(conn, "library(\"cellHTS2\")");
 				switch (version) {
 				case originalPre28:
-					conn.voidEval("source(\"summarizeReplicates.R\")\n"
-							+ "source(\"getTopTable.R\")\n"
-							+ "source(\"getDynamicRange.R\")\n"
-							+ "source(\"getZfactor.R\")\n"
-							+ "source(\"checkControls.R\")\n"
-							+ "source(\"makePlot.R\")\n"
-							+ "source(\"QMbyPlate.R\")\n"
-							+ "source(\"QMexperiment.R\")\n"
-							+ "source(\"imageScreen.R\")\n"
-							+ "source(\"writeReport.R\")");
+					voidEval(conn, "source(\"summarizeReplicates.R\")\n");
+					voidEval(conn, "source(\"getTopTable.R\")\n");
+					voidEval(conn, "source(\"getDynamicRange.R\")\n");
+					voidEval(conn, "source(\"getZfactor.R\")\n");
+					voidEval(conn, "source(\"checkControls.R\")\n");
+					voidEval(conn, "source(\"makePlot.R\")\n");
+					voidEval(conn, "source(\"QMbyPlate.R\")\n");
+					voidEval(conn, "source(\"QMexperiment.R\")\n");
+					voidEval(conn, "source(\"imageScreen.R\")\n");
+					voidEval(conn, "source(\"writeReport.R\")");
 					version = CellHTS2Version.modifiedPre28;
 					break;
 				case original28OrCompat:
-					conn.voidEval("library(\"prada\")");
-					conn.voidEval("source(\"summarizeReplicates.R\")\n"
-							+ "source(\"getTopTable.R\")\n"
-							+ "source(\"checkControls.R\")\n"
-							+ "source(\"progressReport.R\")\n"
-							+ "source(\"makePlot.R\")\n"
-							+ "source(\"AllGeneric.R\")\n"
-							+ "source(\"AllClasses.R\")\n"
-							+ "source(\"glossary.R\")\n"
-							+ "source(\"writeHTML-methods.R\")\n"
-							+ "source(\"plateConfModule.R\")\n"
-							+ "source(\"plateListModule.R\")\n"
-							+ "source(\"plateSummariesModule.R\")\n"
-							+ "source(\"imageScreen.R\")\n"
-							+ "source(\"screenDescriptionModule.R\")\n"
-							+ "source(\"screenResultsModule.R\")\n"
-							+ "source(\"screenScriptModule.R\")\n"
-							+ "source(\"screenSummaryModule.R\")\n"
-							+ "source(\"writeReport.R\")\n");
+					voidEval(conn, "library(\"prada\")");
+					voidEval(conn, "source(\"summarizeReplicates.R\")\n");
+					voidEval(conn, "source(\"getTopTable.R\")\n");
+					voidEval(conn, "source(\"checkControls.R\")\n");
+					voidEval(conn, "source(\"progressReport.R\")\n");
+					voidEval(conn, "source(\"makePlot.R\")\n");
+					voidEval(conn, "source(\"AllGeneric.R\")\n");
+					voidEval(conn, "source(\"AllClasses.R\")\n");
+					voidEval(conn, "source(\"glossary.R\")\n");
+					voidEval(conn, "source(\"writeHTML-methods.R\")\n");
+					voidEval(conn, "source(\"plateConfModule.R\")\n");
+					voidEval(conn, "source(\"plateListModule.R\")\n");
+					voidEval(conn, "source(\"plateSummariesModule.R\")\n");
+					voidEval(conn, "source(\"imageScreen.R\")\n");
+					voidEval(conn, "source(\"screenDescriptionModule.R\")\n");
+					voidEval(conn, "source(\"screenResultsModule.R\")\n");
+					voidEval(conn, "source(\"screenScriptModule.R\")\n");
+					voidEval(conn, "source(\"screenSummaryModule.R\")\n");
+					voidEval(conn, "source(\"writeReport.R\")\n");
 					version = CellHTS2Version.modified28OrCompat;
 					break;
 				default:
@@ -1118,15 +1113,15 @@ public class CellHTS2NodeModel extends NodeModel {
 			final BufferedDataContainer aggregate, final String normalise,
 			final List<String> parameters) throws RserveException,
 			REXPMismatchException {
-		final REXP dynRanges = conn
-				.eval("getDynamicRange(xn, verbose=FALSE, posControls=as.vector(rep(\"^pos$\", "
+		final REXP dynRanges = eval(conn,
+				"getDynamicRange(xn, verbose=FALSE, posControls=as.vector(rep(\"^pos$\", "
 						+ parameters.size()
 						+ ")), negControls=as.vector(rep(\"^neg$\", "
 						+ parameters.size() + ")))");
-		final REXP repMeasures = conn
-				.eval("getMeasureRepAgreement(xn, corr.method=\"spearman\")");
-		final REXP allZFactor = conn
-				.eval("getZfactor(xn, verbose=FALSE, posControls=as.vector(rep(\"^pos$\", "
+		final REXP repMeasures = eval(conn,
+				"getMeasureRepAgreement(xn, corr.method=\"spearman\")");
+		final REXP allZFactor = eval(conn,
+				"getZfactor(xn, verbose=FALSE, posControls=as.vector(rep(\"^pos$\", "
 						+ parameters.size()
 						+ ")), negControls=as.vector(rep(\"^neg$\", "
 						+ parameters.size() + ")))");
@@ -1518,18 +1513,20 @@ public class CellHTS2NodeModel extends NodeModel {
 	 *            The index of plate values column in {@code dataTable}.
 	 * @throws RserveException
 	 *             Problem with <i>Rserve</i> session.
+	 * @throws REXPMismatchException
+	 *             Problem parsing the error message.
 	 */
 	private void annotate(final RConnection conn,
 			final BufferedDataTable dataTable, final int replicateIdx,
-			final int plateIdx) throws RserveException {
+			final int plateIdx) throws RserveException, REXPMismatchException {
 		final String geneSymbolName = "GeneSymbol";
 		final int geneSymbol = findCol(dataTable, geneSymbolName);
-		conn.voidEval("  nrPlate = max(plate(xn))");
+		voidEval(conn, "  nrPlate <- max(plate(xn))");
 		if (geneSymbol >= 0
 				&& dataTable.getDataTableSpec().getColumnSpec(geneSymbol)
 						.getType().equals(StringCell.TYPE)) {
 			final StringBuilder sb = new StringBuilder(
-					"geneIDs=data.frame(Plate=c(");
+					"geneIDs <- data.frame(Plate=c(");
 			for (final DataRow row : dataTable) {
 				if (((IntCell) row.getCell(replicateIdx)).getIntValue() == 1) {// first
 					// replicate
@@ -1586,7 +1583,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			sb.setLength(sb.length() - 2);
 			sb.append("))");
 			CellHTS2NodeModel.logger.debug(sb);
-			conn.voidEval(sb.toString());
+			voidEval(conn, sb.toString());
 			// conn.voidEval("geneIDs=conf");
 			// conn
 			// .voidEval(" if(any(nchar(geneIDs$Well)!=3)) \n"
@@ -1596,7 +1593,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			// .voidEval(" geneIDs = geneIDs[order(geneIDs$Plate,
 			// geneIDs$Well),]");
 
-			conn.voidEval("  nrWpP   = prod(pdim(xn))");
+			voidEval(conn, "  nrWpP   <- prod(pdim(xn))");
 			// conn
 			// .voidEval(" if (!((nrow(geneIDs)==nrWpP*nrPlate) &&
 			// all(convertWellCoordinates(geneIDs$Well,
@@ -1607,14 +1604,16 @@ public class CellHTS2NodeModel extends NodeModel {
 			// + " \" rows, one for each well and for each plate. Please see the
 			// vignette for\",\n"
 			// + " \" an example.\\n\", sep=\"\"))");
-			conn
-					.voidEval("  geneIDs <- geneIDs[, !c(names(geneIDs) %in% c(\"Plate\", \"Well\")), drop=FALSE]");
-			conn
-					.voidEval("  geneIDs[apply(geneIDs, 2, function(i) i %in% \"NA\")] <- NA \n");
-			conn.voidEval("  fData(xn)[names(geneIDs)] <- geneIDs\n");
-			conn.voidEval("  fvarMetadata(xn)[names(geneIDs),]=names(geneIDs)");
-			conn.voidEval("  xn@state[[\"annotated\"]] = TRUE\n");
-			conn.voidEval("  validObject(xn)");
+			voidEval(
+					conn,
+					"  geneIDs <- geneIDs[, !c(names(geneIDs) %in% c(\"Plate\", \"Well\")), drop=FALSE]");
+			voidEval(conn,
+					"  geneIDs[apply(geneIDs, 2, function(i) i %in% \"NA\")] <- NA \n");
+			voidEval(conn, "  fData(xn)[names(geneIDs)] <- geneIDs\n");
+			voidEval(conn,
+					"  fvarMetadata(xn)[names(geneIDs),] <- names(geneIDs)");
+			voidEval(conn, "  xn@state[[\"annotated\"]] <- TRUE\n");
+			voidEval(conn, "  validObject(xn)");
 		}
 	}
 
@@ -1647,9 +1646,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param conn
 	 * @param normalise
 	 * @throws RserveException
+	 * @throws REXPMismatchException
 	 */
 	private void normalisePlates(final RConnection conn, final String normalise)
-			throws RserveException {
+			throws RserveException, REXPMismatchException {
 		final String varianceAdjust = scaleModel.getStringValue().equals(
 				CellHTS2NodeModel.POSSIBLE_SCALE[1]) ? "byPlate"
 				: scaleModel.getStringValue().equals(
@@ -1658,7 +1658,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		final String normMethod = normalise;
 		final String scaleMethod = isMultiplicativeModel.getBooleanValue() ? "multiplicative"
 				: "additive";
-		conn.voidEval("  xn = normalizePlates(x,\n" + "    scale=\""
+		voidEval(conn, "  xn <- normalizePlates(x,\n" + "    scale=\""
 				+ scaleMethod + "\",\n" + "    log="
 				+ (logTransformModel.getBooleanValue() ? "TRUE" : "FALSE")
 				+ ",\n" + "    method=\"" + normMethod + "\",\n"
@@ -1678,16 +1678,17 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param parameters
 	 * @param version
 	 * @throws RserveException
+	 * @throws REXPMismatchException
 	 */
 	private void convertRawInputToCellHTS2(final String experimentName,
 			final RConnection conn, final int replicateCount,
 			final int plateCount, final int wellRowCount,
 			final int wellColCount, final int wellCount,
 			final List<String> parameters, final CellHTS2Version version)
-			throws RserveException {
+			throws RserveException, REXPMismatchException {
 		final int paramCount = parameters.size();
 		try {
-			conn.voidEval("xraw = array(NA_real_, dim=c(" + wellCount + ", "
+			voidEval(conn, "xraw <- array(NA_real_, dim=c(" + wellCount + ", "
 					+ plateCount + ", " + replicateCount + ", " + paramCount
 					+ "))");
 			final String command = "for (plate in 1:" + plateCount + ")\n"
@@ -1700,8 +1701,8 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ ", plate, replicate, channel]=rawInput[start:(start+"
 					+ wellCount + "-1)]}";
 			CellHTS2NodeModel.logger.debug(command);
-			conn.voidEval(command);
-			CellHTS2NodeModel.logger.debug(conn.eval("dim(xraw)")
+			voidEval(conn, command);
+			CellHTS2NodeModel.logger.debug(eval(conn, "dim(xraw)")
 					.toDebugString());
 			final StringBuilder channels = new StringBuilder(5 + paramCount * 5);
 			channels.append("c(");
@@ -1722,26 +1723,28 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			channels.setLength(channels.length() - ", ".length());
 			channels.append(")");
-			final String createDat = "  dat = lapply(seq_len(" + paramCount
+			final String createDat = "  dat <- lapply(seq_len(" + paramCount
 					+ "), function(ch) \n" + "    matrix(xraw[,,,ch], ncol="
 					+ replicateCount + ", nrow=" + wellCount * plateCount
-					+ "))\n" + "  names(dat) = " + channels;
-			conn.voidEval(createDat);
+					+ "))";
+			voidEval(conn, createDat);
+			final String setNames = "  names(dat) <- " + channels;
+			voidEval(conn, setNames);
 		} catch (final RserveException e) {
 			CellHTS2NodeModel.logger.fatal(
 					"Problem occured preparing the data.", e);
 		}
 		try {
-			conn.voidEval("library(\"cellHTS2\")");
+			voidEval(conn, "library(\"cellHTS2\")");
 		} catch (final RserveException e) {
 			CellHTS2NodeModel.logger
 					.fatal("Unable to load cellHTS2 library", e);
 			throw e;
 		}
 		try {
-			conn.voidEval("  adata = do.call(\"assayDataNew\",\n"
+			voidEval(conn, "  adata <- do.call(\"assayDataNew\",\n"
 					+ "    c(storage.mode=\"lockedEnvironment\", dat))");
-			final String pdataCommand = "  pdata = new(\"AnnotatedDataFrame\",\n"
+			final String pdataCommand = "  pdata <- new(\"AnnotatedDataFrame\",\n"
 					+ "    data = data.frame(replicate = seq_len("
 					+ replicateCount
 					+ "),\n"
@@ -1751,18 +1754,18 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ replicateCount
 					+ "),\n"
 					+ "                      stringsAsFactors = FALSE),\n"
-					+ "    varMetadata = data.frame(\n"
+					+ "    varMetadata <- data.frame(\n"
 					+ "         labelDescription = c(\"Replicate number\", \"Biological assay\"),\n"
 					+ "         channel = factor(rep(\"_ALL_\", 2L), levels=c(names(dat), \"_ALL_\")),\n"
 					+ "         row.names = c(\"replicate\", \"assay\"),\n"
 					+ "         stringsAsFactors = FALSE))\n";
 			CellHTS2NodeModel.logger.debug(pdataCommand);
-			conn.voidEval(pdataCommand);
-			conn.voidEval("  dimPlate = c(nrow=" + wellRowCount + ", ncol="
+			voidEval(conn, pdataCommand);
+			voidEval(conn, "  dimPlate <- c(nrow=" + wellRowCount + ", ncol="
 					+ wellColCount + ")");
-			conn.voidEval("  well = convertWellCoordinates(seq_len("
+			voidEval(conn, "  well <- convertWellCoordinates(seq_len("
 					+ wellCount + "), pdim=dimPlate)$letnum");
-			final String fdataCommand = "  fdata = new(\"AnnotatedDataFrame\", \n"
+			final String fdataCommand = "  fdata <- new(\"AnnotatedDataFrame\", \n"
 					+ "    data = data.frame(plate = rep(seq_len("
 					+ plateCount
 					+ "), each="
@@ -1777,23 +1780,23 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ plateCount
 					+ ")),\n"
 					+ "                      stringsAsFactors = FALSE), \n"
-					+ "    varMetadata = data.frame(\n"
+					+ "    varMetadata <- data.frame(\n"
 					+ "      labelDescription = c(\"Plate number\", \"Well ID\", \"Well annotation\"),\n"
 					+ "      row.names = c(\"plate\", \"well\", \"controlStatus\"),\n"
 					+ "         stringsAsFactors = FALSE))";
 			CellHTS2NodeModel.logger.debug(fdataCommand);
-			conn.voidEval(fdataCommand);
+			voidEval(conn, fdataCommand);
 
 			// conn.eval("Filename = vector(mode=\"character\", length="
 			// + (plateCount * replicateCount * paramCount) + ")");
-			conn.voidEval("Filename <- rep(\"test\", " + plateCount
+			voidEval(conn, "Filename <- rep(\"test\", " + plateCount
 					* replicateCount * paramCount + ")");
-			conn.voidEval("pd = matrix(nrow=" + plateCount * replicateCount
+			voidEval(conn, "pd <- matrix(nrow=" + plateCount * replicateCount
 					* paramCount + ", ncol=3)");
-			conn.voidEval("  intensityFiles <- vector(mode=\"list\", length="
+			voidEval(conn, "  intensityFiles <- vector(mode=\"list\", length="
 					+ plateCount * replicateCount * paramCount + ")");
-			conn.voidEval("wells_internal=vector(length=" + wellCount + ")\n"
-					+ "for (i in 1:" + wellRowCount + ") wells_internal[("
+			voidEval(conn, "wells_internal<-vector(length=" + wellCount + ")");
+			voidEval(conn, "for (i in 1:" + wellRowCount + ") wells_internal[("
 					+ wellColCount + " * (i -1) + 1):(" + wellColCount
 					+ "*(i-1)+" + wellColCount
 					+ ")] = paste(LETTERS[i][rep(1, " + wellColCount
@@ -1815,14 +1818,14 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ paramCount
 					+ " + ch]] <- paste(paste(\"data\", formatC(pl, flag=\"0\", width=3), re, ch, sep=\"-\"), \"txt\", sep=\".\")";
 			CellHTS2NodeModel.logger.debug(fillFileNames);
-			conn.voidEval(fillFileNames);
+			voidEval(conn, fillFileNames);
 			// System.out.println(conn.eval(
 			// "paste(capture.output(print(Filename)),collapse=\"\\n\")")
 			// .asString());
 			if (version.isPre28()) {
-				conn.voidEval("channelOrder <- 1:" + parameters.size());
+				voidEval(conn, "channelOrder <- 1:" + parameters.size());
 			} else {
-				conn.voidEval("channelOrder <- order("
+				voidEval(conn, "channelOrder <- order("
 						+ createChannelList(parameters) + ")");
 			}
 			final String fillPd = "for (pl in 1:" + plateCount + ")"
@@ -1837,19 +1840,19 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ "\", wells_internal, xraw[, pl, re, channelOrder[ch]])\n"
 					+ "}";
 			CellHTS2NodeModel.logger.debug(fillPd);
-			conn.voidEval(fillPd);
+			voidEval(conn, fillPd);
 
-			conn.voidEval("  names(intensityFiles) = Filename");
-			conn.voidEval("status = rep(\"OK\", " + plateCount * replicateCount
-					* paramCount + ")");
-			final String createXCommand = "x = new(\"cellHTS\", \n"
+			voidEval(conn, "  names(intensityFiles) <- Filename");
+			voidEval(conn, "status <- rep(\"OK\", " + plateCount
+					* replicateCount * paramCount + ")");
+			final String createXCommand = "x <- new(\"cellHTS\", \n"
 					+ "   assayData = adata,\n"
 					+ "   phenoData = pdata,\n"
 					+ "   featureData = fdata,\n"
 					+ "   plateList = cbind(Filename, status=I(status), data.frame(Plate=pd[,1], Replicate=pd[,2], Channel=pd[,3])),\n"
 					+ "   intensityFiles=intensityFiles)\n";
 			CellHTS2NodeModel.logger.debug(createXCommand);
-			conn.voidEval(createXCommand);
+			voidEval(conn, createXCommand);
 		} catch (final RserveException e) {
 			CellHTS2NodeModel.logger
 					.fatal("Problem creating the raw object", e);
@@ -1867,11 +1870,13 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param objectName
 	 * @param errorMessage
 	 * @throws RserveException
+	 * @throws REXPMismatchException
 	 */
 	private void checkObject(final RConnection conn, final String objectName,
-			final String errorMessage) throws RserveException {
-		if (!((REXPLogical) conn.eval("validObject(" + objectName + ")"))
-				.isTrue()[0]) {
+			final String errorMessage) throws RserveException,
+			REXPMismatchException {
+		if (!CellHTS2NodeModel.<REXPLogical> eval(conn,
+				"validObject(" + objectName + ")").isTrue()[0]) {
 			CellHTS2NodeModel.logger.error(errorMessage);
 			throw new IllegalStateException(errorMessage);
 		}
@@ -1906,15 +1911,17 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param plateCount
 	 * @param normMethod
 	 * @throws RserveException
+	 * @throws REXPMismatchException
 	 */
 	private void plateConfiguration(final BufferedDataTable table,
 			final BufferedDataTable descTable,
 			final BufferedDataTable screenLogTable, final RConnection conn,
 			final int wellCount, final int plateCount, final String normMethod)
-			throws RserveException {
-		conn.eval("pWells <- well(x)[1:" + wellCount + "]");
+			throws RserveException, REXPMismatchException {
+		voidEval(conn, "pWells <- well(x)[1:" + wellCount + "]");
 		// final int differentCount = countDifferentValues(table, 2, false);
-		final StringBuilder sb = new StringBuilder("conf=data.frame(Plate=c(");
+		final StringBuilder sb = new StringBuilder(
+				"conf <- data.frame(Plate=c(");
 		for (final DataRow row : table) {
 			final String plate = ((StringCell) row.getCell(0)).getStringValue()
 					.trim();
@@ -1941,13 +1948,14 @@ public class CellHTS2NodeModel extends NodeModel {
 		sb.setLength(sb.length() - 2);
 		sb.append(")");
 		sb.append(")");
-		conn.voidEval(sb.toString());
-		conn.voidEval("pcontent = tolower(conf$Content)  ## ignore case!");
-		conn.eval("wAnno = factor(rep(NA, " + plateCount * wellCount
+		voidEval(conn, sb.toString());
+		voidEval(conn, "pcontent <- tolower(conf$Content)  ## ignore case!\n");
+		voidEval(conn, "wAnno <- factor(rep(NA, " + plateCount * wellCount
 				+ "), levels=unique(pcontent))");
-		conn.voidEval("conf[conf==\"*\"] <- \" *\"");
-		conn
-				.voidEval("   for (i in 1:nrow(conf)) {\n"
+		voidEval(conn, "conf[conf==\"*\"] <- \" *\"");
+		voidEval(
+				conn,
+				"   for (i in 1:nrow(conf)) {\n"
 						+ "     iconf <- conf[i,]\n"
 						+ "     # get plate IDs\n"
 						+ "     wp <- if(is.numeric(iconf$Plate)) iconf$Plate  else  c(1:"
@@ -1964,9 +1972,10 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ " \n" + "     wAnno[ww + rep(" + wellCount
 						+ "*(wp-1), each=length(ww))] = pcontent[i] \n"
 						+ "   }");
-		conn.voidEval("missAnno <- is.na(wAnno)");
-		conn
-				.voidEval("  if(sum(missAnno)) {\n"
+		voidEval(conn, "missAnno <- is.na(wAnno)");
+		voidEval(
+				conn,
+				"  if(sum(missAnno)) {\n"
 						+ "    ind <- which(missAnno)[1:min(5, sum(missAnno))]\n"
 						+ "    msg = paste(\"The following plates and wells were not covered in the plate configuration:\\n\",\n"
 						+ "      \"\\tPlate Well\\n\", \"\\t\",\n"
@@ -1977,18 +1986,19 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ ", sep=\"\\t\", collapse=\"\\n\\t\"),\n"
 						+ "      if(sum(missAnno)>5) sprintf(\"\\n\\t...and %d more.\\n\", sum(missAnno)-5), \"\\n\", sep=\"\")\n"
 						+ "    stop(msg)\n" + "  }\n" + "");
-		conn.voidEval("empty = which(wAnno==\"empty\")");
-		conn.voidEval("xraw <- Data(x)");
-		conn.voidEval("xraw[] = apply(xraw, 2:3, replace, list=empty, NA)");
+		voidEval(conn, "empty <- which(wAnno==\"empty\")");
+		voidEval(conn, "xraw <- Data(x)");
+		voidEval(conn, "xraw[] <- apply(xraw, 2:3, replace, list=empty, NA)");
 		try {
-			conn.voidEval("slog = NULL");
+			voidEval(conn, "slog <- NULL");
 			if (screenLogTable.getRowCount() > 0) {
 				final String createScreenLog = readTableTo(screenLogTable,
 						"slog");
 				CellHTS2NodeModel.logger.debug(createScreenLog);
-				conn.voidEval(createScreenLog);
-				conn
-						.voidEval("		      for(i in c(\"Sample\", \"Channel\")) {\n"
+				voidEval(conn, createScreenLog);
+				voidEval(
+						conn,
+						"		      for(i in c(\"Sample\", \"Channel\")) {\n"
 								+ "		        if(!(i %in% names(slog))) \n"
 								+ "		          slog[[i]] <- rep(1L, nrow(slog)) \n"
 								+ "		        else \n"
@@ -2003,18 +2013,19 @@ public class CellHTS2NodeModel extends NodeModel {
 				// \"Sample\",
 				// \"Channel\"))");
 
-				conn.voidEval("invalidPlateID <- !(slog$Plate %in% 1:nrPlate)");
-				conn
-						.voidEval("if(sum(invalidPlateID)) stop(sprintf(\"Column \'Plate\' of the screen log contains invalid entries.\"))");
+				voidEval(conn, "invalidPlateID <- !(slog$Plate %in% 1:nrPlate)");
+				voidEval(
+						conn,
+						"if(sum(invalidPlateID)) stop(sprintf(\"Column \'Plate\' of the screen log contains invalid entries.\"))");
 			}
-			conn.voidEval("x@screenLog = slog");// TODO process screenlog!
+			voidEval(conn, "x@screenLog <- slog");// TODO process screenlog!
 		} catch (final Exception e) {
 			CellHTS2NodeModel.logger
 					.warn(
 							"Unable to use the screen log data. Please review your settings related to the screenlog file.",
 							e);
 		}
-		conn.voidEval("x@plateConf = conf");
+		voidEval(conn, "x@plateConf <- conf");
 		{
 			final List<Pair<String, SettingsModel>> pairs = new ArrayList<Pair<String, SettingsModel>>();
 			pairs.add(new Pair<String, SettingsModel>("Channels",
@@ -2030,26 +2041,27 @@ public class CellHTS2NodeModel extends NodeModel {
 			pairs.add(new Pair<String, SettingsModel>("Scoring", scoreModel));
 			pairs.add(new Pair<String, SettingsModel>("Summarize replicates",
 					summariseModel));
-			conn.voidEval("descript = vector(mode=\"character\", length="
+			voidEval(conn, "descript <- vector(mode=\"character\", length="
 					+ (descTable.getRowCount() + pairs.size()) + ")");
 			int row = 1;
 			for (final DataRow dataRow : descTable) {
 				final StringBuilder descript = new StringBuilder("descript[")
-						.append(row).append("]=\"");
+						.append(row).append("] <- \"");
 				descript.append(
 						((StringCell) dataRow.getCell(1)).getStringValue())
 						.append(": ").append(
 								((StringCell) dataRow.getCell(2))
 										.getStringValue());
 				descript.append("\"");
-				conn.voidEval(descript.toString());
+				voidEval(conn, descript.toString());
 				++row;
 			}
 			for (final Pair<String, SettingsModel> pair : pairs) {
-				conn
-						.voidEval("descript["
+				voidEval(
+						conn,
+						"descript["
 								+ row
-								+ "]=\""
+								+ "] <- \""
 								+ pair.getLeft()
 								+ "="
 								+ (pair.getRight() instanceof SettingsModelString ? ((SettingsModelString) pair
@@ -2066,9 +2078,10 @@ public class CellHTS2NodeModel extends NodeModel {
 				++row;
 			}
 		}
-		conn.voidEval("x@screenDesc = descript");
-		conn
-				.voidEval("  if (!is.null(slog)) {\n"
+		voidEval(conn, "x@screenDesc <- descript");
+		voidEval(
+				conn,
+				"  if (!is.null(slog)) {\n"
 						+ "    ipl  = slog$Plate\n"
 						+ "    irep = slog$Sample\n"
 						+ "    ich  = slog$Channel\n"
@@ -2076,11 +2089,11 @@ public class CellHTS2NodeModel extends NodeModel {
 						+ "    stopifnot(!any(is.na(ipl)), !any(is.na(irep)), !any(is.na(ich)))\n"
 						+ "\n" + "    xraw[cbind(ipos + " + wellCount
 						+ "*(ipl-1), irep, ich)] = NA \n" + "  }");
-		conn.voidEval("Data(x) <- xraw");
-		conn.voidEval("fData(x)$controlStatus=wAnno");
-		conn.voidEval("stopifnot(all(fData(x)$controlStatus!=\"unknown\"))");
-		conn.voidEval("description(x) <- miameInfo");
-		conn.voidEval("x@state[[\"configured\"]] <- TRUE");
+		voidEval(conn, "Data(x) <- xraw");
+		voidEval(conn, "fData(x)$controlStatus <- wAnno");
+		voidEval(conn, "stopifnot(all(fData(x)$controlStatus!=\"unknown\"))");
+		voidEval(conn, "description(x) <- miameInfo");
+		voidEval(conn, "x@state[[\"configured\"]] <- TRUE");
 		checkObject(conn, "x", "The raw object is not valid!!!");
 	}
 
@@ -2096,7 +2109,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	private String readTableTo(final DataTable table, final String varName) {
 		final StringBuilder sb = new StringBuilder(varName)
-				.append("=data.frame(");
+				.append(" <- data.frame(");
 		int col = 0;
 		for (final DataColumnSpec spec : table.getDataTableSpec()) {
 			sb.append(spec.getName()).append("=c(");
@@ -2133,14 +2146,16 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param inData
 	 * @param conn
 	 * @throws RserveException
+	 * @throws REXPMismatchException
 	 */
 	private void addMiame(final BufferedDataTable[] inData,
-			final RConnection conn) throws RserveException {
+			final RConnection conn) throws RserveException,
+			REXPMismatchException {
 		final String[] strings = new String[] { "Lab description",
 				"Experimenter name", "Laboratory", "Contact information",
 				"Title", "PMIDs", "URL", "Abstract" };
 		final Map<String, String> miameInfo = findValues(inData[2], strings);
-		final StringBuilder sb = new StringBuilder("miameInfo=list(");
+		final StringBuilder sb = new StringBuilder("miameInfo <- list(");
 		sb.append("sepLab=\"").append(miameInfo.get(strings[0])).append("\",");
 		sb.append("name=\"").append(miameInfo.get(strings[1])).append("\",");
 		sb.append("lab=\"").append(miameInfo.get(strings[2])).append("\",");
@@ -2151,8 +2166,8 @@ public class CellHTS2NodeModel extends NodeModel {
 		sb.append("url=\"").append(miameInfo.get(strings[6])).append("\",");
 		sb.append("abstract=\"").append(miameInfo.get(strings[7])).append('"');
 		sb.append(")");
-		conn.voidEval(sb.toString());
-		conn.voidEval("  miameInfo = with(miameInfo, new(\"MIAME\", \n"
+		voidEval(conn, sb.toString());
+		voidEval(conn, "  miameInfo <- with(miameInfo, new(\"MIAME\", \n"
 				+ "    name=name,\n" + "    lab = lab,\n"
 				+ "    contact=contact,\n" + "    title=title,\n"
 				+ "    pubMedIds=pubMedIds,\n" + "    url=url,\n"
@@ -2868,5 +2883,29 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	public Map<String, String> getOutDirs() {
 		return new HashMap<String, String>(outDirs);
+	}
+
+	private static void voidEval(final RConnection conn, final String command)
+			throws RserveException, REXPMismatchException {
+		eval(conn, command);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <ResultType extends REXP> ResultType eval(
+			final RConnection conn, final String command)
+			throws RserveException, REXPMismatchException {
+		final REXP eval;
+		try {
+			eval = conn.eval("try(" + command + ")");
+		} catch (final RserveException e) {
+			throw new RserveException(conn, e.getMessage() + "\nin command: "
+					+ command);
+		}
+		final REXP attribute = eval.getAttribute("class");
+		if (attribute != null && "try-error".equals(attribute.asString())) {
+			throw new RserveException(conn, eval.asString() + "\nin command: "
+					+ command);
+		}
+		return (ResultType) eval;
 	}
 }
