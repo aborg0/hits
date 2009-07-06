@@ -48,6 +48,9 @@ For the second option go to Help/Software Updates.../Find and Install.../_Search
 
 This might be because the labs' Distance Matrix feature was not installed before the install of HiTS. You have to uninstall HiTS, install the Distance Matrix feature, then install HiTS. Sorry about the confusion.
 
+== The {{{Dendrogram with Heatmap}}} and {{{Sort by Cluster}}} nodes are not available ==
+You have to enable the experimental nodes by adding {{{-Dknime.expert.mode=true}}} line to your {{{knime.ini}}} file (somewhare after the {{{-vmargs}}} line)
+
 == Network problems ==
 
 If you have not set properly the proxy configuration in your KNIME installation, you will have an error like this when you try to update or install your plugins:
