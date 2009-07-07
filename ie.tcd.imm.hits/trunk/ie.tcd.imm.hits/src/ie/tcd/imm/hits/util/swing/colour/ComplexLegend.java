@@ -276,9 +276,11 @@ public class ComplexLegend extends JPanel implements ColourLegend<ComplexModel> 
 		final int sizeOfBar = 10;
 		switch (orientation) {
 		case East:
-			add(sample = ComplexSample.create(orientation.isVertical()));
+			sample = ComplexSample.create(orientation.isVertical());
 			sample.setPreferredSize(new Dimension(sizeOfBar,
 					getPreferredSize().height));
+			sample.setMaximumSize(new Dimension(sizeOfBar, 1000));
+			add(sample);
 			textPanel = new TextPanel(orientation, model);
 			textPanel.setPreferredSize(new Dimension(getPreferredSize().width
 					- sizeOfBar, getPreferredSize().height));
@@ -290,29 +292,35 @@ public class ComplexLegend extends JPanel implements ColourLegend<ComplexModel> 
 			textPanel.setPreferredSize(new Dimension(getPreferredSize().width,
 					getPreferredSize().height - sizeOfBar));
 			add(textPanel);
-			add(sample = ComplexSample.create(orientation.isVertical()));
+			sample = ComplexSample.create(orientation.isVertical());
 			sample.setPreferredSize(new Dimension(getPreferredSize().width,
 					sizeOfBar));
+			sample.setMaximumSize(new Dimension(1000, sizeOfBar));
+			add(sample);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			break;
 		case West:
 			textPanel = new TextPanel(orientation, model);
-			add(textPanel);
-			add(sample = ComplexSample.create(orientation.isVertical()));
+			sample = ComplexSample.create(orientation.isVertical());
 			sample.setPreferredSize(new Dimension(sizeOfBar,
 					getPreferredSize().height));
+			sample.setMaximumSize(new Dimension(sizeOfBar, 1000));
 			textPanel.setPreferredSize(new Dimension(getPreferredSize().width
 					- sizeOfBar, getPreferredSize().height));
+			add(textPanel);
+			add(sample);
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 			break;
 		case South: {
 			textPanel = new TextPanel(orientation, model);
-			add(sample = ComplexSample.create(orientation.isVertical()));
+			sample = ComplexSample.create(orientation.isVertical());
 			sample.setPreferredSize(new Dimension(getPreferredSize().width,
 					sizeOfBar));
-			add(textPanel);
+			sample.setMaximumSize(new Dimension(1000, sizeOfBar));
 			textPanel.setPreferredSize(new Dimension(getPreferredSize().width,
 					getPreferredSize().height - sizeOfBar));
+			add(sample);
+			add(textPanel);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			break;
 		}
