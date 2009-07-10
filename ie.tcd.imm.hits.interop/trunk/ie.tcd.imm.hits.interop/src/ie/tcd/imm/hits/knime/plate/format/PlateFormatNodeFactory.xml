@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+	<name>Plate Format</name>
+
+	<shortDescription>
+		Converts between 96, 384, 1536 format plates. It is also capable of mixing
+		replicates in.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>Converts between the selected plate formats.</intro>
+
+
+		<option name="From well count">Number of wells on input plates</option>
+		<option name="To well count">Number of wells on output plates</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Data">Some plates</inPort>
+		<!-- possibly more input ports here-->
+		<outPort index="0" name="Data">Plates</outPort>
+		<!-- possibly more output ports here-->
+	</ports>
+</knimeNode>

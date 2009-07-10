@@ -16,7 +16,8 @@
 	  <node category-path="/HiTS/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
       <node category-path="/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
       <node category-path="/distmatrix/" expert-flag="true" factory-class="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
-    </extension>
+    <node category-path="/" factory-class="ie.tcd.imm.hits.knime.util.leaf.ordering.LeafOrderingNodeFactory" id="ie.tcd.imm.hits.knime.util.leaf.ordering.LeafOrderingNodeFactory"/>
+</extension>
 	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
 		</PersistedMetaNode>

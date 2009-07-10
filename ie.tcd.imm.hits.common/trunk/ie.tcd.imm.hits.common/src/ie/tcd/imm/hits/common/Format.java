@@ -3,14 +3,18 @@
  */
 package ie.tcd.imm.hits.common;
 
+import ie.tcd.imm.hits.util.Displayable;
+
 /**
  * Plate format. Only {@code 96}, or {@code 384} are supported.
  */
-public enum Format {
-	/** 96 plate format */
+public enum Format implements Displayable {
+	/** 96 well plate format */
 	_96(8, 12),
-	/** 384 plate format */
-	_384(16, 24);
+	/** 384 well plate format */
+	_384(16, 24),
+	/** 1536 well plate format */
+	_1536(32, 48);
 
 	private final int row;
 	private final int col;
@@ -80,5 +84,10 @@ public enum Format {
 	 */
 	public int getWellCount() {
 		return wellCount;
+	}
+
+	@Override
+	public String getDisplayText() {
+		return String.valueOf(wellCount);
 	}
 }
