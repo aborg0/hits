@@ -444,7 +444,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					}
 					final DataCell result;
 					final DataType type = outTypes.get(columnType);
-					final String value = inputs.get(columnType);
+					final List<Token> tokenList = outFormats.get(columnType);
+					final String formatText = tokenList.size() == 1 ? tokenList
+							.iterator().next().getText() : "";
+					final String value = formatText.isEmpty() ? inputs
+							.get(columnType) : evaluate(formatText, inputs);
 					if (type == IntCell.TYPE || type == DoubleCell.TYPE) {
 						if (value.isEmpty()) {
 							if (genMissing) {
@@ -492,7 +496,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 						}
 					} else if (type == StringCell.TYPE) {
 						final StringBuilder sb = new StringBuilder();
-						for (final Token token : outFormats.get(columnType)) {
+						for (final Token token : tokenList) {
 							if (token instanceof CompoundToken<?>) {
 								sb.append(evaluate(token.getText(), inputs));
 							} else {

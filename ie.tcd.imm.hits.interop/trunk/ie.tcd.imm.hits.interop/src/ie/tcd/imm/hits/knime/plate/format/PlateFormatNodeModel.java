@@ -5,8 +5,6 @@ import ie.tcd.imm.hits.common.Format;
 import java.io.File;
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -39,10 +37,14 @@ public class PlateFormatNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(PlateFormatNodeModel.class);
 
+	/** Configuration key for the well count of input plates. */
 	static final String CFGKEY_FROM_WELL_COUNT = "from.well.count";
+	/** Default value for the well count of input plates. */
 	static final Format DEFAULT_FROM_WELL_COUNT = Format._96;
 
+	/** Configuration key for the well count of output plates. */
 	static final String CFGKEY_TO_WELL_COUNT = "to.well.count";
+	/** Default value for the well count of output plates. */
 	static final Format DEFAULT_TO_WELL_COUNT = Format._384;
 
 	private final SettingsModelEnum<Format> fromWellCount = new SettingsModelEnum<Format>(
@@ -79,7 +81,9 @@ public class PlateFormatNodeModel extends NodeModel {
 							DataType.getMissingCell(),
 							DataType.getMissingCell(),
 							DataType.getMissingCell() };
+					@SuppressWarnings("synthetic-access")
 					private final Format from = fromWellCount.getEnumValue();
+					@SuppressWarnings("synthetic-access")
 					private final Format to = toWellCount.getEnumValue();
 					private final int fromToTo = from.getWellCount()
 							/ to.getWellCount();
@@ -87,7 +91,8 @@ public class PlateFormatNodeModel extends NodeModel {
 							/ from.getWellCount();
 					private final int fromToToCol = from.getCol() / to.getCol();
 					private final int toToFromCol = to.getCol() / from.getCol();
-					private final int fromToToRow = from.getRow() / to.getRow();
+					// private final int fromToToRow = from.getRow() /
+					// to.getRow();
 					private final int toToFromRow = to.getRow() / from.getRow();
 
 					@Override
@@ -105,11 +110,11 @@ public class PlateFormatNodeModel extends NodeModel {
 						final int col = oldCol.intValue() - 1;
 						final boolean toLarger = fromToTo == 0;
 						final int newPlate = (toLarger ? plate / toToFrom
-								: plate * toToFrom + col % to.getCol()
-										* toToFromRow + row % to.getRow()) + 1;
-						final int newRow = (toLarger ? plate % toToFrom
+								: plate * fromToTo + col / to.getCol() + row
+										/ to.getRow() * fromToToCol) + 1;
+						final int newRow = (toLarger ? plate / toToFromRow
 								* from.getRow() + row : row % to.getRow()) + 1;
-						final int newCol = (toLarger ? plate % toToFrom
+						final int newCol = (toLarger ? plate % toToFromCol
 								* from.getCol() + col : col % to.getCol()) + 1;
 						return new DataCell[] { new IntCell(newPlate),
 								new IntCell(newRow), new IntCell(newCol) };
@@ -120,14 +125,11 @@ public class PlateFormatNodeModel extends NodeModel {
 						return cell.isMissing() ? null : Integer
 								.valueOf(((IntValue) cell).getIntValue());
 					}
-
-					private DataCell createCell(@Nullable final Integer value) {
-						return value == null ? DataType.getMissingCell()
-								: new IntCell(value.intValue());
-					}
 				}, plateIndex, rowIndex, colIndex);
 		final BufferedDataTable ret = exec.createColumnRearrangeTable(
 				inData[0], rearranger, exec);
+		logger.debug("Table converted to " + toWellCount.getStringValue()
+				+ " well format.");
 		return new BufferedDataTable[] { ret };
 	}
 
