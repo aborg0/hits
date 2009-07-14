@@ -112,8 +112,9 @@ public class PlateFormatNodeModel extends NodeModel {
 						final int newPlate = (toLarger ? plate / toToFrom
 								: plate * fromToTo + col / to.getCol() + row
 										/ to.getRow() * fromToToCol) + 1;
-						final int newRow = (toLarger ? plate / toToFromRow
-								* from.getRow() + row : row % to.getRow()) + 1;
+						final int newRow = (toLarger ? plate % toToFrom
+								/ toToFromRow * from.getRow() + row : row
+								% to.getRow()) + 1;
 						final int newCol = (toLarger ? plate % toToFromCol
 								* from.getCol() + col : col % to.getCol()) + 1;
 						return new DataCell[] { new IntCell(newPlate),
