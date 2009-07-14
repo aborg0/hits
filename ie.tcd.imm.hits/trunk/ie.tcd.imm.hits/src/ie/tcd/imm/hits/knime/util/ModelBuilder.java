@@ -11,8 +11,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
-import java.awt.Color;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+
+import java.awt.Color;
+import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnegative;
@@ -81,22 +82,28 @@ public class ModelBuilder extends SimpleModelBuilder {
 	}
 
 	/** The prefix for {@link PossibleStatistics#RAW_PER_PLATE_REPLICATE_MEAN}. */
-	public static final String RAW_PLATE_REPLICATE_MEDIAN_START = StaticUtil.createPrefix(PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
+	public static final String RAW_PLATE_REPLICATE_MEDIAN_START = StaticUtil
+			.createPrefix(PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
 
 	/** The prefix for {@link PossibleStatistics#MEAN_OR_DIFF}. */
-	public static final String MEAN_OR_DIFF_START = StaticUtil.createPrefix(PossibleStatistics.MEAN_OR_DIFF);
+	public static final String MEAN_OR_DIFF_START = StaticUtil
+			.createPrefix(PossibleStatistics.MEAN_OR_DIFF);
 
 	/** The prefix for {@link PossibleStatistics#NORMALISED}. */
-	public static final String NORMALISED_START = StaticUtil.createPrefix(PossibleStatistics.NORMALISED);
+	public static final String NORMALISED_START = StaticUtil
+			.createPrefix(PossibleStatistics.NORMALISED);
 
 	/** The prefix for {@link PossibleStatistics#MEDIAN}. */
-	public static final String MEDIAN_START = StaticUtil.createPrefix(PossibleStatistics.MEDIAN);
+	public static final String MEDIAN_START = StaticUtil
+			.createPrefix(PossibleStatistics.MEDIAN);
 
 	/** The prefix for {@link PossibleStatistics#RAW}. */
-	public static final String RAW_START = StaticUtil.createPrefix(PossibleStatistics.RAW);
+	public static final String RAW_START = StaticUtil
+			.createPrefix(PossibleStatistics.RAW);
 
 	/** The prefix for {@link PossibleStatistics#SCORE}. */
-	public static final String SCORE_START = StaticUtil.createPrefix(PossibleStatistics.SCORE);
+	public static final String SCORE_START = StaticUtil
+			.createPrefix(PossibleStatistics.SCORE);
 
 	private final Map<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>> replicates = new TreeMap<String, Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>>();
 	private final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = new TreeMap<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>();
@@ -239,25 +246,32 @@ public class ModelBuilder extends SimpleModelBuilder {
 					wellIndex = idx;
 					continue;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.EXPERIMENT_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.EXPERIMENT_COLUMN)) {
 					experimentIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.NORMALISATION_METHOD_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.NORMALISATION_METHOD_COLUMN)) {
 					normMethodIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.LOG_TRANSFORM_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.LOG_TRANSFORM_COLUMN)) {
 					logTransformIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.NORMALISATION_KIND_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.NORMALISATION_KIND_COLUMN)) {
 					normKindIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.VARIANCE_ADJUSTMENT_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.VARIANCE_ADJUSTMENT_COLUMN)) {
 					varianceAdjustmentIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.SCORING_METHOD_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.SCORING_METHOD_COLUMN)) {
 					scoreMethodIndex = idx;
 				}
-				if (specName.equalsIgnoreCase(PublicConstants.SUMMARISE_METHOD_COLUMN)) {
+				if (specName
+						.equalsIgnoreCase(PublicConstants.SUMMARISE_METHOD_COLUMN)) {
 					sumMethodIndex = idx;
 				}
 				if (spec.getType().isCompatible(StringValue.class)) {
@@ -438,30 +452,13 @@ public class ModelBuilder extends SimpleModelBuilder {
 		minPlate = Integer.MAX_VALUE;
 		maxPlate = Integer.MIN_VALUE;
 		for (final DataRow dataRow : getTable()) {
-			final String experiment = ((StringCell) dataRow
-					.getCell(experimentIndex)).getStringValue();
-			if (!replicates.containsKey(experiment)) {
-				replicates
-						.put(
-								experiment,
-								new TreeMap<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>>());
-			}
-			if (!scores.containsKey(experiment)) {
-				scores
-						.put(
-								experiment,
-								new TreeMap<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>());
-			}
-			if (!texts.containsKey(experiment)) {
-				texts
-						.put(
-								experiment,
-								new TreeMap<String, Map<Integer, Map<String, String[]>>>());
-			}
-			if (!colours.containsKey(experiment)) {
-				colours.put(experiment,
-						new TreeMap<String, Map<Integer, Color[]>>());
-			}
+			final String experiment = experimentIndex == -1 ? ""
+					: ((StringCell) dataRow.getCell(experimentIndex))
+							.getStringValue();
+			checkAndPutTreeMap(experiment, replicates);
+			checkAndPutTreeMap(experiment, scores);
+			checkAndPutTreeMap(experiment, texts);
+			checkAndPutTreeMap(experiment, colours);
 			final Map<String, Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> normMethodValues = replicates
 					.get(experiment);
 			final Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>> scoreNormMethodValues = scores
@@ -473,26 +470,10 @@ public class ModelBuilder extends SimpleModelBuilder {
 			final String normKey = getNormKey(dataRow, normMethodIndex,
 					logTransformIndex, normKindIndex, varianceAdjustmentIndex,
 					scoreMethodIndex, sumMethodIndex);
-			if (!normMethodValues.containsKey(normKey)) {
-				normMethodValues
-						.put(
-								normKey,
-								new HashMap<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>>());
-			}
-			if (!scoreNormMethodValues.containsKey(normKey)) {
-				scoreNormMethodValues
-						.put(
-								normKey,
-								new HashMap<Integer, Map<String, Map<StatTypes, double[]>>>());
-			}
-			if (!textsNormMethodValues.containsKey(normKey)) {
-				textsNormMethodValues.put(normKey,
-						new HashMap<Integer, Map<String, String[]>>());
-			}
-			if (!colourNormMethodValues.containsKey(normKey)) {
-				colourNormMethodValues.put(normKey,
-						new HashMap<Integer, Color[]>());
-			}
+			checkAndPutHashMap(normKey, normMethodValues);
+			checkAndPutHashMap(normKey, scoreNormMethodValues);
+			checkAndPutHashMap(normKey, textsNormMethodValues);
+			checkAndPutHashMap(normKey, colourNormMethodValues);
 			final Map<Integer, Map<Integer, Map<String, Map<StatTypes, double[]>>>> replicateValues = normMethodValues
 					.get(normKey);
 			final Map<Integer, Map<String, Map<StatTypes, double[]>>> scoreValues = scoreNormMethodValues
@@ -504,16 +485,8 @@ public class ModelBuilder extends SimpleModelBuilder {
 			final Integer plate = getInt(dataRow, plateIndex);
 			minPlate = Math.min(minPlate, plate.intValue());
 			maxPlate = Math.max(maxPlate, plate.intValue());
-			if (!replicateValues.containsKey(plate)) {
-				replicateValues
-						.put(
-								plate,
-								new HashMap<Integer, Map<String, Map<StatTypes, double[]>>>());
-			}
-			if (!scoreValues.containsKey(plate)) {
-				scoreValues.put(plate,
-						new HashMap<String, Map<StatTypes, double[]>>());
-			}
+			checkAndPutHashMap(plate, replicateValues);
+			checkAndPutHashMap(plate, scoreValues);
 			if (!textValues.containsKey(plate)) {
 				final HashMap<String, String[]> map = new HashMap<String, String[]>();
 				textValues.put(plate, map);
@@ -544,12 +517,32 @@ public class ModelBuilder extends SimpleModelBuilder {
 				maxReplicate = Math.max(replicate.intValue(), maxReplicate);
 				final Map<Integer, Map<String, Map<StatTypes, double[]>>> outerMap = replicateValues
 						.get(plate);
-				if (!outerMap.containsKey(replicate)) {
-					outerMap.put(replicate,
-							new HashMap<String, Map<StatTypes, double[]>>());
-				}
+				checkAndPutHashMap(replicate, outerMap);
 				final Map<String, Map<StatTypes, double[]>> paramMap = outerMap
 						.get(replicate);
+				for (final String param : specAnalyser.getValueIndices()
+						.keySet()) {
+					checkAndPutEnumMap(param, paramMap, StatTypes.class);
+					if (!paramMap.containsKey(param)) {
+						paramMap.put(param, new EnumMap<StatTypes, double[]>(
+								StatTypes.class));
+					}
+					final Map<StatTypes, double[]> enumMap = paramMap
+							.get(param);
+					final StatTypes stat = StatTypes.otherNumeric;
+					if (!statistics.contains(stat)) {
+						continue;
+					}
+					if (!enumMap.containsKey(stat)) {
+						enumMap.put(stat, createPlateValues(96));
+					}
+					final DataCell cell = dataRow
+							.getCell(specAnalyser.valueIndices.get(param)
+									.intValue());
+					enumMap.get(stat)[well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
+							.getDoubleValue()
+							: Double.NaN;
+				}
 				for (final String param : parameters) {
 					if (!paramMap.containsKey(param)) {
 						paramMap.put(param, new EnumMap<StatTypes, double[]>(
@@ -591,19 +584,82 @@ public class ModelBuilder extends SimpleModelBuilder {
 							continue;
 						}
 						final double[] vals = values.get(type);
-						if (false) {
-							vals[well] = param.equals("Cell Count") ? 0.0
-									: param.equals("Nuc Displacement") ? 1 : -1;
-						} else {
-							final DataCell cell = dataRow.getCell(indices.get(
-									type).get(param).intValue());
-							vals[well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
-									.getDoubleValue()
-									: Double.NaN;
-						}
+						final DataCell cell = dataRow.getCell(indices.get(type)
+								.get(param).intValue());
+						vals[well] = cell instanceof DoubleValue ? ((DoubleValue) cell)
+								.getDoubleValue()
+								: Double.NaN;
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Add an {@link EnumMap} to {@code map} if {@code key} was not previously
+	 * contained.
+	 * 
+	 * @param <K1>
+	 *            Type of keys in outer map.
+	 * @param <K2>
+	 *            Type of keys in inner map.
+	 * @param <V>
+	 *            Type of values in inner map.
+	 * @param key
+	 *            A key of {@code map}.
+	 * @param map
+	 *            The map to check the key.
+	 * @param cls
+	 *            The class of the inner (enum) map's keys.
+	 */
+	private static <K1, K2 extends Enum<K2>, V> void checkAndPutEnumMap(
+			final K1 key, final Map<K1, Map<K2, V>> map, final Class<K2> cls) {
+		if (!map.containsKey(key)) {
+			map.put(key, new EnumMap<K2, V>(cls));
+		}
+	}
+
+	/**
+	 * Add a {@link HashMap} to {@code map} if {@code key} was not previously
+	 * contained.
+	 * 
+	 * @param <K1>
+	 *            Type of keys in outer map.
+	 * @param <K2>
+	 *            Type of keys in inner map.
+	 * @param <V>
+	 *            Type of values in inner map.
+	 * @param key
+	 *            A key of {@code map}.
+	 * @param map
+	 *            The map to check the key.
+	 */
+	private static <K1, K2, V> void checkAndPutHashMap(final K1 key,
+			final Map<K1, Map<K2, V>> map) {
+		if (!map.containsKey(key)) {
+			map.put(key, new HashMap<K2, V>());
+		}
+	}
+
+	/**
+	 * Add a {@link TreeMap} to {@code map} if {@code key} was not previously
+	 * contained.
+	 * 
+	 * @param <K1>
+	 *            Type of keys in outer map.
+	 * @param <K2>
+	 *            Type of keys in inner map.
+	 * @param <V>
+	 *            Type of values in inner map.
+	 * @param key
+	 *            A key of {@code map}.
+	 * @param map
+	 *            The map to check the key.
+	 */
+	private static <K1, K2 extends Comparable<K2>, V> void checkAndPutTreeMap(
+			final K1 key, final Map<K1, Map<K2, V>> map) {
+		if (!map.containsKey(key)) {
+			map.put(key, new TreeMap<K2, V>());
 		}
 	}
 
@@ -647,12 +703,29 @@ public class ModelBuilder extends SimpleModelBuilder {
 			final int normMethodIdx, final int logTransformIdx,
 			final int normKindIdx, final int varianceAdjustmentIdx,
 			final int scoreMethodIdx, final int summariseMethodIdx) {
-		return dataRow.getCell(normMethodIdx) + "_"
-				+ dataRow.getCell(logTransformIdx) + "_"
-				+ dataRow.getCell(normKindIdx) + "_"
-				+ dataRow.getCell(varianceAdjustmentIdx) + "_"
-				+ dataRow.getCell(scoreMethodIdx) + "_"
-				+ dataRow.getCell(summariseMethodIdx);
+		return getOrEmpty(dataRow, normMethodIdx, "_")
+				+ getOrEmpty(dataRow, logTransformIdx, "_")
+				+ getOrEmpty(dataRow, normKindIdx, "_")
+				+ getOrEmpty(dataRow, varianceAdjustmentIdx, "_")
+				+ getOrEmpty(dataRow, scoreMethodIdx, "_")
+				+ getOrEmpty(dataRow, summariseMethodIdx, "");
+	}
+
+	/**
+	 * @param dataRow
+	 *            A {@link DataRow}.
+	 * @param index
+	 *            Index of column in {@link DataRow}. (Might be {@code -1}.)
+	 * @param suffix
+	 *            The suffix to append to the result if {@code index} is not
+	 *            {@code -1}.
+	 * @return The selected value from {@code dataRow} with the specified
+	 *         {@code suffix}, or empty {@link String} if not the {@code index}
+	 *         is {@code -1}.
+	 */
+	private static String getOrEmpty(final DataRow dataRow, final int index,
+			final String suffix) {
+		return index == -1 ? "" : dataRow.getCell(index) + suffix;
 	}
 
 	/**
