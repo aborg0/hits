@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BioConverter-Node extension for KNIME Workbench
 Bundle-SymbolicName: ie.tcd.imm.hits.knime.interop; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: bioconverter.jar
 Bundle-Activator: ie.tcd.imm.hits.knime.interop.BioConverterNodePlugin
 Bundle-Vendor: TCD
