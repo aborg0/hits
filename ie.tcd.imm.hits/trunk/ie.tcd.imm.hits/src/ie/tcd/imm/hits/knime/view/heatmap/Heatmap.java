@@ -111,6 +111,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	}
 
 	private void replicates(final HeatmapNodeModel nodeModel) {
+		final Format predictedFormat = nodeModel.getModelBuilder()
+				.getSpecAnalyser().getPredictedFormat();
 		final int cols = viewModel.getFormat().getCol();
 		final int rows = viewModel.getFormat().getRow();
 		/* 0-MAX_INDEPENDENT_FACTORS -> selected plate values. */
@@ -189,7 +191,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				.getValueMapping().get(
 						plateSlider.getSelections().iterator().next())
 				.getRight()).intValue() - 1 : -1;
-		final Color[][] colors = new Color[rows * cols][size];
+		final Color[][] colors = new Color[predictedFormat.getWellCount()][size];
 		final ColourModel colourModel = viewModel.getMain().getColourModel();
 		final ModelBuilder modelBuilder = nodeModel.getModelBuilder();
 		final Map<String, Map<String, Map<Integer, Map<String, Map<StatTypes, double[]>>>>> scores = modelBuilder
@@ -201,18 +203,18 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		if (secondParamSlider != null
 				&& secondParamSlider.equals(replicateSlider)) {
 			for (int i = replicateSlider.getSelections().size(); i-- > 0;) {
-				findColourValues(Format._96, colors, scores, colourModel,
+				findColourValues(predictedFormat, colors, scores, colourModel,
 						firstParamSlider, null, 0, secondParamSlider, null, i,
 						scoreSliderList, 0);
 			}
 		} else if (firstParamSlider.equals(replicateSlider)) {
 			for (int i = replicateSlider.getSelections().size(); i-- > 0;) {
-				findColourValues(Format._96, colors, scores, colourModel,
+				findColourValues(predictedFormat, colors, scores, colourModel,
 						firstParamSlider, null, i, secondParamSlider, null, i,
 						scoreSliderList, 0);
 			}
 		} else {
-			findColourValues(Format._96, colors, scores, colourModel,
+			findColourValues(predictedFormat, colors, scores, colourModel,
 					firstParamSlider, null, 0, secondParamSlider, null, 0,
 					scoreSliderList, 0);
 		}
@@ -221,7 +223,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final List<SliderModel> replicateSliderList = Arrays.asList(
 				experimentSlider, normalisationSlider, plateSlider,
 				replicateSlider, parameterSlider, statSlider);
-		findColourValues(Format._96, colors, replicates, colourModel,
+		findColourValues(predictedFormat, colors, replicates, colourModel,
 				firstParamSlider, null, 0, secondParamSlider, null, 0,
 				replicateSliderList, 0);
 		// exp, norm, plate, col
@@ -241,7 +243,13 @@ public class Heatmap extends JComponent implements HiLiteListener {
 						.valueOf(plate + 1));
 				if (array != null) {
 					for (int i = rows * cols; i-- > 0;) {
-						final Color color = array[i];
+						final Color color = i / viewModel.getFormat().getCol() < predictedFormat
+								.getRow()
+								&& i % viewModel.getFormat().getCol() < predictedFormat
+										.getCol() ? array[i
+								% viewModel.getFormat().getCol() + i
+								/ viewModel.getFormat().getCol()
+								* predictedFormat.getCol()] : null;
 						wells[i]
 								.setBackground(color == null ? ColorAttr.BACKGROUND
 										: color);
@@ -250,13 +258,24 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			}
 		}
 		for (int i = rows * cols; i-- > 0;) {
-			wells[i].setColors(colors[i]);
+			wells[i]
+					.setColors(i / viewModel.getFormat().getCol() < predictedFormat
+							.getRow()
+							&& i % viewModel.getFormat().getCol() < predictedFormat
+									.getCol() ? colors[i
+							/ viewModel.getFormat().getCol()
+							* predictedFormat.getCol() + i
+							% viewModel.getFormat().getCol()] : null);
 		}
 		for (int i = rows * cols; i-- > 0;) {
-			final String l = InfoParser.parse(experimentPos.get(Heatmap.ZERO),
-					normalisationPos.get(Heatmap.ZERO), viewModel
-							.getLabelPattern(), platePos.get(Heatmap.ZERO),
-					i / 12, i % 12, nodeModel);
+			final String l = i / viewModel.getFormat().getCol() < predictedFormat
+					.getRow()
+					&& i % viewModel.getFormat().getCol() < predictedFormat
+							.getCol() ? InfoParser.parse(experimentPos
+					.get(Heatmap.ZERO), normalisationPos.get(Heatmap.ZERO),
+					viewModel.getLabelPattern(), platePos.get(Heatmap.ZERO), i
+							/ viewModel.getFormat().getCol(), i
+							% viewModel.getFormat().getCol(), nodeModel) : null;
 			wells[i].setLabels(l);
 		}
 	}

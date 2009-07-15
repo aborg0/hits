@@ -69,7 +69,7 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		final ArrayList<String> possStats = new ArrayList<String>(6);
 		for (final StatTypes statTypes : new StatTypes[] { StatTypes.score,
 				StatTypes.normalised, StatTypes.median, StatTypes.meanOrDiff,
-				StatTypes.raw, StatTypes.rawPerMedian }) {
+				StatTypes.raw, StatTypes.rawPerMedian, StatTypes.otherNumeric }) {
 			possStats.add(statTypes.name());
 		}
 		final DialogComponentStringListSelection statistics = new DialogComponentStringListSelection(

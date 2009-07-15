@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -144,6 +145,8 @@ public class ModelBuilder extends SimpleModelBuilder {
 		private final Map<String, Integer> stringIndices;
 		private final Map<String, Integer> valueIndices;
 
+		private final Format predictedFormat;
+
 		/**
 		 * Constructs a {@link SpecAnalyser} using {@code tableSpec}.
 		 * 
@@ -185,6 +188,8 @@ public class ModelBuilder extends SimpleModelBuilder {
 			}
 			stringIndices = new TreeMap<String, Integer>();
 			valueIndices = new LinkedHashMap<String, Integer>();
+
+			Format format = Format._1536;
 			int idx = -1;
 			for (final DataColumnSpec spec : tableSpec) {
 				++idx;
@@ -244,6 +249,39 @@ public class ModelBuilder extends SimpleModelBuilder {
 				}
 				if (specName.equalsIgnoreCase("well")) {
 					wellIndex = idx;
+					int maxRow = -1, maxCol = -1;
+					final Set<DataCell> values = spec.getDomain().getValues();
+					if (values != null) {
+						for (final DataCell cell : values) {
+							if (cell instanceof StringValue) {
+								final StringValue stringCell = (StringValue) cell;
+								try {
+									final int position = Format._1536
+											.convertWellToPosition(stringCell
+													.getStringValue());
+									maxRow = Math.max(maxRow, position
+											% Format._1536.getCol());
+									maxCol = Math.max(maxCol, position
+											/ Format._1536.getCol());
+								} catch (final RuntimeException e) {
+									// Do not mind.
+								}
+							}
+						}
+					}
+					if (maxCol >= Format._1536.getCol()
+							|| maxRow >= Format._1536.getCol()) {
+						throw new IllegalStateException("Too large plate!");
+					}
+					if (maxCol >= Format._384.getCol()
+							|| maxRow >= Format._384.getCol()) {
+						format = Format._1536;
+					} else if (maxCol >= Format._96.getCol()
+							|| maxRow >= Format._96.getCol()) {
+						format = Format._384;
+					} else if (maxCol >= 0 && maxRow >= 0) {
+						format = Format._96;
+					}
 					continue;
 				}
 				if (specName
@@ -285,6 +323,7 @@ public class ModelBuilder extends SimpleModelBuilder {
 			if (!hasPlate && checks) {
 				throw new IllegalStateException("No plate information found");
 			}
+			predictedFormat = format;
 		}
 
 		/**
@@ -426,6 +465,13 @@ public class ModelBuilder extends SimpleModelBuilder {
 		public Map<String, Integer> getValueIndices() {
 			return valueIndices;
 		}
+
+		/**
+		 * @return The predicted {@link Format} of plates.
+		 */
+		public Format getPredictedFormat() {
+			return predictedFormat;
+		}
 	}
 
 	private void generate(final SpecAnalyser specAnalyser) {
@@ -442,6 +488,10 @@ public class ModelBuilder extends SimpleModelBuilder {
 		final int plateIndex = specAnalyser.getPlateIndex();
 		final int replicateIndex = specAnalyser.getReplicateIndex();
 		final int wellIndex = specAnalyser.getWellIndex();
+		if (wellIndex == -1) {
+			throw new IllegalStateException("No "
+					+ PublicConstants.WELL_COL_NAME + " column present!");
+		}
 		final EnumMap<StatTypes, Map<String, Integer>> indices = specAnalyser
 				.getIndices();
 		final Map<String, Integer> stringIndices = specAnalyser
@@ -491,15 +541,19 @@ public class ModelBuilder extends SimpleModelBuilder {
 				final HashMap<String, String[]> map = new HashMap<String, String[]>();
 				textValues.put(plate, map);
 				for (final String colName : stringIndices.keySet()) {
-					map.put(colName, new String[96]);
+					map.put(colName, new String[specAnalyser
+							.getPredictedFormat().getWellCount()]);
 				}
 			}
 			if (!colourValues.containsKey(plate)) {
-				colourValues.put(plate, new Color[96]);
+				colourValues.put(plate, new Color[specAnalyser
+						.getPredictedFormat().getWellCount()]);
 			}
 			final Map<String, String[]> textColumns = textValues.get(plate);
-			final int well = convertWellToPosition(((StringCell) dataRow
-					.getCell(wellIndex)).getStringValue());
+			final int well = specAnalyser.getPredictedFormat()
+					.convertWellToPosition(
+							((StringCell) dataRow.getCell(wellIndex))
+									.getStringValue());
 			colourValues.get(plate)[well] = getTable().getDataTableSpec()
 					.getRowColor(dataRow).getColor();
 			for (final Entry<String, Integer> entry : stringIndices.entrySet()) {
@@ -534,7 +588,8 @@ public class ModelBuilder extends SimpleModelBuilder {
 						continue;
 					}
 					if (!enumMap.containsKey(stat)) {
-						enumMap.put(stat, createPlateValues(96));
+						enumMap.put(stat, createPlateValues(specAnalyser
+								.getPredictedFormat().getWellCount()));
 					}
 					final DataCell cell = dataRow
 							.getCell(specAnalyser.valueIndices.get(param)
@@ -555,7 +610,8 @@ public class ModelBuilder extends SimpleModelBuilder {
 							continue;
 						}
 						if (!enumMap.containsKey(stat)) {
-							enumMap.put(stat, createPlateValues(96));
+							enumMap.put(stat, createPlateValues(specAnalyser
+									.getPredictedFormat().getWellCount()));
 						}
 						final DataCell cell = dataRow.getCell(indices.get(stat)
 								.get(param).intValue());
@@ -575,7 +631,11 @@ public class ModelBuilder extends SimpleModelBuilder {
 						map.put(param, new EnumMap<StatTypes, double[]>(
 								StatTypes.class));
 						for (final StatTypes type : StatTypes.scoreTypes) {
-							map.get(param).put(type, createPlateValues(96));
+							map.get(param).put(
+									type,
+									createPlateValues(specAnalyser
+											.getPredictedFormat()
+											.getWellCount()));
 						}
 					}
 					final Map<StatTypes, double[]> values = map.get(param);
@@ -726,26 +786,6 @@ public class ModelBuilder extends SimpleModelBuilder {
 	private static String getOrEmpty(final DataRow dataRow, final int index,
 			final String suffix) {
 		return index == -1 ? "" : dataRow.getCell(index) + suffix;
-	}
-
-	/**
-	 * Converts a {@code [a-hA-H](0)?[0-9]} like {@code well} value to a {@code
-	 * 96} plate position. The position is {@code 0}-based, and goes from
-	 * {@code A1} &Rarr; {@code A12} &Rarr; {@code B1}, ..., {@code H12}.
-	 * 
-	 * @param well
-	 *            A {@link String} matching the pattern: {@code
-	 *            [a-hA-H](0)?[0-9]}.
-	 * @return The {@code 0} based position on the 96 well plate. (Horizontal
-	 *         first, then vertical.)
-	 * @see Format#convertWellToPosition(String)
-	 */
-	@Deprecated
-	public static int convertWellToPosition(final String well) {
-		return (Character.toLowerCase(well.charAt(0)) - 'a')
-				* 12
-				+ Integer.parseInt(well.substring(well.length() - 2, well
-						.length())) - 1;
 	}
 
 	/**

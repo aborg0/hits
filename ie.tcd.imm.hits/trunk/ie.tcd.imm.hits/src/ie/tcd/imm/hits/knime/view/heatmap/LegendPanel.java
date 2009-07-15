@@ -42,6 +42,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -231,20 +232,31 @@ public class LegendPanel extends JPanel implements ActionListener {
 
 				/**
 				 * @param pair
-				 * @return
+				 *            A {@link Pair} of {@link ParameterModel} and
+				 *            something else.
+				 * @return Selects the short name from the
+				 *         {@link ParameterModel}, and appends the
+				 *         {@link String} representation of the associated
+				 *         object.
 				 */
 				private String prettyPrint(
 						final Pair<ParameterModel, Object> pair) {
-					return pair == null ? "" : pair.getLeft()
-							.getShortName()
+					return pair == null ? "" : pair.getLeft().getShortName()
 							+ ": " + pair.getRight().toString();
 				}
 
 				/**
+				 * Selects the {@code index}<sup>th</sup> {@link ParameterModel}
+				 * from {@code slider} if available.
+				 * 
 				 * @param index
+				 *            The ({@code 0}-based) index in the {@code slider}.
 				 * @param slider
-				 * @return
+				 *            A {@link SliderModel}.
+				 * @return The found {@link ParameterModel} with the associated
+				 *         value. {@code null} if not found.
 				 */
+				@Nullable
 				private Pair<ParameterModel, Object> selectPair(
 						final int index, final SliderModel slider) {
 					if (slider == null) {
@@ -926,7 +938,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 	}
 
 	private static SliderModel getCurrentSlider(
-			final Collection<SliderModel> sliders, final ParameterModel model) {
+			final Collection<SliderModel> sliders, @Nullable final ParameterModel model) {
 		SliderModel currentSlider = null;
 		for (final SliderModel slider : sliders) {
 			for (final ParameterModel pm : slider.getParameters()) {

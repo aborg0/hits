@@ -26,6 +26,10 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomain;
+import org.knime.core.data.DataColumnDomainCreator;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
@@ -390,7 +394,53 @@ public class ImporterNodeModel extends NodeModel {
 		}
 		final DataTableSpec dataTableSpec = new DataTableSpec(header
 				.toArray(new String[header.size()]), cellTypes);
-		return dataTableSpec;
+		return addWellDomain(dataTableSpec);
+	}
+
+	/**
+	 * Adds the (generated) domain of column
+	 * {@value PublicConstants#WELL_COL_NAME}.
+	 * 
+	 * @param dataTableSpec
+	 *            Result {@link DataTableSpec}.
+	 * @return The new {@link DataTableSpec}.
+	 */
+	private DataTableSpec addWellDomain(final DataTableSpec dataTableSpec) {
+		final DataColumnSpec[] resultSpecs = new DataColumnSpec[dataTableSpec
+				.getNumColumns()];
+		final int wells = wellCountModel.getIntValue();
+		final int rows;
+		switch (wells) {
+		case 96:
+			rows = 12;
+			break;
+		case 384:
+			rows = 24;
+			break;
+		default:
+			throw new IllegalStateException("Wrong plate format: " + wells);
+		}
+		int i = 0;
+		for (final DataColumnSpec dataColumnSpec : dataTableSpec) {
+			if (dataColumnSpec.getName().equalsIgnoreCase(
+					PublicConstants.WELL_COL_NAME)) {
+				final DataColumnSpecCreator specCreator = new DataColumnSpecCreator(
+						dataColumnSpec);
+				final DataCell[] possibleValues = new DataCell[wells];
+				for (int j = possibleValues.length; j-- > 0;) {
+					possibleValues[j] = new StringCell(Character
+							.toString((char) ('A' + j / rows))
+							+ Integer.toString((j % rows + 1)));
+				}
+				final DataColumnDomain domain = new DataColumnDomainCreator(
+						possibleValues).createDomain();
+				specCreator.setDomain(domain);
+				resultSpecs[i++] = specCreator.createSpec();
+			} else {
+				resultSpecs[i++] = dataColumnSpec;
+			}
+		}
+		return new DataTableSpec(resultSpecs);
 	}
 
 	/**

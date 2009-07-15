@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.Assert;
 import org.knime.base.node.mine.sota.view.interaction.HiliteManager;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.IntValue;
 import org.knime.core.data.container.ContainerTable;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -97,8 +98,8 @@ public class HeatmapNodeModel extends NodeModel {
 		experimentName(false, false, true),
 		/** The normalisation, scoring parameters. */
 		normalisation(false, false, true),
-		/** Any other numeric value from the table (non replicate specific) */
-		otherNumeric(false, false, false),
+		/** Any other numeric value from the table (replicate specific) */
+		otherNumeric(true, false, false),
 		/** Any other enumerated value from the table (non replicate specific) */
 		otherEnumeration(false, false, true),
 		/** The plate index */
@@ -178,6 +179,7 @@ public class HeatmapNodeModel extends NodeModel {
 			map.put(StatTypes.raw, PossibleStatistics.RAW);
 			map.put(StatTypes.rawPerMedian,
 					PossibleStatistics.RAW_PER_PLATE_REPLICATE_MEAN);
+			map.put(StatTypes.otherNumeric, PossibleStatistics.RAW);
 
 			mapToPossStats = Collections.unmodifiableMap(map);
 		}
@@ -356,11 +358,14 @@ public class HeatmapNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
+		final SpecAnalyser specAnalyser = new SpecAnalyser(inSpecs[0]);
+		if (specAnalyser.getWellIndex() == -1
+				|| inSpecs[0].getColumnSpec(specAnalyser.getWellIndex())
+						.getType().isCompatible(IntValue.class)) {
+			throw new InvalidSettingsException("No "
+					+ PublicConstants.WELL_COL_NAME
+					+ " column in the input (with proper (Integer) type).");
+		}
 		return new DataTableSpec[] { /* inSpecs[0] */};
 	}
 

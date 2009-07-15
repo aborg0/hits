@@ -191,9 +191,9 @@ public class RankNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		final Format format = Format._96;
 		final ModelBuilder modelBuilder = new ModelBuilder(inData[0]);
 		final SpecAnalyser specAnalyser = modelBuilder.getSpecAnalyser();
+		final Format format = specAnalyser.getPredictedFormat();
 		logger.debug("Ranking the following parameters, and statistics: "
 				+ specAnalyser.getParameters() + "; "
 				+ specAnalyser.getStatistics());
@@ -1031,6 +1031,12 @@ public class RankNodeModel extends NodeModel {
 				throw new InvalidSettingsException(
 						"Not recognised statistics: " + stat);
 			}
+		}
+		if (!specAnalyser.getStringIndices().containsKey(
+				wellAnnotationColumn.getStringValue())) {
+			throw new InvalidSettingsException(
+					"Not found this column (with String type): "
+							+ wellAnnotationColumn.getStringValue());
 		}
 		return new DataTableSpec[] { new DataTableSpec(inSpecs[0],
 				new DataTableSpec(createNewColSpec())) };
