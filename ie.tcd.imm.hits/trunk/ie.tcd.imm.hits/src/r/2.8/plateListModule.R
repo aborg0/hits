@@ -78,18 +78,22 @@ dataframeColor <- function(dataframe,
 ## The function creating the HTML table of QC scores including all links
 writeQCTable <- function(x, url, glossary, configured, xr, con)
 {
-    ## The glossary
+    ## The glossary. We need to fuzzy match the colnames to the glossary because
+    ## stuff can be added in parentheses at the end if multiple controls are present.
     if(!is.null(glossary))
     {
         cn <- colnames(x)
-        common <- intersect(glossary$word, cn)
+        cns <- gsub(" \\(.*", "", cn)
+        cns[grep("Spearman rank correlation (min - max)", cn, fixed=TRUE)] <-
+            "Spearman rank correlation (min - max)"
+        sel <- cns %in% intersect(glossary$word, cns)
         rownames(glossary) <- glossary$word
-        cn[match(common, cn)] <- paste("<span onmouseover=\"Tip('",
-                                       glossary[colnames(x[common]),2],
+        cn[sel] <- paste("<span onmouseover=\"Tip('",
+                                       glossary[cns[sel],2],
                                        "', WIDTH, 250, TITLE, 'Definition', OFFSETX, 1)\"",
                                        " onmouseout=\"UnTip();\" onClick=\"if(tt_Enabled) ",
                                        "linkToFile('glossary.html');\">",
-                                       colnames(x[common]),"</span>", sep="")
+                                       cn[sel],"</span>", sep="")
     }
     ## Finding the redundant plates
     ## hwriter does not allow for rowspans, so we have to fake an additional line
@@ -123,7 +127,7 @@ writeQCTable <- function(x, url, glossary, configured, xr, con)
           </td>
           %s", red[i], stat[i],
                addTooltip(sprintf("Detailed QC information for plate %s across all replicates and channels.", i),
-                          "Help", FALSE), pl))
+                          "", FALSE), pl))
         curPlate <- curPlate+red[i]
         class <- if(class=="odd") "even" else "odd"
     }
@@ -497,7 +501,7 @@ QMbyPlate <- function(platedat, pdim, name, channelNames, basePath, subPath, gen
     chList <- myCall(chanCorrFun, env)
     names(chList) <- channelNames
     stack <- chtsImageStack(chList, id="perExpQC", title=paste("Experiment report for", name),
-                            tooltips=addTooltip(names(chList[[1]]), "Help"))
+                            tooltips=addTooltip(names(chList[[1]]), ""))
     writeHtml(stack, con=con, vertical=FALSE)
     return(list(url=fn, qmsummary=qmsummary)) 
 }
@@ -536,7 +540,7 @@ corrFun <- function()
                      name=sprintf("scp_Channel%d", ch), w=plsiz+1, h=plsiz+1, fun=function() 
                  {
                      par(mai=c(0.8,0.8,0.2,0.2), mgp=c(2.5, 1, 0))
-                     ylim=c(min(platedat[,,,ch], na.rm=TRUE), max(platedat[,,,ch], na.rm=TRUE))
+                     ylim <- range(platedat[,,,ch], na.rm=TRUE, finite=TRUE)
                      plot(platedat[,,whHasData[[ch]][1],ch], platedat[,,whHasData[[ch]][2],ch],
                           pch=20, cex=0.6, ylim=ylim,
                           xlab=paste("Replicate", whHasData[[ch]][1], sep=" "), 
@@ -837,7 +841,7 @@ chanCorrFun <- function()
                          name=sprintf("scp_Rep%d", r), w=plsiz, h=plsiz, fun=function()
                      {
                          par(mai=c(0.5,0.5,0.1,0.1))
-                         ylim=c(min(platedat, na.rm=TRUE), max(platedat, na.rm=TRUE))
+                         ylim <- range(platedat, na.rm=TRUE, finite=TRUE)
                          plot(platedat[,,r,1], platedat[,,r,2], pch=16, cex=0.5,
                               ylim=ylim, xlab="Channel 1", ylab="Channel 2",
                               col=wellTypeColor[mtt[[r]]])

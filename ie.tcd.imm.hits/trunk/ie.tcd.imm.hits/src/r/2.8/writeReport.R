@@ -196,10 +196,9 @@ createOutputFolder <- function(outdir, xr, force)
 ##    Step 6 - topTable  (only if scored data are available)
 ##    Step 7 -  Screen-wide image plot (only if scored data are available)	
 writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, outdir,
-        force=FALSE, map=FALSE, plotPlateArgs=FALSE, imageScreenArgs=NULL,
-        posControls, negControls, mainScriptFile=NA,
-        channels=channelNames(raw),
-        colOrder=defaultColOrder()
+                        force=FALSE, map=FALSE, plotPlateArgs=FALSE, imageScreenArgs=NULL,
+                        posControls, negControls, mainScriptFile=NA,
+                        channels=channelNames(raw), colOrder=defaultColOrder()
 )
 {
     ## Verification of the arguments
@@ -216,7 +215,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     xsc <- cellHTSlist[["scored"]] 	
     xraw <- Data(xr)  ## xraw should always be given!
     xnorm <- if(is.null(xn)) xn else Data(xn)
-    
+	
     ## dimensions 
     d <- as.integer(dim(xraw))
     nrWell    <- prod(pdim(xr))
@@ -388,7 +387,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
         }		
         if(all(is.null(names(dr))))
             names(dr) <- namePos
-        
+		
         ## Define well colors and comment on them.
         ## (to avoid having the legend for 'pos' when we have 'inhibitors' and 'activators'
         ## or vice-versa)
@@ -466,32 +465,33 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
                 if(!qmHaveBeenAdded)
                 {
                     TableNames <-
-                            if(twoWay)
-                            {
-                                c(paste("Replicate dynamic range",
-                                                c("(Activators)", "(Inhibitors)"), sep=" "),
-                                        paste("Average dynamic range",
-                                                c("(Activators)", "(Inhibitors)"), sep=" "),
-                                        "Spearman rank correlation")
-                            }
-                            else
-                            {
-                                if(length(namePos)==1 && namePos=="pos")
-                                { 
-                                    c("Replicate dynamic range",
-                                            "Average dynamic range", "Repeatability standard deviation",
-                                            sprintf("Spearman rank correlation %s",
-                                                    ifelse(nrReplicate==2, "", "(min - max)")))
-                                }
-                                else
-                                {
-                                    c(sprintf("Replicate dynamic range (%s)", namePos), 
-                                            sprintf("Average dynamic range (%s)", namePos),
-                                            "Repeatability standard deviation", 
-                                            sprintf("Spearman rank correlation %s",
-                                                    ifelse(nrReplicate==2, "", "(min - max)")))
-                                }
-                            }
+                        unique(
+                               if(twoWay)
+                           {
+                               c(paste("Replicate dynamic range",
+                                       c("(Activators)", "(Inhibitors)"), sep=" "),
+                                 paste("Average dynamic range",
+                                       c("(Activators)", "(Inhibitors)"), sep=" "),
+                                 "Spearman rank correlation")
+                           }
+                               else
+                           {
+                               if(length(namePos)==1 && namePos=="pos")
+                               { 
+                                   c("Replicate dynamic range",
+                                     "Average dynamic range", "Repeatability standard deviation",
+                                     sprintf("Spearman rank correlation %s",
+                                             ifelse(nrReplicate==2, "", "(min - max)")))
+                               }
+                               else
+                               {
+                                   c(sprintf("Replicate dynamic range (%s)", namePos), 
+                                     sprintf("Average dynamic range (%s)", namePos),
+                                     "Repeatability standard deviation", 
+                                     sprintf("Spearman rank correlation %s",
+                                             ifelse(nrReplicate==2, "", "(min - max)")))
+                               }
+                           })
                     url <- cbind(url,  matrix(as.character(NA), nrow=nrow(url),
                                               ncol=length(TableNames)))
                     for(j in TableNames)
@@ -565,11 +565,13 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     expOrder <- order(exptab[["Plate"]], exptab[["Channel"]], exptab[["Replicate"]])
     url[wh, "Filename"] <- nm[wh]
     plateList.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "plateList.html"),
-            htmlFun=writeHtml.plateList, title="Plate List",
-            funArgs=list(center=TRUE, glossary=createGlossary(),
-                    links=url[expOrder,,drop=FALSE], exptab=exptab[expOrder,],
-                    outdir=outdir, htmldir=htmldir,
-                    configured=overallState["configured"], expOrder=expOrder))
+                                   htmlFun=writeHtml.plateList, title="Plate List",
+                                   funArgs=list(center=TRUE, glossary=createGlossary(),
+                                   links=url[expOrder,,drop=FALSE],
+                                   exptab=exptab[expOrder,],
+                                   outdir=outdir, htmldir=htmldir,
+                                   configured=overallState["configured"],
+                                   expOrder=expOrder))
     tab <- writeHtml(plateList.module)
     progress <- myUpdateProgress(progress, "step3",
                                  0.2*length(which(plateList(xr)$status=="OK")))
@@ -597,19 +599,22 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     ## the respective plates. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenSummary'.
     screenSummary.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenImage.html"),
-            htmlFun=writeHtml.screenSummary, title="Screen Summary",
-            funArgs=list(nrPlate=nrPlate, imageScreenArgs=imageScreenArgs,
-                    overallState=overallState, geneAnnotation=geneAnnotation))
+                                     htmlFun=writeHtml.screenSummary, title="Screen Summary",
+                                     funArgs=list(nrPlate=nrPlate,
+                                     imageScreenArgs=imageScreenArgs,
+                                     overallState=overallState, geneAnnotation=geneAnnotation))
     tab <- rbind(tab, writeHtml(screenSummary.module))
     progress <- myUpdateProgress(progress, "step5")
-    
+
     ## The 'Screen Results module': a downloadable ASCII table of the screening results and
     ## a sortable HTML table. The workhorse function to produce the necessary HTML code is
     ## 'writeHtml.screenResults'.
-    screenResults.module <- chtsModule(cellHTSlist, url=file.path(htmldir, "screenResults.html"),
-            htmlFun=writeHtml.screenResults, title="Screen Results",
-            funArgs=list(file=file.path(outdir, "in", "topTable.txt"),
-                    verbose=FALSE, overallState=overallState, channels=channelNames, colOrder=colOrder))
+    screenResults.module <- chtsModule(cellHTSlist,
+                                       url=file.path(htmldir, "screenResults.html"),
+                                       htmlFun=writeHtml.screenResults, title="Screen Results",
+                                       funArgs=list(file=file.path(outdir, "in",
+                                                    "topTable.txt"),
+                                       verbose=FALSE, overallState=overallState, channels=channelNames, colOrder=colOrder))
     tab <- rbind(tab, writeHtml(screenResults.module))
     progress <- myUpdateProgress(progress, "step6")
     
