@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -183,6 +184,15 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 			}
 		});
 		addDialogComponent(helpButton);
+		final DialogComponentBoolean generateHTML = new DialogComponentBoolean(
+				new SettingsModelBoolean(
+						CellHTS2NodeModel.CFGKEY_GENERATE_HTML,
+						CellHTS2NodeModel.DEFAULT_GENERATE_HTML),
+				"Generate HTML reports?");
+		generateHTML
+				.setToolTipText("Generate HTML report increase the time to generate results.");
+		generateHTML.getComponentPanel().setBackground(Color.CYAN);
+		addDialogComponent(generateHTML);
 		setHorizontalPlacement(false);
 		addDialogComponent(sample);
 		closeCurrentGroup();
@@ -193,8 +203,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 						CellHTS2NodeModel.CFGKEY_PARAMETERS, new String[0],
 						new String[0]), 0, DoubleValue.class);
 		((SettingsModelFilterString) parametersDialog.getModel())
-				.setExcludeList(new String[] {
-						PublicConstants.PLATE_COL_NAME,
+				.setExcludeList(new String[] { PublicConstants.PLATE_COL_NAME,
 						PublicConstants.REPLICATE_COL_NAME,
 						PublicConstants.WELL_COL_NAME,
 						PublicConstants.GENE_ID_COL_NAME,

@@ -208,6 +208,11 @@ public class CellHTS2NodeModel extends NodeModel {
 	/** Default value of pattern generating the folder */
 	static final String DEFAULT_FOLDER_PATTERN = "{e}\\{n}{*}\\{p15}";
 
+	/** Configuration key for generating HTML reports */
+	static final String CFGKEY_GENERATE_HTML = "generate.HTML";
+	/** Default value of generating HTML reports */
+	static final boolean DEFAULT_GENERATE_HTML = true;
+
 	private final SettingsModelString normMethodModel = new SettingsModelString(
 			CellHTS2NodeModel.CFGKEY_NORMALISATION_METHOD,
 			CellHTS2NodeModel.POSSIBLE_NORMALISATION_METHODS[1]);
@@ -251,6 +256,10 @@ public class CellHTS2NodeModel extends NodeModel {
 	private final SettingsModelDoubleBounded aspectRatioModel = new SettingsModelDoubleBounded(
 			CellHTS2NodeModel.CFGKEY_ASPECT_RATIO,
 			CellHTS2NodeModel.DEFAULT_ASPECT_RATIO, 0.1, 200);
+
+	private final SettingsModelBoolean generateHTML = new SettingsModelBoolean(
+			CellHTS2NodeModel.CFGKEY_GENERATE_HTML,
+			CellHTS2NodeModel.DEFAULT_GENERATE_HTML);
 
 	private static final DataTableSpec configurationSpec = new DataTableSpec(
 			new DataColumnSpecCreator("Category", StringCell.TYPE).createSpec(),
@@ -352,7 +361,9 @@ public class CellHTS2NodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		final String[] normMethods = computeNormMethods();
 		outDirs = computeOutDirs(normMethods);
-		checkFolders();
+		if (generateHTML.getBooleanValue()) {
+			checkFolders();
+		}
 		final String experimentName = experimentNameModel.getStringValue();
 		final RConnection conn;
 		try {
@@ -520,7 +531,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			configuration.close();
 			final BufferedDataContainer outputFolders = exec
 					.createDataContainer(CellHTS2NodeModel.outputFolderSpec);
-			{
+			if (generateHTML.getBooleanValue()) {
 				int i = 0;
 				for (final String outFolder : outDirs.values()) {
 					outputFolders.addRowToTable(new DefaultRow(new RowKey(
@@ -687,18 +698,20 @@ public class CellHTS2NodeModel extends NodeModel {
 				throw e;
 			}
 			try {
-				voidEval(
-						conn,
-						"writeReport("
-								+ (version.isPre28() ? ""
-										: "raw=x, normalized=xn, scored=xsc, ")
-								+ "cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
-								+ "   force=TRUE, plotPlateArgs = TRUE,\n"
-								+ "   imageScreenArgs = list(zrange=c("
-								+ zRange + "), ar="
-								+ aspectRatioModel.getDoubleValue()
-								+ "), map=TRUE, outdir=\"" + outDir + "\""
-								+ additionalParams + ")");
+				if (generateHTML.getBooleanValue()) {
+					voidEval(
+							conn,
+							"writeReport("
+									+ (version.isPre28() ? ""
+											: "raw=x, normalized=xn, scored=xsc, ")
+									+ "cellHTSlist=list(\"raw\"=x, \"normalized\"=xn, \"scored\"=xsc),\n"
+									+ "   force=TRUE, plotPlateArgs = TRUE,\n"
+									+ "   imageScreenArgs = list(zrange=c("
+									+ zRange + "), ar="
+									+ aspectRatioModel.getDoubleValue()
+									+ "), map=TRUE, outdir=\"" + outDir + "\""
+									+ additionalParams + ")");
+				}
 				// conn.voidEval("writeTab(xsc, file=\"scores.txt\")");
 				exec.checkCanceled();
 			} catch (final Exception e) {
@@ -805,12 +818,14 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 		} else {
 			try {
-				voidEval(conn,
-						"writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
-								+ "   force=TRUE, plotPlateArgs = TRUE,\n"
-								+ "   imageScreenArgs = list(zrange=c("
-								+ zRange + "), ar=1), map=TRUE, outdir=\""
-								+ outDir + "\"" + additionalParams + ")");
+				if (generateHTML.getBooleanValue()) {
+					voidEval(conn,
+							"writeReport(cellHTSlist=list(\"raw\"=x, \"normalized\"=xn),\n"
+									+ "   force=TRUE, plotPlateArgs = TRUE,\n"
+									+ "   imageScreenArgs = list(zrange=c("
+									+ zRange + "), ar=1), map=TRUE, outdir=\""
+									+ outDir + "\"" + additionalParams + ")");
+				}
 			} catch (final Exception e) {
 				CellHTS2NodeModel.logger
 						.fatal("Problem writing the results", e);
@@ -2772,6 +2787,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.saveSettingsTo(settings);
 		scoreRange.saveSettingsTo(settings);
 		aspectRatioModel.saveSettingsTo(settings);
+		generateHTML.saveSettingsTo(settings);
 	}
 
 	/**
@@ -2792,6 +2808,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.loadSettingsFrom(settings);
 		scoreRange.loadSettingsFrom(settings);
 		aspectRatioModel.loadSettingsFrom(settings);
+		generateHTML.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -2812,6 +2829,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		outputDirModel.validateSettings(settings);
 		scoreRange.validateSettings(settings);
 		aspectRatioModel.validateSettings(settings);
+		generateHTML.validateSettings(settings);
 	}
 
 	/**
