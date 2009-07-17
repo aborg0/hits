@@ -485,9 +485,11 @@ public class CellHTS2NodeModel extends NodeModel {
 			final BufferedDataContainer scores = exec
 					.createDataContainer(new DataTableSpec(computeTopTableSpec(
 							inData[0].getDataTableSpec(), false)));
+			scores.setMaxPossibleValues(Format._1536.getWellCount() + 1);
 			final BufferedDataContainer replicates = exec
 					.createDataContainer(new DataTableSpec(computeTopTableSpec(
 							inData[0].getDataTableSpec(), true)));
+			replicates.setMaxPossibleValues(Format._1536.getWellCount() + 1);
 			final BufferedDataContainer aggregate = exec
 					.createDataContainer(CellHTS2NodeModel.aggregateValuesSpec);
 			for (final String normalise : normMethods) {

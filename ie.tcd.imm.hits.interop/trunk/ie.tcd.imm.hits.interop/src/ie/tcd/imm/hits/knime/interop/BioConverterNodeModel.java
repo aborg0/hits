@@ -43,6 +43,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomainCreator;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -255,7 +257,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		try {
-			return new DataTableSpec[] { createRearranger(inSpecs[0])
+			return new DataTableSpec[] { createRearranger(inSpecs[0]).getLeft()
 					.createSpec() };
 		} catch (final TokenizeException e) {
 			logger.warn("Problem: " + e.getMessage(), e);
@@ -267,11 +269,29 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected BufferedDataTable[] executeDerived(
 			final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		final ColumnRearranger rearranger = createRearranger(inData[0]
+		final Pair<ColumnRearranger, Map<String, Set<DataCell>>> pair = createRearranger(inData[0]
 				.getDataTableSpec());
 		final BufferedDataTable table = exec.createColumnRearrangeTable(
-				inData[0], rearranger, exec);
-		return new BufferedDataTable[] { table };
+				inData[0], pair.getLeft(), exec);
+		final Map<String, Set<DataCell>> domains = pair.getRight();
+		final DataColumnSpec[] newSpecs = new DataColumnSpec[table
+				.getDataTableSpec().getNumColumns()];
+		for (int i = table.getDataTableSpec().getNumColumns(); i-- > 0;) {
+			final DataColumnSpec oldSpec = table.getDataTableSpec()
+					.getColumnSpec(i);
+			if (domains.containsKey(oldSpec.getName())) {
+				final DataColumnSpecCreator dataColumnSpecCreator = new DataColumnSpecCreator(
+						oldSpec);
+				dataColumnSpecCreator.setDomain(new DataColumnDomainCreator(
+						domains.get(oldSpec.getName())).createDomain());
+				newSpecs[i] = dataColumnSpecCreator.createSpec();
+			} else {
+				newSpecs[i] = oldSpec;
+			}
+		}
+		final DataTableSpec newSpec = new DataTableSpec(newSpecs);
+		return new BufferedDataTable[] { exec.createSpecReplacerTable(table,
+				newSpec) };
 	}
 
 	@SuppressWarnings("unchecked")
@@ -288,8 +308,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	 * @throws TokenizeException
 	 *             If there is a problem with one of the output formats.
 	 */
-	private ColumnRearranger createRearranger(final DataTableSpec dataTableSpec)
-			throws TokenizeException {
+	private Pair<ColumnRearranger, Map<String, Set<DataCell>>> createRearranger(
+			final DataTableSpec dataTableSpec) throws TokenizeException {
 		final ColumnRearranger ret = new ColumnRearranger(dataTableSpec);
 		if (!addUnmatched.getBooleanValue()) {
 			final int[] allButMatched = allButMatched(
@@ -354,9 +374,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		for (final ColumnType ct : ColumnType.values()) {
 			dictionary.put(ct.getDisplayText(), ct);
 		}
+		final Map<String, Set<DataCell>> possibleValues = new HashMap<String, Set<DataCell>>();
 		for (final Entry<String, List<ColumnType>> entry : newColumns
 				.entrySet()) {
 			final String newColumn = entry.getKey();
+			possibleValues.put(newColumn, new HashSet<DataCell>());
 			final ColumnType columnType = entry.getValue().iterator().next();// assert
 			// same all
 			final SingleCellFactory factory = new SingleCellFactory(
@@ -364,6 +386,10 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 							.get(columnType)).createSpec()) {
 				private final Map<ColumnType, Integer> origColumnIndices = new EnumMap<ColumnType, Integer>(
 						ColumnType.class);
+
+				private final Set<DataCell> possValues = possibleValues
+						.get(newColumn);
+
 				@SuppressWarnings("synthetic-access")
 				private final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> settings = settingsModels;
 				{
@@ -508,6 +534,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 						throw new IllegalStateException("Wrong type: " + type);
 					}
 					// lastValues.put(columnType, result.toString());
+					if (type.equals(StringCell.TYPE)) {
+						possValues.add(result);
+					}
 					return result;
 				}
 
@@ -577,6 +606,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 					return text.trim();
 				}
 			};
+
 			if (ret.createSpec().containsName(newColumn)) {
 				ret.replace(factory, newColumn);
 			} else {
@@ -603,7 +633,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			ret.move(entry.getValue(), ret.createSpec().getNumColumns()
 					+ entry.getKey().intValue());
 		}
-		return ret;
+		return new Pair<ColumnRearranger, Map<String, Set<DataCell>>>(ret,
+				possibleValues);
 	}
 
 	/**

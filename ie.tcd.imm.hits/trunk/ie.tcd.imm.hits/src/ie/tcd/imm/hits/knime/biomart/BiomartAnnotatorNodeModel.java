@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.biomart;
 
+import ie.tcd.imm.hits.common.Format;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +96,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 				.createDataContainer(configure(new DataTableSpec[] { inData[0]
 						.getDataTableSpec() })[0]);
 		try {
+			table.setMaxPossibleValues(Format._1536.getWellCount() + 1);
 			conn.voidEval("library(\"biomaRt\")");
 			conn.voidEval("mart <- useMart(\""
 					+ biomartDatabaseModel.getStringValue() + "\", dataset =\""
