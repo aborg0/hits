@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./heatmap.png" type="Visualizer">
     <name>Plate Heatmap</name>
     
@@ -21,19 +21,12 @@
         You may turn on or off the colour legend in the <i>Legend</i> menu.
         Further <a href="../../help/heatmap.xhtml">details</a>.
         </intro>
-        <!--option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option-->
     </fullDescription>
     
     <ports>
-        <dataIn index="0" name="Data">An output of CellHTS2 node.</dataIn>
-        <!-- possibly more ports here-->
-        <!--dataOut index="0" name="Data">The same as the input.</dataOut-->
-        <!--modelIn index="0">Description of first model input port...</modelIn-->
-        <!--modelOut index="0">Description of first model output port...</modelOut-->
+        <inPort index="0" name="Data">An output of CellHTS2 node.</inPort>
     </ports>    
     <views>
         <view index="0" name="heatmap">Shows the heatmap in many ways.</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
     </views>
 </knimeNode>

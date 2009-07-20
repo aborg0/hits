@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./INCell.png" type="Source">
     <name>INCell xls Importer</name>
     
@@ -18,15 +18,6 @@
     </fullDescription>
     
     <ports>
-        <!--dataIn index="0" name="In-Port name">Description of first input port...</dataIn-->
-        <!-- possibly more ports here-->
-        <dataOut index="0" name="Read data">Here are the data values (maybe with the annotation information).</dataOut>
-        <!--dataOut index="1" name="Gene annotations">The gene annotations on a different outport.</dataOut-->
-        <!--modelIn index="0">Description of first model input port...</modelIn-->
-        <!--modelOut index="0">Description of first model output port...</modelOut-->
+        <outPort index="0" name="Read data">Here are the data values (maybe with the annotation information).</outPort>
     </ports>    
-    <!--views-->
-        <!--view index="0" name="name of first view">Description of first view...</view-->
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    <!--/views-->
 </knimeNode>

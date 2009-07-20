@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./cellHTS2.png" type="Visualizer">
     <name>CellHTS2</name>
     
@@ -50,6 +50,7 @@
         <li>closestToZero - the closest to 0 from the scored replicate values for each well</li>
         <li>furthestFromZero - the farthest from 0 from the scored replicate values for each well</li>
         </ul></p></option>
+        <option name="Generate HTML reports?">If checked the HTML reports will be generated. This option has no effect on the generation of outport data.</option>
         <option name="Results">The result output directory. <b>The previous result will be overwritten.</b></option>
         <option name="Pattern">The pattern used to generate additional structure of folders in output folder.</option>
         <option name="Score range">The range of the scores in the generated score heatmaps.</option>
@@ -58,16 +59,15 @@
     </fullDescription>
     
     <ports>
-        <dataIn index="0" name="Data from an experiment">Some data from an input like <b>Importer</b>'s output.</dataIn>
-        <dataIn index="1" name="Plate configuration">The experiment's plate configuration.</dataIn>
-        <dataIn index="2" name="Experiment description">The experiment's description.</dataIn>
-        <dataIn index="3" name="Screen log">The screen log.</dataIn>
-        <!-- possibly more ports here-->
-        <dataOut index="0" name="summarised values">Top Table (summarised)</dataOut>
-        <dataOut index="1" name="replicate values">Top Table (replicates)</dataOut>
-        <dataOut index="2" name="aggregate values">Aggregate Values</dataOut>
-        <dataOut index="3" name="configuration">Configuration</dataOut>
-        <dataOut index="4" name="output">Output Directory</dataOut>
+        <inPort index="0" name="Data from an experiment">Some data from an input like <b>INCell xls Importer</b>'s output.</inPort>
+        <inPort index="1" name="Plate configuration">The experiment's plate configuration.</inPort>
+        <inPort index="2" name="Experiment description">The experiment's description.</inPort>
+        <inPort index="3" name="Screen log">The screen log.</inPort>
+        <outPort index="0" name="summarised values">Top Table (summarised)</outPort>
+        <outPort index="1" name="replicate values">Top Table (replicates)</outPort>
+        <outPort index="2" name="aggregate values">Aggregate Values</outPort>
+        <outPort index="3" name="configuration">Configuration</outPort>
+        <outPort index="4" name="output">Output Directory</outPort>
     </ports>    
     <views>
         <view index="0" name="HTML result">Shows the generated HTML pages.</view>

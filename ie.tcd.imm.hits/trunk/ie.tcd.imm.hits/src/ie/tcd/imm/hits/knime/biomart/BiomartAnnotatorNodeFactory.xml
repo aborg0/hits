@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./biomaRt.png" type="Manipulator">
     <name>biomaRt Annotator</name>
     
@@ -19,9 +19,9 @@
     </fullDescription>
     
     <ports>
-        <dataIn index="0" name="gene IDs">Any kind of input table which has a geneID column</dataIn>
+        <inPort index="0" name="gene IDs">Any kind of input table which has a geneID column</inPort>
         <!-- possibly more ports here-->
-        <dataOut index="0" name="annotated results">The same as the input table with the annotations from biomart.</dataOut>
+        <outPort index="0" name="annotated results">The same as the input table with the annotations from biomart.</outPort>
         <!--modelIn index="0">Description of first model input port...</modelIn-->
         <!--modelOut index="0">Description of first model output port...</modelOut-->
     </ports>    

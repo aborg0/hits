@@ -138,7 +138,7 @@ the positive and negative controls (on that specific plate for that parameter)</
 <li><em>Value</em> - text (<em>S</em>tring) type, the value belonging to that key.</li>
 </ul>
 <h4>Row ID</h4>
-<p>An integral starting from <samp>1</samp>.</p>
+<p>Not specified.</p>
 <h2><a name="output5">output</a></h2>
 <p></p>
 <h3>Structure</h3>
@@ -187,6 +187,8 @@ the positive and negative controls (on that specific plate for that parameter)</
 <p>The standard description of the cellHTS2 report, but with the generation parameters added to the end.</p>
 <h3><samp>in/Platelist.txt</samp></h3>
 <p>The plate list for the data files.</p>
+<h3><samp>in/customNormalisation.R</samp>, <samp>customScoring.R</samp></h3>
+<p>These are copied if and only if one of the custom normalisation or scoring methods were selected.</p>
 <h1><a name="view">View of HTML results</a></h1>
 <p><img src="cellHTS2View.png"/></p>
 <p>In red area you can choose the normalisation method to view. In the green area you may select the report you want to see. Main is the overview with the scored heatmap, while the numbers are representing the plates. With the buttons in the yellow area you can view the results in your default browser.</p>
@@ -246,12 +248,18 @@ The possible values are:</p>
 <li><samp>{n}</samp> - normalisation method (without reference to variance adjustment or log transform or multiplicative/additive option)</li>
 <li><samp>{*}</samp> - if additive normalisation selected it is evaluated as <samp>+</samp>, if multiplicative it is empty</li>
 <li><samp>{p}</samp> - list of parameters</li>
+<li><samp>{a}</samp> - aggregation of scored values (summarisation)</li>
+<li><samp>{s}</samp> - scoring method</li>
+<li><samp>{v}</samp> - variance adjustment</li>
+<li><samp>{l}</samp> - log transformation (if selected: <samp>log</samp>, else it is empty)</li>
 </ul>
 <p>The <samp>{p}</samp> option can be shortened by appending a number after the letter of it, like: <samp>{p15}</samp>, which will generate an abbreviation from the parameters and maximise its length in 15.</p>
 <p><em>Please be cautious if any of the parameters are containing <samp>/</samp> or <samp>\</samp> characters!</em> Those will be interpreted as folder separating characters.</p>
 <p>If you include text outside <samp>{}</samp> parentheses those will be appended. The <samp>/</samp> or <samp>\</samp> characters are acting as folder separators.</p>
 <h2><a name="resultFolder">Result directory</a></h2>
 <p>You can adjust the destination directory of the generated HTML results. All of patterns are relative to this directory. Check the samples to preview the resulting directory structure.</p>
+<h2>Generate HTML reports?</h2>
+<p>If checked it will generate HTML reports, else that step will be skipped. The results are always generated to the outports.</p>
 <h2><a name="parameters">Parameters</a></h2>
 <p><img src="cellHTS2Parameters.png"/></p>
 <p>Select the parameters to analyse.</p>

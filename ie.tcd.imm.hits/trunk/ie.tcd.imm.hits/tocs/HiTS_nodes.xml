@@ -3,7 +3,6 @@
 
 <toc label="HiTS" link_to="..\ie.tcd.imm.hits\tocs\HiTS.xml#HiTS">
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\CellHTS2.html" label="CellHTS2"/>
-<topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Dendrogram_with_Heatmap.html" label="Dendrogram with Heatmap"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\INCell_xls_Importer.html" label="INCell xls Importer"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Plate_Heatmap.html" label="Plate Heatmap"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Rank.html" label="Rank"/>

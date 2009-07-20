@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./ranking.png" type="Predictor">
     <name>Rank</name>
     
@@ -46,9 +46,7 @@
     </fullDescription>
     
     <ports>
-        <dataIn index="0" name="values to rank">Something similar to the output of CellHTS2 node.</dataIn>
-        <dataOut index="0" name="ranked values">The same data but with rankings.</dataOut>
-        <!--modelIn index="0">Description of first model input port...</modelIn-->
-        <!--modelOut index="0">Description of first model output port...</modelOut-->
+        <inPort index="0" name="values to rank">Something similar to the output of CellHTS2 node.</inPort>
+        <outPort index="0" name="ranked values">The same data but with rankings.</outPort>
     </ports>    
 </knimeNode>

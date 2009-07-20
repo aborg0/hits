@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 1.0//EN" "http://www.knime.org/Node.dtd">
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./conf.png" type="Source">
     <name>Simple Configurator for cellHTS2</name>
     
@@ -16,15 +16,7 @@
     </fullDescription>
     
     <ports>
-        <!--dataIn index="0" name="In-Port name">Description of first input port...</dataIn-->
-        <!-- possibly more ports here-->
-        <dataOut index="0" name="Plate Configuration">Plate configuration description for <b>CellHTS2</b> node.</dataOut>
-        <dataOut index="1" name="Description">Experiment description for <b>CellHTS2</b> node.</dataOut>
-        <!--modelIn index="0">Description of first model input port...</modelIn-->
-        <!--modelOut index="0">Description of first model output port...</modelOut-->
+        <outPort index="0" name="Plate Configuration">Plate configuration description for <b>CellHTS2</b> node.</outPort>
+        <outPort index="1" name="Description">Experiment description for <b>CellHTS2</b> node.</outPort>
     </ports>    
-    <!--views-->
-        <!--view index="0" name="name of first view">Description of first view...</view-->
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    <!--/views-->
 </knimeNode>

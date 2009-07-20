@@ -41,6 +41,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JOptionPane;
 
+import org.eclipse.core.filesystem.EFS;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -528,6 +529,36 @@ public class CellHTS2NodeModel extends NodeModel {
 			aggregate.close();
 			final BufferedDataContainer configuration = exec
 					.createDataContainer(CellHTS2NodeModel.configurationSpec);
+			for (final DataRow row : inData[2]) {
+				configuration.addRowToTable(row);
+			}
+			for (final String normMethod : normMethods) {
+				final String category = "Configuration " + normMethod;
+				for (final Pair<String, String> pair : new Pair[] {
+						Pair.apply("normalisation", normMethod),
+						Pair.apply("log transform?", String
+								.valueOf(logTransformModel.getBooleanValue())),
+						Pair.apply("multiplicative?", isMultiplicativeModel
+								.getBooleanValue() ? "multiplicative"
+								: "additive"),
+						Pair.apply("variance adjustment", scaleModel
+								.getStringValue()),
+						Pair.apply("score", scoreModel.getStringValue()),
+						Pair
+								.apply("summarise", summariseModel
+										.getStringValue()) }) {
+					configuration.addRowToTable(new DefaultRow(category + "_"
+							+ pair.getLeft(), category, pair.getLeft(), pair
+							.getRight()));
+				}
+				if (normMethod.toLowerCase().startsWith("custom")) {
+
+				}
+				if (scoreModel.getStringValue().toLowerCase().startsWith(
+						"custom")) {
+
+				}
+			}
 			configuration.close();
 			final BufferedDataContainer outputFolders = exec
 					.createDataContainer(CellHTS2NodeModel.outputFolderSpec);
@@ -831,6 +862,25 @@ public class CellHTS2NodeModel extends NodeModel {
 						.fatal("Problem writing the results", e);
 				throw e;
 			}
+		}
+		@SuppressWarnings("restriction")
+		final File baseFile = ((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImporterNodePlugin
+				.getDefault().getBundle()).getBundleData()).getBundleFile()
+				.getBaseFile();
+		if (normalise.toLowerCase().startsWith("custom")) {
+			final File fileToCopy = new File(baseFile,
+					"bin/r/customNormalisation.R");
+			EFS.getStore(fileToCopy.toURI()).copy(
+					EFS.getLocalFileSystem().fromLocalFile(
+							new File(outDir + "/in/" + fileToCopy.getName())),
+					EFS.OVERWRITE, null);
+		}
+		if (scoreModel.getStringValue().toLowerCase().startsWith("custom")) {
+			final File fileToCopy = new File(baseFile, "bin/r/customScoring.R");
+			EFS.getStore(fileToCopy.toURI()).copy(
+					EFS.getLocalFileSystem().fromLocalFile(
+							new File(outDir + "/in/" + fileToCopy.getName())),
+					EFS.OVERWRITE, null);
 		}
 	}
 
@@ -1330,7 +1380,10 @@ public class CellHTS2NodeModel extends NodeModel {
 				.getBooleanValue();
 		return CellHTS2NodeModel.computeOutDirs(normMethods, pattern,
 				baseOutDir.endsWith("/") ? baseOutDir : baseOutDir + "/",
-				params, experiment, isMultiplicative);
+				params, experiment, isMultiplicative, scaleModel
+						.getStringValue(), scoreModel.getStringValue(),
+				summariseModel.getStringValue(), logTransformModel
+						.getBooleanValue() ? "log" : "");
 	}
 
 	/**
@@ -1350,13 +1403,22 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * @param isMultiplicative
 	 *            The value of the multiplicative or additive normalisation
 	 *            parameter.
+	 * @param adjustment
+	 *            The variance adjustment option.
+	 * @param score
+	 *            The scoring method.
+	 * @param aggregate
+	 *            The summarisation method.
+	 * @param log
+	 *            The log transform option.
 	 * @return A {@link Map} with keys from the {@code normMethods}, and values
 	 *         as folder names (absolute, or relative).
 	 */
 	static Map<String, String> computeOutDirs(final String[] normMethods,
 			final String pattern, final String baseOutDir,
 			final List<String> params, final String experiment,
-			final boolean isMultiplicative) {
+			final boolean isMultiplicative, final String adjustment,
+			final String score, final String aggregate, final String log) {
 		final Map<String, String> outDirs = new HashMap<String, String>();
 		for (final String normMethod : normMethods) {
 			outDirs.put(normMethod, baseOutDir.trim());
@@ -1370,7 +1432,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				for (; i < pattern.length(); ++i) {
 					switch (pattern.charAt(i)) {
 					case 'e':
-						sb.append(experiment);
+						append(normMethods, experiment, sb, news, outDirs);
 						break;
 					case 'n':
 						if (news.isEmpty() || normMethods.length == 1) {
@@ -1381,42 +1443,55 @@ public class CellHTS2NodeModel extends NodeModel {
 							throw new IllegalStateException("wrong pattern");
 						}
 						break;
+					case 'v':
+						append(normMethods, adjustment, sb, news, outDirs);
+						break;
+					case 's':
+						append(normMethods, score, sb, news, outDirs);
+						break;
+					case 'a':
+						append(normMethods, aggregate, sb, news, outDirs);
+						break;
+					case 'l':
+						append(normMethods, log, sb, news, outDirs);
+						break;
 					case 'p':
+						final Character sep = i + 1 < pattern.length()
+								&& !Character.isDigit(pattern.charAt(i + 1))
+								&& pattern.charAt(i + 1) != '}' ? Character
+								.valueOf(pattern.charAt(++i)) : null;
+						final StringBuilder parameters = new StringBuilder();
+						for (final String param : params) {
+							parameters.append(param.replaceAll(
+									"[^a-zA-Z ,_0-9]+", ""));
+							if (sep != null) {
+								parameters.append(sep);
+							}
+						}
+						if (parameters.length() > 0 && sep != null) {
+							parameters.setLength(parameters.length() - 1);
+						}
 						if (news.isEmpty()) {
-							final Character sep = i + 1 < pattern.length()
-									&& !Character
-											.isDigit(pattern.charAt(i + 1))
-									&& pattern.charAt(i + 1) != '}' ? Character
-									.valueOf(pattern.charAt(++i)) : null;
-							final StringBuilder parameters = new StringBuilder();
-							for (final String param : params) {
-								parameters.append(param.replaceAll(
-										"[^a-zA-Z ,_0-9]+", ""));
-								if (sep != null) {
-									parameters.append(sep);
-								}
-							}
-							if (parameters.length() > 0 && sep != null) {
-								parameters.setLength(parameters.length() - 1);
-							}
 							for (final String normMethod : normMethods) {
 								news.put(normMethod, parameters.toString()
 										.trim());
 							}
 						} else {
-							throw new IllegalStateException("wrong pattern");
+							sb.append(parameters.toString().trim());
 						}
 						break;
 					case '*':
-						sb.append(isMultiplicative ? "" : "+");
-						if (!news.isEmpty()) {
-							for (final String string : normMethods) {
-								outDirs.put(string, outDirs.get(string) + sb
-										+ news.get(string).trim());
-							}
-							sb.setLength(0);
-							news.clear();
-						}
+						append(normMethods, isMultiplicative ? "" : "+", sb,
+								news, outDirs);
+						// sb.append(isMultiplicative ? "" : "+");
+						// if (!news.isEmpty()) {
+						// for (final String string : normMethods) {
+						// outDirs.put(string, outDirs.get(string) + sb
+						// + news.get(string).trim());
+						// }
+						// sb.setLength(0);
+						// news.clear();
+						// }
 						break;
 					case '}':
 						if (!news.isEmpty()) {
@@ -1438,8 +1513,12 @@ public class CellHTS2NodeModel extends NodeModel {
 							wasDigit = true;
 						}
 						if (wasDigit) {
+							--i;
 							for (final String normMethod : normMethods) {
 								String val = news.get(normMethod);
+								if (val == null) {
+									continue;
+								}
 								if (val.length() > num) {
 									val = val.replaceAll("Cell", "");
 								}
@@ -1468,18 +1547,25 @@ public class CellHTS2NodeModel extends NodeModel {
 						outDirs.put(string, outDirs.get(string).concat(
 								sb.toString()).trim());
 					}
+					sb.setLength(0);
 				} else {
 					for (final String string : normMethods) {
 						outDirs.put(string, outDirs.get(string).concat(
 								sb.toString()).concat(news.get(string)).trim());
 					}
+					news.clear();
+					sb.setLength(0);
 				}
 			}
 				break;
 			case '\\':
+				// append(normMethods, "/", sb, news, outDirs);
 				sb.append('/');
 				break;
 			default:
+				// append(normMethods, Character.toString(pattern.charAt(i)),
+				// sb,
+				// news, outDirs);
 				sb.append(pattern.charAt(i));
 				break;
 			}
@@ -1490,6 +1576,32 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 		}
 		return outDirs;
+	}
+
+	/**
+	 * @param normMethods
+	 * @param adjustment
+	 * @param sb
+	 * @param news
+	 * @param outDirs
+	 */
+	private static void append(final String[] normMethods,
+			final String adjustment, final StringBuilder sb,
+			final Map<String, String> news, final Map<String, String> outDirs) {
+		if (news.isEmpty()) {
+			// sb.append(adjustment);
+			for (final String string : normMethods) {
+				news.put(string, adjustment);
+			}
+		} else {
+			for (final String string : normMethods) {
+				// outDirs.put(string, outDirs.get(string) + sb
+				// + news.get(string).trim() + adjustment);
+				news.put(string, news.get(string).concat(adjustment));
+			}
+			// sb.setLength(0);
+			// news.clear();
+		}
 	}
 
 	private String[] computeNormMethods() {
@@ -2899,7 +3011,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	/**
 	 * @return the outDirs (A {@link Map} with keys from the {@code normMethods}
 	 *         , and values as folder names (absolute, or relative).)
-	 * @see #computeOutDirs(String[], String, String, List, String, boolean)
+	 * @see #computeOutDirs(String[], String, String, List, String, boolean,
+	 *      String, String, String, String)
 	 */
 	public Map<String, String> getOutDirs() {
 		return new HashMap<String, String>(outDirs);
