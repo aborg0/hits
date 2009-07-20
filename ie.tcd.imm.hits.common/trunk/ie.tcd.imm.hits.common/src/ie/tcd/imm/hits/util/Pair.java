@@ -45,6 +45,24 @@ public class Pair<Left, Right> implements Serializable {
 	}
 
 	/**
+	 * Creates a new {@link Pair}. This is a factory method.
+	 * 
+	 * @param <Left>
+	 *            Type of the first object.
+	 * @param <Right>
+	 *            Type of the second object.
+	 * @param left
+	 *            The first object.
+	 * @param right
+	 *            The second object.
+	 * @return A new {@link Pair} of the objects.
+	 */
+	public static <Left, Right> Pair<Left, Right> apply(final Left left,
+			final Right right) {
+		return new Pair<Left, Right>(left, right);
+	}
+
+	/**
 	 * @return The first/left object.
 	 */
 	public Left getLeft() {
