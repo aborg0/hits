@@ -1,0 +1,25 @@
+#summary Some things you should know to start development
+#labels Phase-Implementation
+
+= Prerequisities =
+
+It is useful to have a target platform set before you start the development. That should contain a normal KNIME setup with distmatrix, jep installed.
+
+Your IDE should have TestNG, Groovy, Maven, Buckminster plugins installed.
+
+You need to set the {{{JAVA_HOME}}} variable in your Windows machine pointing to a JDK root folder (which has {{{xjc.exe}}} tool in its {{{bin}}} folder.).
+
+= Overview of projects =
+ * ie.tcd.imm.common - common utilities
+ * ie.tcd.imm.hits - the main nodes are here
+ * ie.tcd.imm.hits.3rdparty - 3rd party dependencies
+ * ie.tcd.imm.hits.interop - interoperability with other projects, like HCDC
+ * ie.tcd.imm.hits.feature - feature for the easier deploy
+ * ie.tcd.imm.knime.util - some utility nodes for KNIME
+ * ie.tcd.imm.knime.util.feature - feature for the utility nodes
+ * ie.tcd.imm.knime.test - some tests
+ * ie.tcd.imm.hits.update - the update site
+
+
+= Materialisation =
+Download one of the CQueries from [http://hits.googlecode.com/svn/trunk/general/ this folder]. Resolve and materialize it. You should have a view of the necessary projects.
