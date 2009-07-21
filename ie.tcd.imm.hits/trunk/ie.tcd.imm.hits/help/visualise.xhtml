@@ -43,84 +43,98 @@
 <p>The user interface is really similar to the one described in the <a href="#changeAll">change all</a> section of this page. The only difference that it does not support formulae, those are replaced by spinners, which only accept real numbers.</p>
 <h3><a name="exportColourLegend">Export colour legend</a></h3>
 <p>From the visual nodes you can export the colour legend as png files using the <code>File</code>/<code>Export colour legend</code> command.</p>
-<p>The parameters window is similar to the <a href="heatmap.xhtml#exportAll">Export all</a> except that you can additionally determine the position of the numbers on the images. The resulting file names will have the format: <a href="settings.xhtml#colOrder">statistics type</a> (<em>score</em>, <em>normalised</em>, <em>raw</em>, or <em>raw/(plate, replicate mean)</em>) followed by <code>_</code> and the parameter name. <img src="exportColourLegend.png"/></p>
+<p>The parameters window is similar to the <a href="heatmap.xhtml#exportAll">Export all</a> except that you can additionally determine the position of the numbers on the images. The resulting file names will have the following default format: <code>{s}_{p}</code>, meaning <a href="settings.xhtml#colOrder">statistics type</a> (<em>score</em>, <em>normalised</em>, <em>raw</em>, or <em>raw/(plate, replicate mean)</em>) followed by <code>_</code> and the parameter name.</p>
+<p>The supported patterns:</p><ul><li><code>{s}</code> - statistics</li><li><code>{p}</code> - parameters</li></ul>
+<p><img src="exportColourLegend.png"/></p>
 <h2><a name="usefulPatterns">Useful Patterns</a></h2>
 <h3><a name="simple">Simple (initial)</a></h3>
 <p>There are three values and colours in this case. The gradient colours are going from a maximum to the median, then to the minimum.</p>
 <p>So the layout is the following:</p>
 <ul>
-<li>Higher</li>
-<ul>
-	<li>(No above)</li>
-	<li><strong><code>maximum</code></strong></li>
-	<li><strong><code>median</code></strong></li>
-	<li>(Nothing between <code>median</code> and <code>median</code>)</li>
+	<li>Higher
+		<ul>
+			<li>(No above)</li>
+			<li><strong><code>maximum</code></strong></li>
+			<li><strong><code>median</code></strong></li>
+			<li>(Nothing between <code>median</code> and <code>median</code>)</li>
+		</ul>
+	</li>
+	<li>Lower
+		<ul>
+			<li>(Nothing between <code>median</code> and <code>median</code>)</li>
+			<li><strong><code>median</code></strong></li>
+			<li><strong><code>minimum</code></strong></li>
+			<li>(No below)</li>
+		</ul>
+	</li>
 </ul>
-<li>Lower</li>
-<ul>
-	<li>(Nothing between <code>median</code> and <code>median</code>)</li>
-	<li><strong><code>median</code></strong></li>
-	<li><strong><code>minimum</code></strong></li>
-	<li>(No below)</li>
-	</ul>
-</ul>
+
 <h3><a name="useful">Simple (settings default)</a></h3>
 <p>There are two gradient colour ranges, but in this case those are not (necessarily) connected. There are three colours. Practically is seems there are 5 (strictly 6) regions, two gradient, 3 (strictly 4) single colour regions.</p>
 <p>The layout:</p>
 <ul>
-<li>Higher</li>
-<ul>
-	<li><em>single colour (red) above</em> <code>median+2mad</code></li>
-	<li><strong><code>median+2mad</code></strong></li>
-	<li><strong><code>median+1.5mad</code></strong></li>
-	<li><em>single colour (black) between</em> <abbr title="median+1.5mad-(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr> and <code>median+1.5mad</code></li>
-</ul>
-<li>Lower</li>
-<ul>
-	<li><em>single colour (black) between</em> <code>median-1.5mad</code> and <abbr title="median-1.5mad+(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr></li>
-	<li><strong><code>median-1.5mad</code></strong></li>
-	<li><strong><code>median-2mad</code></strong></li>
-	<li><em>single colour (green) below</em> <code>median-2mad</code></li>
-</ul>
+	<li>Higher
+		<ul>
+			<li><em>single colour (red) above</em> <code>median+2mad</code></li>
+			<li><strong><code>median+2mad</code></strong></li>
+			<li><strong><code>median+1.5mad</code></strong></li>
+			<li><em>single colour (black) between</em> <abbr title="median+1.5mad-(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr> and <code>median+1.5mad</code></li>
+		</ul>
+	</li>
+	<li>Lower
+		<ul>
+			<li><em>single colour (black) between</em> <code>median-1.5mad</code> and <abbr title="median-1.5mad+(median+1.5mad-(median-1.5mad))/2"><code>median</code></abbr></li>
+			<li><strong><code>median-1.5mad</code></strong></li>
+			<li><strong><code>median-2mad</code></strong></li>
+			<li><em>single colour (green) below</em> <code>median-2mad</code></li>
+		</ul>
+	</li>
 </ul>
 <h3><a name="iqr">IQR, InterQuartile Ranges</a></h3>
 <p>Using IQR is a good way to rank the outliers. It has different colours for every range.</p>
 <ul>
-  <li>Highest outliers</li>
-  <ul>
-    <li><strong><code>maximum</code></strong></li>
-    <li><strong><code>q3+3iqr</code></strong></li>
-  </ul>
-  <li>High outliers</li>
-  <ul>
-    <li><strong><code>q3+3iqr</code></strong></li>
-    <li><strong><code>q3+1.5iqr</code></strong></li>
-  </ul>
-  <li>Mild high outliers</li>
-  <ul>
-    <li><strong><code>q3+1.5iqr</code></strong></li>
-    <li><strong><code>q3</code></strong></li>
-  </ul>
-  <li>"Average" values</li>
-  <ul>
-    <li><strong><code>q3</code></strong></li>
-    <li><strong><code>q1</code></strong></li>
-  </ul>
-  <li>Mild low outliers</li>
-  <ul>
-    <li><strong><code>q1</code></strong></li>
-    <li><strong><code>q1-1.5iqr</code></strong></li>
-  </ul>
-  <li>Low outliers</li>
-  <ul>
-    <li><strong><code>q1-1.5iqr</code></strong></li>
-    <li><strong><code>q1-3iqr</code></strong></li>
-  </ul>
-  <li>Lowest outliers</li>
-  <ul>
-    <li><strong><code>q1-3iqr</code></strong></li>
-    <li><strong><code>minimum</code></strong></li>
-  </ul>
+	<li>Highest outliers
+  		<ul>
+		    <li><strong><code>maximum</code></strong></li>
+	    	<li><strong><code>q3+3iqr</code></strong></li>
+  		</ul>
+  	</li>
+	<li>High outliers
+  		<ul>
+	    	<li><strong><code>q3+3iqr</code></strong></li>
+    		<li><strong><code>q3+1.5iqr</code></strong></li>
+  		</ul>
+  	</li>
+  	<li>Mild high outliers
+  		<ul>
+    		<li><strong><code>q3+1.5iqr</code></strong></li>
+    		<li><strong><code>q3</code></strong></li>
+		</ul>
+	</li>
+	<li>"Average" values
+		<ul>
+			<li><strong><code>q3</code></strong></li>
+			<li><strong><code>q1</code></strong></li>
+  		</ul>
+	</li>
+	<li>Mild low outliers
+		<ul>
+			<li><strong><code>q1</code></strong></li>
+			<li><strong><code>q1-1.5iqr</code></strong></li>
+		</ul>
+	</li>
+	<li>Low outliers
+		<ul>
+			<li><strong><code>q1-1.5iqr</code></strong></li>
+			<li><strong><code>q1-3iqr</code></strong></li>
+		</ul>
+	</li>
+	<li>Lowest outliers
+		<ul>
+			<li><strong><code>q1-3iqr</code></strong></li>
+			<li><strong><code>minimum</code></strong></li>
+		</ul>
+	</li>
 </ul>
 <include path="ie.tcd.imm.hits/help/footer.xhtml/copyright"/>
 </body>

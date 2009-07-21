@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.swing.SaveAs;
 
 import java.util.concurrent.Callable;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -35,6 +36,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -108,23 +110,24 @@ public abstract class ExportImages extends AbstractAction {
 		final DialogComponentFileChooser fileChooser = new DialogComponentFileChooser(
 				fileNameModel, "", JFileChooser.SAVE_DIALOG, true, type
 						.getExtensions());
-		contentPane.setLayout(new FlowLayout());
-		contentPane.add(fileChooser.getComponentPanel());
+		final JPanel controls = new JPanel();
+		controls.setLayout(new FlowLayout());
+		controls.add(fileChooser.getComponentPanel());
 		final JLabel x = new JLabel("width: ");
-		contentPane.add(x);
+		controls.add(x);
 		final JSpinner width = new JSpinner(new SpinnerNumberModel(800, 50,
 				20000, 100));
-		contentPane.add(width);
+		controls.add(width);
 		final JLabel y = new JLabel("height: ");
-		contentPane.add(y);
+		controls.add(y);
 		final JSpinner height = new JSpinner(new SpinnerNumberModel(600, 50,
 				20000, 100));
-		contentPane.add(height);
+		controls.add(height);
 		// contentPane.add(fileFormat);
-		contentPane.add(askBeforeOverwrite);
+		controls.add(askBeforeOverwrite);
 		final JComponent component = createAdditionalControls();
 		if (component != null) {
-			contentPane.add(component);
+			controls.add(component);
 		}
 		final JButton okButton = new JButton("OK");
 		final boolean[] ok = new boolean[1];
@@ -136,7 +139,9 @@ public abstract class ExportImages extends AbstractAction {
 				dialog.dispose();
 			}
 		});
-		contentPane.add(okButton);
+		contentPane.setLayout(new BorderLayout());
+		contentPane.add(controls, BorderLayout.CENTER);
+		contentPane.add(okButton, BorderLayout.SOUTH);
 		dialog.setPreferredSize(new Dimension(400, 400));
 		dialog.pack();
 		while (true) {
@@ -236,13 +241,6 @@ public abstract class ExportImages extends AbstractAction {
 							return Boolean.TRUE;
 						}
 					});
-					if (!stopped[0]) {
-						JOptionPane.showMessageDialog(null,
-								"Images successfully exported to "
-										+ fileNameModel.getStringValue(),
-								"Images successfully exported",
-								JOptionPane.INFORMATION_MESSAGE);
-					}
 				} finally {
 					if (SwingUtilities.isEventDispatchThread()) {
 						frameDispose.run();
@@ -255,6 +253,13 @@ public abstract class ExportImages extends AbstractAction {
 							throw new RuntimeException(e1);
 						}
 					}
+				}
+				if (!stopped[0]) {
+					JOptionPane.showMessageDialog(null,
+							"Images successfully exported to "
+									+ fileNameModel.getStringValue(),
+							"Images successfully exported",
+							JOptionPane.INFORMATION_MESSAGE);
 				}
 				break;
 			} else {
