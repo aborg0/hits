@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.biomart;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.util.RUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,8 +98,8 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 						.getDataTableSpec() })[0]);
 		try {
 			table.setMaxPossibleValues(Format._1536.getWellCount() + 1);
-			conn.voidEval("library(\"biomaRt\")");
-			conn.voidEval("mart <- useMart(\""
+			RUtil.voidEval(conn, "library(\"biomaRt\")");
+			RUtil.voidEval(conn, "mart <- useMart(\""
 					+ biomartDatabaseModel.getStringValue() + "\", dataset =\""
 					+ biomartDatasetModel.getStringValue() + "\")");
 			// conn.voidEval("attrs <- listAttributes(mart)");
@@ -137,10 +138,13 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 			if (ids.length() > 1) {
 				ids.setLength(ids.length() - 2);
 			}
-			conn
-					.voidEval(" myGetBM = function(att) getBM(attributes = c(att), filter = \"entrezgene\", values = unique(c("
-							+ ids + ")),\n" + " mart = mart)");
-			final REXP vals = conn.eval("myGetBM(c(" + attributes + "))");
+			RUtil
+					.voidEval(
+							conn,
+							" myGetBM = function(att) getBM(attributes = c(att), filter = \"entrezgene\", values = unique(c("
+									+ ids + ")),\n" + " mart = mart)");
+			final REXP vals = RUtil
+					.eval(conn, "myGetBM(c(" + attributes + "))");
 			final Map<Integer, String[]> newValues = new HashMap<Integer, String[]>();
 			final int[] keys = ((REXPInteger) vals.asList().get("entrezgene"))
 					.asIntegers();
