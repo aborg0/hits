@@ -435,13 +435,12 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		BinaryTreeNode<DendrogramPoint> viewNode;
 		// distinction between cluster node and leaf:
 		final Dimension dim = getDrawingPaneDimension();
-		final int width = dim.width;
-		int x = (int) getXAxis().getCoordinate().calculateMappedValue(
-				new DoubleCell(node.getDist()), width);
-
 		final HeatmapDendrogramDrawingPane dp = (HeatmapDendrogramDrawingPane) getDrawingPane();
 		final int offset = dp.getMaxStringLength()
 				+ dp.getVisibleColumns().size() * dp.getCellWidth();
+		final int width = dim.width - offset;
+		int x = (int) getXAxis().getCoordinate().calculateMappedValue(
+				new DoubleCell(node.getDist()), width);
 
 		x += directionLeftToRight ? offset : -offset;
 		int y;
@@ -449,6 +448,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		if (!node.isLeaf()) {
 			y = dim.height - getYPosition(node);
 			p = new DendrogramPoint(new Point(x, y), node.getDist());
+			p.setRelativeSize(1.0);
 		} else {
 			// final DataRow row = node.getLeafDataPoint();
 			final RowKey key = getKey(node);

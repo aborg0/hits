@@ -291,7 +291,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 			if (node.getContent().isSelected() || node.getContent().isHilite()) {
 				((Graphics2D) g).setStroke(new BasicStroke(
 						(lineThickness * HeatmapDendrogramDrawingPane.BOLD)));
-				if (node.getContent().getRows().size() == 1) {
+				if (node.isLeaf()) {
+					assert node.getContent().getRows().size() == 1 : node
+							.getContent().getRows().size();
 					final Point point = node.getContent().getPoint();
 					g.drawRect(point.x
 							- (directionLeftToRight ? visibleColumns.size()
@@ -395,8 +397,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		final int allCount = visibleColumns.size();
 		final int startPos = directionLeftToRight ? maxStringLength + allCount
 				* cellWidth : leafX;
-		if (directionLeftToRight && p.x < startPos || !directionLeftToRight
-				&& p.x > startPos && p.y < getHeight()) {
+		if ((directionLeftToRight && p.x < startPos || !directionLeftToRight
+				&& p.x > startPos)
+				&& p.y < getHeight()) {
 			final int idx = directionLeftToRight ? allCount
 					- (startPos - p.x + cellWidth - 1) / cellWidth
 					: (p.x - startPos) / cellWidth;
