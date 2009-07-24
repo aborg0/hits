@@ -37,9 +37,12 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	private static final long serialVersionUID = -1774408671215139193L;
 
 	/**
+	 * A simple {@link CompoundToken}.
 	 * 
 	 * @param <GroupTokenType>
+	 *            The type of the boundaries.
 	 * @param <ContentTokenType>
+	 *            The type of the contents.
 	 */
 	public static class GroupToken<GroupTokenType extends Token, ContentTokenType extends Token>
 			extends AbstractToken implements CompoundToken<Token> {
@@ -51,8 +54,11 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 		/**
 		 * @param groupStart
+		 *            The start boundary {@link Token}.
 		 * @param content
+		 *            The content {@link Token}.
 		 * @param groupEnd
+		 *            The end boundary {@link Token}.
 		 */
 		public GroupToken(final GroupTokenType groupStart,
 				final ContentTokenType content, final GroupTokenType groupEnd) {
@@ -150,8 +156,11 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 	/**
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @param groupStart
+	 *            A regular expression for start group.
 	 * @param groupEnd
+	 *            A regular expression for close group.
 	 */
 	public GroupingTokenizer(final int offset, @RegEx final String groupStart,
 			@RegEx final String groupEnd) {
@@ -161,10 +170,15 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 	/**
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @param groupStart
+	 *            A regular expression for start group.
 	 * @param groupEnd
+	 *            A regular expression for close group.
 	 * @param origStartToken
+	 *            The start state's token.
 	 * @param origPuffer
+	 *            The already matched {@link Token}s.
 	 */
 	public GroupingTokenizer(final int offset, @RegEx final String groupStart,
 			@RegEx final String groupEnd, @Nullable final Token origStartToken,
@@ -175,8 +189,11 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 	/**
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 */
 	public GroupingTokenizer(final int offset, final Pattern groupStart,
 			final Pattern groupEnd) {
@@ -186,10 +203,15 @@ public class GroupingTokenizer extends RegExpTokenizer {
 
 	/**
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 * @param origStartToken
+	 *            The start state's token.
 	 * @param origPuffer
+	 *            The already matched {@link Token}s.
 	 */
 	public GroupingTokenizer(final int offset, final Pattern groupStart,
 			final Pattern groupEnd, @Nullable final Token origStartToken,

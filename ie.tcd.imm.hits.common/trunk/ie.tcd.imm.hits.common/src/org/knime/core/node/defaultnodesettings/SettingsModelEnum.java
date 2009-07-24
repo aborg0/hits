@@ -20,8 +20,12 @@ public final class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayab
 
 	/**
 	 * @param configName
+	 *            Configuration key.
 	 * @param defaultValue
+	 *            Default value. (Should be one of the allowed
+	 *            {@link Displayable#getDisplayText()}s.)
 	 * @param enumValues
+	 *            The allowed values.
 	 */
 	public SettingsModelEnum(final String configName,
 			final String defaultValue, final EnumType... enumValues) {
@@ -31,8 +35,11 @@ public final class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayab
 
 	/**
 	 * @param configName
+	 *            Configuration key.
 	 * @param defaultValue
+	 *            Default value. (One of the allowed values.)
 	 * @param enumValues
+	 *            The allowed values.
 	 */
 	public SettingsModelEnum(final String configName,
 			final EnumType defaultValue, final EnumType... enumValues) {
@@ -46,10 +53,16 @@ public final class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayab
 				getStringValue(), values);
 	}
 
+	/**
+	 * @return The selected {@link Enum}.
+	 */
 	public EnumType getEnumValue() {
 		return Util.findByDisplayText(getStringValue(), values);
 	}
 
+	/**
+	 * @return The allowed {@link Displayable#getDisplayText() display texts}.
+	 */
 	public String[] getDisplayTexts() {
 		final String[] ret = new String[values.length];
 		for (int i = values.length; i-- > 0;) {
@@ -58,6 +71,9 @@ public final class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayab
 		return ret;
 	}
 
+	/**
+	 * @return The allowed values.
+	 */
 	public EnumType[] getPossibleValues() {
 		return values.clone();
 	}

@@ -38,8 +38,8 @@ public class TokenizerFactory {
 	}
 
 	/**
-	 * 
 	 * @param splitExpression
+	 *            The regular expression to split the values.
 	 * @return A simple splitting {@link Tokenizer}.
 	 * @see RegExpTokenizer#RegExpTokenizer(int, String)
 	 */
@@ -49,7 +49,9 @@ public class TokenizerFactory {
 
 	/**
 	 * @param splitExpression
+	 *            The regular expression to split the values.
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @return A simple splitting {@link Tokenizer}.
 	 * @see RegExpTokenizer#RegExpTokenizer(int, String)
 	 */
@@ -60,7 +62,9 @@ public class TokenizerFactory {
 
 	/**
 	 * @param splitExpression
+	 *            The {@link Pattern} to split the values.
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @return A simple splitting {@link Tokenizer}.
 	 * @see RegExpTokenizer#RegExpTokenizer(int, String)
 	 */
@@ -70,9 +74,10 @@ public class TokenizerFactory {
 	}
 
 	/**
-	 * 
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 * @return A {@link Tokenizer} with groups.
 	 */
 	Tokenizer createGroupingTokenizer(final Pattern groupStart,
@@ -81,10 +86,12 @@ public class TokenizerFactory {
 	}
 
 	/**
-	 * 
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @return A {@link Tokenizer} with groups.
 	 */
 	Tokenizer createGroupingTokenizer(final Pattern groupStart,
@@ -93,11 +100,14 @@ public class TokenizerFactory {
 	}
 
 	/**
-	 * 
 	 * @param continueState
+	 *            The state to start the {@link Tokenizer}.
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @return A {@link Tokenizer} with only {@link SimpleToken} results.
 	 */
 	public Tokenizer createGroupingTokenizer(
@@ -108,11 +118,19 @@ public class TokenizerFactory {
 	}
 
 	/**
-	 * 
 	 * @param continueState
+	 *            The state to start the {@link Tokenizer}.
+	 * @param acceptedClasses
+	 *            These are the classes that are returned.
+	 * @param goIntoCompounds
+	 *            If {@code true} it will go and select inside
+	 *            {@link CompoundToken}s.
 	 * @param groupStart
+	 *            A {@link Pattern} for start group.
 	 * @param groupEnd
+	 *            A {@link Pattern} for close group.
 	 * @param offset
+	 *            The start position. ({@code 0}-based.)
 	 * @return A {@link Tokenizer} with only {@link SimpleToken} results.
 	 */
 	@SuppressWarnings("unchecked")
