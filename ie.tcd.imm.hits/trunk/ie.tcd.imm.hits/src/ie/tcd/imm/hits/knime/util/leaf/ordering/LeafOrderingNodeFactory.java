@@ -1,3 +1,6 @@
+/*
+ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
+ */
 package ie.tcd.imm.hits.knime.util.leaf.ordering;
 
 import org.knime.core.node.NodeDialogPane;
@@ -43,7 +46,7 @@ public class LeafOrderingNodeFactory extends NodeFactory<LeafOrderingNodeModel> 
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**
