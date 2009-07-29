@@ -23,6 +23,8 @@ import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
 import ie.tcd.imm.hits.util.template.TokenizerFactory;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,9 +36,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -216,7 +215,7 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 									if (token instanceof SimpleToken) {
 										sb.append(token.getText());
 									}
-									if (token instanceof CompoundToken) {
+									if (token instanceof CompoundToken<?>) {
 										final CompoundToken<?> compound = (CompoundToken<?>) token;
 										final String text = compound.getText();
 										if ("s".equals(text)) {

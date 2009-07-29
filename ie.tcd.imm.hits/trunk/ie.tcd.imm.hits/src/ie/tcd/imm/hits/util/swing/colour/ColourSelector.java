@@ -13,6 +13,16 @@ import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.Line.ComplexMetaModel;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,17 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -848,7 +847,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 							mod.getEntries());
 					for (final Pair<Pair<String, String>, ?> entry : entries) {
 						final Spinners<?> spinner;
-						if (entry.getRight() instanceof Pair) {
+						if (entry.getRight() instanceof Pair<?, ?>) {
 							final Pair<?, ?> pair = (Pair<?, ?>) entry
 									.getRight();
 							if (pair.getLeft() instanceof Color
@@ -1075,7 +1074,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 						entries.add(new Pair<Pair<String, String>, Object>(
 								state.getLeft(), col));
 					}
-					if (state.getRight() instanceof Pair) {
+					if (state.getRight() instanceof Pair<?, ?>) {
 						@SuppressWarnings("unchecked")
 						final Pair<Color, Color> pair = (Pair<Color, Color>) state
 								.getRight();
@@ -1159,7 +1158,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 			metamodel = mod;
 			int i = 0;
 			for (final Component comp : getComponents()) {
-				if (comp instanceof ColourControl) {
+				if (comp instanceof ColourControl<?>) {
 					@SuppressWarnings("unchecked")
 					final ColourControl<ComplexModel> control = (ColourControl<ComplexModel>) comp;
 					final Map<Interval<Double>, Pair<Color, Color>> conts = new TreeMap<Interval<Double>, Pair<Color, Color>>();
@@ -1187,7 +1186,7 @@ public class ColourSelector extends JPanel implements HasMetaModel {
 								discs.put(new DefaultInterval<Double>(lowVal,
 										highVal, true, false), color);
 							}
-							if (entry.getRight() instanceof Pair) {
+							if (entry.getRight() instanceof Pair<?, ?>) {
 								@SuppressWarnings("unchecked")
 								final Pair<Color, Color> pair = (Pair<Color, Color>) entry
 										.getRight();

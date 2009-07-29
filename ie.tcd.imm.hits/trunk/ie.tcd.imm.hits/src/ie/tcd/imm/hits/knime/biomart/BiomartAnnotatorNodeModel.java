@@ -6,15 +6,14 @@ package ie.tcd.imm.hits.knime.biomart;
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.util.RUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -121,7 +120,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 				}
 			}
 			final StringBuilder ids = new StringBuilder();
-			final int errorCount = 0;
+			// final int errorCount = 0;
 			for (final DataRow row : inData[0]) {
 				final DataCell dataCell = row.getCell(index);
 				final int value = getValue(dataCell);
@@ -129,12 +128,12 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 					ids.append(value).append(", ");
 				}
 			}
-			if (errorCount > 0) {
-				logger.warn("There were " + errorCount
-						+ " wrong values in the "
-						+ inData[0].getDataTableSpec().getColumnSpec(index)
-						+ " column.");
-			}
+			// if (errorCount > 0) {
+			// logger.warn("There were " + errorCount
+			// + " wrong values in the "
+			// + inData[0].getDataTableSpec().getColumnSpec(index)
+			// + " column.");
+			// }
 			if (ids.length() > 1) {
 				ids.setLength(ids.length() - 2);
 			}

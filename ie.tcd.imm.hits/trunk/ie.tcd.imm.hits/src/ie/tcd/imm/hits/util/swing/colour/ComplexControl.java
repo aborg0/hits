@@ -9,13 +9,6 @@ import ie.tcd.imm.hits.util.interval.Interval;
 import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 import ie.tcd.imm.hits.util.swing.colour.ComplexLegend.ComplexSample;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NavigableMap;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,6 +17,12 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -427,7 +426,7 @@ public class ComplexControl extends JButton implements
 			for (final Entry<Interval<Double>, ?> entry : union.descendingMap()
 					.entrySet()) {
 				final Spinners<?> spinner;
-				if (entry.getValue() instanceof Pair) {
+				if (entry.getValue() instanceof Pair<?, ?>) {
 					final Pair<?, ?> pair = (Pair<?, ?>) entry.getValue();
 					if (pair.getLeft() instanceof Color
 							&& pair.getRight() instanceof Color) {
@@ -594,7 +593,7 @@ public class ComplexControl extends JButton implements
 					final Color col = (Color) state.getRight();
 					discretes.put(state.getLeft(), col);
 				}
-				if (state.getRight() instanceof Pair) {
+				if (state.getRight() instanceof Pair<?, ?>) {
 					@SuppressWarnings("unchecked")
 					final Pair<Color, Color> pair = (Pair<Color, Color>) state
 							.getRight();

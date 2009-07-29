@@ -42,7 +42,7 @@ public class TokenizerHelper {
 			if (tokenClass.isInstance(token)) {
 				final boolean b = ret.add(tokenClass.cast(token));
 				assert b;
-			} else if (token instanceof CompoundToken) {
+			} else if (token instanceof CompoundToken<?>) {
 				final CompoundToken<? extends Token> compound = (CompoundToken<?>) token;
 				ret.addAll(filter(compound, tokenClass));
 			}
@@ -72,7 +72,7 @@ public class TokenizerHelper {
 			if (token != null && tokenClass.isInstance(token) ^ !instance) {
 				final boolean b = ret.add(token);
 				assert b;
-			} else if (token instanceof CompoundToken) {
+			} else if (token instanceof CompoundToken<?>) {
 				final CompoundToken<? extends Token> compound = (CompoundToken<?>) token;
 				ret.addAll(filter(compound, tokenClass, instance));
 			}
@@ -111,7 +111,7 @@ public class TokenizerHelper {
 				}
 
 			}
-			if (token instanceof CompoundToken && goIntoCompounds) {
+			if (token instanceof CompoundToken<?> && goIntoCompounds) {
 				final CompoundToken<? extends Token> compound = (CompoundToken<?>) token;
 				ret.addAll(filter(compound, goIntoCompounds, tokenClasses));
 				break;

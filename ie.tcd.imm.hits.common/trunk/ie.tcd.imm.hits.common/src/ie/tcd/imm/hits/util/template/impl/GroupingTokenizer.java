@@ -111,7 +111,7 @@ public class GroupingTokenizer extends RegExpTokenizer {
 			if (!super.equals(obj)) {
 				return false;
 			}
-			if (!(obj instanceof GroupToken)) {
+			if (!(obj instanceof GroupToken<?, ?>)) {
 				return false;
 			}
 			final GroupToken<?, ?> other = (GroupToken<?, ?>) obj;

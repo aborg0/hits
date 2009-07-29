@@ -15,15 +15,6 @@ import ie.tcd.imm.hits.util.swing.colour.FactoryRegistry;
 import ie.tcd.imm.hits.util.swing.colour.Orientation;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -41,6 +32,14 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.swing.JComponent;
@@ -627,7 +626,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 									- width)), Math.max(0, Math.min(y,
 									getHeight() - height)), width, height);
 							comp.setPreferredSize(new Dimension(width, height));
-							if (comp instanceof ColourLegend) {
+							if (comp instanceof ColourLegend<?>) {
 								@SuppressWarnings("unchecked")
 								final ColourLegend<ColourComputer> sample = (ColourLegend<ColourComputer>) comp;
 								sample.setModel(sample.getModel(), orientation);
@@ -635,7 +634,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 							break;
 						}
 						case Rectangle: {
-							if (comp instanceof ColourLegend) {
+							if (comp instanceof ColourLegend<?>) {
 								@SuppressWarnings("unchecked")
 								final ColourLegend<ColourComputer> sample = (ColourLegend<ColourComputer>) comp;
 								final int colWidth = layoutLegendPanel
@@ -750,7 +749,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 		layoutLegendPanel.setModel(model);
 		model.getMain().getArrangementModel().addListener(this);
 		for (final Component component : getComponents()) {
-			if (component instanceof ColourLegend) {
+			if (component instanceof ColourLegend<?>) {
 				remove(component);
 			}
 		}
@@ -938,7 +937,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 	}
 
 	private static SliderModel getCurrentSlider(
-			final Collection<SliderModel> sliders, @Nullable final ParameterModel model) {
+			final Collection<SliderModel> sliders,
+			@Nullable final ParameterModel model) {
 		SliderModel currentSlider = null;
 		for (final SliderModel slider : sliders) {
 			for (final ParameterModel pm : slider.getParameters()) {
