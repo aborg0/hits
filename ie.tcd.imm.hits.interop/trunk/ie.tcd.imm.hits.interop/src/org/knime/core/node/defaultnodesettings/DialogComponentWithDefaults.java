@@ -3,12 +3,11 @@
  */
 package org.knime.core.node.defaultnodesettings;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -81,7 +80,7 @@ public class DialogComponentWithDefaults extends DialogComponent {
 			final String label, final Map<String, Boolean[]> enablementOptions,
 			final Map<String, Object[]> defaultValues,
 			@Nullable final String noClearValue,
-			final DialogComponent... components) {
+			final DialogComponent[] components) {
 		super(model);
 		this.noClearValue = noClearValue;
 		this.components = components;
@@ -166,7 +165,7 @@ public class DialogComponentWithDefaults extends DialogComponent {
 		for (int i = components.length; i-- > 0;) {
 			components[i].getModel().setEnabled(enablements[i].booleanValue());
 			if (selection.equals(noClearValue)) {
-				components[i].updateComponent();
+				// (components[i]).updateComponent();
 				continue;
 			}
 			if (defaults[i] instanceof String) {
@@ -204,7 +203,7 @@ public class DialogComponentWithDefaults extends DialogComponent {
 											.getClass()));
 				}
 			}
-			components[i].updateComponent();
+			// components[i].updateComponent();
 		}
 		selectionBox.setEnabled(getModel().isEnabled());
 	}

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BioConverter-Node extension for KNIME Workbench
 Bundle-SymbolicName: ie.tcd.imm.hits.knime.interop; singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.0.1.qualifier
 Bundle-ClassPath: bioconverter.jar
 Bundle-Activator: ie.tcd.imm.hits.knime.interop.BioConverterNodePlugin
 Bundle-Vendor: TCD
@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  ie.tcd.imm.hits.common;bundle-version="0.0.1"
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: ie.tcd.imm.hits.knime.interop
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 
