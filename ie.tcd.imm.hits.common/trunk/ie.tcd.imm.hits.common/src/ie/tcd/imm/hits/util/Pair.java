@@ -63,6 +63,15 @@ public class Pair<Left, Right> implements Serializable {
 	}
 
 	/**
+	 * Change the order of values.
+	 * 
+	 * @return A {@link Pair} in a flipped order.
+	 */
+	public Pair<Right, Left> flip() {
+		return Pair.apply(right, left);
+	}
+
+	/**
 	 * @return The first/left object.
 	 */
 	public Left getLeft() {

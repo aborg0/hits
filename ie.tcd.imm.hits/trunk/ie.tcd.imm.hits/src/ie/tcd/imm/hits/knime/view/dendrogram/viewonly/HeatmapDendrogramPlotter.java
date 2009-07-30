@@ -25,18 +25,17 @@ package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 import ie.tcd.imm.hits.knime.util.HiliteType;
 import ie.tcd.imm.hits.knime.util.ShiftedLogarithmicMappingMethod;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -310,8 +309,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		final double min = 0;
 		final double max = rootNode.getMaxDistance();
 		setPreserve(false);
-		createXCoordinate(min, Math.max(max + 2, max * getWidth()
-				/ (getWidth() - offset)));
+		createXCoordinate(min, /* Math.max(max + 2, */max * getWidth()
+				/ (getWidth() - offset)/* ) */);
 		getXAxis().getCoordinate().setPolicy(
 				directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
 						: DescendingNumericTickPolicyStrategy.ID);

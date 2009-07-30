@@ -124,4 +124,9 @@ public class Triple<Type1, Type2, Type3> {
 		}
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "(" /* + o1 */+ ", " + o2 + ", " + o3 + ")";
+	}
 }
