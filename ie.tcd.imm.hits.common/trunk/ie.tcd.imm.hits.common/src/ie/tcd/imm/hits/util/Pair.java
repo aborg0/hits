@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * Holds two (different possibly different type) values.
@@ -27,6 +28,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class Pair<Left, Right> implements Serializable {
 	private static final long serialVersionUID = 2771814364666313214L;
+
 	private final Left left;
 	private final Right right;
 
@@ -60,6 +62,52 @@ public class Pair<Left, Right> implements Serializable {
 	public static <Left, Right> Pair<Left, Right> apply(final Left left,
 			final Right right) {
 		return new Pair<Left, Right>(left, right);
+	}
+
+	/**
+	 * A FindBugs safe version to create a {@link Pair} with empty first node.
+	 * 
+	 * @param <Left>
+	 *            Type of the first object.
+	 * @param <Right>
+	 *            Type of the second object.
+	 * @param right
+	 *            The second object.
+	 * @return A new {@link Pair} of {@code null} and the object.
+	 */
+	@SuppressWarnings("NP")
+	public static <Left, Right> Pair<Left, Right> leftNull(final Right right) {
+		return apply(null, right);
+	}
+
+	/**
+	 * A FindBugs safe version to create a {@link Pair} with empty second node.
+	 * 
+	 * @param <Left>
+	 *            Type of the first object.
+	 * @param <Right>
+	 *            Type of the second object.
+	 * @param left
+	 *            The first object.
+	 * @return A new {@link Pair} of the object and {@code null}.
+	 */
+	@SuppressWarnings("NP")
+	public static <Left, Right> Pair<Left, Right> rightNull(final Left left) {
+		return apply(left, null);
+	}
+
+	/**
+	 * A FindBugs safe version to get a {@link Pair} without objects.
+	 * 
+	 * @param <Left>
+	 *            Type of the first object.
+	 * @param <Right>
+	 *            Type of the second object.
+	 * @return A new {@link Pair} of the object and {@code null}.
+	 */
+	@SuppressWarnings("NP")
+	public static <Left, Right> Pair<Left, Right> empty() {
+		return apply(null, null);
 	}
 
 	/**

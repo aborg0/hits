@@ -3,14 +3,10 @@
  */
 package ie.tcd.imm.hits.util;
 
-import javax.annotation.CheckReturnValue;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A triple of objects.
  * 
- * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
+ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Type1>
  *            The type of the first object.
  * @param <Type2>
@@ -18,9 +14,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Type3>
  *            The type of the third object.
  */
-@DefaultAnnotation( { CheckReturnValue.class })
-public class Triple<Type1, Type2, Type3> {
-
+public class Triple<Type1, Type2, Type3> implements
+		ITriple<Type1, Type2, Type3> {
 	private final Type1 o1;
 	private final Type2 o2;
 	private final Type3 o3;
@@ -64,44 +59,35 @@ public class Triple<Type1, Type2, Type3> {
 		return new Triple<Type1, Type2, Type3>(o1, o2, o3);
 	}
 
-	/**
-	 * @return The object shifted to right.
-	 */
+	/** {@inheritDoc} */
 	public Triple<Type3, Type1, Type2> shiftRight() {
 		return Triple.apply(o3, o1, o2);
 	}
 
-	/**
-	 * @return The object shifted to left.
-	 */
+	/** {@inheritDoc} */
 	public Triple<Type2, Type3, Type1> shiftLeft() {
 		return Triple.apply(o2, o3, o1);
 	}
 
-	/**
-	 * @return The object are in reversed order.
-	 */
+	/** {@inheritDoc} */
 	public Triple<Type3, Type2, Type1> reverse() {
 		return Triple.apply(o3, o2, o1);
 	}
 
-	/**
-	 * @return the o1
-	 */
+	/** {@inheritDoc} */
+	@Override
 	public final Type1 getO1() {
 		return o1;
 	}
 
-	/**
-	 * @return the o2
-	 */
+	/** {@inheritDoc} */
+	@Override
 	public final Type2 getO2() {
 		return o2;
 	}
 
-	/**
-	 * @return the o3
-	 */
+	/** {@inheritDoc} */
+	@Override
 	public final Type3 getO3() {
 		return o3;
 	}

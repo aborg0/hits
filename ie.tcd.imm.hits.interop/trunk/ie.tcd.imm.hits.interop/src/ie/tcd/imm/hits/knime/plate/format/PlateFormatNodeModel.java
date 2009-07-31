@@ -5,6 +5,8 @@ import ie.tcd.imm.hits.common.Format;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
@@ -121,6 +123,7 @@ public class PlateFormatNodeModel extends NodeModel {
 								new IntCell(newRow), new IntCell(newCol) };
 					}
 
+					@Nullable
 					private Integer getCell(final DataRow row, final int index) {
 						final DataCell cell = row.getCell(index);
 						return cell.isMissing() ? null : Integer

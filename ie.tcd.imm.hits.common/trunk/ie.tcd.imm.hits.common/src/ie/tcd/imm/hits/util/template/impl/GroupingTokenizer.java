@@ -151,8 +151,8 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	private final SplitToken origStartToken;
 	private final Collection<? extends Token> origPuffer;
 
-	private static final Pair<SplitToken, List<Token>> startState = new Pair<SplitToken, List<Token>>(
-			null, Collections.<Token> emptyList());
+	private static final Pair<SplitToken, List<Token>> startState = Pair
+			.leftNull(Collections.<Token> emptyList());
 
 	/**
 	 * @param offset
