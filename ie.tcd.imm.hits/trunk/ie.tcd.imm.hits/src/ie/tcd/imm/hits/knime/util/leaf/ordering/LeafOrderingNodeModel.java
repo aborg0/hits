@@ -102,19 +102,11 @@ public class LeafOrderingNodeModel extends NodeModel {
 				.getO1();
 		final ArrayList<DistanceVectorDataValue> origList = new ArrayList<DistanceVectorDataValue>(
 				model.getClusterDistances().length + 1), newList = new ArrayList<DistanceVectorDataValue>(
-				model.getClusterDistances().length + 1)// , flippedRootList =
-		// new
-		// ArrayList<DistanceVectorDataValue>()
-		;
+				model.getClusterDistances().length + 1);
 		flatten(origRoot, origList, distanceMatrix);
 		flatten(tree, newList, distanceMatrix);
-		// flatten(new ClusterViewNode((ClusterViewNode)
-		// tree.getSecondSubnode(),
-		// (ClusterViewNode) tree.getFirstSubnode(), tree.getDist()),
-		// flippedRootList, distanceMatrix);
 		logger.info("Before:      " + sumDistance(origList));
 		logger.info("After:       " + sumDistance(newList));
-		// logger.info("Alternative: " + sumDistance(flippedRootList));
 		final ClusterTreeModel clusterTreeModel = new ClusterTreeModel(
 				(DataTableSpec) model.getSpec(), tree, model
 						.getClusterDistances(),
@@ -122,9 +114,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 			@Override
 			public String getSummary() {
 				return "Before: " + sumDistance(origList) + "\nAfter:  "
-						+ sumDistance(newList)// + "\nAlternative: "
-				// + sumDistance(flippedRootList)
-				;
+						+ sumDistance(newList);
 			}
 		};
 		return new PortObject[] { clusterTreeModel };
@@ -228,53 +218,9 @@ public class LeafOrderingNodeModel extends NodeModel {
 					secondTree.getO1(), root.getDist()), firstTree.getO2(),
 					secondTree.getO3());
 		}
-		// assert map.containsKey(pairChange);
 		return Triple.apply(new ClusterViewNode(secondTree.getO1(), firstTree
 				.getO1(), root.getDist()), secondTree.getO2(), firstTree
 				.getO3());
-		// double max = Double.NEGATIVE_INFINITY;
-		// Pair<RowKey, RowKey> pair = null;
-		// for (final Entry<Pair<RowKey, RowKey>, Number> entry :
-		// map.entrySet()) {
-		// if (entry.getValue().doubleValue() > max) {
-		// max = entry.getValue().doubleValue();
-		// pair = entry.getKey();
-		// }
-		// }
-
-		// if (secondTree.getO2().equals(pair.getRight())) {
-		// assert firstTree.getO3().equals(pair.getLeft()) : "first: "
-		// + firstTree.getO3() + "\npair: " + pair;
-		// return Triple.apply((IClusterNode) new InnerNode(firstTree.getO1(),
-		// secondTree.getO1(), root.getDist()), firstTree.getO2(),
-		// secondTree.getO3());
-		// }
-		// if (secondTree.getO3().equals(pair.getLeft())) {
-		// assert firstTree.getO2().equals(pair.getLeft()) : "first: "
-		// + firstTree.getO2() + "\npair: " + pair;
-		// return Triple.apply((IClusterNode) new InnerNode(
-		// secondTree.getO1(), firstTree.getO1(), root.getDist()),
-		// secondTree.getO2(), firstTree.getO3());
-		// }
-		// if (firstTree.getO3().equals(secondTree.getO2())) {
-		// return Triple.apply((IClusterNode) new InnerNode(firstTree.getO1(),
-		// secondTree.getO1(), root.getDist()), firstTree.getO2(),
-		// secondTree.getO3());
-		// }
-		// if (firstTree.getO2().equals(secondTree.getO3())) {
-		// return Triple.apply((IClusterNode) new InnerNode(
-		// secondTree.getO1(), firstTree.getO1(), root.getDist()),
-		// secondTree.getO2(), firstTree.getO3());
-		// }
-		// if (firstTree.getO2().equals(firstTree.getO3())) {
-		// assert secondTree.getO2().equals(secondTree.getO3()) : secondTree;
-		// return Triple.apply((IClusterNode) new InnerNode(
-		// secondTree.getO1(), firstTree.getO1(), root.getDist()),
-		// secondTree.getO2(), firstTree.getO3());
-		// }
-		// throw new IllegalStateException("First: " + firstTree.getO2() + ", "
-		// + firstTree.getO3() + "\nSecond: " + secondTree.getO2() + ", "
-		// + secondTree.getO3());
 	}
 
 	private Map<Triple<DendrogramNode, RowKey, RowKey>, Number> visit(
