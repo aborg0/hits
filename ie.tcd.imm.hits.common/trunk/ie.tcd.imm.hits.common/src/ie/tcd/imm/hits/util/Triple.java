@@ -8,10 +8,15 @@ import javax.annotation.CheckReturnValue;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
+ * A triple of objects.
+ * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Type1>
+ *            The type of the first object.
  * @param <Type2>
+ *            The type of the second object.
  * @param <Type3>
+ *            The type of the third object.
  */
 @DefaultAnnotation( { CheckReturnValue.class })
 public class Triple<Type1, Type2, Type3> {
@@ -21,10 +26,14 @@ public class Triple<Type1, Type2, Type3> {
 	private final Type3 o3;
 
 	/**
+	 * Constructs a {@link Triple} of the supplied objects.
 	 * 
 	 * @param o1
+	 *            The first object.
 	 * @param o2
+	 *            The second object.
 	 * @param o3
+	 *            The third object.
 	 */
 	public Triple(final Type1 o1, final Type2 o2, final Type3 o3) {
 		super();
@@ -34,18 +43,46 @@ public class Triple<Type1, Type2, Type3> {
 	}
 
 	/**
+	 * Factory method for creating {@link Triple}s.
 	 * 
 	 * @param <Type1>
+	 *            Type of the first object.
 	 * @param <Type2>
+	 *            Type of the second object.
 	 * @param <Type3>
+	 *            Type of the third object.
 	 * @param o1
+	 *            The first object.
 	 * @param o2
+	 *            The second object.
 	 * @param o3
-	 * @return
+	 *            The third object.
+	 * @return The generated {@link Triple}.
 	 */
 	public static <Type1, Type2, Type3> Triple<Type1, Type2, Type3> apply(
 			final Type1 o1, final Type2 o2, final Type3 o3) {
 		return new Triple<Type1, Type2, Type3>(o1, o2, o3);
+	}
+
+	/**
+	 * @return The object shifted to right.
+	 */
+	public Triple<Type3, Type1, Type2> shiftRight() {
+		return Triple.apply(o3, o1, o2);
+	}
+
+	/**
+	 * @return The object shifted to left.
+	 */
+	public Triple<Type2, Type3, Type1> shiftLeft() {
+		return Triple.apply(o2, o3, o1);
+	}
+
+	/**
+	 * @return The object are in reversed order.
+	 */
+	public Triple<Type3, Type2, Type1> reverse() {
+		return Triple.apply(o3, o2, o1);
 	}
 
 	/**
@@ -127,6 +164,6 @@ public class Triple<Type1, Type2, Type3> {
 
 	@Override
 	public String toString() {
-		return "(" /* + o1 */+ ", " + o2 + ", " + o3 + ")";
+		return "(" + o1 + ", " + o2 + ", " + o3 + ")";
 	}
 }
