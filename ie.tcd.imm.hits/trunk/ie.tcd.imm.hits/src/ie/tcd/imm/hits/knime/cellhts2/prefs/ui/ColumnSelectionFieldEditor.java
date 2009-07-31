@@ -5,12 +5,11 @@ package ie.tcd.imm.hits.knime.cellhts2.prefs.ui;
 
 import ie.tcd.imm.hits.util.Displayable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import java.lang.reflect.Array;
 
 import javax.annotation.RegEx;
 
@@ -49,11 +48,11 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 	 * Constructs a {@link ColumnSelectionFieldEditor} using the parameters.
 	 * 
 	 * @param name
-	 *            {@inheritDoc}
+	 *            Key of the control.
 	 * @param labelText
-	 *            {@inheritDoc}
+	 *            Label of the control.
 	 * @param parent
-	 *            {@inheritDoc}
+	 *            The parent {@link Composite container}.
 	 * @param possibleValues
 	 *            These are the possible values of the new values.
 	 */

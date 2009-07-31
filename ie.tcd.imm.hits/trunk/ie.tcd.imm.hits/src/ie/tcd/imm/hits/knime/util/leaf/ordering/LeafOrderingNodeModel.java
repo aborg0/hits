@@ -102,14 +102,32 @@ public class LeafOrderingNodeModel extends NodeModel {
 				.getO1();
 		final ArrayList<DistanceVectorDataValue> origList = new ArrayList<DistanceVectorDataValue>(
 				model.getClusterDistances().length + 1), newList = new ArrayList<DistanceVectorDataValue>(
-				model.getClusterDistances().length + 1);
+				model.getClusterDistances().length + 1)// , flippedRootList =
+		// new
+		// ArrayList<DistanceVectorDataValue>()
+		;
 		flatten(origRoot, origList, distanceMatrix);
-		flatten(origRoot, newList, distanceMatrix);
-		logger.info("Before: " + sumDistance(origList));
-		logger.info("After: " + sumDistance(newList));
-		return new PortObject[] { new ClusterTreeModel((DataTableSpec) model
-				.getSpec(), tree, model.getClusterDistances(), model
-				.getClusterDistances().length + 1) };
+		flatten(tree, newList, distanceMatrix);
+		// flatten(new ClusterViewNode((ClusterViewNode)
+		// tree.getSecondSubnode(),
+		// (ClusterViewNode) tree.getFirstSubnode(), tree.getDist()),
+		// flippedRootList, distanceMatrix);
+		logger.info("Before:      " + sumDistance(origList));
+		logger.info("After:       " + sumDistance(newList));
+		// logger.info("Alternative: " + sumDistance(flippedRootList));
+		final ClusterTreeModel clusterTreeModel = new ClusterTreeModel(
+				(DataTableSpec) model.getSpec(), tree, model
+						.getClusterDistances(),
+				model.getClusterDistances().length + 1) {
+			@Override
+			public String getSummary() {
+				return "Before: " + sumDistance(origList) + "\nAfter:  "
+						+ sumDistance(newList)// + "\nAlternative: "
+				// + sumDistance(flippedRootList)
+				;
+			}
+		};
+		return new PortObject[] { clusterTreeModel };
 	}
 
 	private Map<DendrogramNode, Map<Pair<RowKey, RowKey>, Number>> convertM(
@@ -130,7 +148,18 @@ public class LeafOrderingNodeModel extends NodeModel {
 		return ret;
 	}
 
-	private static void flatten(final DendrogramNode root,
+	/**
+	 * Make a tree (with root: {@code root}) to {@link DistanceVectorDataValue}
+	 * s.
+	 * 
+	 * @param root
+	 *            A {@link DendrogramNode} tree's root element.
+	 * @param ret
+	 *            The result list.
+	 * @param d
+	 *            The distance matrix.
+	 */
+	public static void flatten(final DendrogramNode root,
 			final List<DistanceVectorDataValue> ret,
 			final Map<RowKey, DistanceVectorDataValue> d) {
 		if (root.isLeaf()) {
@@ -141,7 +170,14 @@ public class LeafOrderingNodeModel extends NodeModel {
 		flatten(root.getSecondSubnode(), ret, d);
 	}
 
-	private static double sumDistance(
+	/**
+	 * Summarise the distances between the adjacent nodes.
+	 * 
+	 * @param distances
+	 *            The list of {@link DistanceVectorDataValue}s.
+	 * @return The sum of distances.
+	 */
+	public static double sumDistance(
 			final List<DistanceVectorDataValue> distances) {
 
 		final Iterator<DistanceVectorDataValue> it = distances.iterator();
@@ -185,8 +221,9 @@ public class LeafOrderingNodeModel extends NodeModel {
 		}
 		assert map.containsKey(pairNoChange);
 		assert map.containsKey(pairChange);
-		if (map.get(pairNoChange).doubleValue() > map.get(pairChange)
-				.doubleValue()) {
+		final double noChangeValue = map.get(pairNoChange).doubleValue();
+		final double changeValue = map.get(pairChange).doubleValue();
+		if (noChangeValue > changeValue) {
 			return Triple.apply(new ClusterViewNode(firstTree.getO1(),
 					secondTree.getO1(), root.getDist()), firstTree.getO2(),
 					secondTree.getO3());
@@ -249,25 +286,58 @@ public class LeafOrderingNodeModel extends NodeModel {
 			return Collections.singletonMap(Triple.apply(root, key, key),
 					(Number) Double.valueOf(0));
 		}
+		final DendrogramNode w = root.getFirstSubnode();
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> leftM = visit(
-				root.getFirstSubnode(), m, d);
+				w, m, d);
+		final DendrogramNode x = root.getSecondSubnode();
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> rightM = visit(
-				root.getSecondSubnode(), m, d);
+				x, m, d);
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> ret = new HashMap<Triple<DendrogramNode, RowKey, RowKey>, Number>(
 				leftM);
 		ret.putAll(rightM);
-		final Set<RowKey> leftKeys = computeLeaves(root.getFirstSubnode());
-		final Set<RowKey> rightKeys = computeLeaves(root.getSecondSubnode());
-		final Map<RowKey, Map<RowKey, Number>> t = computeT(root
-				.getFirstSubnode(), ret, d, leftKeys, rightKeys);
+		final Set<RowKey> leftKeys = computeLeaves(w);
+		final Set<RowKey> rightKeys = computeLeaves(x);
+		computeM(root, d, w, x, rightM, ret, leftKeys, rightKeys);
+		computeM(root, d, x, w, leftM, ret, rightKeys, leftKeys);
+		return ret;
+	}
+
+	/**
+	 * Computes the m matrix with one setup (you should execute it with the
+	 * other setup too).
+	 * 
+	 * @param root
+	 *            The ancestor of {@code w}, {@code x} nodes. ({@code v}).
+	 * @param d
+	 *            Distance matrix.
+	 * @param w
+	 *            The left node of {@code root}.
+	 * @param x
+	 *            The right node of {@code root}.
+	 * @param rightM
+	 *            The subtable for the right m.
+	 * @param ret
+	 *            The result table.
+	 * @param leftKeys
+	 *            The leaves of {@code w} tree.
+	 * @param rightKeys
+	 *            The leaves of {@code x} tree.
+	 */
+	private void computeM(final DendrogramNode root,
+			final Map<RowKey, DistanceVectorDataValue> d,
+			final DendrogramNode w, final DendrogramNode x,
+			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> rightM,
+			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> ret,
+			final Set<RowKey> leftKeys, final Set<RowKey> rightKeys) {
+		final Map<RowKey, Map<RowKey, Number>> t = computeT(w, ret, d,
+				leftKeys, rightKeys);
 		for (final Entry<RowKey, Map<RowKey, Number>> entry : t.entrySet()) {
 			for (final Entry<RowKey, Number> innerEntry : entry.getValue()
 					.entrySet()) {
 				double max = Double.NEGATIVE_INFINITY;
 				for (final RowKey l : rightKeys) {
 					final Triple<DendrogramNode, RowKey, RowKey> key = Triple
-							.apply(root.getSecondSubnode(), l, innerEntry
-									.getKey());
+							.apply(x, l, innerEntry.getKey());
 					if (!rightM.containsKey(key)) {
 						continue;
 					}
@@ -281,18 +351,41 @@ public class LeafOrderingNodeModel extends NodeModel {
 				ret
 						.put(Triple.apply(root, entry.getKey(), innerEntry
 								.getKey()), Double.valueOf(max));
-				// ret
-				// .put(Triple.apply(root, innerEntry.getKey(), entry
-				// .getKey()), Double.valueOf(max));
 			}
 		}
-		if (leftKeys.size() == 1 && rightKeys.size() == 1) {
-			final RowKey right = rightKeys.iterator().next();
-			final RowKey left = leftKeys.iterator().next();
-			final double similarity = d.get(right).getDistance(d.get(left));
-			ret
-					.put(Triple.apply(root, right, left), Double
-							.valueOf(similarity));
+	}
+
+	private Map<RowKey, Map<RowKey, Number>> computeT(
+			final DendrogramNode root,
+			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> m,
+			final Map<RowKey, DistanceVectorDataValue> d,
+			final Set<RowKey> leftKeys, final Set<RowKey> rightKeys) {
+		final Map<RowKey, Map<RowKey, Number>> ret = new HashMap<RowKey, Map<RowKey, Number>>();
+		final Set<RowKey> union = new HashSet<RowKey>(leftKeys);
+		union.addAll(rightKeys);
+
+		for (final RowKey i : leftKeys) {
+			for (final RowKey l : rightKeys) {
+				Double maxValue = Double.NEGATIVE_INFINITY;
+				for (final RowKey h : leftKeys) {
+					final Triple<DendrogramNode, RowKey, RowKey> key = Triple
+							.apply(root, i, h);
+					if (!m.containsKey(key)) {
+						continue;
+					}
+					final double similarity = similarity(h, l, d);
+					final double alternative =
+					// root.isLeaf() || i.equals(h) ? 0.0:
+					similarity + m.get(key).doubleValue();
+					if (alternative > maxValue) {
+						maxValue = alternative;
+					}
+				}
+				if (!ret.containsKey(i)) {
+					ret.put(i, new HashMap<RowKey, Number>());
+				}
+				ret.get(i).put(l, maxValue);
+			}
 		}
 		return ret;
 	}
@@ -301,6 +394,10 @@ public class LeafOrderingNodeModel extends NodeModel {
 	private static RowKey getLeafKey(final DendrogramNode node) {
 		if (node.getLeafDataPoint() != null) {
 			return node.getLeafDataPoint().getKey();
+		}
+		if (node instanceof ClusterViewNode) {
+			final ClusterViewNode cvn = (ClusterViewNode) node;
+			return cvn.getLeafRowKey();
 		}
 		RowKey key;
 		try {
@@ -314,35 +411,20 @@ public class LeafOrderingNodeModel extends NodeModel {
 		return key;
 	}
 
-	private Map<RowKey, Map<RowKey, Number>> computeT(
-			final DendrogramNode root,
-			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> m,
-			final Map<RowKey, DistanceVectorDataValue> d,
-			final Set<RowKey> leftKeys, final Set<RowKey> rightKeys) {
-		final Map<RowKey, Map<RowKey, Number>> ret = new HashMap<RowKey, Map<RowKey, Number>>();
-		for (final RowKey i : leftKeys) {
-			for (final RowKey l : rightKeys) {
-				Double maxValue = Double.NEGATIVE_INFINITY;
-				for (final RowKey h : leftKeys) {
-					final Triple<DendrogramNode, RowKey, RowKey> key = Triple
-							.apply(root, i, h);
-					if (!m.containsKey(key)) {
-						continue;
-					}
-					final double similarity = d.get(i).getDistance(d.get(h));
-					final double alternative = root.isLeaf() || i.equals(h) ? 0.0
-							: similarity + m.get(key).doubleValue();
-					if (alternative > maxValue) {
-						maxValue = alternative;
-					}
-				}
-				if (!ret.containsKey(i)) {
-					ret.put(i, new HashMap<RowKey, Number>());
-				}
-				ret.get(i).put(l, maxValue);
-			}
-		}
-		return ret;
+	/**
+	 * Computes the similarity between the two rows.
+	 * 
+	 * @param first
+	 *            The first row key.
+	 * @param second
+	 *            The second row key.
+	 * @param d
+	 *            The distance matrix.
+	 * @return The distance between the two rows.
+	 */
+	private double similarity(final RowKey first, final RowKey second,
+			final Map<RowKey, DistanceVectorDataValue> d) {
+		return d.get(first).getDistance(d.get(second));
 	}
 
 	private Set<RowKey> computeLeaves(final DendrogramNode root) {
@@ -424,5 +506,4 @@ public class LeafOrderingNodeModel extends NodeModel {
 			CanceledExecutionException {
 		// No internal state
 	}
-
 }

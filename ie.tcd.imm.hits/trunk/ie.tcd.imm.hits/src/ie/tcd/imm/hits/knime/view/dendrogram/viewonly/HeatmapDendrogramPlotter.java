@@ -351,7 +351,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		}
 		final BinaryTree<DendrogramPoint> tree = rootNode == null ? null
 				: new BinaryTree<DendrogramPoint>(createViewModelFor(rootNode));
-		mapFromKeysToIndices.clear();
 		return tree;
 	}
 

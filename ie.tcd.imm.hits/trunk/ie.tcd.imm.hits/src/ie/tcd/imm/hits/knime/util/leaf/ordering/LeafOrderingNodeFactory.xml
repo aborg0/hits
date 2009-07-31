@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./default.png" type="Manipulator">
-    <name>LeafOrdering</name>
+    <name>Leaf Ordering</name>
     
     <shortDescription>
         Reorders a tree to an optimal ordering. See New Hierarchical Clustering node.
@@ -10,13 +10,11 @@
     <fullDescription>
         <intro>The implemented algorithm based on this article: <a href="http://bioinformatics.oxfordjournals.org/cgi/reprint/19/9/1070.pdf">K-ary clustering with optimal leaf ordering for gene expression data</a></intro>
         
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Distance">This column contains the distance column in the second input table.</option>
     </fullDescription>
-    
     <ports>
-        <inPort index="0" name="tree with distances">A tree of clusters with distances between them.</inPort>
-        <outPort index="0" name="tree with distances">Optimally ordered leaf. (Some flips made.)</outPort>
+        <inPort index="0" name="tree">A tree of clusters.</inPort>
+        <inPort index="1" name="table with distances">The associated table with the distance vectors.</inPort>
+        <outPort index="0" name="ordered tree">Optimally ordered leaf. (Some flips made.)</outPort>
     </ports>
 </knimeNode>

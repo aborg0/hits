@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+    <name>Reverse Order</name>
+    
+    <shortDescription>
+        Flips every branch in the tree to the opposite, so it will result a tree with the reverse order of leaves.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Flips every branch in the tree to the opposite, so it will result a tree with the reverse order of leaves.</intro>
+        <!--option name="short name of first option (like in the dialog)">description of first option</option-->
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="tree">A hierarchical clustered tree</inPort>
+        <outPort index="0" name="reversed tree">The hierarchical cluster tree with leaves in reverse order</outPort>
+    </ports>    
+</knimeNode>
