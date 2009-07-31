@@ -77,6 +77,8 @@ public class LeafOrderingNodeModel extends NodeModel {
 	@Override
 	protected PortObject[] execute(final PortObject[] inObjects,
 			final ExecutionContext exec) throws Exception {
+		// Initialising
+		exec.setMessage("initialising");
 		final ClusterTreeModel model = (ClusterTreeModel) inObjects[0];
 		final BufferedDataTable data = (BufferedDataTable) inObjects[1];
 		final int distanceColumnIdx = data.getDataTableSpec().findColumnIndex(
@@ -87,17 +89,20 @@ public class LeafOrderingNodeModel extends NodeModel {
 					.getCell(distanceColumnIdx);
 			distanceMatrix.put(dataRow.getKey(), distanceVector);
 		}
+		exec.setMessage("computing");
 		final DendrogramNode origRoot = model.getRoot();
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> m = visit(
 				origRoot,
 				new HashMap<Triple<DendrogramNode, RowKey, RowKey>, Number>(),
-				distanceMatrix);
+				distanceMatrix, model.getClusterDistances().length + 1, exec
+						.createSilentSubExecutionContext(.9));
 		final Map<RowKey, Pair<DataRow, Integer>> rows = new HashMap<RowKey, Pair<DataRow, Integer>>();
 		int idx = 0;
 		for (final DataRow dataRow : data) {
 			rows.put(dataRow.getKey(), Pair.apply(dataRow, Integer
 					.valueOf(idx++)));
 		}
+		exec.setMessage("creating final tree");
 		final ClusterViewNode tree = buildNewTree(convertM(m), origRoot, rows)
 				.getO1();
 		final ArrayList<DistanceVectorDataValue> origList = new ArrayList<DistanceVectorDataValue>(
@@ -226,7 +231,8 @@ public class LeafOrderingNodeModel extends NodeModel {
 	private Map<Triple<DendrogramNode, RowKey, RowKey>, Number> visit(
 			final DendrogramNode root,
 			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> m,
-			final Map<RowKey, DistanceVectorDataValue> d) {
+			final Map<RowKey, DistanceVectorDataValue> d, final int allLeaves,
+			final ExecutionContext exec) {
 		if (root.isLeaf()) {
 			final RowKey key = getLeafKey(root);
 			return Collections.singletonMap(Triple.apply(root, key, key),
@@ -234,10 +240,10 @@ public class LeafOrderingNodeModel extends NodeModel {
 		}
 		final DendrogramNode w = root.getFirstSubnode();
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> leftM = visit(
-				w, m, d);
+				w, m, d, allLeaves, exec);
 		final DendrogramNode x = root.getSecondSubnode();
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> rightM = visit(
-				x, m, d);
+				x, m, d, allLeaves, exec);
 		final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> ret = new HashMap<Triple<DendrogramNode, RowKey, RowKey>, Number>(
 				leftM);
 		ret.putAll(rightM);
@@ -245,6 +251,8 @@ public class LeafOrderingNodeModel extends NodeModel {
 		final Set<RowKey> rightKeys = computeLeaves(x);
 		computeM(root, d, w, x, rightM, ret, leftKeys, rightKeys);
 		computeM(root, d, x, w, leftM, ret, rightKeys, leftKeys);
+		exec.setProgress(((double) leftKeys.size() + rightKeys.size())
+				/ allLeaves);
 		return ret;
 	}
 
