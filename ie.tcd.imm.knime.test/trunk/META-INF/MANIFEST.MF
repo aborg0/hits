@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test
-Bundle-SymbolicName: ie.tcd.imm.knime.test
+Bundle-SymbolicName: ie.tcd.imm.knime.test;singleton:=true
 Bundle-Version: 0.2.0.qualifier
 Bundle-ClassPath: test.jar,
  lib/debug-1.0.jar,
@@ -16,5 +16,6 @@ Require-Bundle: org.knime.core,
  ie.tcd.imm.hits.3rdparty;bundle-version="0.3.0",
  ie.tcd.imm.hits.common;bundle-version="[0.0.1,1.0.0)",
  ie.tcd.imm.hits.knime.interop;bundle-version="[0.0.1,1.0.0)",
- ie.tcd.imm.knime.util;bundle-version="0.1.0"
+ ie.tcd.imm.knime.util;bundle-version="0.1.0",
+ org.knime.distmatrix;bundle-version="2.0.3"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
