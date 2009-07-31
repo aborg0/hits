@@ -3,6 +3,6 @@
 
 <plugin>
    <extension point="org.knime.workbench.repository.nodes">
-   <node category-path="/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory"/>
-</extension>
+      <node category-path="/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory"/>
+   </extension>
 </plugin>

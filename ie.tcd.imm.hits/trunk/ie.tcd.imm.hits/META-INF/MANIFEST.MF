@@ -23,5 +23,5 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering
+Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:="ie.tcd.imm.knime.test"
 
