@@ -31,10 +31,19 @@ POI licence: Apache 2.0 licence
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.knime.workbench.core"/>
-      <import plugin="org.knime.workbench.repository"/>
-      <import plugin="org.knime.base"/>
+      <import plugin="org.knime.workbench.core" version="2.0.2" match="compatible"/>
+      <import plugin="org.knime.workbench.repository" version="2.0.2" match="compatible"/>
+      <import plugin="org.knime.base" version="2.0.2" match="compatible"/>
       <import plugin="org.eclipse.ui"/>
+      <import plugin="ie.tcd.imm.hits.3rdparty" version="0.1.0" match="compatible"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.help.ui"/>
+      <import plugin="org.knime.ext.jep" version="2.0.0" match="compatible"/>
+      <import plugin="org.knime.distmatrix" version="2.0.1" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="compatible"/>
+      <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
+      <import plugin="javax.servlet"/>
+      <import plugin="org.apache.commons.math" version="1.2.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -45,6 +54,27 @@ POI licence: Apache 2.0 licence
 
    <plugin
          id="ie.tcd.imm.hits.3rdparty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.math"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.springsource.org.apache.commons.discovery"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.springsource.org.apache.commons.logging"
          download-size="0"
          install-size="0"
          version="0.0.0"
