@@ -49,11 +49,20 @@ public class PlateFormatNodeModel extends NodeModel {
 	/** Default value for the well count of output plates. */
 	static final Format DEFAULT_TO_WELL_COUNT = Format._384;
 
+	/** Configuration key for the combination pattern. */
+	static final String CFGKEY_COMBINATION_PATTERN = "combination.pattern";
+	/** Default value for the combination pattern. */
+	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.LeftToRightThenDown8Pipettes;
+
 	private final SettingsModelEnum<Format> fromWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_FROM_WELL_COUNT, DEFAULT_FROM_WELL_COUNT, Format.values());
 
 	private final SettingsModelEnum<Format> toWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_TO_WELL_COUNT, DEFAULT_TO_WELL_COUNT, Format.values());
+
+	private final SettingsModelEnum<CombinationPattern> combinationPattern = new SettingsModelEnum<CombinationPattern>(
+			CFGKEY_COMBINATION_PATTERN, DEFAULT_COMBINATION_PATTERN,
+			CombinationPattern.values());
 
 	/**
 	 * Constructor for the node model.
@@ -87,6 +96,15 @@ public class PlateFormatNodeModel extends NodeModel {
 					private final Format from = fromWellCount.getEnumValue();
 					@SuppressWarnings("synthetic-access")
 					private final Format to = toWellCount.getEnumValue();
+					@SuppressWarnings("synthetic-access")
+					private final CombinationPattern pattern = combinationPattern
+							.getEnumValue();
+					{
+						if (pattern.isCombineReplicates()) {
+							throw new UnsupportedOperationException(
+									"Support for replicates is not implemented");
+						}
+					}
 					private final int fromToTo = from.getWellCount()
 							/ to.getWellCount();
 					private final int toToFrom = to.getWellCount()
@@ -111,12 +129,54 @@ public class PlateFormatNodeModel extends NodeModel {
 						final int row = oldRow.intValue() - 1;
 						final int col = oldCol.intValue() - 1;
 						final boolean toLarger = fromToTo == 0;
-						final int newPlate = (toLarger ? plate / toToFrom
-								: plate * fromToTo + col / to.getCol() + row
-										/ to.getRow() * fromToToCol) + 1;
-						final int newRow = (toLarger ? plate % toToFrom
-								/ toToFromRow * from.getRow() + row : row
-								% to.getRow()) + 1;
+						final int newPlate;
+						if (toLarger) {
+							newPlate = plate / toToFrom + 1;
+						} else {// toSmaller
+							if (pattern.isFirstHorizontal()) {
+								if (pattern.isHorizontalToRight()) {
+									if (pattern.isVerticalToDown()) {
+										if (pattern.getPipettes() == 1) {
+											newPlate = plate * fromToTo + col
+													/ to.getCol() + row
+													/ to.getRow() * fromToToCol
+													+ 1;
+										} else {
+											throw new UnsupportedOperationException();
+										}
+									} else {
+										throw new UnsupportedOperationException();
+									}
+								} else {
+									if (pattern.isVerticalToDown()) {
+										throw new UnsupportedOperationException();
+									} else {
+										throw new UnsupportedOperationException();
+									}
+								}
+							} else {
+								if (pattern.isHorizontalToRight()) {
+									if (pattern.isVerticalToDown()) {
+										// FIXME
+										throw new UnsupportedOperationException();
+									} else {
+										throw new UnsupportedOperationException();
+									}
+								} else {
+									if (pattern.isVerticalToDown()) {
+										throw new UnsupportedOperationException();
+									} else {
+										throw new UnsupportedOperationException();
+									}
+								}
+							}
+						}
+						// newPlate = (toLarger ? plate / toToFrom : plate
+						// * fromToTo + col / to.getCol() + row
+						// / to.getRow() * fromToToCol) + 1;
+						final int newRow;
+						newRow = (toLarger ? plate % toToFrom / toToFromRow
+								* from.getRow() + row : row % to.getRow()) + 1;
 						final int newCol = (toLarger ? plate % toToFromCol
 								* from.getCol() + col : col % to.getCol()) + 1;
 						return new DataCell[] { new IntCell(newPlate),
@@ -142,9 +202,7 @@ public class PlateFormatNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO Code executed on reset.
-		// Models build during execute are cleared here.
-		// Also data handled in load/saveInternals will be erased here.
+		// Nothing to do
 	}
 
 	/**
@@ -153,13 +211,6 @@ public class PlateFormatNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
-		// TODO: check if user settings are available, fit to the incoming
-		// table structure, and the incoming types are feasible for the node
-		// to execute. If the node can execute in its current state return
-		// the spec of its output data table(s) (if you can, otherwise an array
-		// with null elements), or throw an exception with a useful user message
-
 		return new DataTableSpec[] { inSpecs[0] };
 	}
 
@@ -170,6 +221,7 @@ public class PlateFormatNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		fromWellCount.saveSettingsTo(settings);
 		toWellCount.saveSettingsTo(settings);
+		combinationPattern.saveSettingsTo(settings);
 	}
 
 	/**
@@ -180,6 +232,7 @@ public class PlateFormatNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fromWellCount.loadSettingsFrom(settings);
 		toWellCount.loadSettingsFrom(settings);
+		combinationPattern.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -190,6 +243,7 @@ public class PlateFormatNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fromWellCount.validateSettings(settings);
 		toWellCount.validateSettings(settings);
+		combinationPattern.validateSettings(settings);
 	}
 
 	@Override
