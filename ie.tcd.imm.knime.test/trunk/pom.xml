@@ -76,5 +76,26 @@
       <scope>test</scope>
       <optional>true</optional>
     </dependency-->
+    <dependency>
+    	<groupId>commons-discovery</groupId>
+    	<artifactId>commons-discovery</artifactId>
+    	<version>0.4</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>commons-math</groupId>
+    	<artifactId>commons-math</artifactId>
+    	<version>1.2</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>commons-logging</groupId>
+    	<artifactId>commons-logging</artifactId>
+    	<version>1.1.1</version>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>

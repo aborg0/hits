@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Other">
+    <name>Scores to P values</name>
+    
+    <shortDescription>
+        Converts scores to p values (also computes the predicted frequency of that value if a sample size selected).
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Converts scores to p values (also computes the predicted frequency of that value if a sample size selected).</intro>
+        
+        
+        <option name="columns">the columns of Z-scores</option>
+        <option name="Number of samples">population size</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="table with Z scores">Table with Z scores</inPort>
+        <outPort index="0" name="table with p values">Table with calculated p values, frequencies</outPort>
+    </ports>    
+</knimeNode>
