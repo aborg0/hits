@@ -26,15 +26,14 @@ import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.io.File;
-import java.io.IOException;
 
 import javax.annotation.Nullable;
 
@@ -73,7 +72,6 @@ import org.knime.core.node.port.PortUtil;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@SuppressWarnings("restriction")
 public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	/** The logger. */
 	static final NodeLogger logger = NodeLogger

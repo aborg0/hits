@@ -60,13 +60,23 @@ public class PlateFormatNodeModel extends NodeModel {
 		private final boolean toLarger;
 
 		/**
+		 * Constructs {@link PlateFormatCellFactory}.
+		 * 
 		 * @param colSpecs
+		 *            The input table's {@link DataColumnSpec}s (order: {@code
+		 *            plate}, {@code row}, {@code col}).
 		 * @param plateIndex
+		 *            The index of the {@code plate} column in the input.
 		 * @param rowIndex
+		 *            The index of the {@code row} column in the input.
 		 * @param colIndex
+		 *            The index of the {@code col} column in the input.
 		 * @param from
+		 *            The input table {@link Format}.
 		 * @param to
+		 *            The output table {@link Format}.
 		 * @param pattern
+		 *            The {@link CombinationPattern} to use.
 		 */
 		PlateFormatCellFactory(final DataColumnSpec[] colSpecs,
 				final int plateIndex, final int rowIndex, final int colIndex,
@@ -124,8 +134,10 @@ public class PlateFormatNodeModel extends NodeModel {
 
 		/**
 		 * @param plate
+		 *            The original plate number ({@code 0} based).
 		 * @param col
-		 * @return
+		 *            The original column number ({@code 0} based).
+		 * @return The computed column number ({@code 1} based).
 		 */
 		int colCompute(final int plate, final int col) {
 			final int newCol;
@@ -252,8 +264,10 @@ public class PlateFormatNodeModel extends NodeModel {
 
 		/**
 		 * @param plate
+		 *            The original plate number ({@code 0} based).
 		 * @param row
-		 * @return
+		 *            The original row number ({@code 0} based).
+		 * @return The computed row number ({@code 1} based).
 		 */
 		int rowCompute(final int plate, final int row) {
 			final int newRow;
@@ -533,9 +547,12 @@ public class PlateFormatNodeModel extends NodeModel {
 
 		/**
 		 * @param plate
-		 * @param row
+		 *            The original plate number ({@code 0} based).
 		 * @param col
-		 * @return
+		 *            The original column number ({@code 0} based).
+		 * @param row
+		 *            The original row number ({@code 0} based).
+		 * @return The computed column number ({@code 1} based).
 		 */
 		int plateCompute(final int plate, final int row, final int col) {
 			final int newPlate;
