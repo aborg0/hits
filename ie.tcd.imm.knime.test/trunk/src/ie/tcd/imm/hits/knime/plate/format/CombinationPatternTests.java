@@ -21,124 +21,60 @@ import org.testng.annotations.Test;
  */
 public class CombinationPatternTests {
 
+	/**
+	 * Exhaustive (for 2 384 well plates) test data for
+	 * {@link CombinationPattern#LeftToRightThenDown}.
+	 * 
+	 * @return An {@link Iterator} to the data.
+	 */
 	@DataProvider(name = "leftToRight")
-	public static Object[][] testCasesLeftToRight() {
-		@SuppressWarnings("boxing")
-		final Object[][] ret = new Object[][] {// col=1
-		{ 1, 1, 1, 1, 1, 1 }, { 2, 1, 1, 1, 1, 13 },//
-				{ 3, 1, 1, 1, 9, 1 }, { 4, 1, 1, 1, 9, 13 },//
-				{ 5, 1, 1, 2, 1, 1 }, { 6, 1, 1, 2, 1, 13 },//
-				{ 7, 1, 1, 2, 9, 1 }, { 8, 1, 1, 2, 9, 13 },// 
-				{ 1, 2, 1, 1, 2, 1 }, { 2, 2, 1, 1, 2, 13 },//
-				{ 3, 2, 1, 1, 10, 1 }, { 4, 2, 1, 1, 10, 13 },//
-				{ 5, 2, 1, 2, 2, 1 }, { 6, 2, 1, 2, 2, 13 },//
-				{ 7, 2, 1, 2, 10, 1 }, { 8, 2, 1, 2, 10, 13 },// 
-				{ 1, 5, 1, 1, 5, 1 }, { 2, 5, 1, 1, 5, 13 },//
-				{ 3, 5, 1, 1, 13, 1 }, { 4, 5, 1, 1, 13, 13 },//
-				{ 5, 5, 1, 2, 5, 1 }, { 6, 5, 1, 2, 5, 13 },//
-				{ 7, 5, 1, 2, 13, 1 }, { 8, 5, 1, 2, 13, 13 },// 
-				{ 1, 7, 1, 1, 7, 1 }, { 2, 7, 1, 1, 7, 13 },//
-				{ 3, 7, 1, 1, 15, 1 }, { 4, 7, 1, 1, 15, 13 },//
-				{ 5, 7, 1, 2, 7, 1 }, { 6, 7, 1, 2, 7, 13 },//
-				{ 7, 7, 1, 2, 15, 1 }, { 8, 7, 1, 2, 15, 13 },//
-				// col=2
-				{ 1, 1, 2, 1, 1, 2 }, { 2, 1, 2, 1, 1, 14 },//
-				{ 3, 1, 2, 1, 9, 2 }, { 4, 1, 2, 1, 9, 14 },//
-				{ 5, 1, 2, 2, 1, 2 }, { 6, 1, 2, 2, 1, 14 },//
-				{ 7, 1, 2, 2, 9, 2 }, { 8, 1, 2, 2, 9, 14 },// 
-				{ 1, 2, 2, 1, 2, 2 }, { 2, 2, 2, 1, 2, 14 },//
-				{ 3, 2, 2, 1, 10, 2 }, { 4, 2, 2, 1, 10, 14 },//
-				{ 5, 2, 2, 2, 2, 2 }, { 6, 2, 2, 2, 2, 14 },//
-				{ 7, 2, 2, 2, 10, 2 }, { 8, 2, 2, 2, 10, 14 },// 
-				{ 1, 5, 2, 1, 5, 2 }, { 2, 5, 2, 1, 5, 14 },//
-				{ 3, 5, 2, 1, 13, 2 }, { 4, 5, 2, 1, 13, 14 },//
-				{ 5, 5, 2, 2, 5, 2 }, { 6, 5, 2, 2, 5, 14 },//
-				{ 7, 5, 2, 2, 13, 2 }, { 8, 5, 2, 2, 13, 14 },// 
-				{ 1, 7, 2, 1, 7, 2 }, { 2, 7, 2, 1, 7, 14 },//
-				{ 3, 7, 2, 1, 15, 2 }, { 4, 7, 2, 1, 15, 14 },//
-				{ 5, 7, 2, 2, 7, 2 }, { 6, 7, 2, 2, 7, 14 },//
-				{ 7, 7, 2, 2, 15, 2 }, { 8, 7, 2, 2, 15, 14 },// 
-				// col=12
-				{ 1, 1, 12, 1, 1, 12 }, { 2, 1, 12, 1, 1, 24 },//
-				{ 3, 1, 12, 1, 9, 12 }, { 4, 1, 12, 1, 9, 24 },//
-				{ 5, 1, 12, 2, 1, 12 }, { 6, 1, 12, 2, 1, 24 },//
-				{ 7, 1, 12, 2, 9, 12 }, { 8, 1, 12, 2, 9, 24 },// 
-				{ 1, 2, 12, 1, 2, 12 }, { 2, 2, 12, 1, 2, 24 },//
-				{ 3, 2, 12, 1, 10, 12 }, { 4, 2, 12, 1, 10, 24 },//
-				{ 5, 2, 12, 2, 2, 12 }, { 6, 2, 12, 2, 2, 24 },//
-				{ 7, 2, 12, 2, 10, 12 }, { 8, 2, 12, 2, 10, 24 },// 
-				{ 1, 5, 12, 1, 5, 12 }, { 2, 5, 12, 1, 5, 24 },//
-				{ 3, 5, 12, 1, 13, 12 }, { 4, 5, 12, 1, 13, 24 },//
-				{ 5, 5, 12, 2, 5, 12 }, { 6, 5, 12, 2, 5, 24 },//
-				{ 7, 5, 12, 2, 13, 12 }, { 8, 5, 12, 2, 13, 24 },// 
-				{ 1, 7, 12, 1, 7, 12 }, { 2, 7, 12, 1, 7, 24 },//
-				{ 3, 7, 12, 1, 15, 12 }, { 4, 7, 12, 1, 15, 24 },//
-				{ 5, 7, 12, 2, 7, 12 }, { 6, 7, 12, 2, 7, 24 },//
-				{ 7, 7, 12, 2, 15, 12 }, { 8, 7, 12, 2, 15, 24 },// 
+	public static Iterator<Object[]> exhaustiveLeftToRight() {
+		return new Iterator<Object[]>() {
+			private static final int MAX_SMALL_PLATES = 8;
+			private static final int MAX_SMALL_ROWS = 8;
+			private static final int MAX_SMALL_COLS = 12;
+			private int smallPlate = 1;
+			private int smallRow = 1;
+			private int smallCol = 1;
+	
+			@Override
+			public boolean hasNext() {
+				return smallPlate <= MAX_SMALL_PLATES;
+			}
+	
+			@Override
+			public Object[] next() {
+				@SuppressWarnings("boxing")
+				final Object[] ret = new Object[] { smallPlate, smallRow,
+						smallCol, (smallPlate - 1) / 4 + 1,
+						smallRow + (smallPlate - 1) % 4 / 2 * 8,
+						smallCol + (smallPlate - 1) % 2 * 12 };
+				if (++smallCol > MAX_SMALL_COLS) {
+					smallCol = 1;
+					if (++smallRow > MAX_SMALL_ROWS) {
+						smallRow = 1;
+						++smallPlate;
+					}
+				}
+				return ret;
+			}
+	
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+	
 		};
-		return ret;
 	}
 
+	/**
+	 * Exhaustive (for 2 384 well plates) test data for
+	 * {@link CombinationPattern#UpToDownThenRight}.
+	 * 
+	 * @return An {@link Iterator} to the data.
+	 */
 	@DataProvider(name = "upToDown")
-	public static Object[][] testCasesUpToDown() {
-		@SuppressWarnings("boxing")
-		final Object[][] ret = new Object[][] {// col=1
-		{ 1, 1, 1, 1, 1, 1 }, { 2, 1, 1, 1, 9, 1 },//
-				{ 3, 1, 1, 1, 1, 13 }, { 4, 1, 1, 1, 9, 13 },//
-				{ 5, 1, 1, 2, 1, 1 }, { 6, 1, 1, 2, 9, 1 },//
-				{ 7, 1, 1, 2, 1, 13 }, { 8, 1, 1, 2, 9, 13 },// 
-				{ 1, 2, 1, 1, 2, 1 }, { 2, 2, 1, 1, 10, 1 },//
-				{ 3, 2, 1, 1, 2, 13 }, { 4, 2, 1, 1, 10, 13 },//
-				{ 5, 2, 1, 2, 2, 1 }, { 6, 2, 1, 2, 10, 1 },//
-				{ 7, 2, 1, 2, 2, 13 }, { 8, 2, 1, 2, 10, 13 },// 
-				{ 1, 5, 1, 1, 5, 1 }, { 2, 5, 1, 1, 13, 1 },//
-				{ 3, 5, 1, 1, 5, 13 }, { 4, 5, 1, 1, 13, 13 },//
-				{ 5, 5, 1, 2, 5, 1 }, { 6, 5, 1, 2, 13, 1 },//
-				{ 7, 5, 1, 2, 5, 13 }, { 8, 5, 1, 2, 13, 13 },// 
-				{ 1, 7, 1, 1, 7, 1 }, { 2, 7, 1, 1, 15, 1 },//
-				{ 3, 7, 1, 1, 7, 13 }, { 4, 7, 1, 1, 15, 13 },//
-				{ 5, 7, 1, 2, 7, 1 }, { 6, 7, 1, 2, 15, 1 },//
-				{ 7, 7, 1, 2, 7, 13 }, { 8, 7, 1, 2, 15, 13 },//
-				// col=2
-				{ 1, 1, 2, 1, 1, 2 }, { 2, 1, 2, 1, 9, 2 },//
-				{ 3, 1, 2, 1, 1, 14 }, { 4, 1, 2, 1, 9, 14 },//
-				{ 5, 1, 2, 2, 1, 2 }, { 6, 1, 2, 2, 9, 2 },//
-				{ 7, 1, 2, 2, 1, 14 }, { 8, 1, 2, 2, 9, 14 },// 
-				{ 1, 2, 2, 1, 2, 2 }, { 2, 2, 2, 1, 10, 2 },//
-				{ 3, 2, 2, 1, 2, 14 }, { 4, 2, 2, 1, 10, 14 },//
-				{ 5, 2, 2, 2, 2, 2 }, { 6, 2, 2, 2, 10, 2 },//
-				{ 7, 2, 2, 2, 2, 14 }, { 8, 2, 2, 2, 10, 14 },// 
-				{ 1, 5, 2, 1, 5, 2 }, { 2, 5, 2, 1, 13, 2 },//
-				{ 3, 5, 2, 1, 5, 14 }, { 4, 5, 2, 1, 13, 14 },//
-				{ 5, 5, 2, 2, 5, 2 }, { 6, 5, 2, 2, 13, 2 },//
-				{ 7, 5, 2, 2, 5, 14 }, { 8, 5, 2, 2, 13, 14 },// 
-				{ 1, 7, 2, 1, 7, 2 }, { 2, 7, 2, 1, 15, 2 },//
-				{ 3, 7, 2, 1, 7, 14 }, { 4, 7, 2, 1, 15, 14 },//
-				{ 5, 7, 2, 2, 7, 2 }, { 6, 7, 2, 2, 15, 2 },//
-				{ 7, 7, 2, 2, 7, 14 }, { 8, 7, 2, 2, 15, 14 },// 
-				// col=12
-				{ 1, 1, 12, 1, 1, 12 }, { 2, 1, 12, 1, 9, 12 },//
-				{ 3, 1, 12, 1, 1, 24 }, { 4, 1, 12, 1, 9, 24 },//
-				{ 5, 1, 12, 2, 1, 12 }, { 6, 1, 12, 2, 9, 12 },//
-				{ 7, 1, 12, 2, 1, 24 }, { 8, 1, 12, 2, 9, 24 },// 
-				{ 1, 2, 12, 1, 2, 12 }, { 2, 2, 12, 1, 10, 12 },//
-				{ 3, 2, 12, 1, 2, 24 }, { 4, 2, 12, 1, 10, 24 },//
-				{ 5, 2, 12, 2, 2, 12 }, { 6, 2, 12, 2, 10, 12 },//
-				{ 7, 2, 12, 2, 2, 24 }, { 8, 2, 12, 2, 10, 24 },// 
-				{ 1, 5, 12, 1, 5, 12 }, { 2, 5, 12, 1, 13, 12 },//
-				{ 3, 5, 12, 1, 5, 24 }, { 4, 5, 12, 1, 13, 24 },//
-				{ 5, 5, 12, 2, 5, 12 }, { 6, 5, 12, 2, 13, 12 },//
-				{ 7, 5, 12, 2, 5, 24 }, { 8, 5, 12, 2, 13, 24 },// 
-				{ 1, 7, 12, 1, 7, 12 }, { 2, 7, 12, 1, 15, 12 },//
-				{ 3, 7, 12, 1, 7, 24 }, { 4, 7, 12, 1, 15, 24 },//
-				{ 5, 7, 12, 2, 7, 12 }, { 6, 7, 12, 2, 15, 12 },//
-				{ 7, 7, 12, 2, 7, 24 }, { 8, 7, 12, 2, 15, 24 },// 
-		};
-		return ret;
-	}
-
-	@DataProvider(name = "closePipettes")
-	public static Iterator<Object[]> exhaustiveForClosePipettes() {
+	public static Iterator<Object[]> exhaustiveUpToDown() {
 		return new Iterator<Object[]>() {
 			private static final int MAX_SMALL_PLATES = 8;
 			private static final int MAX_SMALL_ROWS = 8;
@@ -149,7 +85,7 @@ public class CombinationPatternTests {
 
 			@Override
 			public boolean hasNext() {
-				return smallPlate <= MAX_SMALL_PLATES + 1;
+				return smallPlate <= MAX_SMALL_PLATES;
 			}
 
 			@Override
@@ -157,8 +93,8 @@ public class CombinationPatternTests {
 				@SuppressWarnings("boxing")
 				final Object[] ret = new Object[] { smallPlate, smallRow,
 						smallCol, (smallPlate - 1) / 4 + 1,
-						(smallRow - 1) * 2 + 1 + (smallPlate - 1) % 4 / 2,
-						(smallCol - 1) * 2 + 1 + (smallPlate - 1) % 2 };
+						smallRow + (smallPlate - 1) % 2 * 8,
+						smallCol + (smallPlate - 1) % 4 / 2 * 12 };
 				if (++smallCol > MAX_SMALL_COLS) {
 					smallCol = 1;
 					if (++smallRow > MAX_SMALL_ROWS) {
@@ -177,6 +113,121 @@ public class CombinationPatternTests {
 		};
 	}
 
+	/**
+	 * Exhaustive (for 2 384 well plates) test data for
+	 * {@link CombinationPattern#UpToDownThenRight8Pipettes}.
+	 * 
+	 * @return An {@link Iterator} to the data.
+	 */
+	@DataProvider(name = "upToDownMerge")
+	public static Iterator<Object[]> exhaustiveUpToDown8Pipettes() {
+		return new Iterator<Object[]>() {
+			private static final int MAX_SMALL_PLATES = 8;
+			private static final int MAX_SMALL_ROWS = 8;
+			private static final int MAX_SMALL_COLS = 12;
+			private int smallPlate = 1;
+			private int smallRow = 1;
+			private int smallCol = 1;
+	
+			@Override
+			public boolean hasNext() {
+				return smallPlate <= MAX_SMALL_PLATES;
+			}
+	
+			@Override
+			public Object[] next() {
+				@SuppressWarnings("boxing")
+				final Object[] ret = new Object[] { smallPlate, smallRow,
+						smallCol, (smallPlate - 1) / 4 + 1,
+						(smallRow - 1) * 2 + 1 + (smallPlate - 1) % 2,
+						smallCol + (smallPlate - 1) % 4 / 2 * 12 };
+				if (++smallCol > MAX_SMALL_COLS) {
+					smallCol = 1;
+					if (++smallRow > MAX_SMALL_ROWS) {
+						smallRow = 1;
+						++smallPlate;
+					}
+				}
+				return ret;
+			}
+	
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+	
+		};
+	}
+
+	/**
+	 * Exhaustive (for 2 384 well plates) test data for
+	 * {@link CombinationPattern#LeftToRightThenDown8PipettesClose}.
+	 * 
+	 * @return An {@link Iterator} to the data.
+	 */
+	@DataProvider(name = "closePipettes")
+	public static Iterator<Object[]> exhaustiveForClosePipettes() {
+		return new Iterator<Object[]>() {
+			private static final int MAX_SMALL_PLATES = 8;
+			private static final int MAX_SMALL_ROWS = 8;
+			private static final int MAX_SMALL_COLS = 12;
+			private int smallPlate = 1;
+			private int smallRow = 1;
+			private int smallCol = 1;
+	
+			@Override
+			public boolean hasNext() {
+				return smallPlate <= MAX_SMALL_PLATES + 1;
+			}
+	
+			@Override
+			public Object[] next() {
+				@SuppressWarnings("boxing")
+				final Object[] ret = new Object[] { smallPlate, smallRow,
+						smallCol, (smallPlate - 1) / 4 + 1,
+						(smallRow - 1) * 2 + 1 + (smallPlate - 1) % 4 / 2,
+						(smallCol - 1) * 2 + 1 + (smallPlate - 1) % 2 };
+				if (++smallCol > MAX_SMALL_COLS) {
+					smallCol = 1;
+					if (++smallRow > MAX_SMALL_ROWS) {
+						smallRow = 1;
+						++smallPlate;
+					}
+				}
+				return ret;
+			}
+	
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+	
+		};
+	}
+
+	/**
+	 * Tests the {@link CombinationPattern#LeftToRightThenDown} version of
+	 * {@link PlateFormatCellFactory}.
+	 * 
+	 * @param smallPlate
+	 *            The plate number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param smallRow
+	 *            The row number on small (96 well plate) (starting from {@code
+	 *            1}).
+	 * @param smallCol
+	 *            The column number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largePlate
+	 *            The plate number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeRow
+	 *            The row number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeCol
+	 *            The column number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 */
 	@Test(dataProvider = "leftToRight")
 	public void leftToRightTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
@@ -187,20 +238,33 @@ public class CombinationPatternTests {
 		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
 				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
 				CombinationPattern.LeftToRightThenDown);
-		Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
-				smallRow - 1, smallCol - 1), largePlate);
-		Assert.assertEquals(cellFactoryToLarger.rowCompute(smallPlate - 1,
-				smallRow - 1), largeRow);
-		Assert.assertEquals(cellFactoryToLarger.colCompute(smallPlate - 1,
-				smallCol - 1), largeCol);
-		Assert.assertEquals(cellFactoryToSmaller.plateCompute(largePlate - 1,
-				largeRow - 1, largeCol - 1), smallPlate);
-		Assert.assertEquals(cellFactoryToSmaller.rowCompute(largePlate - 1,
-				largeRow - 1), smallRow);
-		Assert.assertEquals(cellFactoryToSmaller.colCompute(largePlate - 1,
-				largeCol - 1), smallCol);
+		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+				smallRow, smallCol, largePlate, largeRow, largeCol);
 	}
 
+	/**
+	 * Tests the {@link CombinationPattern#UpToDownThenRight} version of
+	 * {@link PlateFormatCellFactory}.
+	 * 
+	 * @param smallPlate
+	 *            The plate number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param smallRow
+	 *            The row number on small (96 well plate) (starting from {@code
+	 *            1}).
+	 * @param smallCol
+	 *            The column number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largePlate
+	 *            The plate number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeRow
+	 *            The row number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeCol
+	 *            The column number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 */
 	@Test(dataProvider = "upToDown")
 	public void upToDownTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
@@ -211,21 +275,34 @@ public class CombinationPatternTests {
 		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
 				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
 				CombinationPattern.UpToDownThenRight);
-		Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
-				smallRow - 1, smallCol - 1), largePlate);
-		Assert.assertEquals(cellFactoryToLarger.rowCompute(smallPlate - 1,
-				smallRow - 1), largeRow);
-		Assert.assertEquals(cellFactoryToLarger.colCompute(smallPlate - 1,
-				smallCol - 1), largeCol);
-		Assert.assertEquals(cellFactoryToSmaller.plateCompute(largePlate - 1,
-				largeRow - 1, largeCol - 1), smallPlate);
-		Assert.assertEquals(cellFactoryToSmaller.rowCompute(largePlate - 1,
-				largeRow - 1), smallRow);
-		Assert.assertEquals(cellFactoryToSmaller.colCompute(largePlate - 1,
-				largeCol - 1), smallCol);
+		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+				smallRow, smallCol, largePlate, largeRow, largeCol);
 	}
 
-	@Test(dataProvider = "upToDownMerge", enabled = false)
+	/**
+	 * Tests the {@link CombinationPattern#UpToDownThenRight8Pipettes} version
+	 * of {@link PlateFormatCellFactory}.
+	 * 
+	 * @param smallPlate
+	 *            The plate number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param smallRow
+	 *            The row number on small (96 well plate) (starting from {@code
+	 *            1}).
+	 * @param smallCol
+	 *            The column number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largePlate
+	 *            The plate number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeRow
+	 *            The row number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeCol
+	 *            The column number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 */
+	@Test(dataProvider = "upToDownMerge")
 	public void upToDownMergeTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
 			final int largeCol) {
@@ -235,20 +312,33 @@ public class CombinationPatternTests {
 		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
 				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
 				CombinationPattern.UpToDownThenRight8Pipettes);
-		Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
-				smallRow - 1, smallCol - 1), largePlate);
-		Assert.assertEquals(cellFactoryToLarger.rowCompute(smallPlate - 1,
-				smallRow - 1), largeRow);
-		Assert.assertEquals(cellFactoryToLarger.colCompute(smallPlate - 1,
-				smallCol - 1), largeCol);
-		Assert.assertEquals(cellFactoryToSmaller.plateCompute(largePlate - 1,
-				largeRow - 1, largeCol - 1), smallPlate);
-		Assert.assertEquals(cellFactoryToSmaller.rowCompute(largePlate - 1,
-				largeRow - 1), smallRow);
-		Assert.assertEquals(cellFactoryToSmaller.colCompute(largePlate - 1,
-				largeCol - 1), smallCol);
+		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+				smallRow, smallCol, largePlate, largeRow, largeCol);
 	}
 
+	/**
+	 * Tests the {@link CombinationPattern#LeftToRightThenDown8PipettesClose}
+	 * version of {@link PlateFormatCellFactory}.
+	 * 
+	 * @param smallPlate
+	 *            The plate number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param smallRow
+	 *            The row number on small (96 well plate) (starting from {@code
+	 *            1}).
+	 * @param smallCol
+	 *            The column number on small (96 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largePlate
+	 *            The plate number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeRow
+	 *            The row number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 * @param largeCol
+	 *            The column number on large (384 well plate) (starting from
+	 *            {@code 1}).
+	 */
 	@Test(dataProvider = "closePipettes")
 	public void leftToRightCloseMergeTests(final int smallPlate,
 			final int smallRow, final int smallCol, final int largePlate,
@@ -259,6 +349,14 @@ public class CombinationPatternTests {
 		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
 				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
 				CombinationPattern.LeftToRightThenDown8PipettesClose);
+		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+				smallRow, smallCol, largePlate, largeRow, largeCol);
+	}
+
+	private void asserts(final PlateFormatCellFactory cellFactoryToLarger,
+			final PlateFormatCellFactory cellFactoryToSmaller,
+			final int smallPlate, final int smallRow, final int smallCol,
+			final int largePlate, final int largeRow, final int largeCol) {
 		Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
 				smallRow - 1, smallCol - 1), largePlate,
 				"Plate problem, 96->384");
