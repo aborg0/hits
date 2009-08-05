@@ -37,6 +37,12 @@ public class PlateFormatNodeDialog extends DefaultNodeSettingsPane {
 				PlateFormatNodeModel.DEFAULT_TO_WELL_COUNT, Format.values());
 		addDialogComponent(new DialogComponentStringSelection(toWellCountModel,
 				"To well:", toWellCountModel.getDisplayTexts()));
-
+		final SettingsModelEnum<CombinationPattern> combinePatternModel = new SettingsModelEnum<CombinationPattern>(
+				PlateFormatNodeModel.CFGKEY_COMBINATION_PATTERN,
+				CombinationPattern.LeftToRightThenDown, CombinationPattern
+						.values());
+		addDialogComponent(new DialogComponentStringSelection(
+				combinePatternModel, "Layout: ", combinePatternModel
+						.getDisplayTexts()));
 	}
 }

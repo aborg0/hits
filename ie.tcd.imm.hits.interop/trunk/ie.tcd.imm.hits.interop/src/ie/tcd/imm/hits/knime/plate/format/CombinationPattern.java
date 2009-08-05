@@ -12,9 +12,9 @@ import ie.tcd.imm.hits.util.Displayable;
  */
 public enum CombinationPattern implements Displayable {
 	/** The normal 12|34 order, without any merge. */
-	LeftToRightThenDown(true, true, true, 1, false, false),
+	LeftToRightThenDown(true, true, true, 0, false, false),
 	/** The normal 13|24 order without merging. */
-	UpToDownThenRight(false, true, true, 1, false, false),
+	UpToDownThenRight(false, true, true, 0, false, false),
 	/** The merged view 12|34 with 8 pipettes. */
 	LeftToRightThenDown8Pipettes(false, true, true, 8, false, false);
 
@@ -87,18 +87,17 @@ public enum CombinationPattern implements Displayable {
 	 */
 	@Override
 	public String getDisplayText() {
-		return firstHorizontal ? (horizontalToRight ? "left to right"
+		return (firstHorizontal ? (horizontalToRight ? "left to right"
 				: "right to left")
 				+ " then " + (verticalToDown ? "up to down" : "down to up")
 				: (verticalToDown ? "up to down" : "down to up")
 						+ " then "
 						+ (horizontalToRight ? "left to right"
-								: "right to left")
-						+ " "
-						+ pipettes
-						+ " pipettes "
-						+ (combineReplicates ? keepEmptyReplicates ? "keeping empty spaces"
-								: "filling empty spaces with replicates"
-								: "without replicates");
+								: "right to left"))
+				+ " "
+				+ (pipettes > 0 ? pipettes + " pipettes " : "")
+				+ (combineReplicates ? keepEmptyReplicates ? "keeping empty spaces"
+						: "filling empty spaces with replicates"
+						: "without replicates");
 	}
 }
