@@ -12,11 +12,13 @@ import ie.tcd.imm.hits.util.Displayable;
  */
 public enum CombinationPattern implements Displayable {
 	/** The normal 12|34 order, without any merge. */
-	LeftToRightThenDown(true, true, true, 0, false, false),
+	LeftToRightThenDown(true, true, true, 0, false, false, false),
 	/** The normal 13|24 order without merging. */
-	UpToDownThenRight(false, true, true, 0, false, false),
-	/** The merged view 12|34 with 8 pipettes. */
-	LeftToRightThenDown8Pipettes(false, true, true, 8, false, false);
+	UpToDownThenRight(false, true, true, 0, false, false, false),
+	/** The merged view 13|24 with 8 pipettes. */
+	UpToDownThenRight8Pipettes(false, true, true, 8, false, false, false),
+	/** The merged view 13|24 with 8 pipettes with close to each other */
+	LeftToRightThenDown8PipettesClose(true, true, true, 8, false, false, true);
 
 	private final boolean firstHorizontal;
 	private final boolean verticalToDown;
@@ -24,6 +26,20 @@ public enum CombinationPattern implements Displayable {
 	private final int pipettes;
 	private final boolean combineReplicates;
 	private final boolean keepEmptyReplicates;
+	private final boolean closeWells;
+
+	private CombinationPattern(final boolean firstHorizontal,
+			final boolean verticalToDown, final boolean horizontalToRight,
+			final int pipettes, final boolean combineReplicates,
+			final boolean keepEmptyReplicates, final boolean closeWells) {
+		this.firstHorizontal = firstHorizontal;
+		this.verticalToDown = verticalToDown;
+		this.horizontalToRight = horizontalToRight;
+		this.pipettes = pipettes;
+		this.combineReplicates = combineReplicates;
+		this.keepEmptyReplicates = keepEmptyReplicates;
+		this.closeWells = closeWells;
+	}
 
 	/**
 	 * @return The first direction is horizontal.
@@ -68,16 +84,11 @@ public enum CombinationPattern implements Displayable {
 		return keepEmptyReplicates;
 	}
 
-	private CombinationPattern(final boolean firstHorizontal,
-			final boolean verticalToDown, final boolean horizontalToRight,
-			final int pipettes, final boolean combineReplicates,
-			final boolean keepEmptyReplicates) {
-		this.firstHorizontal = firstHorizontal;
-		this.verticalToDown = verticalToDown;
-		this.horizontalToRight = horizontalToRight;
-		this.pipettes = pipettes;
-		this.combineReplicates = combineReplicates;
-		this.keepEmptyReplicates = keepEmptyReplicates;
+	/**
+	 * @return The closeWells.
+	 */
+	public boolean isCloseWells() {
+		return closeWells;
 	}
 
 	/*
@@ -96,6 +107,7 @@ public enum CombinationPattern implements Displayable {
 								: "right to left"))
 				+ " "
 				+ (pipettes > 0 ? pipettes + " pipettes " : "")
+				+ (closeWells ? "wells are close " : "")
 				+ (combineReplicates ? keepEmptyReplicates ? "keeping empty spaces"
 						: "filling empty spaces with replicates"
 						: "without replicates");

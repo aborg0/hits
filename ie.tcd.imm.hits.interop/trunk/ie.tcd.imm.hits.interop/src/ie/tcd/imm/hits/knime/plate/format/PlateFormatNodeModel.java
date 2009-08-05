@@ -35,6 +35,615 @@ import org.knime.core.node.defaultnodesettings.SettingsModelEnum;
  */
 public class PlateFormatNodeModel extends NodeModel {
 
+	/**
+	 * This class computes the new indices for plates/replicates/rows/columns.
+	 */
+	static final class PlateFormatCellFactory extends AbstractCellFactory {
+		/**  */
+		private final int plateIndex;
+		/**  */
+		private final int rowIndex;
+		/**  */
+		private final int colIndex;
+		private final DataCell[] EMPTY = new DataCell[] {
+				DataType.getMissingCell(), DataType.getMissingCell(),
+				DataType.getMissingCell() };
+		private final Format from;
+		private final Format to;
+		private final CombinationPattern pattern;
+		private final int fromToTo;
+		private final int toToFrom;
+		private final int fromToToCol;
+		private final int toToFromCol;
+		private final int fromToToRow;
+		private final int toToFromRow;
+		private final boolean toLarger;
+
+		/**
+		 * @param colSpecs
+		 * @param plateIndex
+		 * @param rowIndex
+		 * @param colIndex
+		 * @param from
+		 * @param to
+		 * @param pattern
+		 */
+		PlateFormatCellFactory(final DataColumnSpec[] colSpecs,
+				final int plateIndex, final int rowIndex, final int colIndex,
+				final Format from, final Format to,
+				final CombinationPattern pattern) {
+			super(colSpecs);
+			this.plateIndex = plateIndex;
+			this.rowIndex = rowIndex;
+			this.colIndex = colIndex;
+			this.from = from;
+			this.to = to;
+			this.pattern = pattern;
+			if (pattern.isCombineReplicates()) {
+				throw new UnsupportedOperationException(
+						"Support for replicates is not implemented");
+			}
+			if (pattern.getPipettes() != 0) {
+				assert to.getRow() % pattern.getPipettes() == 0 : "to.getRow: "
+						+ to.getRow() + "\npipettes: " + pattern.getPipettes();
+			}
+			fromToTo = from.getWellCount() / to.getWellCount();
+			toToFrom = to.getWellCount() / from.getWellCount();
+			fromToToCol = from.getCol() / to.getCol();
+			toToFromCol = to.getCol() / from.getCol();
+			fromToToRow = from.getRow() / to.getRow();
+			toToFromRow = to.getRow() / from.getRow();
+			toLarger = fromToTo == 0;
+		}
+
+		@Override
+		public DataCell[] getCells(final DataRow dataRow) {
+
+			final Integer oldPlate = getCell(dataRow, plateIndex);
+			final Integer oldRow = getCell(dataRow, rowIndex);
+			final Integer oldCol = getCell(dataRow, colIndex);
+			if (oldPlate == null || oldRow == null || oldCol == null) {
+				return EMPTY;
+			}
+			final int plate = oldPlate.intValue() - 1;
+			final int row = oldRow.intValue() - 1;
+			final int col = oldCol.intValue() - 1;
+			final int newPlate = plateCompute(plate, row, col);
+			// newPlate = (toLarger ? plate / toToFrom : plate
+			// * fromToTo + col / to.getCol() + row
+			// / to.getRow() * fromToToCol) + 1;
+			final int newRow = rowCompute(plate, row);
+			// newRow = (toLarger ? plate % toToFrom / toToFromRow
+			// * from.getRow() + row : row % to.getRow()) + 1;
+			final int newCol = colCompute(plate, col);
+			// newCol = (toLarger ? plate % toToFromCol
+			// * from.getCol() + col : col % to.getCol()) + 1;
+			return new DataCell[] { new IntCell(newPlate), new IntCell(newRow),
+					new IntCell(newCol) };
+		}
+
+		/**
+		 * @param plate
+		 * @param col
+		 * @return
+		 */
+		int colCompute(final int plate, final int col) {
+			final int newCol;
+			if (toLarger) {
+				if (pattern.isFirstHorizontal()) {
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newCol = plate % toToFromCol
+											* from.getCol() + col + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									newCol = plate % toToFromCol + col
+											* toToFromCol + 1;
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						}
+					}
+				} else {// first vertical
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newCol = plate % toToFrom / toToFromCol
+											* from.getCol() + col + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newCol = plate % toToFrom / toToFromCol
+											* from.getCol() + col + 1;
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					}
+				}
+			} else {// toSmaller
+				newCol = (pattern.isCloseWells() ? col / fromToToCol : col
+						% to.getCol()) + 1;
+			}
+			return newCol;
+		}
+
+		/**
+		 * @param plate
+		 * @param row
+		 * @return
+		 */
+		int rowCompute(final int plate, final int row) {
+			final int newRow;
+			if (toLarger) {
+				if (pattern.isFirstHorizontal()) {
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newRow = plate % toToFrom / toToFromRow
+											* from.getRow() + row + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									newRow = plate % toToFrom / toToFromCol
+											+ row * toToFromCol + 1;
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					}
+				} else {// first vertical
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newRow = plate % toToFrom % toToFromCol
+											* from.getRow() + row + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newRow = plate
+											% toToFrom
+											% toToFromCol
+											+ row
+											* (to.getRow() / pattern
+													.getPipettes()) + 1;
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					}
+				}
+			} else {// toSmaller
+				if (pattern.isFirstHorizontal()) {
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newRow = row % to.getRow() + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									newRow = row
+											/ (from.getRow() / pattern
+													.getPipettes())
+											% to.getRow() + 1;
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					}
+				} else {// first vertical
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newRow = row % to.getRow() + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									if (pattern.isCloseWells()) {
+										throw new UnsupportedOperationException();
+									} else {
+										throw new UnsupportedOperationException();
+									}
+								} else {
+									newRow = row
+											/ (from.getRow() / pattern
+													.getPipettes())
+											% to.getRow() + 1;
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						}
+					}
+				}
+			}
+			return newRow;
+		}
+
+		/**
+		 * @param plate
+		 * @param row
+		 * @param col
+		 * @return
+		 */
+		int plateCompute(final int plate, final int row, final int col) {
+			final int newPlate;
+			if (toLarger) {
+				newPlate = plate / toToFrom + 1;
+			} else {
+				if (pattern.isFirstHorizontal()) {
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newPlate = plate * fromToTo + col
+											/ to.getCol() + row / to.getRow()
+											* fromToToCol + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									newPlate = plate * fromToTo + col
+											% fromToToCol + row % fromToToRow
+											* fromToToCol + 1;
+								} else {
+									throw new UnsupportedOperationException();
+								}
+							}
+						} else {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						} else {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						}
+					}
+				} else {
+					if (pattern.isHorizontalToRight()) {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.getPipettes() == 0) {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newPlate = plate * fromToTo + col
+											/ to.getCol() * fromToToRow + row
+											/ to.getRow() + 1;
+								}
+							} else {
+								if (pattern.isCloseWells()) {
+									throw new UnsupportedOperationException();
+								} else {
+									newPlate = plate
+											* fromToTo
+											+ col
+											/ to.getCol()
+											* fromToToRow
+											+ row
+											% (from.getRow() / pattern
+													.getPipettes()) + 1;
+								}
+							}
+						} else {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						}
+					} else {
+						if (pattern.isVerticalToDown()) {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						} else {
+							if (pattern.isCloseWells()) {
+								throw new UnsupportedOperationException();
+							} else {
+								throw new UnsupportedOperationException();
+							}
+						}
+					}
+				}
+			}
+			return newPlate;
+		}
+
+		@Nullable
+		private Integer getCell(final DataRow row, final int index) {
+			final DataCell cell = row.getCell(index);
+			return cell.isMissing() ? null : Integer.valueOf(((IntValue) cell)
+					.getIntValue());
+		}
+	}
+
 	// the logger instance
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(PlateFormatNodeModel.class);
@@ -52,7 +661,7 @@ public class PlateFormatNodeModel extends NodeModel {
 	/** Configuration key for the combination pattern. */
 	static final String CFGKEY_COMBINATION_PATTERN = "combination.pattern";
 	/** Default value for the combination pattern. */
-	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.LeftToRightThenDown8Pipettes;
+	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.UpToDownThenRight8Pipettes;
 
 	private final SettingsModelEnum<Format> fromWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_FROM_WELL_COUNT, DEFAULT_FROM_WELL_COUNT, Format.values());
@@ -86,335 +695,11 @@ public class PlateFormatNodeModel extends NodeModel {
 		final DataColumnSpec rowSpec = spec.getColumnSpec(rowIndex);
 		final int colIndex = spec.findColumnIndex("col");
 		final DataColumnSpec colSpec = spec.getColumnSpec(colIndex);
-		rearranger.replace(
-				new AbstractCellFactory(plateSpec, rowSpec, colSpec) {
-					private final DataCell[] EMPTY = new DataCell[] {
-							DataType.getMissingCell(),
-							DataType.getMissingCell(),
-							DataType.getMissingCell() };
-					@SuppressWarnings("synthetic-access")
-					private final Format from = fromWellCount.getEnumValue();
-					@SuppressWarnings("synthetic-access")
-					private final Format to = toWellCount.getEnumValue();
-					@SuppressWarnings("synthetic-access")
-					private final CombinationPattern pattern = combinationPattern
-							.getEnumValue();
-					{
-						if (pattern.isCombineReplicates()) {
-							throw new UnsupportedOperationException(
-									"Support for replicates is not implemented");
-						}
-						if (pattern.getPipettes() != 0) {
-							assert to.getRow() % pattern.getPipettes() == 0 : "to.getRow: "
-									+ to.getRow()
-									+ "\npipettes: "
-									+ pattern.getPipettes();
-						}
-					}
-					private final int fromToTo = from.getWellCount()
-							/ to.getWellCount();
-					private final int toToFrom = to.getWellCount()
-							/ from.getWellCount();
-					private final int fromToToCol = from.getCol() / to.getCol();
-					private final int toToFromCol = to.getCol() / from.getCol();
-					private final int fromToToRow = from.getRow() / to.getRow();
-					private final int toToFromRow = to.getRow() / from.getRow();
-
-					@Override
-					public DataCell[] getCells(final DataRow dataRow) {
-
-						final Integer oldPlate = getCell(dataRow, plateIndex);
-						final Integer oldRow = getCell(dataRow, rowIndex);
-						final Integer oldCol = getCell(dataRow, colIndex);
-						if (oldPlate == null || oldRow == null
-								|| oldCol == null) {
-							return EMPTY;
-						}
-						final int plate = oldPlate.intValue() - 1;
-						final int row = oldRow.intValue() - 1;
-						final int col = oldCol.intValue() - 1;
-						final boolean toLarger = fromToTo == 0;
-						final int newPlate;
-						if (toLarger) {
-							newPlate = plate / toToFrom + 1;
-						} else {
-							if (pattern.isFirstHorizontal()) {
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newPlate = plate * fromToTo + col
-													/ to.getCol() + row
-													/ to.getRow() * fromToToCol
-													+ 1;
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										throw new UnsupportedOperationException();
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										throw new UnsupportedOperationException();
-									} else {
-										throw new UnsupportedOperationException();
-									}
-								}
-							} else {
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newPlate = plate * fromToTo + col
-													/ to.getCol() * fromToToRow
-													+ row / to.getRow() + 1;
-										} else {
-											newPlate = plate
-													* fromToTo
-													+ col
-													/ to.getCol()
-													* fromToToRow
-													+ row
-													% (from.getRow() / pattern
-															.getPipettes()) + 1;
-										}
-									} else {
-										throw new UnsupportedOperationException();
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										throw new UnsupportedOperationException();
-									} else {
-										throw new UnsupportedOperationException();
-									}
-								}
-							}
-						}
-						// newPlate = (toLarger ? plate / toToFrom : plate
-						// * fromToTo + col / to.getCol() + row
-						// / to.getRow() * fromToToCol) + 1;
-						final int newRow;
-						if (toLarger) {
-							if (pattern.isFirstHorizontal()) {
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newRow = plate % toToFrom
-													/ toToFromRow
-													* from.getRow() + row + 1;
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							} else {// first vertical
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newRow = plate % toToFrom
-													% toToFromCol
-													* from.getRow() + row + 1;
-										} else {
-											newRow = plate
-													% toToFrom
-													% toToFromCol
-													+ row
-													* (to.getRow() / pattern
-															.getPipettes()) + 1;
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							}
-						} else {// toSmaller
-							if (pattern.isFirstHorizontal()) {
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newRow = row % to.getRow() + 1;
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							} else {// first vertical
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newRow = row % to.getRow() + 1;
-										} else {
-											newRow = row
-													/ (from.getRow() / pattern
-															.getPipettes())
-													% to.getRow() + 1;
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							}
-						}
-						// newRow = (toLarger ? plate % toToFrom / toToFromRow
-						// * from.getRow() + row : row % to.getRow()) + 1;
-						final int newCol;
-						if (toLarger) {
-							if (pattern.isFirstHorizontal()) {
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newCol = plate % toToFromCol
-													* from.getCol() + col + 1;
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							} else {// first vertical
-								if (pattern.isHorizontalToRight()) {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											newCol = plate % toToFrom
-													/ toToFromCol
-													* from.getCol() + col + 1;
-										} else {
-											newCol = plate % toToFrom
-													/ toToFromCol
-													* from.getCol() + col + 1;
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								} else {
-									if (pattern.isVerticalToDown()) {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									} else {
-										if (pattern.getPipettes() == 0) {
-											throw new UnsupportedOperationException();
-										} else {
-											throw new UnsupportedOperationException();
-										}
-									}
-								}
-							}
-						} else {// toSmaller
-							newCol = col % to.getCol() + 1;
-						}
-						// newCol = (toLarger ? plate % toToFromCol
-						// * from.getCol() + col : col % to.getCol()) + 1;
-						return new DataCell[] { new IntCell(newPlate),
-								new IntCell(newRow), new IntCell(newCol) };
-					}
-
-					@Nullable
-					private Integer getCell(final DataRow row, final int index) {
-						final DataCell cell = row.getCell(index);
-						return cell.isMissing() ? null : Integer
-								.valueOf(((IntValue) cell).getIntValue());
-					}
-				}, plateIndex, rowIndex, colIndex);
+		rearranger.replace(new PlateFormatCellFactory(new DataColumnSpec[] {
+				plateSpec, rowSpec, colSpec }, plateIndex, rowIndex, colIndex,
+				fromWellCount.getEnumValue(), toWellCount.getEnumValue(),
+				combinationPattern.getEnumValue()), plateIndex, rowIndex,
+				colIndex);
 		final BufferedDataTable ret = exec.createColumnRearrangeTable(
 				inData[0], rearranger, exec);
 		logger.debug("Table converted to " + toWellCount.getStringValue()
