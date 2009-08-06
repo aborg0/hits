@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cq:componentQuery xmlns:cq="http://www.eclipse.org/buckminster/CQuery-1.0" resourceMap="http://hits.googlecode.com/svn/trunk/general/hits_ro.rmap">
+<cq:componentQuery xmlns:cq="http://www.eclipse.org/buckminster/CQuery-1.0" resourceMap="http://hits.googlecode.com/svn/trunk/general/hits.rmap">
     <cq:rootRequest name="ie.tcd.imm.hits" componentType="osgi.bundle"/>
+    <cq:property key="svn.password" value="KW5Ee4TR6MZ4"/>
+    <cq:property key="svn.user" value="aborgabor"/>
 </cq:componentQuery>
