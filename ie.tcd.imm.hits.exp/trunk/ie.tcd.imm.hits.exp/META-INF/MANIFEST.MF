@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Labs based node extensions for KNIME Workbench
 Bundle-SymbolicName: ie.tcd.imm.hits.exp; singleton:=true
-Bundle-Version: 0.4.0
+Bundle-Version: 0.4.0.qualifier
 Bundle-ClassPath: labs.jar
 Bundle-Activator: ie.tcd.imm.hits.exp.LabsNodePlugin
 Bundle-Vendor: <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  org.knime.distmatrix;bundle-version="[2.0.3.0021995,3.0.0)",
- ie.tcd.imm.hits;bundle-version="0.3.0"
+ ie.tcd.imm.hits;bundle-version="0.3.0",
+ ie.tcd.imm.hits.common;bundle-version="0.0.1"
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:="ie.tcd.imm.knime.test"
 

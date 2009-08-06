@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.ext.jep;bundle-version="[2.0.0,3.0.0)",
  org.apache.batik.svggen;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
  org.apache.batik.dom;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
- org.knime.distmatrix;bundle-version="[2.0.3.0021963,3.0.0)",
+ org.knime.distmatrix;bundle-version="[2.0.3.0021995,3.0.0)",
  ie.tcd.imm.hits.common;bundle-version="[0.0.1,1.0.0)",
  org.eclipse.core.filesystem;bundle-version="1.1.0",
  org.apache.commons.math;bundle-version="1.2.0"
@@ -24,5 +24,10 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:="ie.tcd.imm.knime.test"
+Export-Package: ie.tcd.imm.hits.knime.util,
+ ie.tcd.imm.hits.knime.view.heatmap;x-friends:="ie.tcd.imm.hits.exp",
+ ie.tcd.imm.hits.util,
+ ie.tcd.imm.hits.util.interval,
+ ie.tcd.imm.hits.util.swing,
+ ie.tcd.imm.hits.util.swing.colour;x-friends:="ie.tcd.imm.hits.exp"
 
