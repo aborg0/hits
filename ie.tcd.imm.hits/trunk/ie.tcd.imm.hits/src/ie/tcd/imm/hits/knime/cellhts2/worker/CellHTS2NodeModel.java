@@ -16,6 +16,14 @@ import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.RUtil;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,15 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -79,6 +78,7 @@ import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.REXPVector;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
@@ -761,7 +761,8 @@ public class CellHTS2NodeModel extends NodeModel {
 							: "") + additionalParams + ")";
 			logger.debug(topTableGenerate);
 			final REXP topTable = RUtil.eval(conn, topTableGenerate);
-			final int tableLength = ((REXP) topTable.asList().get(0)).length();
+			final int tableLength = ((REXPVector) topTable.asList().get(0))
+					.length();
 			if (tempFile != null && !tempFile.delete()) {
 				tempFile.deleteOnExit();
 			}
