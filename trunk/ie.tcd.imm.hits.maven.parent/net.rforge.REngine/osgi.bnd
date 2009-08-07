@@ -3,4 +3,4 @@
 #-----------------------------------------------------------------
 
 Embed-Dependency: *;scope=compile|runtime|system;type=!pom;inline=true
-Bundle-Activator: ${bundle.namespace}.internal.ExampleActivator
+#Bundle-Activator: ${bundle.namespace}.internal.ExampleActivator
