@@ -6,18 +6,18 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <properties>
-  	<bundle.symbolicName>net.rforge.REngine</bundle.symbolicName>
+  	<bundle.symbolicName>net.rforge.Rserve</bundle.symbolicName>
   <!--  	<bundle.namespace>org.rosuda.REngine</bundle.namespace>-->
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
-  <artifactId>net.rforge.REngine</artifactId>
+  <artifactId>net.rforge.Rserve</artifactId>
   <packaging>bundle</packaging><!--
   <name>${bundle.symbolicName} [${bundle.namespace}]</name>
   --><name>${bundle.symbolicName} [osgi]</name>
   <version>0.6.0-SNAPSHOT</version>
-  <description>Based on the jar from here: http://www.rforge.net/Rserve/files/REngine.jar (on it's 2009 august 7 state)</description>
-  <url>http://www.rforge.net/Rserve/files/REngine.jar</url>
+  <description>Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it's 2009 august 7 state)</description>
+  <url>http://www.rforge.net/Rserve/files/RserveEngine.jar</url>
   <scm>
   	<url>svn://svn.rforge.net/Rserve/trunk</url>
   </scm>
@@ -62,11 +62,18 @@
   <dependencies>
   	<dependency>
   		<groupId>net.rforge</groupId>
-  		<artifactId>REngine</artifactId>
+  		<artifactId>Rserve</artifactId>
   		<version>0.6.0</version>
   		<scope>system</scope>
-  		<systemPath>${basedir}/lib/REngine.jar</systemPath>
+  		<systemPath>${basedir}/lib/RserveEngine.jar</systemPath>
 <!--   		<systemPath>http://www.rforge.net/Rserve/files/REngine.jar</systemPath>-->
+  	</dependency>
+  	<dependency>
+  		<groupId>ie.tcd.imm.hits</groupId>
+  		<artifactId>net.rforge.REngine</artifactId>
+  		<version>0.6.0-SNAPSHOT</version>
+  		<type>bundle</type>
+  		<scope>compile</scope>
   	</dependency>
   </dependencies>
   <dependencyManagement>
