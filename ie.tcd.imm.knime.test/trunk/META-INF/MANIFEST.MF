@@ -13,7 +13,6 @@ Bundle-ClassPath: test.jar,
  lib/MRJToolkitStubs-1.0.jar
 Require-Bundle: org.knime.core,
  ie.tcd.imm.hits,
- ie.tcd.imm.hits.3rdparty;bundle-version="0.3.0",
  ie.tcd.imm.hits.common;bundle-version="[0.0.1,1.0.0)",
  ie.tcd.imm.hits.knime.interop;bundle-version="[0.0.1,1.0.0)",
  ie.tcd.imm.knime.util;bundle-version="0.1.0",

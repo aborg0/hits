@@ -5,9 +5,6 @@ package ie.tcd.imm.hits.knime.xls;
 
 import ie.tcd.imm.hits.common.PublicConstants;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -161,7 +160,7 @@ public class ImporterNodeModel extends NodeModel {
 							.getSheet("Summary by wells");
 					final HSSFRow row = perWellSheet.getRow(1);
 					int columns = 3;
-					for (int i = row.getLastCellNum(); i-- > Math.max(row
+					for (short i = row.getLastCellNum(); i-- > Math.max(row
 							.getFirstCellNum(), 1)
 							&& row.getCell(i) != null;) {
 						++columns;
@@ -202,12 +201,13 @@ public class ImporterNodeModel extends NodeModel {
 						values[0] = new IntCell(1 + j / replicateCount);// plate
 						values[1] = new IntCell(1 + j % replicateCount);// replicate
 						final HSSFRow currentRow = perWellSheet.getRow(i);
-						final String wellName = currentRow.getCell(0)
+						final String wellName = currentRow.getCell((short) 0)
 								.getRichStringCellValue().getString().replace(
 										" - ", "");
 						values[2] = new StringCell(wellName);
 						for (int c = 3; c < columns; ++c) {
-							final HSSFCell cell = currentRow.getCell(c - 1);
+							final HSSFCell cell = currentRow
+									.getCell((short) (c - 1));
 							values[c] = new DoubleCell(cell
 									.getNumericCellValue());
 						}
@@ -370,8 +370,9 @@ public class ImporterNodeModel extends NodeModel {
 		final List<String> header = new ArrayList<String>();
 		for (int i = row.getLastCellNum(); i-- > Math.max(
 				row.getFirstCellNum(), 1)
-				&& row.getCell(i) != null;) {
-			header.add(0, row.getCell(i).getRichStringCellValue().getString());
+				&& row.getCell((short) i) != null;) {
+			header.add(0, row.getCell((short) i).getRichStringCellValue()
+					.getString());
 		}
 		final boolean addAnnotations = !annotationFileNameModel
 				.getStringValue().isEmpty();
