@@ -53,5 +53,6 @@
   <modules>
     <module>jsr305</module>
     <module>findbugs-annotations</module>
+    <module>net.rforge.REngine</module>
   </modules>
 </project>
