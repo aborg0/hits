@@ -22,6 +22,7 @@
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.hits"/>
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.hits\.3rdparty"/>
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.hits\.common"/>
+	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.hits\.exp"/>
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.hits\.interop"/>
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.knime\.util"/>
 	<locator searchPathRef="plugins" pattern="ie\.tcd\.imm\.knime\.test"/>
