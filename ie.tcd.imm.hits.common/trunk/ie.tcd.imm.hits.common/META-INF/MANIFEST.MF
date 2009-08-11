@@ -8,8 +8,8 @@ Bundle-Vendor: TCD
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.knime.core;bundle-version="[2.0.0,3.0.0)"
-Export-Package: ie.tcd.imm.hits.common,
- ie.tcd.imm.hits.knime.util,
- ie.tcd.imm.hits.util,
- ie.tcd.imm.hits.util.template,
- org.knime.core.node.defaultnodesettings
+Export-Package: ie.tcd.imm.hits.common;version="0.0.1",
+ ie.tcd.imm.hits.knime.util;version="0.0.1",
+ ie.tcd.imm.hits.util;version="0.0.1",
+ ie.tcd.imm.hits.util.template;version="0.0.1",
+ org.knime.core.node.defaultnodesettings;version="0.0.1"

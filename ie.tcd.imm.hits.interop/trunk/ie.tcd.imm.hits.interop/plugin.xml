@@ -16,8 +16,8 @@
    -->
    
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/" factory-class="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory" id="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory"/>
-   <node category-path="/" factory-class="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory" id="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory"/>
+      <node category-path="/libhandl/" factory-class="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory" id="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory"/>
+   <node category-path="/libhandl/" factory-class="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory" id="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory"/>
 </extension>
    
 </plugin>

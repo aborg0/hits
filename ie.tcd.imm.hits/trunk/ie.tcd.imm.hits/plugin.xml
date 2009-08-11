@@ -14,7 +14,7 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
 	  <node category-path="/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
-      <node category-path="/" factory-class="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
     </extension>
 	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
