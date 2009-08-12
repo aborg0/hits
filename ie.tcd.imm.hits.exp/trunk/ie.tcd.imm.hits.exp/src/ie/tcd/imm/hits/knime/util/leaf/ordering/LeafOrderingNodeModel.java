@@ -320,7 +320,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 
 		for (final RowKey i : leftKeys) {
 			for (final RowKey l : rightKeys) {
-				Double maxValue = Double.NEGATIVE_INFINITY;
+				double maxValue = Double.NEGATIVE_INFINITY;
 				for (final RowKey h : leftKeys) {
 					final Triple<DendrogramNode, RowKey, RowKey> key = Triple
 							.apply(root, i, h);
@@ -338,7 +338,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 				if (!ret.containsKey(i)) {
 					ret.put(i, new HashMap<RowKey, Number>());
 				}
-				ret.get(i).put(l, maxValue);
+				ret.get(i).put(l, Double.valueOf(maxValue));
 			}
 		}
 		return ret;
