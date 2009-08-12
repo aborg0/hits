@@ -7,6 +7,7 @@
       <node category-path="/manipulation/" factory-class="ie.tcd.imm.knime.util.unpivot.UnpivotNodeFactory" id="ie.tcd.imm.knime.util.unpivot.UnpivotNodeFactory"/>
       <node category-path="/manipulation/" factory-class="ie.tcd.imm.knime.util.product.DirectProductNodeFactory" id="ie.tcd.imm.knime.util.product.DirectProductNodeFactory"/>
       <node category-path="/manipulation/row/" factory-class="ie.tcd.imm.knime.util.merge.MergeNodeFactory" id="ie.tcd.imm.knime.util.merge.MergeNodeFactory"/>
+      <node category-path="/manipulation/" factory-class="ie.tcd.imm.knime.util.power.SubsetsNodeFactory" id="ie.tcd.imm.knime.util.power.SubsetsNodeFactory"/>
    </extension>
    <extension point="org.eclipse.help.toc">
       <toc extradir="html" file="tocs/row_nodes.xml"/>
