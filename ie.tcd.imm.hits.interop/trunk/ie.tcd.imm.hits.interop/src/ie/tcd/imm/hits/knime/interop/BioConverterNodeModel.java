@@ -14,6 +14,8 @@ import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
 import ie.tcd.imm.hits.util.template.TokenizerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,9 +31,6 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 import javax.xml.XMLConstants;
@@ -169,9 +168,9 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		settingsModels = generateSettingsModels(root);
 		positionModels = generatePositionModels(root);
 		generalInGroup = new SettingsModelString(CFGKEY_GENERAL_IN_GROUP, root
-				.getProfiles().getProfile().get(0).getName());
+				.getProfiles().getProfiles().get(0).getName());
 		generalOutGroup = new SettingsModelString(CFGKEY_GENERAL_OUT_GROUP,
-				root.getProfiles().getProfile().get(1).getName());
+				root.getProfiles().getProfiles().get(1).getName());
 	}
 
 	/**
@@ -205,7 +204,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 			final Root root) {
 		final Map<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>> ret = new EnumMap<ColumnType, Map<Boolean, Map<DialogType, SettingsModelString>>>(
 				ColumnType.class);
-		final List<Default> defaults = root.getDefaults().getDefault();
+		final List<Default> defaults = root.getDefaults().getDefaults();
 		for (final ColumnType ct : ColumnType.values()) {
 
 			Map<Boolean, Map<DialogType, SettingsModelString>> ioMap;
@@ -882,7 +881,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	public static String findDefault(final Root root,
 			final ColumnType columnType, final boolean input,
 			final DialogType dialogType) {
-		final List<Default> defaults = root.getDefaults().getDefault();
+		final List<Default> defaults = root.getDefaults().getDefaults();
 		for (final Default d : defaults) {
 			if (d.getColumn() == columnType && d.isInput() == input
 					&& d.getDialog() == dialogType) {
