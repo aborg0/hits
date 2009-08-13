@@ -13,7 +13,6 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataValue;
 import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.DefaultRow;
@@ -27,8 +26,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 
 /**
  * This is the model implementation of Subsets. Generates all possible subsets
@@ -38,22 +36,15 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  */
 public class SubsetsNodeModel extends NodeModel {
 
-	/** Configuration key for the new column name. */
-	static final String CFGKEY_NEW_COLUMN_NAME = "new.column";
-	/** Default value of the new column name. */
-	static final String DEFAULT_NEW_COLUMN_NAME = "subsets";
-	/** Configuration key for the original column name. */
-	static final String CFGKEY_ORIGINAL_COLUMN_NAME = "original.column";
+	/** Configuration key for the original column names. */
+	static final String CFGKEY_COLUMN_NAMES = "original.columns";
 	/** Configuration key for the multiset creation property. */
 	static final String CFGKEY_CREATE_MULTISET = "create.multiset";
 	/** Default value of the multiset creation property. */
 	static final boolean DEFAULT_CREATE_MULTISET = false;
 
-	private final SettingsModelString newColumn = new SettingsModelString(
-			CFGKEY_NEW_COLUMN_NAME, DEFAULT_NEW_COLUMN_NAME);
-
-	private final SettingsModelColumnName origColumn = new SettingsModelColumnName(
-			CFGKEY_ORIGINAL_COLUMN_NAME, "");
+	private final SettingsModelFilterString origColumns = new SettingsModelFilterString(
+			CFGKEY_COLUMN_NAMES);
 
 	private final SettingsModelBoolean createMultiSet = new SettingsModelBoolean(
 			CFGKEY_CREATE_MULTISET, DEFAULT_CREATE_MULTISET);
@@ -71,23 +62,35 @@ public class SubsetsNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
+		final BufferedDataTable inputTable = inData[0];
+		final DataTableSpec inputSpec = inputTable.getDataTableSpec();
 		final BufferedDataContainer container = exec
 				.createDataContainer(new DataTableSpec(
-						createResultColSpecs(inData[0].getDataTableSpec())));
-		final List<DataRow> rows = new ArrayList<DataRow>();
-		final int origColumnIdx = inData[0].getSpec().findColumnIndex(
-				origColumn.getColumnName());
-		final Set<DataValue> values = new HashSet<DataValue>();
-		for (final DataRow row : inData[0]) {
-			if (!values.contains(row.getCell(origColumnIdx))
-					|| createMultiSet.getBooleanValue()) {
-				values.add(row.getCell(origColumnIdx));
-				rows.add(row);
+						createResultColSpecs(inputSpec)));
+		final List<List<DataCell>> rows = new ArrayList<List<DataCell>>();
+		final List<String> selectedColumns = origColumns.getIncludeList();
+		final int[] columnIndices = new int[selectedColumns.size()];
+		for (int i = columnIndices.length; i-- > 0;) {
+			columnIndices[i] = inputSpec
+					.findColumnIndex(selectedColumns.get(i));
+		}
+		final Set<List<DataCell>> values = new HashSet<List<DataCell>>();
+		for (final DataRow row : inputTable) {
+			final List<DataCell> content = new ArrayList<DataCell>(
+					columnIndices.length);
+			for (int i = 0; i < columnIndices.length; ++i) {
+				content.add(row.getCell(columnIndices[i]));
+			}
+			if (!values.contains(content) || createMultiSet.getBooleanValue()) {
+				values.add(content);
+				rows.add(content);
 			}
 		}
-		final int lastColIdx = inData[0].getDataTableSpec().getNumColumns();
-		addValues(container, rows, Collections.<DataCell> emptyList(), 0,
-				origColumnIdx, lastColIdx, 0);
+		if (rows.size() > 0) {
+			addValues(container, rows,
+					Collections.<List<DataCell>> emptyList(), 0
+					/* actual position */, 0/* next ID */);
+		}
 		container.close();
 		final BufferedDataTable ret = container.getTable();
 		return new BufferedDataTable[] { ret };
@@ -105,35 +108,33 @@ public class SubsetsNodeModel extends NodeModel {
 	 * @param actualPosition
 	 *            The current position in the list of original table ({@code
 	 *            rows})
-	 * @param origColumnIdx
-	 *            The column index in the original rows ({@code rows} )
-	 * @param lastColIdx
-	 *            The last column index in the output table. (Here will go the
-	 *            list of {@link DataCell}s.)
 	 * @param nextId
 	 *            The id of the next row in the table.
 	 * @return The new next id.
 	 */
 	private int addValues(final BufferedDataContainer container,
-			final List<DataRow> rows, final List<DataCell> currentList,
-			final int actualPosition, final int origColumnIdx,
-			final int lastColIdx, final int nextId) {
+			final List<List<DataCell>> rows,
+			final List<List<DataCell>> currentList, final int actualPosition,
+			final int nextId) {
 		if (actualPosition < rows.size()) {
 			final int newId = addValues(container, rows, currentList,
-					actualPosition + 1, origColumnIdx, lastColIdx, nextId);
-			final ArrayList<DataCell> newList = new ArrayList<DataCell>(
+					actualPosition + 1, nextId);
+			final ArrayList<List<DataCell>> newList = new ArrayList<List<DataCell>>(
 					currentList);
-			final DataRow dataRow = rows.get(actualPosition);
-			newList.add(dataRow.getCell(origColumnIdx));
+			final List<DataCell> dataRow = rows.get(actualPosition);
+			newList.add(dataRow);
 			return addValues(container, rows, newList, actualPosition + 1,
-					origColumnIdx, lastColIdx, newId);
+					newId);
 		}
-		final DataRow dataRow = rows.get(0);
-		final DataCell[] cells = new DataCell[lastColIdx + 1];
-		for (int i = lastColIdx; i-- > 0;) {
-			cells[i] = dataRow.getCell(i);
+		final DataCell[] cells = new DataCell[origColumns.getIncludeList()
+				.size()];
+		for (int i = origColumns.getIncludeList().size(); i-- > 0;) {
+			final List<DataCell> list = new ArrayList<DataCell>();
+			for (final List<DataCell> row : currentList) {
+				list.add(row.get(i));
+			}
+			cells[i] = CollectionCellFactory.createListCell(list);
 		}
-		cells[lastColIdx] = CollectionCellFactory.createListCell(currentList);
 		container.addRowToTable(new DefaultRow(String.valueOf(nextId), cells));
 		return nextId + 1;
 	}
@@ -160,23 +161,18 @@ public class SubsetsNodeModel extends NodeModel {
 
 	/**
 	 * @param dataTableSpec
+	 *            The original {@link DataTableSpec}.
 	 * @return The new column spec.
 	 */
 	private DataColumnSpec[] createResultColSpecs(
 			final DataTableSpec dataTableSpec) {
-		final DataColumnSpec[] colSpecs = new DataColumnSpec[dataTableSpec
-				.getNumColumns() + 1];
-		for (int i = dataTableSpec.getNumColumns(); i-- > 0;) {
-			colSpecs[i] = dataTableSpec.getColumnSpec(i);
+		final List<String> columnNames = origColumns.getIncludeList();
+		final DataColumnSpec[] colSpecs = new DataColumnSpec[columnNames.size()];
+		for (int i = columnNames.size(); i-- > 0;) {
+			colSpecs[i] = new DataColumnSpecCreator(columnNames.get(i),
+					ListCell.getCollectionType(dataTableSpec.getColumnSpec(
+							columnNames.get(i)).getType())).createSpec();
 		}
-		final DataColumnSpec columnSpec = dataTableSpec
-				.getColumnSpec(origColumn.getColumnName());
-		if (columnSpec == null) {
-			throw new IllegalArgumentException("No column selected!");
-		}
-		colSpecs[dataTableSpec.getNumColumns()] = new DataColumnSpecCreator(
-				newColumn.getStringValue(), ListCell
-						.getCollectionType(columnSpec.getType())).createSpec();
 		return colSpecs;
 	}
 
@@ -185,8 +181,7 @@ public class SubsetsNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		newColumn.saveSettingsTo(settings);
-		origColumn.saveSettingsTo(settings);
+		origColumns.saveSettingsTo(settings);
 		createMultiSet.saveSettingsTo(settings);
 	}
 
@@ -196,8 +191,7 @@ public class SubsetsNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		newColumn.loadSettingsFrom(settings);
-		origColumn.loadSettingsFrom(settings);
+		origColumns.loadSettingsFrom(settings);
 		createMultiSet.loadSettingsFrom(settings);
 	}
 
@@ -207,8 +201,7 @@ public class SubsetsNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		newColumn.validateSettings(settings);
-		origColumn.validateSettings(settings);
+		origColumns.validateSettings(settings);
 		createMultiSet.validateSettings(settings);
 	}
 
