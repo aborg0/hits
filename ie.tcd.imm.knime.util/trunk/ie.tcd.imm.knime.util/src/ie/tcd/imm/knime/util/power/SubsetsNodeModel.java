@@ -3,7 +3,6 @@ package ie.tcd.imm.knime.util.power;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +14,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataValue;
-import org.knime.core.data.collection.BlobSupportDataCellList;
+import org.knime.core.data.collection.CollectionCellFactory;
 import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -39,10 +38,15 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  */
 public class SubsetsNodeModel extends NodeModel {
 
+	/** Configuration key for the new column name. */
 	static final String CFGKEY_NEW_COLUMN_NAME = "new.column";
+	/** Default value of the new column name. */
 	static final String DEFAULT_NEW_COLUMN_NAME = "subsets";
+	/** Configuration key for the original column name. */
 	static final String CFGKEY_ORIGINAL_COLUMN_NAME = "original.column";
+	/** Configuration key for the multiset creation property. */
 	static final String CFGKEY_CREATE_MULTISET = "create.multiset";
+	/** Default value of the multiset creation property. */
 	static final boolean DEFAULT_CREATE_MULTISET = false;
 
 	private final SettingsModelString newColumn = new SettingsModelString(
@@ -82,7 +86,7 @@ public class SubsetsNodeModel extends NodeModel {
 			}
 		}
 		final int lastColIdx = inData[0].getDataTableSpec().getNumColumns();
-		addValues(container, rows, Collections.<DataValue> emptyList(), 0,
+		addValues(container, rows, Collections.<DataCell> emptyList(), 0,
 				origColumnIdx, lastColIdx, 0);
 		container.close();
 		final BufferedDataTable ret = container.getTable();
@@ -90,24 +94,34 @@ public class SubsetsNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Generates the subset rows to {@code container}.
+	 * 
 	 * @param container
+	 *            The output table.
 	 * @param rows
+	 *            The (relevant) contents of the original table.
 	 * @param currentList
+	 *            The list currently set.
 	 * @param actualPosition
+	 *            The current position in the list of original table ({@code
+	 *            rows})
 	 * @param origColumnIdx
+	 *            The column index in the original rows ({@code rows} )
 	 * @param lastColIdx
+	 *            The last column index in the output table. (Here will go the
+	 *            list of {@link DataCell}s.)
 	 * @param nextId
-	 * @return
+	 *            The id of the next row in the table.
+	 * @return The new next id.
 	 */
-	@SuppressWarnings("unchecked")
 	private int addValues(final BufferedDataContainer container,
-			final List<DataRow> rows, final List<DataValue> currentList,
+			final List<DataRow> rows, final List<DataCell> currentList,
 			final int actualPosition, final int origColumnIdx,
 			final int lastColIdx, final int nextId) {
 		if (actualPosition < rows.size()) {
 			final int newId = addValues(container, rows, currentList,
 					actualPosition + 1, origColumnIdx, lastColIdx, nextId);
-			final ArrayList<DataValue> newList = new ArrayList<DataValue>(
+			final ArrayList<DataCell> newList = new ArrayList<DataCell>(
 					currentList);
 			final DataRow dataRow = rows.get(actualPosition);
 			newList.add(dataRow.getCell(origColumnIdx));
@@ -119,11 +133,7 @@ public class SubsetsNodeModel extends NodeModel {
 		for (int i = lastColIdx; i-- > 0;) {
 			cells[i] = dataRow.getCell(i);
 		}
-		cells[lastColIdx] = new ListCell(new BlobSupportDataCellList(
-				(Collection) currentList) {
-			//
-		}) {
-		};
+		cells[lastColIdx] = CollectionCellFactory.createListCell(currentList);
 		container.addRowToTable(new DefaultRow(String.valueOf(nextId), cells));
 		return nextId + 1;
 	}
@@ -150,7 +160,7 @@ public class SubsetsNodeModel extends NodeModel {
 
 	/**
 	 * @param dataTableSpec
-	 * @return
+	 * @return The new column spec.
 	 */
 	private DataColumnSpec[] createResultColSpecs(
 			final DataTableSpec dataTableSpec) {

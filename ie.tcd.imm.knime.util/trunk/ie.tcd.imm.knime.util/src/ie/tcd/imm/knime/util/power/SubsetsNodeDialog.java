@@ -26,10 +26,12 @@ public class SubsetsNodeDialog extends DefaultNodeSettingsPane {
 	 * New pane for configuring the Subsets node.
 	 */
 	protected SubsetsNodeDialog() {
-		addDialogComponent(new DialogComponentColumnNameSelection(
+		@SuppressWarnings("unchecked")
+		final DialogComponentColumnNameSelection origColumnName = new DialogComponentColumnNameSelection(
 				new SettingsModelColumnName(
 						SubsetsNodeModel.CFGKEY_ORIGINAL_COLUMN_NAME, ""),
-				"Generating from this column: ", 0, DataValue.class));
+				"Generating from this column: ", 0, DataValue.class);
+		addDialogComponent(origColumnName);
 		addDialogComponent(new DialogComponentString(new SettingsModelString(
 				SubsetsNodeModel.CFGKEY_NEW_COLUMN_NAME,
 				SubsetsNodeModel.DEFAULT_NEW_COLUMN_NAME), "New column name: "));

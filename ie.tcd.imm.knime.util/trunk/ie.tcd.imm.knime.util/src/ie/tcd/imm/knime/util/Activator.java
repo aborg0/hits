@@ -25,11 +25,13 @@ public class Activator extends Plugin {
 		plugin = this;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		plugin = null;
