@@ -13,7 +13,7 @@ import ie.tcd.imm.hits.util.Displayable.Util;
  * @param <EnumType>
  *            The type of the contained enum.
  */
-public final class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayable>
+public class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayable>
 		extends SettingsModelString {
 
 	private final EnumType[] values;
