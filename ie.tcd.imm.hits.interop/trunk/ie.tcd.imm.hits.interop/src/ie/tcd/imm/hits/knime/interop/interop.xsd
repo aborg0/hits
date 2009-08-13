@@ -4,16 +4,14 @@
 	elementFormDefault="unqualified" xmlns="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
-	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="1.0">
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
 	<element name="root">
 		<complexType>
 			<xsi:annotation>
 				<xsi:appinfo>
-					<jxb:class name="Root">
-						<jxb:javadoc>
+					<jxb:javadoc>
 Represents the root of the configuration graph.
-						</jxb:javadoc>
-					</jxb:class>
+					</jxb:javadoc>
 				</xsi:appinfo>
 			</xsi:annotation>
 			<sequence maxOccurs="1" minOccurs="1">
@@ -119,15 +117,15 @@ A profile for a given input type (might extend another).
 	</element>
 
 	<attribute name="column">
-			<xsi:annotation>
-				<xsi:appinfo>
-					<jxb:property>
-						<jxb:javadoc>
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
 Represents the column name.
-						</jxb:javadoc>
-					</jxb:property>
-				</xsi:appinfo>
-			</xsi:annotation>
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
 		<simpleType>
 			<annotation>
 				<appinfo>
@@ -148,15 +146,15 @@ Represents the column name.
 	</attribute>
 
 	<attribute name="input" type="boolean">
-			<xsi:annotation>
-				<xsi:appinfo>
-					<jxb:property>
-						<jxb:javadoc>
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
 Tells whether if it belongs to the inputs' group, or to the outputs'.
-						</jxb:javadoc>
-					</jxb:property>
-				</xsi:appinfo>
-			</xsi:annotation>
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
 	</attribute>
 
 	<attribute name="dialog">
