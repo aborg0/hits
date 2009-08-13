@@ -6,6 +6,8 @@ package ie.tcd.imm.knime.util;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -20,6 +22,7 @@ public class Activator extends Plugin {
 	/**
 	 * The constructor
 	 */
+	@SuppressWarnings("ST")
 	public Activator() {
 		super();
 		plugin = this;

@@ -27,10 +27,9 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
+import java.awt.Color;
 import java.util.Collections;
 import java.util.Map;
-
-import java.awt.Color;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

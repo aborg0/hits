@@ -349,9 +349,9 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		for (final DataRow row : getDataProvider().getDataArray(1)) {
 			mapFromKeysToIndices.put(row.getKey(), Integer.valueOf(i++));
 		}
-		final BinaryTree<DendrogramPoint> tree = rootNode == null ? null
+		final BinaryTree<DendrogramPoint> ret = rootNode == null ? null
 				: new BinaryTree<DendrogramPoint>(createViewModelFor(rootNode));
-		return tree;
+		return ret;
 	}
 
 	@Override
@@ -366,8 +366,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		if (getXAxis() == null || getYAxis() == null) {
 			updatePaintModel();
 		}
-		final BinaryTree<DendrogramPoint> tree = viewModel();
-		((DendrogramDrawingPane) getDrawingPane()).setRootNode(tree);
+		final BinaryTree<DendrogramPoint> binaryTree = viewModel();
+		((DendrogramDrawingPane) getDrawingPane()).setRootNode(binaryTree);
 		((HeatmapDendrogramDrawingPane) getDrawingPane())
 				.setHeatmapCellHeight((int) getYAxis().getCoordinate()
 						.getUnusedDistBetweenTicks(
@@ -408,6 +408,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		return key;
 	}
 
+	/** {@inheritDoc} */
+	@Override
 	public void setRootNode(final DendrogramNode root) {
 		rootNode = root;
 	}

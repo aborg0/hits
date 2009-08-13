@@ -28,14 +28,6 @@ import ie.tcd.imm.hits.util.Misc;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -44,6 +36,13 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -162,6 +161,7 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				}
 			}
 		}
+		repaint();
 	}
 
 	@Override
@@ -410,7 +410,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				return keys[rowIdx];
 			}
 			final DataCell cell = nodeModel.getOrigData().getRow(
-					nodeModel.getMap().get(keys[rowIdx])).getCell(indices[idx]);
+					nodeModel.getMap().get(keys[rowIdx]).intValue()).getCell(
+					indices[idx]);
 			return "<html>"
 					+ visibleColumns.get(idx)
 					+ ": <b>"
@@ -418,9 +419,8 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 							.round(((DoubleValue) cell).getDoubleValue() * 1000) / 1000.0
 							: Double.NaN) + "</b> (" + keys[rowIdx]
 					+ ")</html>";
-		} else {
-			return super.getToolTipText(event);
 		}
+		return super.getToolTipText(event);
 	}
 
 	/**

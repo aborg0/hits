@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import javax.annotation.Nullable;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -240,8 +242,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 			final int[] valueIndices,
 			final Map<Map<Column, String>, DataRow> connectByPivotValues,
 			final List<DataCell> keyValues, final int newRowCount,
-			// @Nullable
-			final DataRow row, final Map<RowKey, Set<RowKey>> mapping) {
+			@Nullable final DataRow row, final Map<RowKey, Set<RowKey>> mapping) {
 		if (!connectByPivotValues.isEmpty()) {
 			final List<DataCell> cells = new ArrayList<DataCell>();
 			for (final DataCell dataCell : keyValues) {

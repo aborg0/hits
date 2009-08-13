@@ -27,11 +27,10 @@ import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.SaveAs;
 import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -123,10 +122,10 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			if (((AbstractButton) e.getSource()).isSelected()
-					&& ((DendrogramNodeModel) getNodeModel()).getOrigData() != null) {
+					&& getNodeModel().getOrigData() != null) {
 				final List<String> visibleColumns = new ArrayList<String>();
 				final List<String> selectedColumns = new ArrayList<String>();
-				final DendrogramNodeModel nodeModel = (DendrogramNodeModel) getNodeModel();
+				final DendrogramNodeModel nodeModel = getNodeModel();
 				final DataTableSpec origSpec = nodeModel.getOrigData()
 						.getDataTableSpec();
 				final List<String> origCols = new ArrayList<String>();
@@ -200,8 +199,8 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 		final ButtonGroup group = new ButtonGroup();
 		for (final DataOrder order : DataOrder.values()) {
 			final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
-					order.name, order.selected);
-			menuItem.setAction(new SelectData(order.name,
+					order.getName(), order.isSelected());
+			menuItem.setAction(new SelectData(order.getName(),
 					heatmapDendrogramPlotter, order));
 			group.add(menuItem);
 			dataMenu.add(menuItem);
@@ -212,8 +211,8 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 	@Override
 	protected void modelChanged() {
 		super.modelChanged();
-		((HeatmapDendrogramPlotter) getComponent())
-				.setRootNode(((DendrogramNodeModel) getNodeModel()).getRoot());
+		((HeatmapDendrogramPlotter) getComponent()).setRootNode(getNodeModel()
+				.getRoot());
 		final JMenuBar menuBar = getJMenuBar();
 		for (int i = menuBar.getMenuCount(); i-- > 0;) {
 			final JMenu menu = menuBar.getMenu(i);
@@ -229,5 +228,10 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected DendrogramNodeModel getNodeModel() {
+		return (DendrogramNodeModel) super.getNodeModel();
 	}
 }
