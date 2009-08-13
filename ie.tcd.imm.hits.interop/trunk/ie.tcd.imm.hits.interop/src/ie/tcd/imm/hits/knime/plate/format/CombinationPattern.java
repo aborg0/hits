@@ -3,22 +3,133 @@
  */
 package ie.tcd.imm.hits.knime.plate.format;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.util.Displayable;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+
+import javax.swing.Icon;
+
+import org.knime.core.node.defaultnodesettings.HasIcon;
 
 /**
  * This enum simple shows the possible options for the generation of the plates.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public enum CombinationPattern implements Displayable {
+public enum CombinationPattern implements Displayable, HasIcon {
 	/** The normal 12|34 order, without any merge. */
-	LeftToRightThenDown(true, true, true, 0, false, false, false),
+	LeftToRightThenDown(true, true, true, 0, false, false, false) {
+		@Override
+		public int colComputeToLarger(final int plate, final int col,
+				final Format from, final Format to) {
+			return plate % (to.getCol() / from.getCol()) * from.getCol() + col
+					+ 1;
+		}
+
+		@Override
+		public int plateComputeToSmaller(final int plate, final int row,
+				final int col, final Format from, final Format to) {
+			return plate * (from.getWellCount() / to.getWellCount()) + col
+					/ to.getCol() + row / to.getRow()
+					* (from.getCol() / to.getCol()) + 1;
+		}
+
+		@Override
+		public int rowCompute(final int plate, final int row,
+				final Format from, final Format to) {
+			return to.getWellCount() > from.getWellCount() ? plate
+					% (to.getWellCount() / from.getWellCount())
+					/ (to.getRow() / from.getRow()) * from.getRow() + row + 1
+					: row % to.getRow() + 1;
+		}
+	},
 	/** The normal 13|24 order without merging. */
-	UpToDownThenRight(false, true, true, 0, false, false, false),
+	UpToDownThenRight(false, true, true, 0, false, false, false) {
+
+		@Override
+		public int colComputeToLarger(final int plate, final int col,
+				final Format from, final Format to) {
+			return plate % (to.getWellCount() / from.getWellCount())
+					/ (to.getCol() / from.getCol()) * from.getCol() + col + 1;
+		}
+
+		@Override
+		public int plateComputeToSmaller(final int plate, final int row,
+				final int col, final Format from, final Format to) {
+			return plate * (from.getWellCount() / to.getWellCount()) + col
+					/ to.getCol() * (from.getRow() / to.getRow()) + row
+					/ to.getRow() + 1;
+		}
+
+		@Override
+		public int rowCompute(final int plate, final int row,
+				final Format from, final Format to) {
+			return to.getWellCount() > from.getWellCount() ? plate
+					% (to.getWellCount() / from.getWellCount())
+					% (to.getCol() / from.getCol()) * from.getRow() + row + 1
+					: row % to.getRow() + 1;
+		}
+	},
 	/** The merged view 13|24 with 8 pipettes. */
-	UpToDownThenRight8Pipettes(false, true, true, 8, false, false, false),
+	UpToDownThenRight8Pipettes(false, true, true, 8, false, false, false) {
+
+		@Override
+		public int colComputeToLarger(final int plate, final int col,
+				final Format from, final Format to) {
+			return plate % (to.getWellCount() / from.getWellCount())
+					/ (to.getCol() / from.getCol()) * from.getCol() + col + 1;
+		}
+
+		@Override
+		public int plateComputeToSmaller(final int plate, final int row,
+				final int col, final Format from, final Format to) {
+			return plate * (from.getWellCount() / to.getWellCount()) + col
+					/ to.getCol() * (from.getRow() / to.getRow()) + row
+					% (from.getRow() / getPipettes()) + 1;
+		}
+
+		@Override
+		public int rowCompute(final int plate, final int row,
+				final Format from, final Format to) {
+			return to.getWellCount() > from.getWellCount() ? plate
+					% (to.getWellCount() / from.getWellCount())
+					% (to.getCol() / from.getCol()) + row
+					* (to.getRow() / getPipettes()) + 1 : row
+					/ (from.getRow() / getPipettes()) % to.getRow() + 1;
+		}
+	},
 	/** The merged view 13|24 with 8 pipettes with close to each other */
-	LeftToRightThenDown8PipettesClose(true, true, true, 8, false, false, true);
+	LeftToRightThenDown8PipettesClose(true, true, true, 8, false, false, true) {
+
+		@Override
+		public int colComputeToLarger(final int plate, final int col,
+				final Format from, final Format to) {
+			return plate % (to.getCol() / from.getCol()) + col
+					* (to.getCol() / from.getCol()) + 1;
+		}
+
+		@Override
+		public int plateComputeToSmaller(final int plate, final int row,
+				final int col, final Format from, final Format to) {
+			return plate * (from.getWellCount() / to.getWellCount()) + col
+					% (from.getCol() / to.getCol()) + row
+					% (from.getRow() / to.getRow())
+					* (from.getCol() / to.getCol()) + 1;
+		}
+
+		@Override
+		public int rowCompute(final int plate, final int row,
+				final Format from, final Format to) {
+			return to.getWellCount() > from.getWellCount() ? plate
+					% (to.getWellCount() / from.getWellCount())
+					/ (to.getCol() / from.getCol()) + row
+					* (to.getCol() / from.getCol()) + 1 : row
+					/ (from.getRow() / getPipettes()) % to.getRow() + 1;
+		}
+	};
 
 	private final boolean firstHorizontal;
 	private final boolean verticalToDown;
@@ -91,11 +202,90 @@ public enum CombinationPattern implements Displayable {
 		return closeWells;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.util.Displayable#getDisplayText()
+	/**
+	 * @param plate
+	 *            The original plate number ({@code 0} based).
+	 * @param col
+	 *            The original column number ({@code 0} based).
+	 * @param from
+	 *            The source's {@link Format}.
+	 * @param to
+	 *            The destination's {@link Format}.
+	 * @return The computed column number ({@code 1} based).
 	 */
+	public int colCompute(final int plate, final int col, final Format from,
+			final Format to) {
+		return to.getWellCount() > from.getWellCount() ? colComputeToLarger(
+				plate, col, from, to) : (isCloseWells() ? col
+				/ (from.getCol() / to.getCol()) : col % to.getCol()) + 1;
+	}
+
+	/**
+	 * @param plate
+	 *            The original plate number ({@code 0} based).
+	 * @param col
+	 *            The original column number ({@code 0} based).
+	 * @param from
+	 *            The source's {@link Format}.
+	 * @param to
+	 *            The destination's {@link Format}.
+	 * @return The computed column number, when {@code to} is larger ({@code 1}
+	 *         based).
+	 */
+	protected abstract int colComputeToLarger(final int plate, final int col,
+			Format from, Format to);
+
+	/**
+	 * @param plate
+	 *            The original plate number ({@code 0} based).
+	 * @param row
+	 *            The original row number ({@code 0} based).
+	 * @param from
+	 *            The source's {@link Format}.
+	 * @param to
+	 *            The destination's {@link Format}.
+	 * @return The computed row number ({@code 1} based).
+	 */
+	public abstract int rowCompute(final int plate, final int row, Format from,
+			Format to);
+
+	/**
+	 * @param plate
+	 *            The original plate number ({@code 0} based).
+	 * @param col
+	 *            The original column number ({@code 0} based).
+	 * @param row
+	 *            The original row number ({@code 0} based).
+	 * @param from
+	 *            The source's {@link Format}.
+	 * @param to
+	 *            The destination's {@link Format}.
+	 * @return The computed column number ({@code 1} based).
+	 */
+	public int plateCompute(final int plate, final int row, final int col,
+			final Format from, final Format to) {
+		return to.getWellCount() > from.getWellCount() ? plate
+				/ (to.getWellCount() / from.getWellCount()) + 1
+				: plateComputeToSmaller(plate, row, col, from, to);
+	}
+
+	/**
+	 * @param plate
+	 *            The original plate number ({@code 0} based).
+	 * @param col
+	 *            The original column number ({@code 0} based).
+	 * @param row
+	 *            The original row number ({@code 0} based).
+	 * @param from
+	 *            The source's {@link Format}.
+	 * @param to
+	 *            The destination's {@link Format}.
+	 * @return The new plate value when {@code to} is smaller ({@code 1} based).
+	 */
+	protected abstract int plateComputeToSmaller(int plate, int row, int col,
+			Format from, Format to);
+
+	/** {@inheritDoc} */
 	@Override
 	public String getDisplayText() {
 		return (firstHorizontal ? (horizontalToRight ? "left to right"
@@ -111,5 +301,57 @@ public enum CombinationPattern implements Displayable {
 				+ (combineReplicates ? keepEmptyReplicates ? "keeping empty spaces"
 						: "filling empty spaces with replicates"
 						: "without replicates");
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Icon getIcon() {
+		return new Icon() {
+			private static final int PLATE_HEIGHT = 16;
+			private static final int PLATE_WIDTH = 24;
+			private static final int GAP = 2;
+
+			private final Color[] colours = new Color[] { Color.RED,
+					Color.BLACK, Color.GREEN, // Color.BLUE, Color.YELLOW
+			};
+
+			@Override
+			public int getIconHeight() {
+				return PLATE_HEIGHT + GAP + PLATE_HEIGHT / 4;
+			}
+
+			@Override
+			public int getIconWidth() {
+				return PLATE_WIDTH + GAP + PLATE_WIDTH / 4;
+			}
+
+			@Override
+			public void paintIcon(final Component c, final Graphics g,
+					final int x, final int y) {
+				for (int j = PLATE_HEIGHT; j-- > 0;) {
+					for (int i = /* getIconWidth() */PLATE_WIDTH; i-- > 0;) {
+						final int row = i % (PLATE_WIDTH + GAP);
+						if (row < PLATE_WIDTH
+								&& j % (PLATE_HEIGHT + GAP) < PLATE_HEIGHT) {
+							final int plate = i
+									/ (PLATE_WIDTH + GAP)
+									* ((getIconHeight() + PLATE_HEIGHT + GAP) / (PLATE_HEIGHT + GAP));
+							final int col = j % (PLATE_HEIGHT + GAP);
+							final int plateCompute = plateCompute(plate, row,
+									col, Format._384, Format._96);
+							final int newPlate = plateCompute - 1;
+							final int newRow = rowCompute(plate, row,
+									Format._384, Format._96) - 1;
+							final int newCol = colCompute(plate, col,
+									Format._384, Format._96) - 1;
+							g.setColor(colours[newPlate % colours.length]);
+							g.drawRect(newPlate % 2 * PLATE_WIDTH / 2 + newRow,
+									newPlate / 2 * PLATE_HEIGHT / 2 + newCol,
+									1, 1);
+						}
+					}
+				}
+			}
+		};
 	}
 }

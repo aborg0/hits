@@ -8,7 +8,6 @@ import ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeModel.PlateFormatCellFa
 
 import java.util.Iterator;
 
-import org.knime.core.data.DataColumnSpec;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,12 +35,12 @@ public class CombinationPatternTests {
 			private int smallPlate = 1;
 			private int smallRow = 1;
 			private int smallCol = 1;
-	
+
 			@Override
 			public boolean hasNext() {
 				return smallPlate <= MAX_SMALL_PLATES;
 			}
-	
+
 			@Override
 			public Object[] next() {
 				@SuppressWarnings("boxing")
@@ -58,12 +57,12 @@ public class CombinationPatternTests {
 				}
 				return ret;
 			}
-	
+
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
-	
+
 		};
 	}
 
@@ -128,12 +127,12 @@ public class CombinationPatternTests {
 			private int smallPlate = 1;
 			private int smallRow = 1;
 			private int smallCol = 1;
-	
+
 			@Override
 			public boolean hasNext() {
 				return smallPlate <= MAX_SMALL_PLATES;
 			}
-	
+
 			@Override
 			public Object[] next() {
 				@SuppressWarnings("boxing")
@@ -150,12 +149,12 @@ public class CombinationPatternTests {
 				}
 				return ret;
 			}
-	
+
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
-	
+
 		};
 	}
 
@@ -174,12 +173,12 @@ public class CombinationPatternTests {
 			private int smallPlate = 1;
 			private int smallRow = 1;
 			private int smallCol = 1;
-	
+
 			@Override
 			public boolean hasNext() {
 				return smallPlate <= MAX_SMALL_PLATES + 1;
 			}
-	
+
 			@Override
 			public Object[] next() {
 				@SuppressWarnings("boxing")
@@ -196,12 +195,12 @@ public class CombinationPatternTests {
 				}
 				return ret;
 			}
-	
+
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
-	
+
 		};
 	}
 
@@ -232,14 +231,18 @@ public class CombinationPatternTests {
 	public void leftToRightTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
 			final int largeCol) {
-		final PlateFormatCellFactory cellFactoryToLarger = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
-				CombinationPattern.LeftToRightThenDown);
-		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
-				CombinationPattern.LeftToRightThenDown);
-		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
-				smallRow, smallCol, largePlate, largeRow, largeCol);
+		// final PlateFormatCellFactory cellFactoryToLarger = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
+		// CombinationPattern.LeftToRightThenDown);
+		// final PlateFormatCellFactory cellFactoryToSmaller = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
+		// CombinationPattern.LeftToRightThenDown);
+		// asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+		// smallRow, smallCol, largePlate, largeRow, largeCol);
+		asserts(CombinationPattern.LeftToRightThenDown, smallPlate, smallRow,
+				smallCol, largePlate, largeRow, largeCol);
 	}
 
 	/**
@@ -269,14 +272,18 @@ public class CombinationPatternTests {
 	public void upToDownTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
 			final int largeCol) {
-		final PlateFormatCellFactory cellFactoryToLarger = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
-				CombinationPattern.UpToDownThenRight);
-		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
-				CombinationPattern.UpToDownThenRight);
-		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
-				smallRow, smallCol, largePlate, largeRow, largeCol);
+		// final PlateFormatCellFactory cellFactoryToLarger = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
+		// CombinationPattern.UpToDownThenRight);
+		// final PlateFormatCellFactory cellFactoryToSmaller = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
+		// CombinationPattern.UpToDownThenRight);
+		// asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+		// smallRow, smallCol, largePlate, largeRow, largeCol);
+		asserts(CombinationPattern.UpToDownThenRight, smallPlate, smallRow,
+				smallCol, largePlate, largeRow, largeCol);
 	}
 
 	/**
@@ -306,13 +313,17 @@ public class CombinationPatternTests {
 	public void upToDownMergeTests(final int smallPlate, final int smallRow,
 			final int smallCol, final int largePlate, final int largeRow,
 			final int largeCol) {
-		final PlateFormatCellFactory cellFactoryToLarger = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
-				CombinationPattern.UpToDownThenRight8Pipettes);
-		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
-				CombinationPattern.UpToDownThenRight8Pipettes);
-		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+		// final PlateFormatCellFactory cellFactoryToLarger = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
+		// CombinationPattern.UpToDownThenRight8Pipettes);
+		// final PlateFormatCellFactory cellFactoryToSmaller = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
+		// CombinationPattern.UpToDownThenRight8Pipettes);
+		// asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+		// smallRow, smallCol, largePlate, largeRow, largeCol);
+		asserts(CombinationPattern.UpToDownThenRight8Pipettes, smallPlate,
 				smallRow, smallCol, largePlate, largeRow, largeCol);
 	}
 
@@ -343,33 +354,56 @@ public class CombinationPatternTests {
 	public void leftToRightCloseMergeTests(final int smallPlate,
 			final int smallRow, final int smallCol, final int largePlate,
 			final int largeRow, final int largeCol) {
-		final PlateFormatCellFactory cellFactoryToLarger = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
-				CombinationPattern.LeftToRightThenDown8PipettesClose);
-		final PlateFormatCellFactory cellFactoryToSmaller = new PlateFormatCellFactory(
-				new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
-				CombinationPattern.LeftToRightThenDown8PipettesClose);
-		asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
-				smallRow, smallCol, largePlate, largeRow, largeCol);
+		// final PlateFormatCellFactory cellFactoryToLarger = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._96, Format._384,
+		// CombinationPattern.LeftToRightThenDown8PipettesClose);
+		// final PlateFormatCellFactory cellFactoryToSmaller = new
+		// PlateFormatCellFactory(
+		// new DataColumnSpec[] {}, 0, 1, 2, Format._384, Format._96,
+		// CombinationPattern.LeftToRightThenDown8PipettesClose);
+		// asserts(cellFactoryToLarger, cellFactoryToSmaller, smallPlate,
+		// smallRow, smallCol, largePlate, largeRow, largeCol);
+		asserts(CombinationPattern.LeftToRightThenDown8PipettesClose,
+				smallPlate, smallRow, smallCol, largePlate, largeRow, largeCol);
 	}
 
-	private void asserts(final PlateFormatCellFactory cellFactoryToLarger,
-			final PlateFormatCellFactory cellFactoryToSmaller,
+	// private void asserts(final PlateFormatCellFactory cellFactoryToLarger,
+	// final PlateFormatCellFactory cellFactoryToSmaller,
+	// final int smallPlate, final int smallRow, final int smallCol,
+	// final int largePlate, final int largeRow, final int largeCol) {
+	// Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
+	// smallRow - 1, smallCol - 1), largePlate,
+	// "Plate problem, 96->384");
+	// Assert.assertEquals(cellFactoryToLarger.rowCompute(smallPlate - 1,
+	// smallRow - 1), largeRow, "Row problem, 96->384");
+	// Assert.assertEquals(cellFactoryToLarger.colCompute(smallPlate - 1,
+	// smallCol - 1), largeCol, "Column problem, 96->384");
+	// Assert.assertEquals(cellFactoryToSmaller.plateCompute(largePlate - 1,
+	// largeRow - 1, largeCol - 1), smallPlate,
+	// "Plate problem, 384->96");
+	// Assert.assertEquals(cellFactoryToSmaller.rowCompute(largePlate - 1,
+	// largeRow - 1), smallRow, "Row problem, 384->96");
+	// Assert.assertEquals(cellFactoryToSmaller.colCompute(largePlate - 1,
+	// largeCol - 1), smallCol, "Column problem, 384->96");
+	// }
+
+	private void asserts(final CombinationPattern pattern,
 			final int smallPlate, final int smallRow, final int smallCol,
 			final int largePlate, final int largeRow, final int largeCol) {
-		Assert.assertEquals(cellFactoryToLarger.plateCompute(smallPlate - 1,
-				smallRow - 1, smallCol - 1), largePlate,
+		Assert.assertEquals(pattern.plateCompute(smallPlate - 1, smallRow - 1,
+				smallCol - 1, Format._96, Format._384), largePlate,
 				"Plate problem, 96->384");
-		Assert.assertEquals(cellFactoryToLarger.rowCompute(smallPlate - 1,
-				smallRow - 1), largeRow, "Row problem, 96->384");
-		Assert.assertEquals(cellFactoryToLarger.colCompute(smallPlate - 1,
-				smallCol - 1), largeCol, "Column problem, 96->384");
-		Assert.assertEquals(cellFactoryToSmaller.plateCompute(largePlate - 1,
-				largeRow - 1, largeCol - 1), smallPlate,
+		Assert.assertEquals(pattern.rowCompute(smallPlate - 1, smallRow - 1,
+				Format._96, Format._384), largeRow, "Row problem, 96->384");
+		Assert.assertEquals(pattern.colCompute(smallPlate - 1, smallCol - 1,
+				Format._96, Format._384), largeCol, "Column problem, 96->384");
+		Assert.assertEquals(pattern.plateCompute(largePlate - 1, largeRow - 1,
+				largeCol - 1, Format._384, Format._96), smallPlate,
 				"Plate problem, 384->96");
-		Assert.assertEquals(cellFactoryToSmaller.rowCompute(largePlate - 1,
-				largeRow - 1), smallRow, "Row problem, 384->96");
-		Assert.assertEquals(cellFactoryToSmaller.colCompute(largePlate - 1,
-				largeCol - 1), smallCol, "Column problem, 384->96");
+		Assert.assertEquals(pattern.rowCompute(largePlate - 1, largeRow - 1,
+				Format._384, Format._96), smallRow, "Row problem, 384->96");
+		Assert.assertEquals(pattern.colCompute(largePlate - 1, largeCol - 1,
+				Format._384, Format._96), smallCol, "Column problem, 384->96");
 	}
 }

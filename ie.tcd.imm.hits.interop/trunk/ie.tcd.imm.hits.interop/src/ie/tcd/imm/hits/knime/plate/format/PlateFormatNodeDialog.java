@@ -5,6 +5,7 @@ import ie.tcd.imm.hits.common.Format;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelEnum;
+import org.knime.core.node.defaultnodesettings.SettingsModelEnumWithIcon;
 
 /**
  * <code>NodeDialog</code> for the "Plate Format" Node. Converts between 96,
@@ -37,12 +38,12 @@ public class PlateFormatNodeDialog extends DefaultNodeSettingsPane {
 				PlateFormatNodeModel.DEFAULT_TO_WELL_COUNT, Format.values());
 		addDialogComponent(new DialogComponentStringSelection(toWellCountModel,
 				"To well:", toWellCountModel.getDisplayTexts()));
-		final SettingsModelEnum<CombinationPattern> combinePatternModel = new SettingsModelEnum<CombinationPattern>(
+		final SettingsModelEnumWithIcon<CombinationPattern> combinePatternModel = new SettingsModelEnumWithIcon<CombinationPattern>(
 				PlateFormatNodeModel.CFGKEY_COMBINATION_PATTERN,
 				CombinationPattern.LeftToRightThenDown, CombinationPattern
 						.values());
 		addDialogComponent(new DialogComponentStringSelection(
 				combinePatternModel, "Layout: ", combinePatternModel
-						.getDisplayTexts()));
+						.getStringIcons()));
 	}
 }
