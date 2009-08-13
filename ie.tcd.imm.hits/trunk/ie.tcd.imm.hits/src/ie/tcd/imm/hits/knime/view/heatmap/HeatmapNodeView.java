@@ -25,18 +25,6 @@ import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
 import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -56,6 +44,17 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

@@ -6,14 +6,13 @@ package ie.tcd.imm.hits.knime.cellhts2.worker;
 import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.knime.cellhts2.worker.DialogComponentFormula.SettingsWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;

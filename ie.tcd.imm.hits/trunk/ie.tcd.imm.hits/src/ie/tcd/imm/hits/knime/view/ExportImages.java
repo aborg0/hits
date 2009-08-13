@@ -7,8 +7,6 @@ import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.SaveAs;
 
-import java.util.concurrent.Callable;
-
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -20,6 +18,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

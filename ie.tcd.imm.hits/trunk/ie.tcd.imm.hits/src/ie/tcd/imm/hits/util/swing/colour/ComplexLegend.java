@@ -5,13 +5,12 @@ package ie.tcd.imm.hits.util.swing.colour;
 
 import ie.tcd.imm.hits.util.interval.Interval;
 
-import java.util.SortedMap;
-import java.util.SortedSet;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

@@ -13,6 +13,8 @@ import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
+import java.awt.Component;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -26,9 +28,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.Map.Entry;
-
-import java.awt.Component;
-import java.lang.ref.WeakReference;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

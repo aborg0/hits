@@ -8,13 +8,12 @@ import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

@@ -3,12 +3,11 @@
  */
 package org.knime.core.node.defaultnodesettings;
 
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;

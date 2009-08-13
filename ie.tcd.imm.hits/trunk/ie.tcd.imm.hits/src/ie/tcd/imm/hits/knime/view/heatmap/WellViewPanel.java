@@ -5,15 +5,14 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 
-import java.util.Collection;
-import java.util.List;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.swing.JPanel;

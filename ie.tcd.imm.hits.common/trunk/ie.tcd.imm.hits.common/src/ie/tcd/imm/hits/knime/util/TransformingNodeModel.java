@@ -5,6 +5,8 @@ package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.util.SuffixFilenameFilter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -14,9 +16,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.io.File;
-import java.io.IOException;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

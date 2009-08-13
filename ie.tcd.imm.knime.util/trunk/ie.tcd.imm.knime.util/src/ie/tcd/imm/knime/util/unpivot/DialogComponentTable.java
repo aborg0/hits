@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.knime.util.unpivot;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,9 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;

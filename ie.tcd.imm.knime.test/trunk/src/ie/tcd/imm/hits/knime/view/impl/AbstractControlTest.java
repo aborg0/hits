@@ -12,11 +12,10 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.FlowLayout;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import java.awt.FlowLayout;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;

@@ -5,6 +5,8 @@ package ie.tcd.imm.knime.util.merge;
 
 import ie.tcd.imm.hits.knime.util.Misc;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.knime.base.node.util.DefaultDataArray;
 import org.knime.core.data.DataCell;

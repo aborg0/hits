@@ -5,11 +5,6 @@ package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.util.FilenameFilterWrapper;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -18,6 +13,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;

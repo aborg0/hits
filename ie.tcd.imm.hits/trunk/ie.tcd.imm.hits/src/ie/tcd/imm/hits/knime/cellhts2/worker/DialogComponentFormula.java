@@ -3,15 +3,14 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.worker;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
