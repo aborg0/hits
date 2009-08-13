@@ -3,22 +3,24 @@
 
 = Prerequisities =
 
-It is useful to have a target platform set before you start the development. That should contain a normal KNIME setup with distmatrix, jep installed.
+It is useful to have a target platform set before you start the development. That should contain a normal KNIME setup with distmatrix (from labs), jep installed.
 
-Your IDE should have TestNG, Groovy, Maven, Buckminster plugins installed.
+Your IDE should have [http://findbugs.cs.umd.edu/eclipse FindBugs], [http://beust.com/eclipse TestNG], [http://dist.codehaus.org/groovy/distributions/update/ Groovy], Maven ([http://m2eclipse.sonatype.org/update/ Maven Integration for Eclipse (m2e)] or [http://q4e.googlecode.com/ IAM - Integration for Apache Maven (Q)]), [http://www.eclipse.org/buckminster/downloads.html Buckminster plugins] (*important to select only the proper SVN plugins*), *one* of SVN team providers ([http://www.polarion.com/products/svn/subversive.php?src=eclipseproject Subversive], or [http://subclipse.tigris.org/update_1.6.x Subclipse]) installed.
 
 You need to set the {{{JAVA_HOME}}} variable in your Windows machine pointing to a JDK root folder (which has {{{xjc.exe}}} tool in its {{{bin}}} folder.).
 
 = Overview of projects =
- * ie.tcd.imm.common - common utilities
- * ie.tcd.imm.hits - the main nodes are here
- * ie.tcd.imm.hits.3rdparty - 3rd party dependencies
- * ie.tcd.imm.hits.interop - interoperability with other projects, like HCDC
- * ie.tcd.imm.hits.feature - feature for the easier deploy
- * ie.tcd.imm.knime.util - some utility nodes for KNIME
- * ie.tcd.imm.knime.util.feature - feature for the utility nodes
- * ie.tcd.imm.knime.test - some tests
- * ie.tcd.imm.hits.update - the update site
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.hits.common/trunk/ie.tcd.imm.hits.common ie.tcd.imm.common] - common utilities
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits ie.tcd.imm.hits] - the main nodes are here
+ * (ie.tcd.imm.hits.3rdparty - 3rd party dependencies - no longer used)
+   * Check this project for 3<sup>rd</sup> party dependencies: [http://fisheye2.atlassian.com/browse/hits/trunk/ie.tcd.imm.hits.maven.parent ie.tcd.imm.hits.maven.parent]
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop ie.tcd.imm.hits.interop] - interoperability with other projects, like HCDC
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.hits.exp/trunk/ie.tcd.imm.hits.exp ie.tcd.imm.hits.exp] - the nodes depending on KNIME labs nodes
+ * [http://fisheye2.atlassian.com/browse/hits/trunk/ie.tcd.imm.hits.feature ie.tcd.imm.hits.feature] - feature for the easier deploy
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.knime.util/trunk/ie.tcd.imm.knime.util ie.tcd.imm.knime.util] - some utility nodes for KNIME
+ * [http://fisheye2.atlassian.com/browse/hits/trunk/ie.tcd.imm.knime.util.feature ie.tcd.imm.knime.util.feature] - feature for the utility nodes
+ * [http://fisheye2.atlassian.com/browse/hits/ie.tcd.imm.knime.test/trunk ie.tcd.imm.knime.test] - some tests
+ * [http://fisheye2.atlassian.com/browse/hits/trunk/ie.tcd.imm.hits.update ie.tcd.imm.hits.update] - the update site
 
 
 = Materialisation =
