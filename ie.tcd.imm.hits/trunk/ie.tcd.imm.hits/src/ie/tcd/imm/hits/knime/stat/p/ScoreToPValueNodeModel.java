@@ -21,6 +21,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -35,6 +36,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ScoreToPValueNodeModel extends NodeModel {
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(ScoreToPValueNodeModel.class);
+
 	/** Column name prefix for p values. */
 	public static final String P_PREFIX = "p ";
 	/** Column name prefix for frequency values. */
@@ -108,6 +112,7 @@ public class ScoreToPValueNodeModel extends NodeModel {
 										/ Math.sqrt(2)));
 					} catch (final MathException e) {
 						ret[i] = DataType.getMissingCell();
+						logger.debug(e.getMessage(), e);
 					}
 				}
 				return ret;
