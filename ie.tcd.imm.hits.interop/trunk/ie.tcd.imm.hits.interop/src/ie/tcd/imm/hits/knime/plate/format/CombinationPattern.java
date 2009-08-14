@@ -312,17 +312,16 @@ public enum CombinationPattern implements Displayable, HasIcon {
 			private static final int GAP = 2;
 
 			private final Color[] colours = new Color[] { Color.RED,
-					Color.BLACK, Color.GREEN, // Color.BLUE, Color.YELLOW
-			};
+					Color.BLACK, Color.WHITE, Color.BLUE };
 
 			@Override
 			public int getIconHeight() {
-				return PLATE_HEIGHT + GAP + PLATE_HEIGHT / 4;
+				return PLATE_HEIGHT * 2;
 			}
 
 			@Override
 			public int getIconWidth() {
-				return PLATE_WIDTH + GAP + PLATE_WIDTH / 4;
+				return (PLATE_WIDTH + GAP + PLATE_WIDTH / 4) * 2;
 			}
 
 			@Override
@@ -330,26 +329,34 @@ public enum CombinationPattern implements Displayable, HasIcon {
 					final int x, final int y) {
 				for (int j = PLATE_HEIGHT; j-- > 0;) {
 					for (int i = /* getIconWidth() */PLATE_WIDTH; i-- > 0;) {
-						final int row = i % (PLATE_WIDTH + GAP);
-						if (row < PLATE_WIDTH
-								&& j % (PLATE_HEIGHT + GAP) < PLATE_HEIGHT) {
-							final int plate = i
-									/ (PLATE_WIDTH + GAP)
-									* ((getIconHeight() + PLATE_HEIGHT + GAP) / (PLATE_HEIGHT + GAP));
-							final int col = j % (PLATE_HEIGHT + GAP);
-							final int plateCompute = plateCompute(plate, row,
-									col, Format._384, Format._96);
+						final int row = j % (PLATE_HEIGHT + GAP);
+						final int col = i % (PLATE_WIDTH + GAP);
+						if (row < PLATE_HEIGHT && col < PLATE_WIDTH) {
+							final int plate = i / (PLATE_WIDTH + GAP)
+							// * ((getIconHeight() + PLATE_HEIGHT + GAP) /
+							// (PLATE_HEIGHT + GAP))
+							;
+							final int plateCompute = CombinationPattern.this
+									.plateCompute(plate, row, col, Format._384,
+											Format._96);
 							final int newPlate = plateCompute - 1;
-							final int newRow = rowCompute(plate, row,
-									Format._384, Format._96) - 1;
-							final int newCol = colCompute(plate, col,
-									Format._384, Format._96) - 1;
+							// final int newRow = CombinationPattern.this
+							// .rowCompute(plate, row, Format._384,
+							// Format._96) - 1;
+							// final int newCol = CombinationPattern.this
+							// .colCompute(plate, col, Format._384,
+							// Format._96) - 1;
 							g.setColor(colours[newPlate % colours.length]);
-							g.drawRect(newPlate % 2 * PLATE_WIDTH / 2 + newRow,
-									newPlate / 2 * PLATE_HEIGHT / 2 + newCol,
-									1, 1);
+							g.fillRect(i * 2, j * 2, 2, 2);
 						}
 					}
+				}
+				g.setColor(Color.LIGHT_GRAY);
+				g.fillRect(PLATE_WIDTH * 2 + 1, 0, 8, getIconHeight());
+				for (int i = colours.length; i-- > 0;) {
+					g.setColor(colours[i]);
+					g.drawString(String.valueOf(i + 1), PLATE_WIDTH * 2 + 2,
+							(i + 1) * (getIconHeight() / colours.length));
 				}
 			}
 		};
