@@ -9,7 +9,7 @@
     </shortDescription>
 
 	<fullDescription>
-		<intro>Converts between the selected plate formats.</intro>
+		<intro><p>Converts between the selected plate formats.</p><p>Details can be found <a href="../../help/plateFormat.xhtml">here</a>.</p></intro>
 
 
 		<option name="Input well count">Number of wells on input plates</option>
@@ -18,11 +18,11 @@
 		Specify the layout of the conversion pattern. You have the following
 		options (samples are from <tt>384</tt>-&gt;<tt>96</tt>):
 		<ul>
+			<li>left to right then up to down 8 pipettes wells are close without
+				replicates: 1 A1-&gt;1 A1; 1 A2-&gt;2 A1; 1 B1-&gt;3 A1</li>
 			<li>left to right then up to down without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;2 A1; 1 I1-&gt;3 A1</li>
 			<li>up to down then left to right without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 I1-&gt;2 A1</li>
 			<li>up to down then left to right 8 pipettes without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 B1-&gt;2 A1</li>
-			<li>left to right then up to down 8 pipettes wells are close without
-				replicates: 1 A1-&gt;1 A1; 1 A2-&gt;2 A1; 1 B1-&gt;3 A1</li>
 		</ul>
 	</option>
 	</fullDescription>

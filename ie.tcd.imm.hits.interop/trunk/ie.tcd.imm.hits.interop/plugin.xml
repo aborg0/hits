@@ -9,5 +9,13 @@
    
    <extension point="org.eclipse.help.toc">
       <toc extradir="html" file="tocs/libhandl_nodes.xml"/>
+      <toc file="tocs/toc.xml"/>
+      <toc file="tocs/toc_Interoperability.xml"/>
+   </extension>
+   <extension point="org.eclipse.help.base.luceneSearchParticipants">
+      <binding participantId="org.eclipse.help.base.xhtml"/>
+   </extension>
+   <extension point="org.eclipse.help.contentProducer">
+      <binding producerId="org.eclipse.help.dynamic"/>
    </extension>
 </plugin>

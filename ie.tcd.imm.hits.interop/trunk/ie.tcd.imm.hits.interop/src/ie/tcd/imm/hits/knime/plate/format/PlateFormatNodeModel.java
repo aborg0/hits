@@ -26,6 +26,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelEnum;
+import org.knime.core.node.defaultnodesettings.SettingsModelEnumWithIcon;
 
 /**
  * This is the model implementation of Plate Format. Converts between 96, 384,
@@ -138,6 +139,12 @@ public class PlateFormatNodeModel extends NodeModel {
 	static final String CFGKEY_COMBINATION_PATTERN = "combination.pattern";
 	/** Default value for the combination pattern. */
 	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.LeftToRightThenDown8PipettesClose;
+	/** The possible {@link CombinationPattern} values. */
+	static final CombinationPattern[] POSSIBLE_COMBINATION_PATTERN_VALUES = new CombinationPattern[] {
+			CombinationPattern.LeftToRightThenDown8PipettesClose,
+			CombinationPattern.LeftToRightThenDown,
+			CombinationPattern.UpToDownThenRight,
+			CombinationPattern.UpToDownThenRight8Pipettes };
 
 	private final SettingsModelEnum<Format> fromWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_FROM_WELL_COUNT, DEFAULT_FROM_WELL_COUNT, Format.values());
@@ -145,13 +152,9 @@ public class PlateFormatNodeModel extends NodeModel {
 	private final SettingsModelEnum<Format> toWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_TO_WELL_COUNT, DEFAULT_TO_WELL_COUNT, Format.values());
 
-	private final SettingsModelEnum<CombinationPattern> combinationPattern = new SettingsModelEnum<CombinationPattern>(
+	private final SettingsModelEnumWithIcon<CombinationPattern> combinationPattern = new SettingsModelEnumWithIcon<CombinationPattern>(
 			CFGKEY_COMBINATION_PATTERN, DEFAULT_COMBINATION_PATTERN,
-			new CombinationPattern[] {
-					CombinationPattern.LeftToRightThenDown8PipettesClose,
-					CombinationPattern.LeftToRightThenDown,
-					CombinationPattern.UpToDownThenRight,
-					CombinationPattern.UpToDownThenRight8Pipettes });
+			POSSIBLE_COMBINATION_PATTERN_VALUES);
 
 	/**
 	 * Constructor for the node model.
