@@ -1,0 +1,1 @@
+java -jar d:\downloads\doxia-converter-1.0-jar-with-dependencies.jar -in ../plugins/ie.tcd.imm.hits.knime.interop/help/plateFormat.twiki -from twiki -out ../plugins/ie.tcd.imm.hits.knime.interop/help/plateFormat.xhtml -to xhtml
