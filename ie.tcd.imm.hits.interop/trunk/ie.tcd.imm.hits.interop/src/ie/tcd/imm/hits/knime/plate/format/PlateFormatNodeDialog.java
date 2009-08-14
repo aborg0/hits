@@ -21,8 +21,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelEnumWithIcon;
 public class PlateFormatNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
-	 * New pane for configuring PlateFormat node dialog. This is just a
-	 * suggestion to demonstrate possible default dialog components.
+	 * New pane for configuring PlateFormat node dialog.
 	 */
 	protected PlateFormatNodeDialog() {
 		super();
@@ -31,13 +30,13 @@ public class PlateFormatNodeDialog extends DefaultNodeSettingsPane {
 				PlateFormatNodeModel.CFGKEY_FROM_WELL_COUNT,
 				PlateFormatNodeModel.DEFAULT_FROM_WELL_COUNT, Format.values());
 		addDialogComponent(new DialogComponentStringSelection(
-				fromWellCountModel, "From well:", fromWellCountModel
+				fromWellCountModel, "Input well count:", fromWellCountModel
 						.getDisplayTexts()));
 		final SettingsModelEnum<Format> toWellCountModel = new SettingsModelEnum<Format>(
 				PlateFormatNodeModel.CFGKEY_TO_WELL_COUNT,
 				PlateFormatNodeModel.DEFAULT_TO_WELL_COUNT, Format.values());
 		addDialogComponent(new DialogComponentStringSelection(toWellCountModel,
-				"To well:", toWellCountModel.getDisplayTexts()));
+				"Output well count:", toWellCountModel.getDisplayTexts()));
 		final SettingsModelEnumWithIcon<CombinationPattern> combinePatternModel = new SettingsModelEnumWithIcon<CombinationPattern>(
 				PlateFormatNodeModel.CFGKEY_COMBINATION_PATTERN,
 				CombinationPattern.LeftToRightThenDown, CombinationPattern

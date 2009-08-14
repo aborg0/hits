@@ -137,7 +137,7 @@ public class PlateFormatNodeModel extends NodeModel {
 	/** Configuration key for the combination pattern. */
 	static final String CFGKEY_COMBINATION_PATTERN = "combination.pattern";
 	/** Default value for the combination pattern. */
-	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.UpToDownThenRight8Pipettes;
+	static final CombinationPattern DEFAULT_COMBINATION_PATTERN = CombinationPattern.LeftToRightThenDown8PipettesClose;
 
 	private final SettingsModelEnum<Format> fromWellCount = new SettingsModelEnum<Format>(
 			CFGKEY_FROM_WELL_COUNT, DEFAULT_FROM_WELL_COUNT, Format.values());
@@ -147,7 +147,11 @@ public class PlateFormatNodeModel extends NodeModel {
 
 	private final SettingsModelEnum<CombinationPattern> combinationPattern = new SettingsModelEnum<CombinationPattern>(
 			CFGKEY_COMBINATION_PATTERN, DEFAULT_COMBINATION_PATTERN,
-			CombinationPattern.values());
+			new CombinationPattern[] {
+					CombinationPattern.LeftToRightThenDown8PipettesClose,
+					CombinationPattern.LeftToRightThenDown,
+					CombinationPattern.UpToDownThenRight,
+					CombinationPattern.UpToDownThenRight8Pipettes });
 
 	/**
 	 * Constructor for the node model.
@@ -244,6 +248,7 @@ public class PlateFormatNodeModel extends NodeModel {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void loadInternals(final File nodeInternDir,
 			final ExecutionMonitor exec) throws IOException,
@@ -251,6 +256,7 @@ public class PlateFormatNodeModel extends NodeModel {
 		// No state
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void saveInternals(final File nodeInternDir,
 			final ExecutionMonitor exec) throws IOException,

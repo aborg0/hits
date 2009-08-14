@@ -12,14 +12,23 @@
 		<intro>Converts between the selected plate formats.</intro>
 
 
-		<option name="From well count">Number of wells on input plates</option>
-		<option name="To well count">Number of wells on output plates</option>
+		<option name="Input well count">Number of wells on input plates</option>
+		<option name="Output well count">Number of wells on output plates</option>
+	<option name="Layout">
+		Specify the layout of the conversion pattern. You have the following
+		options (samples are from <tt>384</tt>-&gt;<tt>96</tt>):
+		<ul>
+			<li>left to right then up to down without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;2 A1; 1 I1-&gt;3 A1</li>
+			<li>up to down then left to right without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 I1-&gt;2 A1</li>
+			<li>up to down then left to right 8 pipettes without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 B1-&gt;2 A1</li>
+			<li>left to right then up to down 8 pipettes wells are close without
+				replicates: 1 A1-&gt;1 A1; 1 A2-&gt;2 A1; 1 B1-&gt;3 A1</li>
+		</ul>
+	</option>
 	</fullDescription>
 
 	<ports>
 		<inPort index="0" name="Data">Some plates</inPort>
-		<!-- possibly more input ports here-->
 		<outPort index="0" name="Data">Plates</outPort>
-		<!-- possibly more output ports here-->
 	</ports>
 </knimeNode>

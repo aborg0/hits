@@ -328,24 +328,14 @@ public enum CombinationPattern implements Displayable, HasIcon {
 			public void paintIcon(final Component c, final Graphics g,
 					final int x, final int y) {
 				for (int j = PLATE_HEIGHT; j-- > 0;) {
-					for (int i = /* getIconWidth() */PLATE_WIDTH; i-- > 0;) {
+					for (int i = PLATE_WIDTH; i-- > 0;) {
 						final int row = j % (PLATE_HEIGHT + GAP);
 						final int col = i % (PLATE_WIDTH + GAP);
 						if (row < PLATE_HEIGHT && col < PLATE_WIDTH) {
-							final int plate = i / (PLATE_WIDTH + GAP)
-							// * ((getIconHeight() + PLATE_HEIGHT + GAP) /
-							// (PLATE_HEIGHT + GAP))
-							;
-							final int plateCompute = CombinationPattern.this
-									.plateCompute(plate, row, col, Format._384,
-											Format._96);
+							final int plate = i / (PLATE_WIDTH + GAP);
+							final int plateCompute = plateCompute(plate, row,
+									col, Format._384, Format._96);
 							final int newPlate = plateCompute - 1;
-							// final int newRow = CombinationPattern.this
-							// .rowCompute(plate, row, Format._384,
-							// Format._96) - 1;
-							// final int newCol = CombinationPattern.this
-							// .colCompute(plate, col, Format._384,
-							// Format._96) - 1;
 							g.setColor(colours[newPlate % colours.length]);
 							g.fillRect(i * 2, j * 2, 2, 2);
 						}
