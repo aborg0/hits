@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?NLS TYPE="org.eclipse.help.toc"?>
-<toc link_to="../ie.tcd.imm.hits/toc.xml#Features" label="Interoperability">
+<toc link_to="../ie.tcd.imm.hits/toc.xml#postBasicFeatures" label="Interoperability">
    <link toc="tocs/toc_Interoperability.xml" label="Interoperability"/>
 </toc>

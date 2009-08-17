@@ -21,7 +21,7 @@
 		</topic>
 	</topic> 
 	<topic label="Features" href="help/features.xhtml">
-		<anchor id="Features"/>
+		<anchor id="preBasicFeatures"/>
 		<topic label="Read input data from IN Cell Analyzer 1000 xls files" href="help/INCellAnalyzer1000xls.xhtml">
 			<anchor id="INCellAnalyser1000xls"/>
 		</topic>
@@ -103,6 +103,7 @@
 		<topic label="Add ranking" href="help/rank.xhtml">
 			<anchor id="rank"/>
 		</topic>
+  <anchor id="postBasicFeatures"/>
 	</topic>
 	<topic label="Usage scenarios" href="help/usage.xhtml">
 		<anchor id="Usage"/>

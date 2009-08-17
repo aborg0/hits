@@ -6,5 +6,8 @@
 	<topic href="help/plateFormat.xhtml" label="Plate Format">
 	</topic>
     <anchor id="postPlateFormat"/>
+    <topic href="help/bioConverter.xhtml" label="BioConverter">
+    </topic>
+    <anchor id="postBioConverter"/>
     </topic>
 </toc>
