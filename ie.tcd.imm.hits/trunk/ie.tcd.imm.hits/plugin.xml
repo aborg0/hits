@@ -39,7 +39,6 @@
       <toc file="toc.xml"/>
       <toc file="HiTSToc.xml" primary="true"/>
 	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
-   	  <toc extradir="html" file="tocs/HiTS.xml"/>
 	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
 	  <toc extradir="html" file="tocs/view_nodes.xml"/>
       <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
