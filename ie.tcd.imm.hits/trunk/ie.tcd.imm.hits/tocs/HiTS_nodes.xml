@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="HiTS" link_to="..\ie.tcd.imm.hits\tocs\HiTS.xml#HiTS">
+<toc label="HiTS" link_to="..\ie.tcd.imm.hits.common\tocs\HiTS.xml#HiTS">
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\CellHTS2.html" label="CellHTS2"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\INCell_xls_Importer.html" label="INCell xls Importer"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Plate_Heatmap.html" label="Plate Heatmap"/>

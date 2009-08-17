@@ -4,14 +4,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository;bundle-version="[2.0.2,3.0.0)",
  org.knime.base;bundle-version="[2.0.2,3.0.0)",
  org.eclipse.ui,
+ ie.tcd.imm.hits.common;bundle-version="[0.0.1,1.0.0)",
  org.eclipse.help,
  org.eclipse.help.ui,
  org.knime.ext.jep;bundle-version="[2.0.0,3.0.0)",
  org.apache.batik.svggen;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
  org.apache.batik.dom;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
- ie.tcd.imm.hits.common;bundle-version="[0.0.1,1.0.0)",
  org.eclipse.core.filesystem;bundle-version="1.1.0",
- org.apache.commons.math;bundle-version="1.2.0"
+ org.apache.commons.math;bundle-version="[1.2.0,3.0.0)"
 Bundle-Vendor: TCD
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: importer.jar

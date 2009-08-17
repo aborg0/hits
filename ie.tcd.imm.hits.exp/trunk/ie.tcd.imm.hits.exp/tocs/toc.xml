@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="HiTS Table of Contents" link_to="..\ie.tcd.imm.hits\toc.xml#visualise">
+     <topic href="help/heatmapDendrogram.xhtml" label="Dendrogram with Heatmap">
+        <anchor id="heatmapDendrogram"/>
+     </topic>
+     <topic href="help/sortByCluster.xhtml" label="Sort by Cluster">
+        <anchor id="sortByCluster"/>
+     </topic>
+</toc>
