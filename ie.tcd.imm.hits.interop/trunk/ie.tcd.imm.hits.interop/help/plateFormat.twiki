@@ -119,7 +119,7 @@ This is the simple combination of the plates without mixing the rows or columns 
 |\beta H1|\beta H2|\beta H3|\beta H4|\beta H5|\beta H6|\beta H7|\beta H8|\beta H9|\beta H10|\beta H11|\beta H12|\delta H1|\delta H2|\delta H3|\delta H4|\delta H5|\delta H6|\delta H7|\delta H8|\delta H9|\delta H10|\delta H11|\delta H12| 
 
 ---++++ up to down then left to right 8 pipettes without replicates
-Similar to the previous, but the \beta and \gamma plates are in mixed order.
+Similar to the previous, but the \alpha, \beta and \gamma, \delta plates are merged.
 |\alpha A1|\alpha A2|\alpha A3|\alpha A4|\alpha A5|\alpha A6|\alpha A7|\alpha A8|\alpha A9|\alpha A10|\alpha A11|\alpha A12|\gamma A1|\gamma A2|\gamma A3|\gamma A4|\gamma A5|\gamma A6|\gamma A7|\gamma A8|\gamma A9|\gamma A10|\gamma A11|\gamma A12|
 |\beta A1|\beta A2|\beta A3|\beta A4|\beta A5|\beta A6|\beta A7|\beta A8|\beta A9|\beta A10|\beta A11|\beta A12|\delta A1|\delta A2|\delta A3|\delta A4|\delta A5|\delta A6|\delta A7|\delta A8|\delta A9|\delta A10|\delta A11|\delta A12| 
 |\alpha B1|\alpha B2|\alpha B3|\alpha B4|\alpha B5|\alpha B6|\alpha B7|\alpha B8|\alpha B9|\alpha B10|\alpha B11|\alpha B12|\gamma B1|\gamma B2|\gamma B3|\gamma B4|\gamma B5|\gamma B6|\gamma B7|\gamma B8|\gamma B9|\gamma B10|\gamma B11|\gamma B12| 
