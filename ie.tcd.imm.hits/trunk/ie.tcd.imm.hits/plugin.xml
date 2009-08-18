@@ -42,7 +42,8 @@
 	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
 	  <toc extradir="html" file="tocs/view_nodes.xml"/>
       <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
-    </extension>
+    <toc extradir="html" file="tocs/HiTS.xml"/>
+</extension>
    	<extension point="org.eclipse.help.base.luceneSearchParticipants">
       <binding participantId="org.eclipse.help.base.xhtml"/>
    	</extension>

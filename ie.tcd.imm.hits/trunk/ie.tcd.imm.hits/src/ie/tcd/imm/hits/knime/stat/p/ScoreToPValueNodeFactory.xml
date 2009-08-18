@@ -12,7 +12,7 @@
         
         
         <option name="columns">the columns of Z-scores</option>
-        <option name="Number of samples">population size</option>
+        <option name="Number of samples">population size (can be <tt>0</tt>)</option>
     </fullDescription>
     
     <ports>

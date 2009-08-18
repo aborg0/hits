@@ -93,11 +93,12 @@
      <topic href="help/simpleHeatmap.xhtml" label="Simple Heatmap">
         <anchor id="simpleHeatmap"/>
      </topic>
-		</topic>
-		<topic label="Add ranking" href="help/rank.xhtml">
-			<anchor id="rank"/>
-		</topic>
-  <anchor id="postBasicFeatures"/>
+     <anchor id="dendrogramManipulation"/>
+	 </topic>
+	 <topic label="Add ranking" href="help/rank.xhtml">
+	    <anchor id="rank"/>
+	 </topic>
+  	 <anchor id="postBasicFeatures"/>
 	</topic>
 	<topic label="Usage scenarios" href="help/usage.xhtml">
 		<anchor id="Usage"/>

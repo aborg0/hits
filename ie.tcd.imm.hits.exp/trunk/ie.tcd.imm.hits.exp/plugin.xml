@@ -12,5 +12,6 @@
    	   	<toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
    	   	<toc extradir="html" file="tocs/HiTS_nodes.xml"/>
    	   	<toc extradir="help" file="tocs/toc.xml"/>
+   	   	<toc extradir="help" file="tocs/toc_dendrogram_manipulate.xml"/>
    	</extension>
 </plugin>
