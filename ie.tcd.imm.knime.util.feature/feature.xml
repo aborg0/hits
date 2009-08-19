@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.knime.util.feature"
       label="KNIME utilities"
-      version="0.1.0.qualifier"
+      version="0.2.0.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.knime.util.feature">
 
@@ -25,10 +25,25 @@
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.knime.core" version="2.0.0" match="compatible"/>
+      <import plugin="org.knime.base" version="2.0.2" match="compatible"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.help.ui"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="compatible"/>
+      <import plugin="com.google.code.findbugs.jsr305" version="1.3.8" match="greaterOrEqual"/>
+      <import plugin="com.google.code.findbugs.annotations"/>
+      <import plugin="org.knime.workbench.help" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="com.google.code.findbugs.jsr305" version="1.3.9" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="ie.tcd.imm.knime.util"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ie.tcd.imm.hits.common"
          download-size="0"
          install-size="0"
          version="0.0.0"

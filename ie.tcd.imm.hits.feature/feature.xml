@@ -2,26 +2,34 @@
 <feature
       id="ie.tcd.imm.hits.feature"
       label="HiTS main feature"
-      version="0.3.0.qualifier"
+      version="0.4.0.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.feature">
 
    <description url="http://code.google.com/p/hits/">
       HiTS - High Throughput Screening
-KNIME plugin for analysing data from IN Cell Analyser 1000 using cellHTS2. It depends on Rserve.
+KNIME plugin for analysing data from HTS/HCS experiments using cellHTS2. It depends on Rserve.
+
+News in version 0.4.0:
+ - bug fixes,
+ - improved colour legend save
+ - new node:
+   - Score to P value
    </description>
 
    <copyright>
       ® Copyright 2009 Trinity College Dublin. All rights reserved.
-For other copyright information check the Rserve, cellHTS2, POI projects.
    </copyright>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0.html">
-      The main part of the HiTS project has applied licence: Apache 2.0 licence.
-cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending cellHTS2 functionality also licensed under this licence).
-KNIME licence: Aladdin Free Public License, or commercial depending on your model.
-Rserve licence: GNU GPL
-POI licence: Apache 2.0 licence
+      The main part of the HiTS project has applied licence: Apache
+2.0 licence.
+cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending
+cellHTS2 functionality also licensed under this licence).
+(KNIME licence: Aladdin Free Public License, or commercial depending
+on your model.)
+(Rserve licence: GNU GPL)
+(POI licence: Apache 2.0 licence)
    </license>
 
    <url>
@@ -35,15 +43,17 @@ POI licence: Apache 2.0 licence
       <import plugin="org.knime.workbench.repository" version="2.0.2" match="compatible"/>
       <import plugin="org.knime.base" version="2.0.2" match="compatible"/>
       <import plugin="org.eclipse.ui"/>
-      <import plugin="ie.tcd.imm.hits.3rdparty" version="0.1.0" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="compatible"/>
       <import plugin="org.eclipse.help"/>
       <import plugin="org.eclipse.help.ui"/>
       <import plugin="org.knime.ext.jep" version="2.0.0" match="compatible"/>
-      <import plugin="org.knime.distmatrix" version="2.0.1" match="compatible"/>
-      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="compatible"/>
       <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
-      <import plugin="javax.servlet"/>
-      <import plugin="org.apache.commons.math" version="1.2.0" match="greaterOrEqual"/>
+      <import plugin="com.springsource.org.apache.poi"/>
+      <import plugin="org.apache.commons.math" version="1.2.0"/>
+      <import plugin="net.rforge.REngine"/>
+      <import plugin="net.rforge.Rserve"/>
+      <import plugin="org.knime.core" version="2.0.0" match="compatible"/>
+      <import plugin="org.knime.workbench.help" version="2.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -53,28 +63,7 @@ POI licence: Apache 2.0 licence
          version="0.0.0"/>
 
    <plugin
-         id="ie.tcd.imm.hits.3rdparty"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.math"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.org.apache.commons.discovery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.springsource.org.apache.commons.logging"
+         id="ie.tcd.imm.hits.common"
          download-size="0"
          install-size="0"
          version="0.0.0"
