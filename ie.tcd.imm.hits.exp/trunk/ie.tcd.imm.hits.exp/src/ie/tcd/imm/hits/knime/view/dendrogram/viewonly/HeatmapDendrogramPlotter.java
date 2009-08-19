@@ -199,7 +199,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 						getXAxis()
 								.getCoordinate()
 								.setPolicy(
-										directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
+										isDirectionLeftToRight() ? AscendingNumericTickPolicyStrategy.ID
 												: DescendingNumericTickPolicyStrategy.ID);
 						updateSize();
 						heatmapDendrogramDrawingPane.repaint();
@@ -265,7 +265,14 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		updateDirection(heatmapDendrogramPlotterProperties);
 	}
 
-	private void updateDirection(
+	/**
+	 * Updates the direction property based on {@code
+	 * heatmapDendrogramPlotterProperties}.
+	 * 
+	 * @param heatmapDendrogramPlotterProperties
+	 *            The {@link HeatmapDendrogramPlotterProperties}.
+	 */
+	protected void updateDirection(
 			final HeatmapDendrogramPlotterProperties heatmapDendrogramPlotterProperties) {
 		directionLeftToRight = !heatmapDendrogramPlotterProperties
 				.getFlipHorizontal().isSelected();
@@ -309,8 +316,10 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		final double min = 0;
 		final double max = rootNode.getMaxDistance();
 		setPreserve(false);
-		createXCoordinate(min, /* Math.max(max + 2, */max * getWidth()
-				/ (getWidth() - offset)/* ) */);
+		createXCoordinate(min, /* Math.max(max + 2, */max * 1.001953125
+		/*
+		 * * getWidth() / (getWidth() - offset)
+		 *//* ) */);
 		getXAxis().getCoordinate().setPolicy(
 				directionLeftToRight ? AscendingNumericTickPolicyStrategy.ID
 						: DescendingNumericTickPolicyStrategy.ID);
@@ -442,7 +451,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		int x = (int) getXAxis().getCoordinate().calculateMappedValue(
 				new DoubleCell(node.getDist()), width);
 
-		x += directionLeftToRight ? offset : -offset;
+		x += directionLeftToRight ? offset : 0/*-offset*/;
 		int y;
 		DendrogramPoint p;
 		if (!node.isLeaf()) {
@@ -520,6 +529,50 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 
 	@Override
 	public void selectElementsIn(final Rectangle selectionRectangle) {
+		final Rectangle updatedRectangle = updateRectangle(selectionRectangle);
+		selectElementsInUpdatedRectangle(updatedRectangle);
+		updatePaintModel();
+	}
+
+	/**
+	 * @param selectionRectangle
+	 *            The original selected rectangle.
+	 * @return The corrected rectangle (including the leaf nodes if necessary).
+	 */
+	private Rectangle updateRectangle(final Rectangle selectionRectangle) {
+		for (final BinaryTreeNode<DendrogramPoint> node : tree
+				.getNodes(Traversal.PRE)) {
+			if (node.isLeaf()) {
+				final int leafX = node.getContent().getPoint().x;
+				if (selectionRectangle.contains(new Point(leafX,
+						selectionRectangle.y + selectionRectangle.width / 2))) {
+					return selectionRectangle;
+				}
+				final Rectangle ret = isDirectionLeftToRight() ? selectionRectangle.x < leafX ? new Rectangle(
+						selectionRectangle.x,
+						selectionRectangle.y,
+						selectionRectangle.width - selectionRectangle.x + leafX,
+						selectionRectangle.height)
+						: selectionRectangle
+						: selectionRectangle.x > leafX ? new Rectangle(leafX,
+								selectionRectangle.y, selectionRectangle.width
+										+ selectionRectangle.x - leafX,
+								selectionRectangle.height) : selectionRectangle;
+				return ret;
+			}
+		}
+		return selectionRectangle;
+
+	}
+
+	/**
+	 * Selects the nodes in the {@code selectionRectangle}.
+	 * 
+	 * @param selectionRectangle
+	 *            The updated selection {@link Rectangle}.
+	 */
+	private void selectElementsInUpdatedRectangle(
+			final Rectangle selectionRectangle) {
 		for (final BinaryTreeNode<DendrogramPoint> node : tree
 				.getNodes(BinaryTree.Traversal.IN)) {
 			if (selectionRectangle.contains(node.getContent().getPoint())) {
@@ -527,7 +580,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 				selectElementsRecursively(node);
 			}
 		}
-		updatePaintModel();
 	}
 
 	private void selectElementsRecursively(
@@ -611,5 +663,12 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 				getDrawingPane().repaint();
 			}
 		};
+	}
+
+	/**
+	 * @return The directionLeftToRight.
+	 */
+	protected final boolean isDirectionLeftToRight() {
+		return directionLeftToRight;
 	}
 }

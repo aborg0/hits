@@ -353,6 +353,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						.getPoint().y,
 						node.getParent().getContent().getPoint().x, node
 								.getContent().getPoint().y);
+			} else {
+				g.fillOval(dendroPoint.getPoint().x, dendroPoint.getPoint().y,
+						4, 4);
 			}
 			((Graphics2D) g).setStroke(backupStroke);
 			g.setColor(ColorAttr.SELECTED);
