@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
 <title>Features</title>
 </head>
 <body>
@@ -24,20 +24,22 @@
 <p>Export the heatmaps as png files.</p>
 <h2>Simple Heatmap</h2>
 <p>Supports HiLiting, changing the colours, you can select which statistics you want to examine.</p>
-<h2>Heatmap with Dendrogram</h2>
-<p>Supports HiLiting, changing the colours, selecting the columns to view.</p>
+<h2>Score to P values</h2>
+<p>Supports a simple <em>p</em> value generation with an estimated frequency.</p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.exp/help/features.xhtml/supported"/>
 <h1>Limitations</h1>
 <h2>cellHTS2</h2>
 <ul>
 <li>Screen log is not tested yet, it may be not working at all... If the screen log is empty it works well.</li>
 <li>The view does not support clicking on links.</li>
 </ul>
-<h2>Heatmap</h2>
+<h2>Plate Heatmap</h2>
 <h3>HiLiting</h3>
 <p>You cannot HiLite a part of a visual well. HiLite of a part of a visual well will generate HiLite on screen for the whole visual well. The HiLites are not saved, so next time (if you close your project) you have to HiLite everything you wanted.</p>
 <h2>Ranking</h2>
 <ul>
 <li>No proper regulation interface (you have the option to only select a general natural point and direction. You cannot specify the regulation of each parameter-statistics pair).</li>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.exp/help/features.xhtml/limitations"/>
 </ul>
 <h1>Not supported features</h1>
 <h2>cellHTS2</h2>
@@ -49,10 +51,11 @@
 <li>Negative sign for scoring of a parameter</li>
 <li>Other than 96 plate format</li>
 </ul>
-<h2>Heatmap</h2>
+<h2>Plate Heatmap</h2>
 <ul>
 <li>Does not support saving of actual arrangement/preferences.</li>
-<li>Other than 96 plate format</li>
+<li>1536 well plate format</li>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.exp/help/features.xhtml/notSupported"/>
 </ul>
 <include path="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/footer.xhtml/copyright"/>
 </body>
