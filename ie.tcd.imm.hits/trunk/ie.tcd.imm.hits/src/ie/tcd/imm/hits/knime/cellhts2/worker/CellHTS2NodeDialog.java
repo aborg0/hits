@@ -335,7 +335,7 @@ public class CellHTS2NodeDialog extends DefaultNodeSettingsPane {
 				if (conn.isConnected()) {
 					final REXPLogical hasLocfit = (REXPLogical) conn
 							.eval("require('locfit')");
-					return hasLocfit.isTrue()[0];
+					return hasLocfit.isTRUE()[0];
 				}
 			} finally {
 				conn.close();

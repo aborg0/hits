@@ -2010,7 +2010,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			final String errorMessage) throws RserveException,
 			REXPMismatchException {
 		if (!RUtil.<REXPLogical> eval(conn, "validObject(" + objectName + ")")
-				.isTrue()[0]) {
+				.isTRUE()[0]) {
 			CellHTS2NodeModel.logger.error(errorMessage);
 			throw new IllegalStateException(errorMessage);
 		}
