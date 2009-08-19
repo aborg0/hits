@@ -8,7 +8,7 @@
   <properties>
   	<bundle.symbolicName>net.rforge.Rserve</bundle.symbolicName>
   <!--  	<bundle.namespace>org.rosuda.REngine</bundle.namespace>-->
-  	<bundle.version>${version}</bundle.version>
+  	<bundle.version>${version}-${maven.build.timestamp}</bundle.version>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
@@ -49,12 +49,13 @@
             <!--
              | export wrapped contents: don't use Export-Package:* as this bundles everything on the classpath
             -->
-            <_exportcontents>*</_exportcontents>
+            <_exportcontents>*;version="${bundle.version}"</_exportcontents>
             <Private-Package>!*</Private-Package>
             <!--
              | each module can override these defaults in their osgi.bnd file
             -->
             <_include>-osgi.bnd</_include>
+            <Bundle-Vendor>${pom.organization.name}</Bundle-Vendor>
           </instructions>
         </configuration>
       </plugin>
