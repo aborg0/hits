@@ -6,6 +6,8 @@ import ie.tcd.imm.hits.knime.interop.config.Value;
 import ie.tcd.imm.hits.util.Displayable;
 import ie.tcd.imm.hits.util.Pair;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -16,11 +18,14 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.defaultnodesettings.DialogComponentButton;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.DialogComponentString;
@@ -503,6 +508,25 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(select(columnType, components, DialogType.name, true));
 		addDialogComponent(select(columnType, components, DialogType.format,
 				true));
+		final DialogComponentButton inputFormatHelp = new DialogComponentButton(
+				"Help");
+		inputFormatHelp.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Display display = Display.getDefault();
+				display.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						PlatformUI
+								.getWorkbench()
+								.getHelpSystem()
+								.displayHelpResource(
+										"/ie.tcd.imm.hits.knime.interop/help/bioConverter.xhtml#inputContentFormat");
+					}
+				});
+			}
+		});
+		addDialogComponent(inputFormatHelp);
 		createNewGroup("Output");
 		setHorizontalPlacement(false);
 		addDialogComponent(select(columnType, components, DialogType.group,
@@ -512,6 +536,26 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 				false));
 		addDialogComponent(select(columnType, components, DialogType.format,
 				false));
+		// final DialogComponentButton outputFormatHelp = new
+		// DialogComponentButton(
+		// "Help");
+		// outputFormatHelp.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(final ActionEvent e) {
+		// final Display display = Display.getDefault();
+		// display.asyncExec(new Runnable() {
+		// @Override
+		// public void run() {
+		// PlatformUI
+		// .getWorkbench()
+		// .getHelpSystem()
+		// .displayHelpResource(
+		// "/ie.tcd.imm.hits.knime.interop/help/bioConverter.xhtml#outputContentFormat");
+		// }
+		// });
+		// }
+		// });
+		// addDialogComponent(outputFormatHelp);
 		addDialogComponent(select(columnType, components, DialogType.type,
 				false));
 		addDialogComponent(select(columnType, components, DialogType.position,
