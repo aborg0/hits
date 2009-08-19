@@ -8,6 +8,7 @@
   <properties>
   	<bundle.symbolicName>net.rforge.REngine</bundle.symbolicName>
   <!--  	<bundle.namespace>org.rosuda.REngine</bundle.namespace>-->
+  	<bundle.version>${version}</bundle.version>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
@@ -44,7 +45,7 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${bundle.symbolicName}</Bundle-SymbolicName>
-            <Bundle-Version>${wrapped.version}</Bundle-Version>
+            <Bundle-Version>${bundle.version}</Bundle-Version>
             <!--
              | export wrapped contents: don't use Export-Package:* as this bundles everything on the classpath
             -->
