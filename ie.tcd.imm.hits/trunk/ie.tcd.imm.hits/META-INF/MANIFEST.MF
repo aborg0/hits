@@ -27,9 +27,9 @@ Bundle-Vendor: TCD
 Bundle-Version: 0.3.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
-Import-Package: org.apache.poi.hssf.usermodel,
- org.apache.poi.poifs.filesystem,
- org.rosuda.REngine,
- org.rosuda.REngine.Rserve
+Import-Package: org.apache.poi.hssf.usermodel;version="3.0.0",
+ org.apache.poi.poifs.filesystem;version="3.0.0",
+ org.rosuda.REngine;version="0.6.0",
+ org.rosuda.REngine.Rserve;version="0.6.0"
 Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
 
