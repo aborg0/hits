@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./dendrogram.png" type="Visualizer">
+    <name>Dendrogram with Heatmap</name>
+    
+    <shortDescription>
+        Allows to create dendrogram with a heatmap (using the nodes from KNIME Labs the Distance Matrix feature).
+    </shortDescription>
+    
+    <fullDescription>
+        <intro><p>This node creates dendrogram with heatmap. The colours are adjustable, the order of the columns are changeable.</p><p>Detailed description: <a href="../../help/heatmapDendrogram.xhtml">Dendrogram with Heatmap</a> node</p></intro>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Cluster tree">A tree model from the <b>New Hierarchical Clustering</b> node.</inPort>
+        <inPort index="1" name="Data">Data with same keys (in the same order) as the Cluster tree has.</inPort>
+    </ports>    
+    <views>
+        <view index="0" name="Dendrogram with heatmap">This view shows a heatmap with the dendrogram.</view>
+    </views>
+</knimeNode>
