@@ -3,12 +3,12 @@
  */
 package ie.tcd.imm.hits.knime.util.leaf.ordering;
 
+import ie.tcd.imm.hits.knime.util.RowKeyHelper;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.Triple;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -158,7 +158,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 			final List<DistanceVectorDataValue> ret,
 			final Map<RowKey, DistanceVectorDataValue> d) {
 		if (root.isLeaf()) {
-			ret.add(d.get(getLeafKey(root)));
+			ret.add(d.get(RowKeyHelper.getKey(root)));
 			return;
 		}
 		flatten(root.getFirstSubnode(), ret, d);
@@ -194,7 +194,8 @@ public class LeafOrderingNodeModel extends NodeModel {
 			final DendrogramNode root,
 			final Map<RowKey, Pair<DataRow, Integer>> rows) {
 		if (root.isLeaf()) {
-			final Pair<DataRow, Integer> leafRow = rows.get(getLeafKey(root));
+			final Pair<DataRow, Integer> leafRow = rows.get(RowKeyHelper
+					.getKey(root));
 			return Triple.apply(
 					new ClusterViewNode(leafRow.getLeft().getKey()), leafRow
 							.getLeft().getKey(), leafRow.getLeft().getKey());
@@ -234,7 +235,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 			final Map<RowKey, DistanceVectorDataValue> d, final int allLeaves,
 			final ExecutionContext exec) {
 		if (root.isLeaf()) {
-			final RowKey key = getLeafKey(root);
+			final RowKey key = RowKeyHelper.getKey(root);
 			return Collections.singletonMap(Triple.apply(root, key, key),
 					(Number) Double.valueOf(0));
 		}
@@ -344,27 +345,6 @@ public class LeafOrderingNodeModel extends NodeModel {
 		return ret;
 	}
 
-	@Deprecated
-	private static RowKey getLeafKey(final DendrogramNode node) {
-		if (node.getLeafDataPoint() != null) {
-			return node.getLeafDataPoint().getKey();
-		}
-		if (node instanceof ClusterViewNode) {
-			final ClusterViewNode cvn = (ClusterViewNode) node;
-			return cvn.getLeafRowKey();
-		}
-		RowKey key;
-		try {
-			final Method getKey = node.getClass().getMethod("getLeafRowKey");
-			key = (RowKey) getKey.invoke(node);
-		} catch (final RuntimeException e) {
-			throw e;
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		return key;
-	}
-
 	/**
 	 * Computes the similarity between the two rows.
 	 * 
@@ -389,7 +369,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 
 	private void computeLeaves(final DendrogramNode root, final Set<RowKey> ret) {
 		if (root.isLeaf()) {
-			ret.add(getLeafKey(root));
+			ret.add(RowKeyHelper.getKey(root));
 		} else {
 			computeLeaves(root.getFirstSubnode(), ret);
 			computeLeaves(root.getSecondSubnode(), ret);

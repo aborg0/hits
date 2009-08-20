@@ -23,6 +23,7 @@
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
 import ie.tcd.imm.hits.knime.util.HiliteType;
+import ie.tcd.imm.hits.knime.util.RowKeyHelper;
 import ie.tcd.imm.hits.knime.util.ShiftedLogarithmicMappingMethod;
 
 import java.awt.Dimension;
@@ -30,7 +31,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -326,7 +326,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		getXAxis().setStartTickOffset(offset);
 
 		final Set<RowKey> rowKeys = new LinkedHashSet<RowKey>();
-		getRowKeys(rootNode, rowKeys);
+		RowKeyHelper.getRowKeys(rootNode, rowKeys);
 		final Set<DataCell> keys = new LinkedHashSet<DataCell>();
 		for (final RowKey rk : rowKeys) {
 			keys.add(new StringCell(rk.getString()));
@@ -386,37 +386,6 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		getYAxis().repaint();
 	}
 
-	private void getRowKeys(final DendrogramNode node, final Set<RowKey> ids) {
-		if (node == null) {
-			return;
-		}
-		if (node.isLeaf()) {
-			final RowKey key = getKey(node);
-			ids.add(key);
-			return;
-		}
-		getRowKeys(node.getFirstSubnode(), ids);
-		getRowKeys(node.getSecondSubnode(), ids);
-
-	}
-
-	@Deprecated
-	private RowKey getKey(final DendrogramNode node) {
-		if (node.getLeafDataPoint() != null) {
-			return node.getLeafDataPoint().getKey();
-		}
-		RowKey key;
-		try {
-			final Method getKey = node.getClass().getMethod("getLeafRowKey");
-			key = (RowKey) getKey.invoke(node);
-		} catch (final RuntimeException e) {
-			throw e;
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		return key;
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public void setRootNode(final DendrogramNode root) {
@@ -459,8 +428,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			p = new DendrogramPoint(new Point(x, y), node.getDist());
 			p.setRelativeSize(1.0);
 		} else {
-			// final DataRow row = node.getLeafDataPoint();
-			final RowKey key = getKey(node);
+			final RowKey key = RowKeyHelper.getKey(node);
 			final DataArray table = getDataProvider().getDataArray(1);
 			final Integer rowIndex = mapFromKeysToIndices.get(key);
 			if (rowIndex == null) {
@@ -470,8 +438,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			final DataRow row = table.getRow(rowIndex.intValue());
 			y = dim.height
 					- (int) getYAxis().getCoordinate().calculateMappedValue(
-							new StringCell(getKey(node)
-							/* row.getKey() */.getString()), dim.height);
+							new StringCell(RowKeyHelper.getKey(node)
+									.getString()), dim.height);
 			p = new DendrogramPoint(new Point(x, y), node.getDist());
 			final DataTableSpec spec = table.getDataTableSpec();
 			final ColorAttr rowColor = spec.getRowColor(row);
@@ -480,12 +448,11 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 			p.setShape(rowShape == null ? ShapeFactory
 					.getShape(ShapeFactory.DEFAULT) : rowShape);
 			p.setRelativeSize(spec.getRowSizeFactor(row));
-			p.setHilite(delegateIsHiLit(getKey(node)
-			/* row.getKey() */));
+			p.setHilite(delegateIsHiLit(RowKeyHelper.getKey(node)));
 		}
 		viewNode = new BinaryTreeNode<DendrogramPoint>(p);
 		final Set<RowKey> keys = new LinkedHashSet<RowKey>();
-		getRowKeys(node, keys);
+		RowKeyHelper.getRowKeys(node, keys);
 		viewNode.getContent().addRows(keys);
 		viewNode.getContent().setSelected(
 				selected.contains(viewNode.getContent()));
@@ -515,7 +482,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	 */
 	private int getYPosition(final DendrogramNode node) {
 		if (node.isLeaf()) {
-			final DataCell value = new StringCell(getKey(node).getString());
+			final DataCell value = new StringCell(RowKeyHelper.getKey(node)
+					.getString());
 			final int calculateMappedValue = (int) getYAxis().getCoordinate()
 					.calculateMappedValue(value,
 							getDrawingPaneDimension().height);

@@ -3,12 +3,12 @@
  */
 package ie.tcd.imm.hits.knime.util.sortby;
 
+import ie.tcd.imm.hits.knime.util.RowKeyHelper;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
@@ -69,7 +69,7 @@ public class SortByClusterNodeModel extends NodeModel {
 		final ClusterTreeModel cluster = (ClusterTreeModel) inData[0];
 		final DendrogramNode root = cluster.getRoot();
 		final ArrayList<RowKey> keys = new ArrayList<RowKey>();
-		getRowKeys(root, keys);
+		RowKeyHelper.getRowKeys(root, keys);
 		final Map<RowKey, DataRow> map = new HashMap<RowKey, DataRow>(data
 				.getRowCount() * 2);
 		for (final DataRow dataRow : data) {
@@ -89,37 +89,6 @@ public class SortByClusterNodeModel extends NodeModel {
 		container.close();
 		final BufferedDataTable ret = container.getTable();
 		return new BufferedDataTable[] { ret };
-	}
-
-	@Deprecated
-	private RowKey getKey(final DendrogramNode node) {
-		if (node.getLeafDataPoint() != null) {
-			return node.getLeafDataPoint().getKey();
-		}
-		RowKey key;
-		try {
-			final Method getKey = node.getClass().getMethod("getLeafRowKey");
-			key = (RowKey) getKey.invoke(node);
-		} catch (final RuntimeException e) {
-			throw e;
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		return key;
-	}
-
-	private void getRowKeys(final DendrogramNode node, final List<RowKey> ids) {
-		if (node == null) {
-			return;
-		}
-		if (node.isLeaf()) {
-			final RowKey key = getKey(node);
-			ids.add(key);
-			return;
-		}
-		getRowKeys(node.getFirstSubnode(), ids);
-		getRowKeys(node.getSecondSubnode(), ids);
-
 	}
 
 	/**
