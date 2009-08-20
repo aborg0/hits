@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ie.tcd.imm.hits.knime.interop.feature"
+      label="Interoperability with other projects"
+      version="0.0.1.qualifier"
+      provider-name="TCD"
+      colocation-affinity="ie.tcd.imm.hits.knime.interop.feature">
+
+   <description url="http://code.google.com/p/hits/">
+      Helps the interaction with other plugins, like HCDC (http://hcdc.ethz.ch).
+   </description>
+
+   <copyright>
+      All rights reserved. (C) Copyright 2009, Trinity College Dublin
+   </copyright>
+
+   <license url="http://www.apache.org/licenses/LICENSE-2.0.html">
+      Apache 2.0 licence
+   </license>
+
+   <url>
+      <discovery label="HiTS update site" url="http://code.google.com/p/hits/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.knime.workbench.core"/>
+      <import plugin="org.knime.workbench.repository"/>
+      <import plugin="org.knime.base"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.help.ui"/>
+   </requires>
+
+   <plugin
+         id="ie.tcd.imm.hits.knime.interop"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
