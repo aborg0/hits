@@ -15,4 +15,7 @@ Bundle-Version: 0.0.1.qualifier
 Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.interop.BioConverterNodePlugin
 Bundle-SymbolicName: ie.tcd.imm.hits.knime.interop; singleton:=true
+Import-Package: edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.meta
 

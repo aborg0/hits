@@ -15,3 +15,6 @@ Export-Package: ie.tcd.imm.hits.common;version="0.0.1",
  ie.tcd.imm.hits.util;version="0.0.1",
  ie.tcd.imm.hits.util.template;version="0.0.1",
  org.knime.core.node.defaultnodesettings;version="0.0.1"
+Import-Package: edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.meta

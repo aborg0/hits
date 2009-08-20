@@ -13,4 +13,7 @@ Bundle-Activator: ie.tcd.imm.knime.util.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: ie.tcd.imm.knime.util;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.meta
 

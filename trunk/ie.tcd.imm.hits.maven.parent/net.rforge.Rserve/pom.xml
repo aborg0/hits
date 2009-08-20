@@ -8,7 +8,7 @@
   <properties>
   	<bundle.symbolicName>net.rforge.Rserve</bundle.symbolicName>
   <!--  	<bundle.namespace>org.rosuda.REngine</bundle.namespace>-->
-  	<bundle.version>${version}-${maven.build.timestamp}</bundle.version>
+  	<bundle.version>${version}</bundle.version>
   </properties>
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
@@ -16,7 +16,7 @@
   <packaging>bundle</packaging><!--
   <name>${bundle.symbolicName} [${bundle.namespace}]</name>
   --><name>${bundle.symbolicName} [osgi]</name>
-  <version>0.6.0-SNAPSHOT</version>
+  <version>0.6.0</version>
   <description>Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it's 2009 august 7 state)</description>
   <url>http://www.rforge.net/Rserve/files/RserveEngine.jar</url>
   <scm>
@@ -73,7 +73,7 @@
   	<dependency>
   		<groupId>ie.tcd.imm.hits</groupId>
   		<artifactId>net.rforge.REngine</artifactId>
-  		<version>0.6.0-SNAPSHOT</version>
+  		<version>0.6.0</version>
   		<type>bundle</type>
   	</dependency>
   </dependencies>
