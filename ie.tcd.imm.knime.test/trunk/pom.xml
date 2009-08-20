@@ -4,7 +4,7 @@
   <artifactId>ie.tcd.imm.knime.test</artifactId>
   <packaging>eclipse-plugin</packaging>
   <name>ie.tcd.imm.knime.test</name>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.3.0-SNAPSHOT</version>
   <description>Some tests related to KNIME development</description>
   <url>http://code.google.com/p/hits</url>
   <repositories>
