@@ -86,19 +86,22 @@
 			</topic>
 		</topic>
 		<topic label="Visualise data" href="help/visualise.xhtml">
-     <anchor id="visualise"/>
-     <topic href="help/heatmap.xhtml" label="Plate Heatmap">
-        <anchor id="heatmap"/>
-     </topic>
-     <topic href="help/simpleHeatmap.xhtml" label="Simple Heatmap">
-        <anchor id="simpleHeatmap"/>
-     </topic>
-     <anchor id="dendrogramManipulation"/>
-	 </topic>
-	 <topic label="Add ranking" href="help/rank.xhtml">
-	    <anchor id="rank"/>
-	 </topic>
-  	 <anchor id="postBasicFeatures"/>
+			<anchor id="visualise"/>
+			<topic href="help/heatmap.xhtml" label="Plate Heatmap">
+				<anchor id="heatmap"/>
+			</topic>
+			<topic href="help/simpleHeatmap.xhtml" label="Simple Heatmap">
+				<anchor id="simpleHeatmap"/>
+			</topic>
+			<anchor id="dendrogramManipulation"/>
+		</topic>
+		<topic label="Add ranking" href="help/rank.xhtml">
+			<anchor id="rank"/>
+		</topic>
+		<topic href="html/nodes/Scores_to_p-values.html" label="Scores to p-values">
+			<anchor id="scoresToPValues"/>
+		</topic>
+		<anchor id="postBasicFeatures"/>
 	</topic>
 	<topic label="Usage scenarios" href="help/usage.xhtml">
 		<anchor id="Usage"/>
