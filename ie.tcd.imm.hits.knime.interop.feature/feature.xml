@@ -27,9 +27,10 @@
       <import plugin="org.knime.workbench.core"/>
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base"/>
-      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help"/>
       <import plugin="org.eclipse.help.ui"/>
+      <import plugin="org.knime.core" version="2.0.0" match="compatible"/>
+      <import plugin="org.knime.workbench.help" version="2.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -37,5 +38,12 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="ie.tcd.imm.hits.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
