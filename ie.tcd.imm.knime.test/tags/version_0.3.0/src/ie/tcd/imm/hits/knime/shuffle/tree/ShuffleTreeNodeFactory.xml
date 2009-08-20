@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+    <name>Shuffle Tree</name>
+    
+    <shortDescription>
+        Randomly change the order of branches in a tree.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Shuffles the leaves by flipping the branches randomly.</intro>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="tree">A tree of hierarchical clusters.</inPort>
+        <inPort index="1" name="table with Distance column">Table with Distance column.</inPort>
+        <outPort index="0" name="shuffled tree">Reordered tree</outPort>
+    </ports>    
+</knimeNode>

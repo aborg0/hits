@@ -1,0 +1,29 @@
+[Lab description]
+Experimenter name: HCS group-AL
+Laboratory: TCD IMM
+Contact information:
+
+[Screen description]
+Screen: 8 plate 3 replicates from Noisemaker
+Title: 
+Version: 0.0.1
+Date: January 2009
+Screentype: RNA interference
+Organism: Artificial
+Celltype: Generated
+Library: 
+Assay: Morphology
+Assaytype: homogenous
+Assaydescription: generated
+
+[Publication description]
+Publicationtitle: 
+PMIDs: 
+URL: 
+License: 
+Abstract:
+
+[Files]
+annotation: GeneID.txt
+plateConf: Plateconf.txt
+screenLog: Screenlog.txt
