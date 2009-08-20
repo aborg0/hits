@@ -52,11 +52,11 @@ on your model.)
       <import plugin="org.knime.ext.jep" version="2.0.0" match="compatible"/>
       <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
       <import plugin="com.springsource.org.apache.poi"/>
-      <import plugin="org.apache.commons.math" version="1.2.0"/>
       <import plugin="net.rforge.REngine"/>
       <import plugin="net.rforge.Rserve"/>
       <import plugin="org.knime.core" version="2.0.0" match="compatible"/>
       <import plugin="org.knime.workbench.help" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.math" version="1.2.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
