@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ie.tcd.imm.hits.knime.interop.feature"
-      label="Interoperability with other projects"
+      label="HiTS interoperability with other projects"
       version="0.0.1.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.knime.interop.feature">
