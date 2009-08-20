@@ -42,19 +42,19 @@
    <feature url="http://www.knime.org/update_2.x/labs/features/org.knime.features.distmatrix_2.0.3.0022208.jar" id="org.knime.features.distmatrix" version="2.0.3.0022208">
       <category name="KNIME labs"/>
    </feature>
-   <feature url="features/ie.tcd.imm.knime.util.feature_0.2.0.200908202037.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.0.200908202037">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.2.0.200908202037.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.0.200908202037">
       <category name="KNIME utilities"/>
    </feature>
-   <feature url="features/ie.tcd.imm.hits.3rdparty.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.3rdparty.feature" version="0.4.0.200908202037">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.3rdparty.feature" version="0.4.0.200908202037">
       <category name="HiTS"/>
    </feature>
-   <feature url="features/ie.tcd.imm.hits.exp.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.exp.feature" version="0.4.0.200908202037">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.exp.feature" version="0.4.0.200908202037">
       <category name="HiTS"/>
    </feature>
-   <feature url="features/ie.tcd.imm.hits.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.feature" version="0.4.0.200908202037">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.4.0.200908202037.jar" id="ie.tcd.imm.hits.feature" version="0.4.0.200908202037">
       <category name="HiTS"/>
    </feature>
-   <feature url="features/ie.tcd.imm.hits.knime.interop.feature_0.0.1.200908202037.jar" id="ie.tcd.imm.hits.knime.interop.feature" version="0.0.1.200908202037">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.knime.interop.feature_0.0.1.200908202037.jar" id="ie.tcd.imm.hits.knime.interop.feature" version="0.0.1.200908202037">
       <category name="HiTS"/>
    </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
