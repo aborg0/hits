@@ -14,7 +14,7 @@ If you are using an internet connection with proxy, you may want to set the appr
 You may want to look at this presentation if you are in trouble: [http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5 HiTS Start and Setup KNIME]
 <wiki:comment> wiki:gadget url="http://hosting.gmodules.com/ig/gadgets/file/103153836024844296842/googledocument.xml" height="600" width="800" border="0" up_webpagename="http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5" </wiki:comment>
 
-*Important:* You have to install the _KNIME Distant Matrix Feature_ from the [http://labs.knime.org/ KNIME labs] before installing the 0.2.0 feature.
+~~*Important:* You have to install the _KNIME Distant Matrix Feature_ from the [http://labs.knime.org/ KNIME labs] before installing the 0.2.0 feature.~~
 
 You might want to add (somewhere after {{{-vmargs}}}) the following line to your knime.ini, which will allow you to use all available functionality:
 {{{-Dknime.expert.mode=true}}}
@@ -48,8 +48,8 @@ For the second option go to Help/Software Updates.../Find and Install.../_Search
 
 This might be because the labs' Distance Matrix feature was not installed before the install of HiTS. You have to uninstall HiTS, install the Distance Matrix feature, then install HiTS. Sorry about the confusion.
 
-== The {{{Dendrogram with Heatmap}}} and {{{Sort by Cluster}}} nodes are not available ==
-You have to enable the experimental nodes by adding {{{-Dknime.expert.mode=true}}} line to your {{{knime.ini}}} file (somewhare after the {{{-vmargs}}} line)
+== ~~The {{{Dendrogram with Heatmap}}} and {{{Sort by Cluster}}} nodes are not available~~ ==
+~~You have to enable the experimental nodes by adding {{{-Dknime.expert.mode=true}}} line to your {{{knime.ini}}} file (somewhare after the {{{-vmargs}}} line)~~
 
 == Network problems ==
 
@@ -74,9 +74,9 @@ In this case please set it up properly.
 
 == Installed/updated but not working ==
 
-You experience no problem installing the HiTS version 0.2.0 feature (using KNIME based on eclipse 3.3) from the update site, but the HiTS nodes are not available.
+~~You experience no problem installing the HiTS version 0.2.0 feature (using KNIME based on eclipse 3.3) from the update site, but the HiTS nodes are not available.~~
 
-This happens when you install HiTS version 0.2.0 before the KNIME labs' [http://labs.knime.org/distance-matrix Distance Matrix Feature]. In this case you have to uninstall HiTS (Help/Software Updates/Manage Configuration/ find HiTS main feature, right click and select Uninstall, restart KNIME), install the Distance Matrix Feature, install HiTS.
+~~This happens when you install HiTS version 0.2.0 before the KNIME labs' [http://labs.knime.org/distance-matrix Distance Matrix Feature]. In this case you have to uninstall HiTS (Help/Software Updates/Manage Configuration/ find HiTS main feature, right click and select Uninstall, restart KNIME), install the Distance Matrix Feature, install HiTS.~~
 
 ==Permgen space==
 You see something like this in the log:
