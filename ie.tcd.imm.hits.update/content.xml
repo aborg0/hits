@@ -3,7 +3,7 @@
 <repository name='${p2.metadata.repo.name}' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1250773597744'/>
+    <property name='p2.timestamp' value='1250797069541'/>
   </properties>
   <references size='6'>
     <repository uri='http://www.knime.org/update_2.x/labs' url='http://www.knime.org/update_2.x/labs' type='0' options='0'/>
@@ -13,109 +13,7 @@
     <repository uri='http://www.knime.org/update_2.x' url='http://www.knime.org/update_2.x' type='1' options='0'/>
     <repository uri='http://www.knime.org/update_2.x' url='http://www.knime.org/update_2.x' type='0' options='0'/>
   </references>
-  <units size='59'>
-    <unit id='ie.tcd.imm.hits.exp.feature.feature.jar' version='0.4.0.200908201405'>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS experimental features'/>
-        <property name='org.eclipse.equinox.p2.description' value='Advanced data visualisation and Dendrogram handling based on KNIME Labs&apos; distmatrix feature. (A continuation of ie.tcd.imm.hits&apos; dendrogram related functionality.)'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-      </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.jar' version='0.4.0.200908201405'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.exp.feature' version='0.4.0.200908201405'/>
-      </provides>
-      <filter>
-        (org.eclipse.update.install.features=true)
-      </filter>
-      <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.exp.feature' version='0.4.0.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          Apache 2.0 licence.
-        </license>
-      </licenses>
-      <copyright>
-        ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
-    </unit>
-    <unit id='ie.tcd.imm.knime.util' version='0.2.0.200908201405'>
-      <update id='ie.tcd.imm.knime.util' range='[0.0.0,0.2.0.200908201405)' severity='0'/>
-      <properties size='2'>
-        <property name='org.eclipse.equinox.p2.name' value='Useful KNIME Nodes Plug-in'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-      </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util' version='0.2.0.200908201405'/>
-        <provided namespace='osgi.bundle' name='ie.tcd.imm.knime.util' version='0.2.0.200908201405'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='6'>
-        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.core' range='[2.0.0,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.knime.base' range='[2.0.2,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.knime.util' version='0.2.0.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.knime.base;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.eclipse.help,org.eclipse.help.ui,ie.tcd.imm.hits.common;bundle-version=&quot;[0.0.1,1.0.0)&quot;;visibility:=reexport&#xA;Bundle-Activator: ie.tcd.imm.knime.util.Activator&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 0.2.0.200908201405&#xA;Bundle-SymbolicName: ie.tcd.imm.knime.util;singleton:=true&#xA;Bundle-Name: Useful KNIME Nodes Plug-in&#xA;Bundle-Vendor: TCD&#xA;Eclipse-LazyStart: true
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='org.knime.features.distmatrix.feature.jar' version='2.0.3.0022208'>
-      <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME Distance Matrix Feature'/>
-        <property name='org.eclipse.equinox.p2.description' value='This feature contains the type definition for distance matrices. It provides several nodes for reading, writing and calculating distance matrices as well as nodes that operate on distance matrices, e.g. a k-medoids clustering node.'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://www.knime.org/download_extensions.html'/>
-        <property name='org.eclipse.equinox.p2.provider' value='KNIME GmbH, Konstanz, Germany'/>
-        <property name='org.eclipse.update.feature.plugin' value='org.knime.distmatrix'/>
-      </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.feature.jar' version='2.0.3.0022208'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='org.knime.features.distmatrix' version='2.0.3.0022208'/>
-      </provides>
-      <filter>
-        (org.eclipse.update.install.features=true)
-      </filter>
-      <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='org.knime.features.distmatrix' version='2.0.3.0022208'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
-      <licenses size='1'>
-        <license>
-          Aladdin Free Public License&#xA;(Version 9, September 18, 2000)&#xA;Copyright (C) 1994, 1995, 1997, 1998, 1999, 2000 Aladdin Enterprises,&#xA;Menlo Park, California, U.S.A. All rights reserved. &#xA;&#xA;NOTE: This License is not the same as any of the GNU Licenses&#xA;published by the Free Software Foundation. Its terms are substantially&#xA;different from those of the GNU Licenses. If you are familiar with the&#xA;GNU Licenses, please read this license with extra care.  Aladdin&#xA;Enterprises hereby grants to anyone the permission to apply this&#xA;License to their own work, as long as the entire License (including&#xA;the above notices and this paragraph) is copied with no changes,&#xA;additions, or deletions except for changing the first paragraph of&#xA;Section 0 to include a suitable description of the work to which the&#xA;license is being applied and of the person or entity that holds the&#xA;copyright in the work, and, if the License is being applied to a work&#xA;created in a country other than the United States, replacing the first&#xA;paragraph of Section 6 with an appropriate reference to the laws of&#xA;the appropriate country.&#xA;&#xA;This License is not an Open Source license: among other things, it&#xA;places restrictions on distribution of the Program, specifically&#xA;including sale of the Program. While Aladdin Enterprises respects and&#xA;supports the philosophy of the Open Source Definition, and shares the&#xA;desire of the GNU project to keep licensed software freely&#xA;redistributable in both source and object form, we feel that Open&#xA;Source licenses unfairly prevent developers of useful software from&#xA;being compensated proportionately when others profit financially from&#xA;their work. This License attempts to ensure that those who receive,&#xA;redistribute, and contribute to the licensed Program according to the&#xA;Open Source and Free Software philosophies have the right to do so,&#xA;while retaining for the developer(s) of the Program the power to make&#xA;those who use the Program to enhance the value of commercial products&#xA;pay for the privilege of doing so.&#xA;&#xA;0. Subject Matter&#xA;&#xA;This License applies to the computer program known as &quot;KNIME&quot;. The&#xA;&quot;Program&quot;, below, refers to such program. The Program is a copyrighted&#xA;work whose copyright is held by KNIME GmbH, Konstanz, Germany (the &#xA;&quot;Licensor&quot;).&#xA;&#xA;A &quot;work based on the Program&quot; means either the Program or any&#xA;derivative work of the Program, as defined in the United States&#xA;Copyright Act of 1976, such as a translation or a modification.&#xA;&#xA;BY MODIFYING OR DISTRIBUTING THE PROGRAM (OR ANY WORK BASED ON THE&#xA;PROGRAM), YOU INDICATE YOUR ACCEPTANCE OF THIS LICENSE TO DO SO, AND&#xA;ALL ITS TERMS AND CONDITIONS FOR COPYING, DISTRIBUTING OR MODIFYING&#xA;THE PROGRAM OR WORKS BASED ON IT. NOTHING OTHER THAN THIS LICENSE&#xA;GRANTS YOU PERMISSION TO MODIFY OR DISTRIBUTE THE PROGRAM OR ITS&#xA;DERIVATIVE WORKS. THESE ACTIONS ARE PROHIBITED BY LAW. IF YOU DO NOT&#xA;ACCEPT THESE TERMS AND CONDITIONS, DO NOT MODIFY OR DISTRIBUTE THE&#xA;PROGRAM.&#xA;&#xA;1. Licenses.&#xA;&#xA;Licensor hereby grants you the following rights, provided that you&#xA;comply with all of the restrictions set forth in this License and&#xA;provided, further, that you distribute an unmodified copy of this&#xA;License with the Program:&#xA;&#xA;(a) You may copy and distribute literal (i.e., verbatim) copies of the&#xA;Program&apos;s source code as you receive it throughout the world, in any&#xA;medium.&#xA;&#xA;(b) You may modify the Program, create works based on the Program and&#xA;distribute copies of such throughout the world, in any medium.&#xA;&#xA;2. Restrictions.&#xA;&#xA;This license is subject to the following restrictions:&#xA;&#xA;(a)&#xA;Distribution of the Program or any work based on the Program by a&#xA;commercial organization to any third party is prohibited if any&#xA;payment is made in connection with such distribution, whether directly&#xA;(as in payment for a copy of the Program) or indirectly (as in payment&#xA;for some service related to the Program, or payment for some product&#xA;or service that includes a copy of the Program &quot;without charge&quot;; these&#xA;are only examples, and not an exhaustive enumeration of prohibited&#xA;activities). The following methods of distribution involving payment&#xA;shall not in and of themselves be a violation of this restriction:&#xA;&#xA;(i)&#xA;Posting the Program on a public access information storage and&#xA;retrieval service for which a fee is received for retrieving&#xA;information (such as an on-line service), provided that the fee is not&#xA;content-dependent (i.e., the fee would be the same for retrieving the&#xA;same volume of information consisting of random data) and that access&#xA;to the service and to the Program is available independent of any&#xA;other product or service. An example of a service that does not fall&#xA;under this section is an on-line service that is operated by a company&#xA;and that is only available to customers of that company. (This is not&#xA;an exhaustive enumeration.)&#xA;&#xA;(ii)&#xA;Distributing the Program on removable computer-readable media,&#xA;provided that the files containing the Program are reproduced entirely&#xA;and verbatim on such media, that all information on such media be&#xA;redistributable for non-commercial purposes without charge, and that&#xA;such media are distributed by themselves (except for accompanying&#xA;documentation) independent of any other product or service. Examples&#xA;of such media include CD-ROM, magnetic tape, and optical storage&#xA;media. (This is not intended to be an exhaustive list.) An example of&#xA;a distribution that does not fall under this section is a CD-ROM&#xA;included in a book or magazine. (This is not an exhaustive&#xA;enumeration.)&#xA;&#xA;(b)&#xA;Activities other than copying, distribution and modification of the&#xA;Program are not subject to this License and they are outside its&#xA;scope. Functional use (running) of the Program is not restricted, and&#xA;any output produced through the use of the Program is subject to this&#xA;license only if its contents constitute a work based on the Program&#xA;(independent of having been made by running the Program).&#xA;&#xA;(c)&#xA;You must meet all of the following conditions with respect to any&#xA;work that you distribute or publish that in whole or in part contains&#xA;or is derived from the Program or any part thereof (&quot;the Work&quot;):&#xA;&#xA;(i)&#xA;If you have modified the Program, you must cause the Work to carry&#xA;prominent notices stating that you have modified the Program&apos;s files&#xA;and the date of any change. In each source file that you have&#xA;modified, you must include a prominent notice that you have modified&#xA;the file, including your name, your e-mail address (if any), and the&#xA;date and purpose of the change;&#xA;&#xA;(ii)&#xA;You must cause the Work to be licensed as a whole and at no charge to&#xA;all third parties under the terms of this License;&#xA;&#xA;(iii)&#xA;If the Work normally reads commands interactively when run, you must&#xA;cause it, at each time the Work commences operation, to print or&#xA;display an announcement including an appropriate copyright notice and&#xA;a notice that there is no warranty (or else, saying that you provide a&#xA;warranty). Such notice must also state that users may redistribute the&#xA;Work only under the conditions of this License and tell the user how&#xA;to view the copy of this License included with the Work. (Exceptions:&#xA;if the Program is interactive but normally prints or displays such an&#xA;announcement only at the request of a user, such as in an &quot;About box&quot;,&#xA;the Work is required to print or display the notice only under the&#xA;same circumstances; if the Program itself is interactive but does not&#xA;normally print such an announcement, the Work is not required to print&#xA;an announcement.);&#xA;&#xA;(iv)&#xA;You must accompany the Work with the complete corresponding&#xA;machine-readable source code, delivered on a medium customarily used&#xA;for software interchange. The source code for a work means the&#xA;preferred form of the work for making modifications to it. For an&#xA;executable work, complete source code means all the source code for&#xA;all modules it contains, plus any associated interface definition&#xA;files, plus the scripts used to control compilation and installation&#xA;of the executable code. If you distribute with the Work any component&#xA;that is normally distributed (in either source or binary form) with&#xA;the major components (compiler, kernel, and so on) of the operating&#xA;system on which the executable runs, you must also distribute the&#xA;source code of that component if you have it and are allowed to do so;&#xA;&#xA;(v)&#xA;If you distribute any written or printed material at all with the&#xA;Work, such material must include either a written copy of this&#xA;License, or a prominent written indication that the Work is covered by&#xA;this License and written instructions for printing and/or displaying&#xA;the copy of the License on the distribution medium;&#xA;&#xA;(vi)&#xA;You may not impose any further restrictions on the recipient&apos;s&#xA;exercise of the rights granted herein.  If distribution of executable&#xA;or object code is made by offering the equivalent ability to copy from&#xA;a designated place, then offering equivalent ability to copy the&#xA;source code from the same place counts as distribution of the source&#xA;code, even though third parties are not compelled to copy the source&#xA;code along with the object code.&#xA;&#xA;3. Reservation of Rights.&#xA;&#xA;No rights are granted to the Program except as expressly set forth&#xA;herein. You may not copy, modify, sublicense, or distribute the&#xA;Program except as expressly provided under this License. Any attempt&#xA;otherwise to copy, modify, sublicense or distribute the Program is&#xA;void, and will automatically terminate your rights under this&#xA;License. However, parties who have received copies, or rights, from&#xA;you under this License will not have their licenses terminated so long&#xA;as such parties remain in full compliance.&#xA;&#xA;4. Other Restrictions.&#xA;&#xA;If the distribution and/or use of the Program is restricted in certain&#xA;countries for any reason, Licensor may add an explicit geographical&#xA;distribution limitation excluding those countries, so that&#xA;distribution is permitted only in or among countries not thus&#xA;excluded. In such case, this License incorporates the limitation as if&#xA;written in the body of this License.&#xA;&#xA;5. Limitations.&#xA;&#xA;THE PROGRAM IS PROVIDED TO YOU &quot;AS IS,&quot; WITHOUT WARRANTY. THERE IS NO&#xA;WARRANTY FOR THE PROGRAM, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT&#xA;NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS&#xA;FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY&#xA;RIGHTS. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE&#xA;PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME&#xA;THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.&#xA;&#xA;IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING&#xA;WILL LICENSOR, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE&#xA;THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,&#xA;INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES&#xA;ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT&#xA;NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR&#xA;LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM&#xA;TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER&#xA;PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.&#xA;&#xA;6. General.&#xA;&#xA;This License is governed by german laws.&#xA;&#xA;If any part of this License is found to be in conflict with the law,&#xA;that part shall be interpreted in its broadest meaning consistent with&#xA;the law, and no other parts of the License shall be affected.&#xA;&#xA;For United States Government users, the Program is provided with&#xA;RESTRICTED RIGHTS. If you are a unit or agency of the United States&#xA;Government or are acquiring the Program for any such unit or agency,&#xA;the following apply:&#xA;&#xA;If the unit or agency is the Department of Defense (&quot;DOD&quot;), the&#xA;Program and its documentation are classified as &quot;commercial computer&#xA;software&quot; and &quot;commercial computer software documentation&quot;&#xA;respectively and, pursuant to DFAR Section 227.7202, the Government is&#xA;acquiring the Program and its documentation in accordance with the&#xA;terms of this License. If the unit or agency is other than DOD, the&#xA;Program and its documentation are classified as &quot;commercial computer&#xA;software&quot; and &quot;commercial computer software documentation&quot;&#xA;respectively and, pursuant to FAR Section 12.212, the Government is&#xA;acquiring the Program and its documentation in accordance with the&#xA;terms of this License.
-        </license>
-      </licenses>
-      <copyright>
-        Copyright, 2003 - 2009&#xA;      University of Konstanz, Germany&#xA;      KNIME GmbH, Konstanz, Germany
-      </copyright>
-    </unit>
+  <units size='55'>
     <unit id='com.google.code.findbugs.annotations' version='1.3.9.rc1' singleton='false'>
       <update id='com.google.code.findbugs.annotations' range='[0.0.0,1.3.9.rc1)' severity='0'/>
       <properties size='4'>
@@ -127,62 +25,58 @@
       <provides size='5'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.annotations' version='1.3.9.rc1'/>
         <provided namespace='osgi.bundle' name='com.google.code.findbugs.annotations' version='1.3.9.rc1'/>
-        <provided namespace='java.package' name='net.jcip.annotations' version='0.0.0'/>
-        <provided namespace='java.package' name='edu.umd.cs.findbugs.annotations' version='0.0.0'/>
+        <provided namespace='java.package' name='net.jcip.annotations' version='1.3.9.rc1'/>
+        <provided namespace='java.package' name='edu.umd.cs.findbugs.annotations' version='1.3.9.rc1'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
       </provides>
       <requires size='4'>
-        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
-        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
-        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
-        <required namespace='java.package' name='net.jcip.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='1.3.9.rc1'/>
+        <required namespace='java.package' name='javax.annotation' range='1.3.9.rc1'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='1.3.9.rc1'/>
+        <required namespace='java.package' name='net.jcip.annotations' range='1.3.9.rc1'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='com.google.code.findbugs.annotations' version='1.3.9.rc1'/>
+        <artifact classifier='osgi.bundle.hits.findbugs' id='com.google.code.findbugs.annotations' version='1.3.9.rc1'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-Version: 1.3.9.rc1&#xA;Bnd-LastModified: 1249991651583&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: net.jcip.annotations,edu.umd.cs.findbugs.annotations;uses:=&quot;javax.annotation,javax.annotation.meta&quot;&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta,net.jcip.annotations&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime;type=!bundle;inline=true&#xA;Bundle-SymbolicName: com.google.code.findbugs.annotations&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: OSGi-ified version of FingBugs annotations.&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: com.google.code.findbugs.annotations 1.3.9-rc1 [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
+            Bundle-Version: 1.3.9.rc1&#xA;Bnd-LastModified: 1250793791674&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: net.jcip.annotations;version=&quot;1.3.9.rc1&quot;,edu.umd.cs.findbugs.annotations;uses:=&quot;javax.annotation,javax.annotation.meta&quot;;version=&quot;1.3.9.rc1&quot;&#xA;Import-Package: edu.umd.cs.findbugs.annotations;version=&quot;1.3.9.rc1&quot;,javax.annotation;version=&quot;1.3.9.rc1&quot;,javax.annotation.meta;version=&quot;1.3.9.rc1&quot;,net.jcip.annotations;version=&quot;1.3.9.rc1&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime;type=!bundle;inline=true&#xA;Bundle-SymbolicName: com.google.code.findbugs.annotations&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: OSGi-ified version of FingBugs annotations.&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: com.google.code.findbugs.annotations 1.3.9-rc1 [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
           </instruction>
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908201405'>
-      <update id='ie.tcd.imm.hits.knime.interop' range='[0.0.0,0.0.1.200908201405)' severity='0'/>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='BioConverter-Node extension for KNIME Workbench'/>
+    <unit id='ie.tcd.imm.knime.util' version='0.2.0.200908202037'>
+      <update id='ie.tcd.imm.knime.util' range='[0.0.0,0.2.0.200908202037)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Useful KNIME Nodes Plug-in'/>
         <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
       </properties>
-      <provides size='5'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908201405'/>
-        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908201405'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.interop' version='0.0.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.plate.format' version='0.0.0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util' version='0.2.0.200908202037'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.knime.util' version='0.2.0.200908202037'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
       </provides>
-      <requires size='7'>
+      <requires size='9'>
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='0.0.1'/>
+        <required namespace='osgi.bundle' name='org.knime.core' range='[2.0.0,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.knime.base' range='[2.0.2,3.0.0)'/>
         <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
         <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908201405'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.knime.util' version='0.2.0.200908202037'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
-        <instructions size='2'>
+        <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: BioConverter-Node extension for KNIME Workbench&#xA;Bundle-Activator: ie.tcd.imm.hits.knime.interop.BioConverterNodePlugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: TCD&#xA;Bundle-ClassPath: bioconverter.jar&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.knime.interop; singleton:=true&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-Version: 0.0.1.200908201405&#xA;Bundle-Localization: plugin&#xA;Export-Package: ie.tcd.imm.hits.knime.interop;x-friends:=&quot;ie.tcd.imm.knime.test&quot;,ie.tcd.imm.hits.knime.plate.format;x-friends:=&quot;ie.tcd.imm.knime.test&quot;&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,ie.tcd.imm.hits.common;bundle-version=&quot;0.0.1&quot;,org.eclipse.help,org.eclipse.help.ui
-          </instruction>
-          <instruction key='zipped'>
-            true
+            Bundle-Vendor: TCD&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-Activator: ie.tcd.imm.knime.util.Activator&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.knime.base;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.eclipse.help,org.eclipse.help.ui,ie.tcd.imm.hits.common;bundle-version=&quot;[0.0.1,1.0.0)&quot;;visibility:=reexport&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta&#xA;Bundle-Name: Useful KNIME Nodes Plug-in&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: ie.tcd.imm.knime.util;singleton:=true&#xA;Bundle-Version: 0.2.0.200908202037&#xA;Eclipse-LazyStart: true
           </instruction>
         </instructions>
       </touchpointData>
@@ -241,7 +135,7 @@
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.3rdparty' version='0.1.0'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits.3rdparty' version='0.1.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -252,64 +146,80 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='ie.tcd.imm.knime.util.feature.feature.jar' version='0.2.0.200908201405'>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
-        <property name='org.eclipse.equinox.p2.description' value='Basic nodes missing from KNIME.'/>
+    <unit id='ie.tcd.imm.hits.knime.interop.feature.feature.group' version='0.0.1.200908202037' singleton='false'>
+      <update id='ie.tcd.imm.hits.knime.interop.feature.feature.group' range='[0.0.0,0.0.1.200908202037)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS interoperability with other projects'/>
+        <property name='org.eclipse.equinox.p2.description' value='Helps the interaction with other plugins, like HCDC (http://hcdc.ethz.ch).'/>
         <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
         <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
       </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.jar' version='0.2.0.200908201405'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.knime.util.feature' version='0.2.0.200908201405'/>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.group' version='0.0.1.200908202037'/>
       </provides>
-      <filter>
-        (org.eclipse.update.install.features=true)
-      </filter>
-      <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.knime.util.feature' version='0.2.0.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
+      <requires size='11'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.core' range='[2.0.0,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.help' range='2.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop' range='[0.0.1.200908202037,0.0.1.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1.200908202037,0.0.1.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.jar' range='[0.0.1.200908202037,0.0.1.200908202037]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
       <licenses size='1'>
         <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
           Apache 2.0 licence
         </license>
       </licenses>
       <copyright>
-        ® Copyright 2009 Trinity College Dublin. All rights reserved.
+        All rights reserved. (C) Copyright 2009, Trinity College Dublin
       </copyright>
     </unit>
-    <unit id='org.knime.features.distmatrix.source' version='2.0.3.0022208'>
-      <update id='org.knime.features.distmatrix.source' range='[0.0.0,2.0.3.0022208)' severity='0'/>
-      <properties size='5'>
-        <property name='df_LT.providerName' value='KNIME GmbH, Konstanz, Germany'/>
-        <property name='df_LT.pluginName' value='KNIME Distance Matrix Feature Sources'/>
-        <property name='org.eclipse.equinox.p2.name' value='%pluginName'/>
-        <property name='org.eclipse.equinox.p2.provider' value='%providerName'/>
+    <unit id='ie.tcd.imm.hits.exp' version='0.4.0.200908202037'>
+      <update id='ie.tcd.imm.hits.exp' range='[0.0.0,0.4.0.200908202037)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='KNIME Labs based node extensions for KNIME Workbench'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
         <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
       </properties>
       <provides size='4'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.source' version='2.0.3.0022208'/>
-        <provided namespace='osgi.bundle' name='org.knime.features.distmatrix.source' version='2.0.3.0022208'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp' version='0.4.0.200908202037'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.exp' version='0.4.0.200908202037'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util.leaf.ordering' version='0.0.0'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
       </provides>
+      <requires size='12'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.distmatrix' range='[2.0.3.0022208,3.0.0)'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits' range='0.4.0'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='0.0.1'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
+      </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.knime.features.distmatrix.source' version='2.0.3.0022208'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits.exp' version='0.4.0.200908202037'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
         <instructions size='2'>
           <instruction key='manifest'>
-            Bundle-Vendor: %providerName&#xA;Bundle-SymbolicName: org.knime.features.distmatrix.source; singleton=true&#xA;Bundle-Localization: plugin&#xA;Bundle-Name: %pluginName&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 2.0.3.0022208
+            Bundle-Name: KNIME Labs based node extensions for KNIME Workbench&#xA;Bundle-ClassPath: labs.jar&#xA;Bundle-Version: 0.4.0.200908202037&#xA;Eclipse-LazyStart: true&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta&#xA;Bundle-Activator: ie.tcd.imm.hits.exp.LabsNodePlugin&#xA;Bundle-Vendor: TCD&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,org.knime.distmatrix;bundle-version=&quot;[2.0.3.0022208,3.0.0)&quot;,ie.tcd.imm.hits;bundle-version=&quot;0.4.0&quot;,ie.tcd.imm.hits.common;bundle-version=&quot;0.0.1&quot;,org.eclipse.help,org.eclipse.help.ui&#xA;Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:=&quot;ie.tcd.imm.knime.test&quot;&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.exp; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Localization: plugin
           </instruction>
           <instruction key='zipped'>
             true
@@ -317,40 +227,70 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='ie.tcd.imm.hits.feature.feature.jar' version='0.4.0.200908201405'>
+    <unit id='ie.tcd.imm.hits.3rdparty.feature.feature.group' version='0.4.0.200908202037' singleton='false'>
+      <update id='ie.tcd.imm.hits.3rdparty.feature.feature.group' range='[0.0.0,0.4.0.200908202037)' severity='0'/>
       <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
-        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from HTS/HCS experiments using&#xA;cellHTS2 (based on 2.8.2, but should work well with 2.8.3 too).&#xA;It depends on Rserve.&#xA;It also supports basic data visualisation technics, like heatmaps. (For a bit more advanced visualisation check: KNIME labs, and the ie.tcd.imm.hits.exp.feature feature.)&#xA;News in version 0.4.0:&#xA; - bug fixes,&#xA; - improved colour legend export&#xA; - more detailed error messages&#xA; - new node:&#xA;   - Score to P value'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS 3rd party features'/>
+        <property name='org.eclipse.equinox.p2.description' value='This feature is an umbrella for various 3rd party plugins:&#xA; - FindBugs annotations&#xA; - JSR305 annotations&#xA; - Apache POI&#xA; - Apache Commons Math&#xA; - REngine&#xA; - RServe'/>
         <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
       </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' version='0.4.0.200908201405'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.feature' version='0.4.0.200908201405'/>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.group' version='0.4.0.200908202037'/>
       </provides>
-      <filter>
-        (org.eclipse.update.install.features=true)
-      </filter>
+      <requires size='9'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' range='[0.6.0,0.6.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' range='[0.6.0,0.6.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.apache.commons.math' range='[1.2.0,1.2.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.annotations' range='[1.3.9.rc1,1.3.9.rc1]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.jsr305' range='[1.3.9.rc1,1.3.9.rc1]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.poi' range='[3.0.2.FINAL,3.0.2.FINAL]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.commons.discovery' range='[0.4.0,0.4.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.commons.logging' range='[1.1.1,1.1.1]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.jar' range='[0.4.0.200908202037,0.4.0.200908202037]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license>
+          Apache 2.0 - POI, Math&#xA;GNU GPL - REngine, RServe&#xA;GNU LGPL - FindBugs&#xA;new BSD - JSR305
+        </license>
+      </licenses>
+      <copyright>
+        See the copyright of the original jars.
+      </copyright>
+    </unit>
+    <unit id='net.rforge.REngine' version='0.6.0' singleton='false'>
+      <update id='net.rforge.REngine' range='[0.0.0,0.6.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='net.rforge.REngine [osgi]'/>
+        <property name='org.eclipse.equinox.p2.description' value='Based on the jar from here: http://www.rforge.net/Rserve/files/REngine.jar (on it&apos;s 2009 august 7 state)'/>
+        <property name='org.eclipse.equinox.p2.provider' value='Trinity College Dublin, Institute of Molecular Medicine'/>
+        <property name='org.eclipse.equinox.p2.doc.url' value='http://www.tcd.ie/IMM'/>
+      </properties>
+      <provides size='4'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' version='0.6.0'/>
+        <provided namespace='osgi.bundle' name='net.rforge.REngine' version='0.6.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine' version='0.6.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0'/>
+      </requires>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.4.0.200908201405'/>
+        <artifact classifier='osgi.bundle.hits.rserve' id='net.rforge.REngine' version='0.6.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
         <instructions size='1'>
-          <instruction key='zipped'>
-            true
+          <instruction key='manifest'>
+            Bundle-Version: 0.6.0&#xA;Bnd-LastModified: 1250780816279&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: org.rosuda.REngine;version=&quot;0.6.0&quot;&#xA;Import-Package: org.rosuda.REngine;version=&quot;0.6.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime|system;type=!pom;inline=true&#xA;Bundle-SymbolicName: net.rforge.REngine&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: Based on the jar from here: http://www.rforge.net/Rserve/files/REngine.jar (on it&apos;s 2009 august 7 state)&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: net.rforge.REngine [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
           </instruction>
         </instructions>
       </touchpointData>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          The main part of the HiTS project has applied licence: Apache&#xA;2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending&#xA;cellHTS2 functionality also licensed under this licence).&#xA;(KNIME licence: Aladdin Free Public License, or commercial depending&#xA;on your model.)&#xA;(Rserve licence: GNU GPL)&#xA;(POI licence: Apache 2.0 licence)
-        </license>
-      </licenses>
-      <copyright>
-        ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
     </unit>
     <unit id='org.knime.ext.jep' version='2.0.3.0021120'>
       <update id='org.knime.ext.jep' range='[0.0.0,2.0.3.0021120)' severity='0'/>
@@ -398,7 +338,7 @@
         <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.knime.ext.jep' version='2.0.3.0021120'/>
+        <artifact classifier='osgi.bundle.knime' id='org.knime.ext.jep' version='2.0.3.0021120'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -429,7 +369,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.2.0'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.feature' version='0.2.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -463,7 +403,7 @@
         <provided namespace='org.eclipse.equinox.p2.localization' name='df_LT' version='1.0.0'/>
       </provides>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.knime.features.ext.jep.source' version='2.0.3.0021120'/>
+        <artifact classifier='osgi.bundle.knime' id='org.knime.features.ext.jep.source' version='2.0.3.0021120'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -500,7 +440,7 @@
         <required namespace='java.package' name='org.apache.commons.logging' range='[1.1.1,2.0.0)'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='com.springsource.org.apache.commons.discovery' version='0.4.0'/>
+        <artifact classifier='osgi.bundle.spring.apache.commons' id='com.springsource.org.apache.commons.discovery' version='0.4.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -537,6 +477,55 @@
         </instructions>
       </touchpointData>
     </unit>
+    <unit id='net.rforge.Rserve' version='0.6.0' singleton='false'>
+      <update id='net.rforge.Rserve' range='[0.0.0,0.6.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='net.rforge.Rserve [osgi]'/>
+        <property name='org.eclipse.equinox.p2.description' value='Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it&apos;s 2009 august 7 state)'/>
+        <property name='org.eclipse.equinox.p2.provider' value='Trinity College Dublin, Institute of Molecular Medicine'/>
+        <property name='org.eclipse.equinox.p2.doc.url' value='http://www.tcd.ie/IMM'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' version='0.6.0'/>
+        <provided namespace='osgi.bundle' name='net.rforge.Rserve' version='0.6.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine.Rserve.protocol' version='0.6.0'/>
+        <provided namespace='java.package' name='org.rosuda.REngine.Rserve' version='0.6.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0'/>
+        <required namespace='java.package' name='org.rosuda.REngine.Rserve' range='0.6.0'/>
+        <required namespace='java.package' name='org.rosuda.REngine.Rserve.protocol' range='0.6.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle.hits.rserve' id='net.rforge.Rserve' version='0.6.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Version: 0.6.0&#xA;Bnd-LastModified: 1250780921575&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: org.rosuda.REngine.Rserve.protocol;uses:=&quot;org.rosuda.REngine.Rserve,org.rosuda.REngine&quot;;version=&quot;0.6.0&quot;,org.rosuda.REngine.Rserve;uses:=&quot;org.rosuda.REngine.Rserve.protocol,org.rosuda.REngine&quot;;version=&quot;0.6.0&quot;&#xA;Import-Package: org.rosuda.REngine;version=&quot;0.6&quot;,org.rosuda.REngine.Rserve;version=&quot;0.6.0&quot;,org.rosuda.REngine.Rserve.protocol;version=&quot;0.6.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=system;type=!pom;inline=true&#xA;Bundle-SymbolicName: net.rforge.Rserve&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it&apos;s 2009 august 7 state)&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: net.rforge.Rserve [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='HiTS' version='0.0.0.20090820203746'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main'/>
+        <property name='org.eclipse.equinox.p2.description' value='Contains the nodes, and the non-standard dependencies.'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='HiTS' version='0.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.group' range='[0.0.1.200908202037,0.0.1.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.group' range='[0.4.0.200908202037,0.4.0.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.group' range='[0.4.0.200908202037,0.4.0.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.4.0.200908202037,0.4.0.200908202037]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
     <unit id='org.knime.distmatrix' version='2.0.1.0020189'>
       <update id='org.knime.distmatrix' range='[0.0.0,2.0.1.0020189)' severity='0'/>
       <properties size='2'>
@@ -565,7 +554,7 @@
         <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.knime.distmatrix' version='2.0.1.0020189'/>
+        <artifact classifier='osgi.bundle.knime.labs' id='org.knime.distmatrix' version='2.0.1.0020189'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -579,19 +568,39 @@
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='KNIME utilities' version='0.0.0.20090820140606'>
+    <unit id='ie.tcd.imm.hits.3rdparty.feature.feature.jar' version='0.4.0.200908202037'>
       <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
-        <property name='org.eclipse.equinox.p2.description' value='Contains some -maybe useful- features missing from KNIME.'/>
-        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS 3rd party features'/>
+        <property name='org.eclipse.equinox.p2.description' value='This feature is an umbrella for various 3rd party plugins:&#xA; - FindBugs annotations&#xA; - JSR305 annotations&#xA; - Apache POI&#xA; - Apache Commons Math&#xA; - REngine&#xA; - RServe'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
       </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='KNIME utilities' version='0.0.0'/>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.jar' version='0.4.0.200908202037'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.3rdparty.feature' version='0.4.0.200908202037'/>
       </provides>
-      <requires size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' range='[0.2.0.200908201405,0.2.0.200908201405]'/>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.3rdparty.feature' version='0.4.0.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license>
+          Apache 2.0 - POI, Math&#xA;GNU GPL - REngine, RServe&#xA;GNU LGPL - FindBugs&#xA;new BSD - JSR305
+        </license>
+      </licenses>
+      <copyright>
+        See the copyright of the original jars.
+      </copyright>
     </unit>
     <unit id='ie.tcd.imm.hits.feature.feature.jar' version='0.3.0'>
       <update id='ie.tcd.imm.hits.feature.feature.jar' range='[0.0.0,0.3.0)' severity='0'/>
@@ -610,7 +619,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.feature' version='0.3.0'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.feature' version='0.3.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -629,6 +638,41 @@
         ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI projects.
       </copyright>
     </unit>
+    <unit id='ie.tcd.imm.hits.feature.feature.jar' version='0.4.0.200908202037'>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from HTS/HCS experiments using&#xA;cellHTS2 (based on 2.8.2, but should work well with 2.8.3 too).&#xA;It depends on Rserve.&#xA;It also supports basic data visualisation technics, like heatmaps. (For a bit more advanced visualisation check: KNIME labs, and the ie.tcd.imm.hits.exp.feature feature.)&#xA;News in version 0.4.0:&#xA; - bug fixes,&#xA; - improved colour legend export&#xA; - more detailed error messages&#xA; - new node:&#xA;   - Score to P value'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' version='0.4.0.200908202037'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.feature' version='0.4.0.200908202037'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.feature' version='0.4.0.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          The main part of the HiTS project has applied licence: Apache&#xA;2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending&#xA;cellHTS2 functionality also licensed under this licence).&#xA;(KNIME licence: Aladdin Free Public License, or commercial depending&#xA;on your model.)&#xA;(Rserve licence: GNU GPL)&#xA;(POI licence: Apache 2.0 licence)
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.
+      </copyright>
+    </unit>
     <unit id='com.google.code.findbugs.jsr305' version='1.3.9.rc1' singleton='false'>
       <update id='com.google.code.findbugs.jsr305' range='[0.0.0,1.3.9.rc1)' severity='0'/>
       <properties size='4'>
@@ -640,71 +684,66 @@
       <provides size='6'>
         <provided namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.jsr305' version='1.3.9.rc1'/>
         <provided namespace='osgi.bundle' name='com.google.code.findbugs.jsr305' version='1.3.9.rc1'/>
-        <provided namespace='java.package' name='javax.annotation.concurrent' version='0.0.0'/>
-        <provided namespace='java.package' name='javax.annotation' version='0.0.0'/>
-        <provided namespace='java.package' name='javax.annotation.meta' version='0.0.0'/>
+        <provided namespace='java.package' name='javax.annotation.concurrent' version='1.3.9.rc1'/>
+        <provided namespace='java.package' name='javax.annotation' version='1.3.9.rc1'/>
+        <provided namespace='java.package' name='javax.annotation.meta' version='1.3.9.rc1'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
       </provides>
       <requires size='3'>
-        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
-        <required namespace='java.package' name='javax.annotation.concurrent' range='0.0.0'/>
-        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='1.3.9.rc1'/>
+        <required namespace='java.package' name='javax.annotation.concurrent' range='1.3.9.rc1'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='1.3.9.rc1'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='com.google.code.findbugs.jsr305' version='1.3.9.rc1'/>
+        <artifact classifier='osgi.bundle.hits.findbugs' id='com.google.code.findbugs.jsr305' version='1.3.9.rc1'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
-            Bundle-Version: 1.3.9.rc1&#xA;Bnd-LastModified: 1249991650567&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: javax.annotation.concurrent,javax.annotation;uses:=&quot;javax.annotation.meta&quot;,javax.annotation.meta;uses:=&quot;javax.annotation&quot;&#xA;Import-Package: javax.annotation,javax.annotation.concurrent,javax.annotation.meta&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime;type=!pom;inline=true&#xA;Bundle-SymbolicName: com.google.code.findbugs.jsr305&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: OSGi-ified version of JSR 305 annotations.&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: com.google.code.findbugs.jsr305 1.3.9-rc1 [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
+            Bundle-Version: 1.3.9.rc1&#xA;Bnd-LastModified: 1250793777345&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: javax.annotation.concurrent;version=&quot;1.3.9.rc1&quot;,javax.annotation;uses:=&quot;javax.annotation.meta&quot;;version=&quot;1.3.9.rc1&quot;,javax.annotation.meta;uses:=&quot;javax.annotation&quot;;version=&quot;1.3.9.rc1&quot;&#xA;Import-Package: javax.annotation;version=&quot;1.3.9.rc1&quot;,javax.annotation.concurrent;version=&quot;1.3.9.rc1&quot;,javax.annotation.meta;version=&quot;1.3.9.rc1&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime;type=!pom;inline=true&#xA;Bundle-SymbolicName: com.google.code.findbugs.jsr305&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: OSGi-ified version of JSR 305 annotations.&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: com.google.code.findbugs.jsr305 1.3.9-rc1 [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
           </instruction>
         </instructions>
       </touchpointData>
     </unit>
-    <unit id='org.knime.distmatrix' version='2.0.3.0022208'>
-      <update id='org.knime.distmatrix' range='[0.0.0,2.0.3.0022208)' severity='0'/>
-      <properties size='2'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME distance matrix extension'/>
-        <property name='org.eclipse.equinox.p2.provider' value='KNIME GmbH, Konstanz, Germany'/>
+    <unit id='ie.tcd.imm.hits.exp.feature.feature.group' version='0.4.0.200908202037' singleton='false'>
+      <update id='ie.tcd.imm.hits.exp.feature.feature.group' range='[0.0.0,0.4.0.200908202037)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS experimental features'/>
+        <property name='org.eclipse.equinox.p2.description' value='Advanced data visualisation and Dendrogram handling based on KNIME Labs&apos; distmatrix feature. (A continuation of ie.tcd.imm.hits&apos; dendrogram related functionality.)'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
       </properties>
-      <provides size='13'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.knime.distmatrix' version='2.0.3.0022208'/>
-        <provided namespace='osgi.bundle' name='org.knime.distmatrix' version='2.0.3.0022208'/>
-        <provided namespace='java.package' name='org.knime.base.distance' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.base.node.mine.cluster.hierarchical' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.base.node.mine.cluster.hierarchical.assigner' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.base.node.mine.cluster.hierarchical.view' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.base.node.preproc.filter.hilite.collector' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.distmatrix.calculate' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.distmatrix.io.read' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.distmatrix.io.write' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.distmatrix.kmedoids' version='0.0.0'/>
-        <provided namespace='java.package' name='org.knime.distmatrix.type' version='0.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.group' version='0.4.0.200908202037'/>
       </provides>
-      <requires size='6'>
-        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+      <requires size='11'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.distmatrix' range='[2.0.3.0022208,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='0.0.1'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' range='0.4.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp' range='[0.4.0.200908202037,0.4.0.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.jar' range='[0.4.0.200908202037,0.4.0.200908202037]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
       </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.knime.distmatrix' version='2.0.3.0022208'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='2'>
-          <instruction key='manifest'>
-            Bundle-ManifestVersion: 2&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,org.eclipse.help,org.eclipse.help.ui&#xA;Manifest-Version: 1.0&#xA;Bundle-Version: 2.0.3.0022208&#xA;Export-Package: org.knime.base.distance,org.knime.base.node.mine.cluster.hierarchical,org.knime.base.node.mine.cluster.hierarchical.assigner,org.knime.base.node.mine.cluster.hierarchical.view,org.knime.base.node.preproc.filter.hilite.collector,org.knime.distmatrix.calculate,org.knime.distmatrix.io.read,org.knime.distmatrix.io.write,org.knime.distmatrix.kmedoids,org.knime.distmatrix.type&#xA;Bundle-SymbolicName: org.knime.distmatrix;singleton:=true&#xA;Bundle-ClassPath: knime-distancematrix-patches.jar,knime-distancematrix.jar&#xA;Bundle-Name: KNIME distance matrix extension&#xA;Bundle-Vendor: KNIME GmbH, Konstanz, Germany&#xA;Eclipse-LazyStart: true
-          </instruction>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          Apache 2.0 licence.
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.
+      </copyright>
     </unit>
     <unit id='ie.tcd.imm.hits.3rdparty' version='0.3.0'>
       <update id='ie.tcd.imm.hits.3rdparty' range='[0.0.0,0.3.0)' severity='0'/>
@@ -760,7 +799,7 @@
         <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.3rdparty' version='0.3.0'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits.3rdparty' version='0.3.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -770,23 +809,6 @@
           </instruction>
         </instructions>
       </touchpointData>
-    </unit>
-    <unit id='HiTS' version='0.0.0.20090820140606'>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS main'/>
-        <property name='org.eclipse.equinox.p2.description' value='Contains the nodes, and the non-standard dependencies.'/>
-        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='HiTS' version='0.0.0'/>
-      </provides>
-      <requires size='4'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.4.0.200908201405,0.4.0.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.group' range='[0.0.1.200908201405,0.0.1.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.group' range='[0.4.0.200908201405,0.4.0.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.group' range='[0.4.0.200908201405,0.4.0.200908201405]'/>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
     </unit>
     <unit id='tooling.osgi.bundle.default' version='1.0.0' singleton='false'>
       <hostRequirements size='1'>
@@ -851,30 +873,29 @@
         Copyright, 2003 - 2009&#xA;      University of Konstanz, Germany&#xA;      KNIME GmbH, Konstanz, Germany
       </copyright>
     </unit>
-    <unit id='ie.tcd.imm.hits.exp.feature.feature.group' version='0.4.0.200908201405' singleton='false'>
-      <update id='ie.tcd.imm.hits.exp.feature.feature.group' range='[0.0.0,0.4.0.200908201405)' severity='0'/>
+    <unit id='ie.tcd.imm.knime.util.feature.feature.group' version='0.2.0.200908202037' singleton='false'>
+      <update id='ie.tcd.imm.knime.util.feature.feature.group' range='[0.0.0,0.2.0.200908202037)' severity='0'/>
       <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS experimental features'/>
-        <property name='org.eclipse.equinox.p2.description' value='Advanced data visualisation and Dendrogram handling based on KNIME Labs&apos; distmatrix feature. (A continuation of ie.tcd.imm.hits&apos; dendrogram related functionality.)'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits'/>
+        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
+        <property name='org.eclipse.equinox.p2.description' value='Basic nodes missing from KNIME.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
         <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
         <property name='org.eclipse.equinox.p2.type.group' value='true'/>
       </properties>
       <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.group' version='0.4.0.200908201405'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' version='0.2.0.200908202037'/>
       </provides>
-      <requires size='11'>
+      <requires size='10'>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.distmatrix' range='[2.0.3.0022208,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='0.0.1'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.core' range='[2.0.0,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='[2.0.2,3.0.0)'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' range='0.4.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp' range='[0.4.0.200908201405,0.4.0.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.jar' range='[0.4.0.200908201405,0.4.0.200908201405]'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.help' range='2.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util' range='[0.2.0.200908202037,0.2.0.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1.200908202037,0.0.1.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.jar' range='[0.2.0.200908202037,0.2.0.200908202037]'>
           <filter>
             (org.eclipse.update.install.features=true)
           </filter>
@@ -883,12 +904,53 @@
       <touchpoint id='null' version='0.0.0'/>
       <licenses size='1'>
         <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          Apache 2.0 licence.
+          Apache 2.0 licence
         </license>
       </licenses>
       <copyright>
         ® Copyright 2009 Trinity College Dublin. All rights reserved.
       </copyright>
+    </unit>
+    <unit id='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908202037'>
+      <update id='ie.tcd.imm.hits.knime.interop' range='[0.0.0,0.0.1.200908202037)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='BioConverter-Node extension for KNIME Workbench'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='5'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908202037'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908202037'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.interop' version='0.0.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.plate.format' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='10'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='0.0.1'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits.knime.interop' version='0.0.1.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-Name: BioConverter-Node extension for KNIME Workbench&#xA;Bundle-ClassPath: bioconverter.jar&#xA;Bundle-Version: 0.0.1.200908202037&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta&#xA;Bundle-Activator: ie.tcd.imm.hits.knime.interop.BioConverterNodePlugin&#xA;Bundle-Vendor: TCD&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,ie.tcd.imm.hits.common;bundle-version=&quot;0.0.1&quot;,org.eclipse.help,org.eclipse.help.ui&#xA;Export-Package: ie.tcd.imm.hits.knime.interop;x-friends:=&quot;ie.tcd.imm.knime.test&quot;,ie.tcd.imm.hits.knime.plate.format;x-friends:=&quot;ie.tcd.imm.knime.test&quot;&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.knime.interop; singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Localization: plugin
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
     </unit>
     <unit id='ie.tcd.imm.knime.util' version='0.0.1'>
       <update id='ie.tcd.imm.knime.util' range='[0.0.0,0.0.1)' severity='0'/>
@@ -907,7 +969,7 @@
         <required namespace='osgi.bundle' name='org.knime.core' range='[2.0.0,3.0.0)'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.knime.util' version='0.0.1'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.knime.util' version='0.0.1'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -917,53 +979,6 @@
           </instruction>
         </instructions>
       </touchpointData>
-    </unit>
-    <unit id='ie.tcd.imm.hits.feature.feature.group' version='0.4.0.200908201405' singleton='false'>
-      <update id='ie.tcd.imm.hits.feature.feature.group' range='[0.0.0,0.4.0.200908201405)' severity='0'/>
-      <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
-        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from HTS/HCS experiments using&#xA;cellHTS2 (based on 2.8.2, but should work well with 2.8.3 too).&#xA;It depends on Rserve.&#xA;It also supports basic data visualisation technics, like heatmaps. (For a bit more advanced visualisation check: KNIME labs, and the ie.tcd.imm.hits.exp.feature feature.)&#xA;News in version 0.4.0:&#xA; - bug fixes,&#xA; - improved colour legend export&#xA; - more detailed error messages&#xA; - new node:&#xA;   - Score to P value'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' version='0.4.0.200908201405'/>
-      </provides>
-      <requires size='19'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='[2.0.2,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='[2.0.2,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='[2.0.2,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.ext.jep' range='[2.0.0,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.filesystem' range='1.1.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.poi' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.apache.commons.math' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.core' range='[2.0.0,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.help' range='2.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' range='[0.4.0.200908201405,0.4.0.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1.200908201405,0.0.1.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' range='[0.4.0.200908201405,0.4.0.200908201405]'>
-          <filter>
-            (org.eclipse.update.install.features=true)
-          </filter>
-        </required>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          The main part of the HiTS project has applied licence: Apache&#xA;2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending&#xA;cellHTS2 functionality also licensed under this licence).&#xA;(KNIME licence: Aladdin Free Public License, or commercial depending&#xA;on your model.)&#xA;(Rserve licence: GNU GPL)&#xA;(POI licence: Apache 2.0 licence)
-        </license>
-      </licenses>
-      <copyright>
-        ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
     </unit>
     <unit id='ie.tcd.imm.hits' version='0.2.0'>
       <update id='ie.tcd.imm.hits' range='[0.0.0,0.2.0)' severity='0'/>
@@ -991,7 +1006,7 @@
         <required namespace='osgi.bundle' name='org.knime.distmatrix' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.2.0'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits' version='0.2.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1001,80 +1016,6 @@
           </instruction>
           <instruction key='zipped'>
             true
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='ie.tcd.imm.knime.util.feature.feature.group' version='0.2.0.200908201405' singleton='false'>
-      <update id='ie.tcd.imm.knime.util.feature.feature.group' range='[0.0.0,0.2.0.200908201405)' severity='0'/>
-      <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
-        <property name='org.eclipse.equinox.p2.description' value='Basic nodes missing from KNIME.'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' version='0.2.0.200908201405'/>
-      </provides>
-      <requires size='13'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.core' range='[2.0.0,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='[2.0.2,3.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.jsr305' range='1.3.8'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.annotations' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.help' range='2.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.jsr305' range='1.3.9'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util' range='[0.2.0.200908201405,0.2.0.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1.200908201405,0.0.1.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.jar' range='[0.2.0.200908201405,0.2.0.200908201405]'>
-          <filter>
-            (org.eclipse.update.install.features=true)
-          </filter>
-        </required>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          Apache 2.0 licence
-        </license>
-      </licenses>
-      <copyright>
-        ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
-    </unit>
-    <unit id='ie.tcd.imm.hits.common' version='0.0.1.200908201405'>
-      <update id='ie.tcd.imm.hits.common' range='[0.0.0,0.0.1.200908201405)' severity='0'/>
-      <properties size='2'>
-        <property name='org.eclipse.equinox.p2.name' value='Common Plug-in for KNIME development'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-      </properties>
-      <provides size='8'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' version='0.0.1.200908201405'/>
-        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.common' version='0.0.1.200908201405'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.common' version='0.0.1'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util' version='0.0.1'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util' version='0.0.1'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util.template' version='0.0.1'/>
-        <provided namespace='java.package' name='org.knime.core.node.defaultnodesettings' version='0.0.1'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='3'>
-        <required namespace='osgi.bundle' name='org.knime.core' range='[2.0.0,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.help' range='2.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.common' version='0.0.1.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-Vendor: TCD&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-Activator: ie.tcd.imm.hits.common.internal.KNIMECommonActivator&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Require-Bundle: org.knime.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.knime.workbench.help;bundle-version=&quot;2.0.0&quot;,org.eclipse.help&#xA;Bundle-Name: Common Plug-in for KNIME development&#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.common;singleton:=true&#xA;Bundle-Version: 0.0.1.200908201405&#xA;Export-Package: ie.tcd.imm.hits.common;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.knime.util;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.util;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.util.template;version=&quot;0.0.1&quot;,org.knime.core.node.defaultnodesettings;version=&quot;0.0.1&quot;
           </instruction>
         </instructions>
       </touchpointData>
@@ -1129,7 +1070,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='org.knime.features.distmatrix' version='2.0.1.0020189'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='org.knime.features.distmatrix' version='2.0.1.0020189'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1165,7 +1106,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.knime.util.feature' version='0.1.0'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.knime.util.feature' version='0.1.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1182,44 +1123,6 @@
       </licenses>
       <copyright>
         ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
-    </unit>
-    <unit id='ie.tcd.imm.hits.3rdparty.feature.feature.group' version='0.4.0.200908201405' singleton='false'>
-      <update id='ie.tcd.imm.hits.3rdparty.feature.feature.group' range='[0.0.0,0.4.0.200908201405)' severity='0'/>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS 3rd party features'/>
-        <property name='org.eclipse.equinox.p2.description' value='This feature is an umbrella for various 3rd party plugins:&#xA; - FindBugs annotations&#xA; - JSR305 annotations&#xA; - Apache POI&#xA; - Apache Commons Math&#xA; - REngine&#xA; - RServe'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.group' version='0.4.0.200908201405'/>
-      </provides>
-      <requires size='11'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.osgi' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='javax.servlet' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.annotations' range='[1.3.9.rc1,1.3.9.rc1]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.google.code.findbugs.jsr305' range='[1.3.9.rc1,1.3.9.rc1]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.commons.discovery' range='[0.4.0,0.4.0]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.commons.logging' range='[1.1.1,1.1.1]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.poi' range='[3.0.2.FINAL,3.0.2.FINAL]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' range='[0.6.0.SNAPSHOT-20090819-1443,0.6.0.SNAPSHOT-20090819-1443]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' range='[0.6.0.SNAPSHOT-20090819-1443,0.6.0.SNAPSHOT-20090819-1443]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.apache.commons.math' range='[1.2.0,1.2.0]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.jar' range='[0.4.0.200908201405,0.4.0.200908201405]'>
-          <filter>
-            (org.eclipse.update.install.features=true)
-          </filter>
-        </required>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
-      <licenses size='1'>
-        <license>
-          Apache 2.0 - POI, Math&#xA;GNU GPL - REngine, RServe&#xA;GNU LGPL - FindBugs&#xA;new BSD - JSR305
-        </license>
-      </licenses>
-      <copyright>
-        See the copyright of the original jars.
       </copyright>
     </unit>
     <unit id='ie.tcd.imm.knime.util' version='0.1.0'>
@@ -1242,7 +1145,7 @@
         <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.knime.util' version='0.1.0'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.knime.util' version='0.1.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1279,7 +1182,7 @@
         <required namespace='osgi.bundle' name='org.knime.distmatrix' range='[2.0.1,3.0.0)' optional='true'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.3.0'/>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits' version='0.3.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1313,52 +1216,13 @@
         <required namespace='java.package' name='org.apache.log4j' range='[1.2.15,2.0.0)' optional='true'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='com.springsource.org.apache.commons.logging' version='1.1.1'/>
+        <artifact classifier='osgi.bundle.spring.apache.commons' id='com.springsource.org.apache.commons.logging' version='1.1.1'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
         <instructions size='1'>
           <instruction key='manifest'>
             Manifest-Version: 1.0&#xA;Implementation-Title: Jakarta Commons Logging&#xA;Implementation-Vendor: Apache Software Foundation&#xA;Created-By: Apache Maven&#xA;Implementation-Version: 1.1.1&#xA;Built-By: dlg01&#xA;X-Compile-Target-JDK: 1.2&#xA;Bundle-Vendor: SpringSource&#xA;Import-Package: javax.servlet;version=&quot;[2.1.0, 3.0.0)&quot;;resolution:=optional,org.apache.avalon.framework.logger;version=&quot;[4.1.3, 4.1.3]&quot;;resolution:=optional,org.apache.log;version=&quot;[1.0.1, 1.0.1]&quot;;resolution:=optional,org.apache.log4j;version=&quot;[1.2.15, 2.0.0)&quot;;resolution:=optional&#xA;Specification-Version: 1.0&#xA;Specification-Title: Jakarta Commons Logging&#xA;Archiver-Version: Plexus Archiver&#xA;Bundle-Name: Apache Commons Logging&#xA;Implementation-Vendor-Id: org.apache&#xA;Export-Package: org.apache.commons.logging;version=&quot;1.1.1&quot;,org.apache.commons.logging.impl;version=&quot;1.1.1&quot;;uses:=&quot;javax.servlet,org.apache.avalon.framework.logger,org.apache.commons.logging,org.apache.log,org.apache.log4j&quot;&#xA;Bundle-Version: 1.1.1&#xA;X-Compile-Source-JDK: 1.2&#xA;Bundle-ManifestVersion: 2&#xA;Extension-Name: org.apache.commons.logging&#xA;Specification-Vendor: Apache Software Foundation&#xA;Build-Jdk: 1.4.2_16&#xA;Bundle-SymbolicName: com.springsource.org.apache.commons.logging&#xA;Bundle-Classpath: .
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='ie.tcd.imm.hits.exp' version='0.4.0.200908201405'>
-      <update id='ie.tcd.imm.hits.exp' range='[0.0.0,0.4.0.200908201405)' severity='0'/>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME Labs based node extensions for KNIME Workbench'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
-      </properties>
-      <provides size='4'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp' version='0.4.0.200908201405'/>
-        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.exp' version='0.4.0.200908201405'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util.leaf.ordering' version='0.0.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='9'>
-        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.base' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.distmatrix' range='[2.0.3.0022208,3.0.0)'/>
-        <required namespace='osgi.bundle' name='ie.tcd.imm.hits' range='0.4.0'/>
-        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='0.0.1'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits.exp' version='0.4.0.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='2'>
-          <instruction key='manifest'>
-            Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: KNIME Labs based node extensions for KNIME Workbench&#xA;Bundle-Activator: ie.tcd.imm.hits.exp.LabsNodePlugin&#xA;Manifest-Version: 1.0&#xA;Bundle-Vendor: TCD&#xA;Bundle-ClassPath: labs.jar&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.exp; singleton:=true&#xA;Bundle-ManifestVersion: 2&#xA;Eclipse-LazyStart: true&#xA;Bundle-Version: 0.4.0.200908201405&#xA;Bundle-Localization: plugin&#xA;Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:=&quot;ie.tcd.imm.knime.test&quot;&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.knime.workbench.repository,org.knime.base,org.knime.distmatrix;bundle-version=&quot;[2.0.3.0022208,3.0.0)&quot;,ie.tcd.imm.hits;bundle-version=&quot;0.4.0&quot;,ie.tcd.imm.hits.common;bundle-version=&quot;0.0.1&quot;,org.eclipse.help,org.eclipse.help.ui
-          </instruction>
-          <instruction key='zipped'>
-            true
           </instruction>
         </instructions>
       </touchpointData>
@@ -1399,87 +1263,6 @@
         ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI projects.
       </copyright>
     </unit>
-    <unit id='net.rforge.REngine' version='0.6.0.SNAPSHOT-20090819-1443' singleton='false'>
-      <update id='net.rforge.REngine' range='[0.0.0,0.6.0.SNAPSHOT-20090819-1443)' severity='0'/>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='net.rforge.REngine [osgi]'/>
-        <property name='org.eclipse.equinox.p2.description' value='Based on the jar from here: http://www.rforge.net/Rserve/files/REngine.jar (on it&apos;s 2009 august 7 state)'/>
-        <property name='org.eclipse.equinox.p2.provider' value='Trinity College Dublin, Institute of Molecular Medicine'/>
-        <property name='org.eclipse.equinox.p2.doc.url' value='http://www.tcd.ie/IMM'/>
-      </properties>
-      <provides size='4'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='osgi.bundle' name='net.rforge.REngine' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='java.package' name='org.rosuda.REngine' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='1'>
-        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0.SNAPSHOT-20090819-1443'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='net.rforge.REngine' version='0.6.0.SNAPSHOT-20090819-1443'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-Version: 0.6.0.SNAPSHOT-20090819-1443&#xA;Bnd-LastModified: 1250689395125&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: org.rosuda.REngine;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;&#xA;Import-Package: org.rosuda.REngine;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=compile|runtime|system;type=!pom;inline=true&#xA;Bundle-SymbolicName: net.rforge.REngine&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: Based on the jar from here: http://www.rforge.net/Rserve/files/REngine.jar (on it&apos;s 2009 august 7 state)&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: net.rforge.REngine [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
-    <unit id='ie.tcd.imm.hits' version='0.4.0.200908201405'>
-      <update id='ie.tcd.imm.hits' range='[0.0.0,0.4.0.200908201405)' severity='0'/>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS extensions for KNIME Workbench'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
-      </properties>
-      <provides size='9'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' version='0.4.0.200908201405'/>
-        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits' version='0.4.0.200908201405'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util' version='0.4.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.view.heatmap' version='0.4.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util' version='0.4.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util.interval' version='0.4.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util.swing' version='0.4.0'/>
-        <provided namespace='java.package' name='ie.tcd.imm.hits.util.swing.colour' version='0.4.0'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='17'>
-        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='[2.0.2,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='[2.0.2,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.knime.base' range='[2.0.2,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='osgi.bundle' name='org.knime.ext.jep' range='[2.0.0,3.0.0)'/>
-        <required namespace='osgi.bundle' name='org.apache.batik.svggen' range='[1.6.0,2.0.0)' optional='true'/>
-        <required namespace='osgi.bundle' name='org.apache.batik.dom' range='[1.6.0,2.0.0)' optional='true'/>
-        <required namespace='osgi.bundle' name='org.eclipse.core.filesystem' range='1.1.0'/>
-        <required namespace='osgi.bundle' name='org.apache.commons.math' range='[1.2.0,3.0.0)'/>
-        <required namespace='java.package' name='org.apache.poi.hssf.usermodel' range='3.0.0'/>
-        <required namespace='java.package' name='org.apache.poi.poifs.filesystem' range='3.0.0'/>
-        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0'/>
-        <required namespace='java.package' name='org.rosuda.REngine.Rserve' range='0.6.0'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='ie.tcd.imm.hits' version='0.4.0.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='2'>
-          <instruction key='manifest'>
-            Bundle-Name: HiTS extensions for KNIME Workbench&#xA;Bundle-ClassPath: importer.jar&#xA;Bundle-Version: 0.4.0.200908201405&#xA;Import-Package: org.apache.poi.hssf.usermodel;version=&quot;3.0.0&quot;,org.apache.poi.poifs.filesystem;version=&quot;3.0.0&quot;,org.rosuda.REngine;version=&quot;0.6.0&quot;,org.rosuda.REngine.Rserve;version=&quot;0.6.0&quot;&#xA;Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin&#xA;Bundle-Vendor: TCD&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.knime.workbench.repository;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.knime.base;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.eclipse.ui,ie.tcd.imm.hits.common;bundle-version=&quot;[0.0.1,1.0.0)&quot;,org.eclipse.help,org.eclipse.help.ui,org.knime.ext.jep;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.apache.batik.svggen;bundle-version=&quot;[1.6.0,2.0.0)&quot;;resolution:=optional,org.apache.batik.dom;bundle-version=&quot;[1.6.0,2.0.0)&quot;;resolution:=optional,org.eclipse.core.filesystem;bundle-version=&quot;1.1.0&quot;,org.apache.commons.math;bundle-version=&quot;[1.2.0,3.0.0)&quot;&#xA;Export-Package: ie.tcd.imm.hits.knime.util;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.knime.view.heatmap;version=&quot;0.4.0&quot;;x-friends:=&quot;ie.tcd.imm.hits.exp&quot;,ie.tcd.imm.hits.util;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.interval;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.swing;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.swing.colour;version=&quot;0.4.0&quot;;x-friends:=&quot;ie.tcd.imm.hits.exp&quot;&#xA;Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Localization: plugin
-          </instruction>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
     <unit id='ie.tcd.imm.hits.feature.feature.group' version='0.3.0' singleton='false'>
       <update id='ie.tcd.imm.hits.feature.feature.group' range='[0.0.0,0.3.0)' severity='0'/>
       <properties size='5'>
@@ -1516,38 +1299,6 @@
         ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI projects.
       </copyright>
     </unit>
-    <unit id='net.rforge.Rserve' version='0.6.0.SNAPSHOT-20090819-1443' singleton='false'>
-      <update id='net.rforge.Rserve' range='[0.0.0,0.6.0.SNAPSHOT-20090819-1443)' severity='0'/>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='net.rforge.Rserve [osgi]'/>
-        <property name='org.eclipse.equinox.p2.description' value='Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it&apos;s 2009 august 7 state)'/>
-        <property name='org.eclipse.equinox.p2.provider' value='Trinity College Dublin, Institute of Molecular Medicine'/>
-        <property name='org.eclipse.equinox.p2.doc.url' value='http://www.tcd.ie/IMM'/>
-      </properties>
-      <provides size='5'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='osgi.bundle' name='net.rforge.Rserve' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='java.package' name='org.rosuda.REngine.Rserve.protocol' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='java.package' name='org.rosuda.REngine.Rserve' version='0.6.0.SNAPSHOT-20090819-1443'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
-      </provides>
-      <requires size='3'>
-        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0.SNAPSHOT-20090819-1443'/>
-        <required namespace='java.package' name='org.rosuda.REngine.Rserve' range='0.6.0.SNAPSHOT-20090819-1443'/>
-        <required namespace='java.package' name='org.rosuda.REngine.Rserve.protocol' range='0.6.0.SNAPSHOT-20090819-1443'/>
-      </requires>
-      <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='net.rforge.Rserve' version='0.6.0.SNAPSHOT-20090819-1443'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='manifest'>
-            Bundle-Version: 0.6.0.SNAPSHOT-20090819-1443&#xA;Bnd-LastModified: 1250689395922&#xA;Build-Jdk: 1.6.0_14&#xA;Export-Package: org.rosuda.REngine.Rserve.protocol;uses:=&quot;org.rosuda.REngine.Rserve,org.rosuda.REngine&quot;;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;,org.rosuda.REngine.Rserve;uses:=&quot;org.rosuda.REngine.Rserve.protocol,org.rosuda.REngine&quot;;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;&#xA;Import-Package: org.rosuda.REngine;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;,org.rosuda.REngine.Rserve;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;,org.rosuda.REngine.Rserve.protocol;version=&quot;0.6.0.SNAPSHOT-20090819-1443&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-DocURL: http://www.tcd.ie/IMM&#xA;Embed-Dependency: *;scope=system;type=!pom;inline=true&#xA;Bundle-SymbolicName: net.rforge.Rserve&#xA;Created-By: Apache Maven Bundle Plugin&#xA;Private-Package: !*&#xA;Built-By: bakosg&#xA;Bundle-Description: Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it&apos;s 2009 august 7 state)&#xA;Bundle-Vendor: Trinity College Dublin, Institute of Molecular Medicine&#xA;Bundle-Name: net.rforge.Rserve [osgi]&#xA;Tool: Bnd-0.0.255&#xA;Bundle-ManifestVersion: 2
-          </instruction>
-        </instructions>
-      </touchpointData>
-    </unit>
     <unit id='HiTS' version='0.0.0'>
       <properties size='3'>
         <property name='org.eclipse.equinox.p2.name' value='HiTS main'/>
@@ -1561,41 +1312,6 @@
         <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' range='[0.2.0,0.3.0]'/>
       </requires>
       <touchpoint id='null' version='0.0.0'/>
-    </unit>
-    <unit id='org.knime.features.distmatrix.feature.group' version='2.0.3.0022208' singleton='false'>
-      <update id='org.knime.features.distmatrix.feature.group' range='[0.0.0,2.0.3.0022208)' severity='0'/>
-      <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='KNIME Distance Matrix Feature'/>
-        <property name='org.eclipse.equinox.p2.description' value='This feature contains the type definition for distance matrices. It provides several nodes for reading, writing and calculating distance matrices as well as nodes that operate on distance matrices, e.g. a k-medoids clustering node.'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://www.knime.org/download_extensions.html'/>
-        <property name='org.eclipse.equinox.p2.provider' value='KNIME GmbH, Konstanz, Germany'/>
-        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.feature.group' version='2.0.3.0022208'/>
-      </provides>
-      <requires size='7'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.distmatrix' range='[2.0.3.0022208,2.0.3.0022208]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.source' range='[2.0.3.0022208,2.0.3.0022208]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.feature.jar' range='[2.0.3.0022208,2.0.3.0022208]'>
-          <filter>
-            (org.eclipse.update.install.features=true)
-          </filter>
-        </required>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
-      <licenses size='1'>
-        <license>
-          Aladdin Free Public License&#xA;(Version 9, September 18, 2000)&#xA;Copyright (C) 1994, 1995, 1997, 1998, 1999, 2000 Aladdin Enterprises,&#xA;Menlo Park, California, U.S.A. All rights reserved. &#xA;&#xA;NOTE: This License is not the same as any of the GNU Licenses&#xA;published by the Free Software Foundation. Its terms are substantially&#xA;different from those of the GNU Licenses. If you are familiar with the&#xA;GNU Licenses, please read this license with extra care.  Aladdin&#xA;Enterprises hereby grants to anyone the permission to apply this&#xA;License to their own work, as long as the entire License (including&#xA;the above notices and this paragraph) is copied with no changes,&#xA;additions, or deletions except for changing the first paragraph of&#xA;Section 0 to include a suitable description of the work to which the&#xA;license is being applied and of the person or entity that holds the&#xA;copyright in the work, and, if the License is being applied to a work&#xA;created in a country other than the United States, replacing the first&#xA;paragraph of Section 6 with an appropriate reference to the laws of&#xA;the appropriate country.&#xA;&#xA;This License is not an Open Source license: among other things, it&#xA;places restrictions on distribution of the Program, specifically&#xA;including sale of the Program. While Aladdin Enterprises respects and&#xA;supports the philosophy of the Open Source Definition, and shares the&#xA;desire of the GNU project to keep licensed software freely&#xA;redistributable in both source and object form, we feel that Open&#xA;Source licenses unfairly prevent developers of useful software from&#xA;being compensated proportionately when others profit financially from&#xA;their work. This License attempts to ensure that those who receive,&#xA;redistribute, and contribute to the licensed Program according to the&#xA;Open Source and Free Software philosophies have the right to do so,&#xA;while retaining for the developer(s) of the Program the power to make&#xA;those who use the Program to enhance the value of commercial products&#xA;pay for the privilege of doing so.&#xA;&#xA;0. Subject Matter&#xA;&#xA;This License applies to the computer program known as &quot;KNIME&quot;. The&#xA;&quot;Program&quot;, below, refers to such program. The Program is a copyrighted&#xA;work whose copyright is held by KNIME GmbH, Konstanz, Germany (the &#xA;&quot;Licensor&quot;).&#xA;&#xA;A &quot;work based on the Program&quot; means either the Program or any&#xA;derivative work of the Program, as defined in the United States&#xA;Copyright Act of 1976, such as a translation or a modification.&#xA;&#xA;BY MODIFYING OR DISTRIBUTING THE PROGRAM (OR ANY WORK BASED ON THE&#xA;PROGRAM), YOU INDICATE YOUR ACCEPTANCE OF THIS LICENSE TO DO SO, AND&#xA;ALL ITS TERMS AND CONDITIONS FOR COPYING, DISTRIBUTING OR MODIFYING&#xA;THE PROGRAM OR WORKS BASED ON IT. NOTHING OTHER THAN THIS LICENSE&#xA;GRANTS YOU PERMISSION TO MODIFY OR DISTRIBUTE THE PROGRAM OR ITS&#xA;DERIVATIVE WORKS. THESE ACTIONS ARE PROHIBITED BY LAW. IF YOU DO NOT&#xA;ACCEPT THESE TERMS AND CONDITIONS, DO NOT MODIFY OR DISTRIBUTE THE&#xA;PROGRAM.&#xA;&#xA;1. Licenses.&#xA;&#xA;Licensor hereby grants you the following rights, provided that you&#xA;comply with all of the restrictions set forth in this License and&#xA;provided, further, that you distribute an unmodified copy of this&#xA;License with the Program:&#xA;&#xA;(a) You may copy and distribute literal (i.e., verbatim) copies of the&#xA;Program&apos;s source code as you receive it throughout the world, in any&#xA;medium.&#xA;&#xA;(b) You may modify the Program, create works based on the Program and&#xA;distribute copies of such throughout the world, in any medium.&#xA;&#xA;2. Restrictions.&#xA;&#xA;This license is subject to the following restrictions:&#xA;&#xA;(a)&#xA;Distribution of the Program or any work based on the Program by a&#xA;commercial organization to any third party is prohibited if any&#xA;payment is made in connection with such distribution, whether directly&#xA;(as in payment for a copy of the Program) or indirectly (as in payment&#xA;for some service related to the Program, or payment for some product&#xA;or service that includes a copy of the Program &quot;without charge&quot;; these&#xA;are only examples, and not an exhaustive enumeration of prohibited&#xA;activities). The following methods of distribution involving payment&#xA;shall not in and of themselves be a violation of this restriction:&#xA;&#xA;(i)&#xA;Posting the Program on a public access information storage and&#xA;retrieval service for which a fee is received for retrieving&#xA;information (such as an on-line service), provided that the fee is not&#xA;content-dependent (i.e., the fee would be the same for retrieving the&#xA;same volume of information consisting of random data) and that access&#xA;to the service and to the Program is available independent of any&#xA;other product or service. An example of a service that does not fall&#xA;under this section is an on-line service that is operated by a company&#xA;and that is only available to customers of that company. (This is not&#xA;an exhaustive enumeration.)&#xA;&#xA;(ii)&#xA;Distributing the Program on removable computer-readable media,&#xA;provided that the files containing the Program are reproduced entirely&#xA;and verbatim on such media, that all information on such media be&#xA;redistributable for non-commercial purposes without charge, and that&#xA;such media are distributed by themselves (except for accompanying&#xA;documentation) independent of any other product or service. Examples&#xA;of such media include CD-ROM, magnetic tape, and optical storage&#xA;media. (This is not intended to be an exhaustive list.) An example of&#xA;a distribution that does not fall under this section is a CD-ROM&#xA;included in a book or magazine. (This is not an exhaustive&#xA;enumeration.)&#xA;&#xA;(b)&#xA;Activities other than copying, distribution and modification of the&#xA;Program are not subject to this License and they are outside its&#xA;scope. Functional use (running) of the Program is not restricted, and&#xA;any output produced through the use of the Program is subject to this&#xA;license only if its contents constitute a work based on the Program&#xA;(independent of having been made by running the Program).&#xA;&#xA;(c)&#xA;You must meet all of the following conditions with respect to any&#xA;work that you distribute or publish that in whole or in part contains&#xA;or is derived from the Program or any part thereof (&quot;the Work&quot;):&#xA;&#xA;(i)&#xA;If you have modified the Program, you must cause the Work to carry&#xA;prominent notices stating that you have modified the Program&apos;s files&#xA;and the date of any change. In each source file that you have&#xA;modified, you must include a prominent notice that you have modified&#xA;the file, including your name, your e-mail address (if any), and the&#xA;date and purpose of the change;&#xA;&#xA;(ii)&#xA;You must cause the Work to be licensed as a whole and at no charge to&#xA;all third parties under the terms of this License;&#xA;&#xA;(iii)&#xA;If the Work normally reads commands interactively when run, you must&#xA;cause it, at each time the Work commences operation, to print or&#xA;display an announcement including an appropriate copyright notice and&#xA;a notice that there is no warranty (or else, saying that you provide a&#xA;warranty). Such notice must also state that users may redistribute the&#xA;Work only under the conditions of this License and tell the user how&#xA;to view the copy of this License included with the Work. (Exceptions:&#xA;if the Program is interactive but normally prints or displays such an&#xA;announcement only at the request of a user, such as in an &quot;About box&quot;,&#xA;the Work is required to print or display the notice only under the&#xA;same circumstances; if the Program itself is interactive but does not&#xA;normally print such an announcement, the Work is not required to print&#xA;an announcement.);&#xA;&#xA;(iv)&#xA;You must accompany the Work with the complete corresponding&#xA;machine-readable source code, delivered on a medium customarily used&#xA;for software interchange. The source code for a work means the&#xA;preferred form of the work for making modifications to it. For an&#xA;executable work, complete source code means all the source code for&#xA;all modules it contains, plus any associated interface definition&#xA;files, plus the scripts used to control compilation and installation&#xA;of the executable code. If you distribute with the Work any component&#xA;that is normally distributed (in either source or binary form) with&#xA;the major components (compiler, kernel, and so on) of the operating&#xA;system on which the executable runs, you must also distribute the&#xA;source code of that component if you have it and are allowed to do so;&#xA;&#xA;(v)&#xA;If you distribute any written or printed material at all with the&#xA;Work, such material must include either a written copy of this&#xA;License, or a prominent written indication that the Work is covered by&#xA;this License and written instructions for printing and/or displaying&#xA;the copy of the License on the distribution medium;&#xA;&#xA;(vi)&#xA;You may not impose any further restrictions on the recipient&apos;s&#xA;exercise of the rights granted herein.  If distribution of executable&#xA;or object code is made by offering the equivalent ability to copy from&#xA;a designated place, then offering equivalent ability to copy the&#xA;source code from the same place counts as distribution of the source&#xA;code, even though third parties are not compelled to copy the source&#xA;code along with the object code.&#xA;&#xA;3. Reservation of Rights.&#xA;&#xA;No rights are granted to the Program except as expressly set forth&#xA;herein. You may not copy, modify, sublicense, or distribute the&#xA;Program except as expressly provided under this License. Any attempt&#xA;otherwise to copy, modify, sublicense or distribute the Program is&#xA;void, and will automatically terminate your rights under this&#xA;License. However, parties who have received copies, or rights, from&#xA;you under this License will not have their licenses terminated so long&#xA;as such parties remain in full compliance.&#xA;&#xA;4. Other Restrictions.&#xA;&#xA;If the distribution and/or use of the Program is restricted in certain&#xA;countries for any reason, Licensor may add an explicit geographical&#xA;distribution limitation excluding those countries, so that&#xA;distribution is permitted only in or among countries not thus&#xA;excluded. In such case, this License incorporates the limitation as if&#xA;written in the body of this License.&#xA;&#xA;5. Limitations.&#xA;&#xA;THE PROGRAM IS PROVIDED TO YOU &quot;AS IS,&quot; WITHOUT WARRANTY. THERE IS NO&#xA;WARRANTY FOR THE PROGRAM, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT&#xA;NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS&#xA;FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY&#xA;RIGHTS. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE&#xA;PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME&#xA;THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.&#xA;&#xA;IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING&#xA;WILL LICENSOR, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE&#xA;THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,&#xA;INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES&#xA;ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT&#xA;NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR&#xA;LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM&#xA;TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER&#xA;PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.&#xA;&#xA;6. General.&#xA;&#xA;This License is governed by german laws.&#xA;&#xA;If any part of this License is found to be in conflict with the law,&#xA;that part shall be interpreted in its broadest meaning consistent with&#xA;the law, and no other parts of the License shall be affected.&#xA;&#xA;For United States Government users, the Program is provided with&#xA;RESTRICTED RIGHTS. If you are a unit or agency of the United States&#xA;Government or are acquiring the Program for any such unit or agency,&#xA;the following apply:&#xA;&#xA;If the unit or agency is the Department of Defense (&quot;DOD&quot;), the&#xA;Program and its documentation are classified as &quot;commercial computer&#xA;software&quot; and &quot;commercial computer software documentation&quot;&#xA;respectively and, pursuant to DFAR Section 227.7202, the Government is&#xA;acquiring the Program and its documentation in accordance with the&#xA;terms of this License. If the unit or agency is other than DOD, the&#xA;Program and its documentation are classified as &quot;commercial computer&#xA;software&quot; and &quot;commercial computer software documentation&quot;&#xA;respectively and, pursuant to FAR Section 12.212, the Government is&#xA;acquiring the Program and its documentation in accordance with the&#xA;terms of this License.
-        </license>
-      </licenses>
-      <copyright>
-        Copyright, 2003 - 2009&#xA;      University of Konstanz, Germany&#xA;      KNIME GmbH, Konstanz, Germany
-      </copyright>
     </unit>
     <unit id='org.knime.features.distmatrix.feature.group' version='2.0.1.0020189' singleton='false'>
       <update id='org.knime.features.distmatrix.feature.group' range='[0.0.0,2.0.1.0020189)' severity='0'/>
@@ -1629,41 +1345,6 @@
       </licenses>
       <copyright>
         Copyright, 2003 - 2009&#xA;University of Konstanz, Germany&#xA;Chair for Bioinformatics and Information Mining (Prof. M. Berthold)&#xA;and KNIME GmbH, Konstanz, Germany
-      </copyright>
-    </unit>
-    <unit id='ie.tcd.imm.hits.knime.interop.feature.feature.jar' version='0.0.1.200908201405'>
-      <properties size='4'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS interoperability with other projects'/>
-        <property name='org.eclipse.equinox.p2.description' value='Helps the interaction with other plugins, like HCDC (http://hcdc.ethz.ch).'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-      </properties>
-      <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.jar' version='0.0.1.200908201405'/>
-        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.knime.interop.feature' version='0.0.1.200908201405'/>
-      </provides>
-      <filter>
-        (org.eclipse.update.install.features=true)
-      </filter>
-      <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.knime.interop.feature' version='0.0.1.200908201405'/>
-      </artifacts>
-      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
-      <touchpointData size='1'>
-        <instructions size='1'>
-          <instruction key='zipped'>
-            true
-          </instruction>
-        </instructions>
-      </touchpointData>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          Apache 2.0 licence
-        </license>
-      </licenses>
-      <copyright>
-        All rights reserved. (C) Copyright 2009, Trinity College Dublin
       </copyright>
     </unit>
     <unit id='KNIME' version='0.0.0'>
@@ -1724,7 +1405,7 @@
         <required namespace='java.package' name='org.w3c.dom' range='0.0.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='com.springsource.org.apache.poi' version='3.0.2.FINAL'/>
+        <artifact classifier='osgi.bundle.spring.apache.poi' id='com.springsource.org.apache.poi' version='3.0.2.FINAL'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1752,7 +1433,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='org.knime.features.ext.jep' version='2.0.3.0021120'/>
+        <artifact classifier='org.eclipse.update.feature.knime' id='org.knime.features.ext.jep' version='2.0.3.0021120'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -1782,6 +1463,20 @@
       </provides>
       <requires size='1'>
         <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.features.distmatrix.feature.group' range='[2.0.1.0020189,2.0.1.0020189]'/>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+    </unit>
+    <unit id='KNIME utilities' version='0.0.0.20090820203746'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
+        <property name='org.eclipse.equinox.p2.description' value='Contains some -maybe useful- features missing from KNIME.'/>
+        <property name='org.eclipse.equinox.p2.type.category' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='KNIME utilities' version='0.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.group' range='[0.2.0.200908202037,0.2.0.200908202037]'/>
       </requires>
       <touchpoint id='null' version='0.0.0'/>
     </unit>
@@ -1815,43 +1510,6 @@
       </licenses>
       <copyright>
         ® Copyright 2009 Trinity College Dublin. All rights reserved.
-      </copyright>
-    </unit>
-    <unit id='ie.tcd.imm.hits.knime.interop.feature.feature.group' version='0.0.1.200908201405' singleton='false'>
-      <update id='ie.tcd.imm.hits.knime.interop.feature.feature.group' range='[0.0.0,0.0.1.200908201405)' severity='0'/>
-      <properties size='5'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS interoperability with other projects'/>
-        <property name='org.eclipse.equinox.p2.description' value='Helps the interaction with other plugins, like HCDC (http://hcdc.ethz.ch).'/>
-        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
-        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
-        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
-      </properties>
-      <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.group' version='0.0.1.200908201405'/>
-      </provides>
-      <requires size='9'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='0.0.1'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop' range='[0.0.1.200908201405,0.0.1.200908201405]'/>
-        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.jar' range='[0.0.1.200908201405,0.0.1.200908201405]'>
-          <filter>
-            (org.eclipse.update.install.features=true)
-          </filter>
-        </required>
-      </requires>
-      <touchpoint id='null' version='0.0.0'/>
-      <licenses size='1'>
-        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
-          Apache 2.0 licence
-        </license>
-      </licenses>
-      <copyright>
-        All rights reserved. (C) Copyright 2009, Trinity College Dublin
       </copyright>
     </unit>
     <unit id='a.jre' version='1.6.0' singleton='false'>
@@ -1976,22 +1634,23 @@
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.native' version='1.0.0'/>
     </unit>
-    <unit id='ie.tcd.imm.hits.3rdparty.feature.feature.jar' version='0.4.0.200908201405'>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='HiTS 3rd party features'/>
-        <property name='org.eclipse.equinox.p2.description' value='This feature is an umbrella for various 3rd party plugins:&#xA; - FindBugs annotations&#xA; - JSR305 annotations&#xA; - Apache POI&#xA; - Apache Commons Math&#xA; - REngine&#xA; - RServe'/>
+    <unit id='ie.tcd.imm.hits.exp.feature.feature.jar' version='0.4.0.200908202037'>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS experimental features'/>
+        <property name='org.eclipse.equinox.p2.description' value='Advanced data visualisation and Dendrogram handling based on KNIME Labs&apos; distmatrix feature. (A continuation of ie.tcd.imm.hits&apos; dendrogram related functionality.)'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits'/>
         <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
       </properties>
       <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.3rdparty.feature.feature.jar' version='0.4.0.200908201405'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.exp.feature.feature.jar' version='0.4.0.200908202037'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
-        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.3rdparty.feature' version='0.4.0.200908201405'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.exp.feature' version='0.4.0.200908202037'/>
       </provides>
       <filter>
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.hits.3rdparty.feature' version='0.4.0.200908201405'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.exp.feature' version='0.4.0.200908202037'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -2002,12 +1661,12 @@
         </instructions>
       </touchpointData>
       <licenses size='1'>
-        <license>
-          Apache 2.0 - POI, Math&#xA;GNU GPL - REngine, RServe&#xA;GNU LGPL - FindBugs&#xA;new BSD - JSR305
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          Apache 2.0 licence.
         </license>
       </licenses>
       <copyright>
-        See the copyright of the original jars.
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.
       </copyright>
     </unit>
     <unit id='tooling.org.eclipse.update.feature.default' version='1.0.0' singleton='false'>
@@ -2038,6 +1697,77 @@
           </instruction>
         </instructions>
       </touchpointData>
+    </unit>
+    <unit id='ie.tcd.imm.hits.common' version='0.0.1.200908202037'>
+      <update id='ie.tcd.imm.hits.common' range='[0.0.0,0.0.1.200908202037)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Common Plug-in for KNIME development'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='8'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' version='0.0.1.200908202037'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits.common' version='0.0.1.200908202037'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.common' version='0.0.1'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util' version='0.0.1'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util' version='0.0.1'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util.template' version='0.0.1'/>
+        <provided namespace='java.package' name='org.knime.core.node.defaultnodesettings' version='0.0.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='6'>
+        <required namespace='osgi.bundle' name='org.knime.core' range='[2.0.0,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.help' range='2.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits.common' version='0.0.1.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-ManifestVersion: 2&#xA;Export-Package: ie.tcd.imm.hits.common;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.knime.util;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.util;version=&quot;0.0.1&quot;,ie.tcd.imm.hits.util.template;version=&quot;0.0.1&quot;,org.knime.core.node.defaultnodesettings;version=&quot;0.0.1&quot;&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Require-Bundle: org.knime.core;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.knime.workbench.help;bundle-version=&quot;2.0.0&quot;,org.eclipse.help&#xA;Bundle-Activator: ie.tcd.imm.hits.common.internal.KNIMECommonActivator&#xA;Bundle-Name: Common Plug-in for KNIME development&#xA;Bundle-Version: 0.0.1.200908202037&#xA;Bundle-Vendor: TCD&#xA;Bundle-SymbolicName: ie.tcd.imm.hits.common;singleton:=true&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta&#xA;Bundle-ActivationPolicy: lazy&#xA;Manifest-Version: 1.0
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='ie.tcd.imm.knime.util.feature.feature.jar' version='0.2.0.200908202037'>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
+        <property name='org.eclipse.equinox.p2.description' value='Basic nodes missing from KNIME.'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.knime.util.feature.feature.jar' version='0.2.0.200908202037'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.knime.util.feature' version='0.2.0.200908202037'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.knime.util.feature' version='0.2.0.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          Apache 2.0 licence
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.
+      </copyright>
     </unit>
     <unit id='org.apache.commons.math' version='1.2.0' singleton='false'>
       <update id='org.apache.commons.math' range='[0.0.0,1.2.0)' severity='0'/>
@@ -2096,7 +1826,7 @@
         <required namespace='java.package' name='org.apache.commons.math.util' range='1.2.0'/>
       </requires>
       <artifacts size='1'>
-        <artifact classifier='osgi.bundle' id='org.apache.commons.math' version='1.2.0'/>
+        <artifact classifier='osgi.bundle.apache' id='org.apache.commons.math' version='1.2.0'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -2129,6 +1859,41 @@
         </instructions>
       </touchpointData>
     </unit>
+    <unit id='ie.tcd.imm.hits.knime.interop.feature.feature.jar' version='0.0.1.200908202037'>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS interoperability with other projects'/>
+        <property name='org.eclipse.equinox.p2.description' value='Helps the interaction with other plugins, like HCDC (http://hcdc.ethz.ch).'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.knime.interop.feature.feature.jar' version='0.0.1.200908202037'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='ie.tcd.imm.hits.knime.interop.feature' version='0.0.1.200908202037'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.hits.knime.interop.feature' version='0.0.1.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          Apache 2.0 licence
+        </license>
+      </licenses>
+      <copyright>
+        All rights reserved. (C) Copyright 2009, Trinity College Dublin
+      </copyright>
+    </unit>
     <unit id='KNIME utilities' version='0.0.0'>
       <properties size='3'>
         <property name='org.eclipse.equinox.p2.name' value='KNIME utilities'/>
@@ -2160,7 +1925,7 @@
         (org.eclipse.update.install.features=true)
       </filter>
       <artifacts size='1'>
-        <artifact classifier='org.eclipse.update.feature' id='ie.tcd.imm.knime.util.feature' version='0.0.1'/>
+        <artifact classifier='org.eclipse.update.feature.hits' id='ie.tcd.imm.knime.util.feature' version='0.0.1'/>
       </artifacts>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -2177,6 +1942,108 @@
       </licenses>
       <copyright>
         ® Copyright 2009 Trinity College Dublin. All rights reserved.&#xA;For other copyright information check the Rserve, cellHTS2, POI&#xA;projects.
+      </copyright>
+    </unit>
+    <unit id='ie.tcd.imm.hits' version='0.4.0.200908202037'>
+      <update id='ie.tcd.imm.hits' range='[0.0.0,0.4.0.200908202037)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS extensions for KNIME Workbench'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='9'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' version='0.4.0.200908202037'/>
+        <provided namespace='osgi.bundle' name='ie.tcd.imm.hits' version='0.4.0.200908202037'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.util' version='0.4.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.knime.view.heatmap' version='0.4.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util' version='0.4.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util.interval' version='0.4.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util.swing' version='0.4.0'/>
+        <provided namespace='java.package' name='ie.tcd.imm.hits.util.swing.colour' version='0.4.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='20'>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.core' range='[2.0.2,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.knime.workbench.repository' range='[2.0.2,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.knime.base' range='[2.0.2,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.knime.ext.jep' range='[2.0.0,3.0.0)'/>
+        <required namespace='osgi.bundle' name='org.apache.batik.svggen' range='[1.6.0,2.0.0)' optional='true'/>
+        <required namespace='osgi.bundle' name='org.apache.batik.dom' range='[1.6.0,2.0.0)' optional='true'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.filesystem' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='org.apache.commons.math' range='[1.2.0,3.0.0)'/>
+        <required namespace='java.package' name='edu.umd.cs.findbugs.annotations' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation' range='0.0.0'/>
+        <required namespace='java.package' name='javax.annotation.meta' range='0.0.0'/>
+        <required namespace='java.package' name='org.apache.poi.hssf.usermodel' range='3.0.0'/>
+        <required namespace='java.package' name='org.apache.poi.poifs.filesystem' range='3.0.0'/>
+        <required namespace='java.package' name='org.rosuda.REngine' range='0.6.0'/>
+        <required namespace='java.package' name='org.rosuda.REngine.Rserve' range='0.6.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle.hits' id='ie.tcd.imm.hits' version='0.4.0.200908202037'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='2'>
+          <instruction key='manifest'>
+            Bundle-Name: HiTS extensions for KNIME Workbench&#xA;Bundle-ClassPath: importer.jar&#xA;Bundle-Version: 0.4.0.200908202037&#xA;Import-Package: edu.umd.cs.findbugs.annotations,javax.annotation,javax.annotation.meta,org.apache.poi.hssf.usermodel;version=&quot;3.0.0&quot;,org.apache.poi.poifs.filesystem;version=&quot;3.0.0&quot;,org.rosuda.REngine;version=&quot;0.6.0&quot;,org.rosuda.REngine.Rserve;version=&quot;0.6.0&quot;&#xA;Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin&#xA;Bundle-Vendor: TCD&#xA;Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.knime.workbench.repository;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.knime.base;bundle-version=&quot;[2.0.2,3.0.0)&quot;,org.eclipse.ui,ie.tcd.imm.hits.common;bundle-version=&quot;[0.0.1,1.0.0)&quot;,org.eclipse.help,org.eclipse.help.ui,org.knime.ext.jep;bundle-version=&quot;[2.0.0,3.0.0)&quot;,org.apache.batik.svggen;bundle-version=&quot;[1.6.0,2.0.0)&quot;;resolution:=optional,org.apache.batik.dom;bundle-version=&quot;[1.6.0,2.0.0)&quot;;resolution:=optional,org.eclipse.core.filesystem;bundle-version=&quot;1.1.0&quot;,org.apache.commons.math;bundle-version=&quot;[1.2.0,3.0.0)&quot;&#xA;Export-Package: ie.tcd.imm.hits.knime.util;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.knime.view.heatmap;version=&quot;0.4.0&quot;;x-friends:=&quot;ie.tcd.imm.hits.exp&quot;,ie.tcd.imm.hits.util;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.interval;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.swing;version=&quot;0.4.0&quot;,ie.tcd.imm.hits.util.swing.colour;version=&quot;0.4.0&quot;;x-friends:=&quot;ie.tcd.imm.hits.exp&quot;&#xA;Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true&#xA;Manifest-Version: 1.0&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Localization: plugin
+          </instruction>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='ie.tcd.imm.hits.feature.feature.group' version='0.4.0.200908202037' singleton='false'>
+      <update id='ie.tcd.imm.hits.feature.feature.group' range='[0.0.0,0.4.0.200908202037)' severity='0'/>
+      <properties size='5'>
+        <property name='org.eclipse.equinox.p2.name' value='HiTS main feature'/>
+        <property name='org.eclipse.equinox.p2.description' value='HiTS - High Throughput Screening&#xA;KNIME plugin for analysing data from HTS/HCS experiments using&#xA;cellHTS2 (based on 2.8.2, but should work well with 2.8.3 too).&#xA;It depends on Rserve.&#xA;It also supports basic data visualisation technics, like heatmaps. (For a bit more advanced visualisation check: KNIME labs, and the ie.tcd.imm.hits.exp.feature feature.)&#xA;News in version 0.4.0:&#xA; - bug fixes,&#xA; - improved colour legend export&#xA; - more detailed error messages&#xA; - new node:&#xA;   - Score to P value'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://code.google.com/p/hits/'/>
+        <property name='org.eclipse.equinox.p2.provider' value='TCD'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.group' version='0.4.0.200908202037'/>
+      </provides>
+      <requires size='19'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.core' range='[2.0.2,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.repository' range='[2.0.2,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.base' range='[2.0.2,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1,1.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.help.ui' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.ext.jep' range='[2.0.0,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.eclipse.core.filesystem' range='1.1.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.springsource.org.apache.poi' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.REngine' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='net.rforge.Rserve' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.core' range='[2.0.0,3.0.0)'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.knime.workbench.help' range='2.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='org.apache.commons.math' range='1.2.0'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits' range='[0.4.0.200908202037,0.4.0.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.common' range='[0.0.1.200908202037,0.0.1.200908202037]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='ie.tcd.imm.hits.feature.feature.jar' range='[0.4.0.200908202037,0.4.0.200908202037]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='http://www.apache.org/licenses/LICENSE-2.0.html' url='http://www.apache.org/licenses/LICENSE-2.0.html'>
+          The main part of the HiTS project has applied licence: Apache&#xA;2.0 licence.&#xA;cellHTS2 licence: Artistic 2.0 (for compatibility the codes extending&#xA;cellHTS2 functionality also licensed under this licence).&#xA;(KNIME licence: Aladdin Free Public License, or commercial depending&#xA;on your model.)&#xA;(Rserve licence: GNU GPL)&#xA;(POI licence: Apache 2.0 licence)
+        </license>
+      </licenses>
+      <copyright>
+        ® Copyright 2009 Trinity College Dublin. All rights reserved.
       </copyright>
     </unit>
   </units>
