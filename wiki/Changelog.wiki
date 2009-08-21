@@ -2,6 +2,30 @@
 
 = HiTS =
 
+== Changes from 0.3.0 to 0.4.0 ==
+Data 20th August 2009
+
+One new node:
+ - *Scores to p-values* allows to compute P(Z<=x) (the Erf function) with an estamated frequency from a population.
+
+The content is now more modular, separated the nodes depending on KNIME Lab's distmatrix to ie.tcd.imm.hits.exp, and introduced a lightweight ancestor project: ie.tcd.imm.hits.common.
+
+Bugs fixed:
+ * Issue 11 - configuration is now available in cellHTS2's outport
+ * Issue 22 - variance adjustment works again
+ * Issue 23 - contents no longer mixed in results
+ * Issue 25 - more detailed error messages
+
+New features:
+ * The export of colour legend is now working better, more options present.
+ * It is possible to suppress the generation of HTML report in cellHTS2.
+ * Support for 384 well plates in Plate Heatmap, and the other nodes.
+ * Small bug fixes.
+
+New nodes in exp (0.4.0) plugin:
+ * Leaf Ordering - computes the [http://bioinformatics.oxfordjournals.org/cgi/content/abstract/19/9/1070 optimal leaf ordering] for a hierarchical clustered tree.
+ * Reverse Order - changes the ordering of the tree leaves to the opposite.
+
 == Changes from 0.2.0 to 0.3.0 ==
 Date: 29th May 2009
 
@@ -58,10 +82,18 @@ Date: 4th March 2009
 Some bugfixes, little improvements, an incompatible update (using normalise instead of normalize in [RankNode Rank] node), added user documentation and some help to interpret the settings ([CellHTS2Node CellHTS2] and [HeatmapNode Heatmap] nodes).
 
 = KNIME utilities =
+== Changes from 0.1.0 to 0.2.0 ==
+Date 20th August 2009
+
+Created icons for those that did not have.
+
+Added a new node:
+ - Subsets - generates subsets of the selected columns.
+
 == Changes from 0.0.1 to 0.1.0 ==
 Date: 12th June 2009
 
-The new version allows the HiLite of in these nodes. Updated documentation.
+The new version supports HiLite in these nodes. Updated documentation.
 
 Added a new node:
  - Merge - allows to reorder the rows for Pivot node.
@@ -73,3 +105,11 @@ Available since: 15th April 2009 (as version 0.0.1)
  * Direct product
  * Pivot
  * Unpivot
+
+= Interoperability =
+== Version 0.0.1 ==
+Date: 20th August 2009
+
+2 nodes:
+ * BioConverter - converts between different column formats
+ * Plate Format - converts between different plate layouts.
