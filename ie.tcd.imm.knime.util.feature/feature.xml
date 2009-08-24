@@ -30,6 +30,8 @@
       <import plugin="org.eclipse.help.ui"/>
       <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="compatible"/>
       <import plugin="org.knime.workbench.help" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="com.google.code.findbugs.annotations"/>
+      <import plugin="com.google.code.findbugs.jsr305"/>
    </requires>
 
    <plugin
