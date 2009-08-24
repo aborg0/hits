@@ -173,6 +173,9 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 				if (!ret.containsKey(list)) {
 					ret.put(list, new LinkedHashMap<String, Integer>());
 				}
+				if (sb.length() == 0) {
+					sb.append(newName(spec));
+				}
 				ret.get(list).put(sb.toString(), Integer.valueOf(i));
 			}
 			++i;
@@ -195,11 +198,10 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		try {
-			Pattern.compile(patternModel.getStringValue());
+			return new DataTableSpec[] { createTableSpec(inSpecs[0]) };
 		} catch (final PatternSyntaxException e) {
 			throw new InvalidSettingsException(e);
 		}
-		return new DataTableSpec[] { createTableSpec(inSpecs[0]) };
 	}
 
 	/**
@@ -224,6 +226,9 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 						.getName());
 				for (int i = matcher.groupCount() + 1; i-- > 1;) {
 					sb.delete(matcher.start(i), matcher.end(i));
+				}
+				if (sb.length() == 0) {
+					sb.append(newName(dataTableSpec));
 				}
 				if (types.containsKey(sb.toString())
 						&& !dataColumnSpec.getType().equals(
@@ -250,6 +255,18 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 		}
 		return new DataTableSpec(specs
 				.toArray(new DataColumnSpec[specs.size()]));
+	}
+
+	/**
+	 * @param dataTableSpec
+	 * @return
+	 */
+	private static String newName(final DataTableSpec dataTableSpec) {
+		int i = 0;
+		while (dataTableSpec.containsName("<empty" + i + ">")) {
+			++i;
+		}
+		return "<empty" + i + ">";
 	}
 
 	/**
