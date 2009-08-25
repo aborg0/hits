@@ -8,13 +8,13 @@
     <bundle.symbolicName>com.google.code.findbugs.annotations</bundle.symbolicName>
     <wrapped.groupId>com.google.code.findbugs</wrapped.groupId>
     <wrapped.artifactId>annotations</wrapped.artifactId>
-    <wrapped.version>1.3.9-rc1</wrapped.version>
+    <wrapped.version>1.3.9</wrapped.version>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
   <artifactId>com.google.code.findbugs.annotations</artifactId>
-  <version>1.3.9-rc1</version>
+  <version>1.3.9</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
@@ -30,7 +30,7 @@
     <dependency>
     	<groupId>ie.tcd.imm.hits</groupId>
     	<artifactId>com.google.code.findbugs.jsr305</artifactId>
-    	<version>1.3.9-rc1</version>
+    	<version>${wrapped.version}</version>
     	<type>bundle</type>
     	<scope>compile</scope>
     </dependency>
@@ -82,8 +82,8 @@
   </build>
   <repositories>
     <repository>
-      <id>FindBugs rc releases</id>
-      <url>http://findbugs.googlecode.com/svn/repos/rc-repository</url>
+      <id>FindBugs releases</id>
+      <url>http://findbugs.googlecode.com/svn/repos/release-repository</url>
     </repository>
   </repositories>
 </project>
