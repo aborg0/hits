@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;x-friends:="i
+Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;version="0.4.0";x-friends:="i
  e.tcd.imm.knime.test"
 Bundle-ClassPath: labs.jar
 Bundle-Name: KNIME Labs based node extensions for KNIME Workbench
@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.help,
  org.eclipse.help.ui
 Bundle-Vendor: TCD
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-Version: 0.4.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.exp.LabsNodePlugin

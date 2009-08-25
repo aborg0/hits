@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Export-Package: ie.tcd.imm.hits.knime.interop;x-friends:="ie.tcd.imm.k
- nime.test",ie.tcd.imm.hits.knime.plate.format;x-friends:="ie.tcd.imm.
+Export-Package: ie.tcd.imm.hits.knime.interop;version="0.0.1";x-friends:="ie.tcd.imm.k
+ nime.test",ie.tcd.imm.hits.knime.plate.format;version="0.0.1";x-friends:="ie.tcd.imm.
  knime.test"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: bioconverter.jar
