@@ -29,6 +29,7 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Import-Package: edu.umd.cs.findbugs.annotations,
  javax.annotation,
+ javax.annotation.concurrent,
  javax.annotation.meta,
  org.apache.poi.hssf.usermodel;version="3.0.0",
  org.apache.poi.poifs.filesystem;version="3.0.0",
