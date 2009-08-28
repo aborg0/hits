@@ -3,7 +3,7 @@
 = HiTS =
 
 == Changes from 0.3.0 to 0.4.0 ==
-Data 20th August 2009
+Date 20th August 2009
 
 One new node:
  - *Scores to p-values* allows to compute P(Z<=x) (the Erf function) with an estamated frequency from a population.
