@@ -3,7 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: INCellImageReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: ie.tcd.imm.hits.image; singleton:=true
 Bundle-Version: 1.0.0
-Bundle-ClassPath: incellimagereader.jar
+Bundle-ClassPath: incellimagereader.jar,
+ lib/ij-ImageIO_.jar,
+ lib/ij.jar,
+ lib/loci_tools_2009_08_25.jar
 Bundle-Activator: ie.tcd.imm.hits.image.INCellImageReaderNodePlugin
 Bundle-Vendor: <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
 Bundle-Localization: plugin
@@ -12,8 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  com.google.code.findbugs.annotations;bundle-version="1.3.9",
- com.google.code.findbugs.jsr305;bundle-version="1.3.9",
- org.hcdc.hcs;bundle-version="1.2.4"
+ com.google.code.findbugs.jsr305;bundle-version="1.3.9"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

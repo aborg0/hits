@@ -24,7 +24,7 @@ import loci.formats.FormatException;
 import loci.formats.in.InCellReader;
 import loci.plugins.util.ImagePlusReader;
 
-import org.hcdc.plate.ImagePanel;
+import org.hcdc.imgview.ImagePanel;
 import org.knime.core.node.NodeLogger;
 
 /**
@@ -86,14 +86,21 @@ public class DialogComponentFileSelectionWithPreview extends
 		super(stringModel, historyID, dialogType, directoryOnly,
 				validExtensions);
 		final JPanel metaInfo = new JPanel();
-		final InCellReader inCellReader = new InCellReader();
 		try {
-			inCellReader
-					.setId("/media/disk/Users/bakosg.COLLEGE/tmp/AL-July-Screen Plate 4/19-07-2008 01.41.45 Plate 4.xdce");
-		} catch (final FormatException e1) {
-			logger.error("", e1);
-		} catch (final IOException e1) {
-			logger.error("", e1);
+			final InCellReader inCellReader = new InCellReader();
+			try {
+				inCellReader
+						.setId("/media/disk/Users/bakosg.COLLEGE/tmp/AL-July-Screen Plate 4/19-07-2008 01.41.45 Plate 4.xdce");
+			} catch (final FormatException e1) {
+				logger.error("", e1);
+				e1.printStackTrace();
+			} catch (final IOException e1) {
+				logger.error("", e1);
+				e1.printStackTrace();
+			}
+		} catch (final Throwable t) {
+			logger.error(t.getMessage(), t);
+			t.printStackTrace();
 		}
 		final ImagePanel imagePanel = new ImagePanel(400, 400);
 		getModel().addChangeListener(new ChangeListener() {
@@ -105,45 +112,64 @@ public class DialogComponentFileSelectionWithPreview extends
 					if (!new File(imageUrl).exists()) {
 						throw new FileNotFoundException();
 					}
-					final ImagePlusReader imageReader = new ImagePlusReader(
-							ChannelSeparator
-									.makeChannelSeparator(ImagePlusReader
-											.makeImageReader()));
+					final ImagePlusReader imageReader = // new
+					// ImagePlusReader();
+					ImagePlusReader.makeImagePlusReader(ChannelSeparator
+							.makeChannelSeparator(ImagePlusReader
+									.makeImageReader()));
 					final ImageStack stack;
 					try {
 						imageReader.setId(imageUrl);
-						stack = new ImageStack(imageReader.getSizeX(),
-								imageReader.getSizeY());
-						for (int i = 0; i < imageReader.getImageCount(); i++) {
+						final int sizeX = imageReader.getSizeX();
+						final int sizeY = imageReader.getSizeY();
+						stack = new ImageStack(sizeX, sizeY);
+						final int imageCount = imageReader.getImageCount();
+						logger.debug(imageCount);
+						for (int i = 0; i < imageCount; i++) {
 							stack.addSlice("" + (i + 1), imageReader
-									.openProcessors(i));
+									.openProcessors(i)[0]);
+							logger.debug("i: " + i);
 						}
 					} finally {
 						imageReader.close();
 					}
 					// imageReader.setMetadataStore(null);
-					final ImagePlus imagePlus = new ImagePlus("", stack);// IJ.openImage(imageUrl);
+					final ImagePlus imagePlus = new ImagePlus("xx", stack
+							.getProcessor(1));// IJ.openImage(imageUrl);
 					metaInfo.removeAll();
-					final String fileInfo = imagePlus.getFileInfo().toString();
+					final String fileInfo = imagePlus == null ? "" : imagePlus
+							.getFileInfo() == null ? "" : imagePlus
+							.getFileInfo().toString();
 					metaInfo.add(new JLabel(fileInfo));
 					final Image image = imagePlus.getImage();
 					imagePanel.setImage(image);
 				} catch (final IOException ex) {
 					imagePanel.setImage(new BufferedImage(400, 400,
 							BufferedImage.TYPE_INT_RGB));
+					logger.debug(ex.getMessage(), ex);
+					// ex.printStackTrace();
 				} catch (final RuntimeException ex) {
 					imagePanel.setImage(new BufferedImage(400, 400,
 							BufferedImage.TYPE_INT_RGB));
-				} catch (final FormatException ex) {
-					imagePanel.setImage(new BufferedImage(400, 400,
-							BufferedImage.TYPE_INT_RGB));
-					logger
-							.debug("Problem reading file: " + ex.getMessage(),
-									ex);
+					logger.error(ex.getMessage(), ex);
+					// ex.printStackTrace();
+					// } catch (final FormatException ex) {
+					// imagePanel.setImage(new BufferedImage(400, 400,
+					// BufferedImage.TYPE_INT_RGB));
+					// logger
+					// .debug("Problem reading file: " + ex.getMessage(),
+					// ex);
+					// ex.printStackTrace();
 				} catch (final ClassCircularityError ex) {
 					imagePanel.setImage(new BufferedImage(400, 400,
 							BufferedImage.TYPE_INT_RGB));
 					logger.debug("Coding problem: " + ex.getMessage(), ex);
+					// ex.printStackTrace();
+				} catch (final Throwable t) {
+					imagePanel.setImage(new BufferedImage(400, 400,
+							BufferedImage.TYPE_INT_RGB));
+					logger.debug("Coding problem: " + t.getMessage(), t);
+					// t.printStackTrace();
 				}
 			}
 		});
