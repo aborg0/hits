@@ -36,7 +36,7 @@ public class ScoreToPValueNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelIntegerBounded(
 						ScoreToPValueNodeModel.CFGKEY_SAMPLE_COUNT,
 						ScoreToPValueNodeModel.DEFAULT_SAMPLE_COUNT, 0,
-						Integer.MAX_VALUE), "Number of samples: ");
+						Integer.MAX_VALUE), "Number of samples: ", 9);
 		sampleCount.setToolTipText("0 means no frequency will be computed.");
 		addDialogComponent(sampleCount);
 	}

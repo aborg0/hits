@@ -126,10 +126,22 @@ public class Misc {
 	 */
 	public static String toLetter(final String val, final boolean upper) {
 		final int v = Integer.parseInt(val.trim());
-		if (v <= 0 || v > 26) {
+		if (v <= 0 || v > 32) {
 			throw new IllegalArgumentException("Wrong number: " + val);
 		}
-		return String.valueOf((char) ((upper ? 'A' : 'a') + v - 1));
+		return v > 26 ? String.valueOf(new char[] {
+				singleToLetter(upper, (v - 1) / 26),
+				singleToLetter(upper, (v - 1) % 26 + 1) }) : String
+				.valueOf(singleToLetter(upper, v));
+	}
+
+	/**
+	 * @param upper
+	 * @param v
+	 * @return
+	 */
+	private static char singleToLetter(final boolean upper, final int v) {
+		return (char) ((upper ? 'A' : 'a') + v - 1);
 	}
 
 	/**
@@ -142,12 +154,25 @@ public class Misc {
 	 *         where {@code a}, {@code A} are {@code 0}.
 	 */
 	public static String toNumber(final String letter) {
-		if (letter.trim().length() != 1) {
+		final String trimmed = letter.trim();
+		switch (trimmed.length()) {
+		case 1:
+			return String.valueOf(singleToNumber(trimmed.charAt(0)));
+		case 2:
+			return String.valueOf(singleToNumber(trimmed.charAt(0)) * 26
+					+ singleToNumber(trimmed.charAt(1)));
+		default:
 			throw new IllegalArgumentException(
 					"Only single letters accepted: \"" + letter + "\"");
 		}
-		return String
-				.valueOf(Character.toLowerCase(letter.trim().charAt(0)) - 'a' + 1);
+	}
+
+	/**
+	 * @param c
+	 * @return
+	 */
+	private static int singleToNumber(final char c) {
+		return Character.toLowerCase(c) - 'a' + 1;
 	}
 
 	/**
