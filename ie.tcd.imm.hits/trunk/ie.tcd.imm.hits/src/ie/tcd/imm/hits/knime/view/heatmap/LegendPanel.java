@@ -225,8 +225,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 					final Pair<ParameterModel, Object> secPair = selectPair(
 							sec, secSlider);
 					setToolTipText("<html>" + prettyPrint(primPair)
-							+ (secPair == null ? "" : "<br>")
-							+ prettyPrint(secPair) + "</html>");
+							+ (secPair == null ? "" : "<br>"
+							+ prettyPrint(secPair)) + "</html>");
 				}
 
 				/**
@@ -240,7 +240,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 				 */
 				private String prettyPrint(
 						final Pair<ParameterModel, Object> pair) {
-					return pair == null ? "" : pair.getLeft().getShortName()
+					return pair.getLeft().getShortName()
 							+ ": " + pair.getRight().toString();
 				}
 

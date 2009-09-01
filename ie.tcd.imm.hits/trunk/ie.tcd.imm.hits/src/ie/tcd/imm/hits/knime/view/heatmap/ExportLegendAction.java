@@ -138,8 +138,7 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 
 			@SuppressWarnings("unchecked")
 			private final Tokenizer groupingTokenizer = new TokenizerFactory()
-					.createGroupingTokenizer(Pair.apply((Token) null,
-							Collections.<Token> emptyList()), Arrays
+					.createGroupingTokenizer(Pair.<Token, List<Token>>leftNull(Collections.<Token> emptyList()), Arrays
 							.<Class<? extends Token>> asList(SimpleToken.class,
 									CompoundToken.class), false, Pattern
 							.compile("\\{"), Pattern.compile("\\}"), 0);
