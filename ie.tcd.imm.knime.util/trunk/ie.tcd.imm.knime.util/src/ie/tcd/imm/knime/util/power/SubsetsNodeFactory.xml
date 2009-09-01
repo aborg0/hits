@@ -15,7 +15,7 @@
         
         
         <option name="included column">the columns to use in generation</option>
-        <option name="Create multiset?">do not filter out the repeats in the values if the is selected</option>
+        <option name="Create multiset?">do not filter out the repeats in the values if this is selected</option>
     </fullDescription>
     
     <ports>
