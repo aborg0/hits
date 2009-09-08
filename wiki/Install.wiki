@@ -4,7 +4,11 @@
 
 This page describes how to install/update the plugin to an existing KNIME installation.
 
-You may also wan to check the [Dependencies dependencies] page
+You may also want to check the [Dependencies dependencies] page
+
+This video shows the installation of KNIME, HCDC and HiTS (without the R, Rserve, cellHTS2 installs):
+
+<wiki:video url="http://www.youtube.com/watch?v=lscXtomHFI8">
 
 == Prerequisites ==
 
