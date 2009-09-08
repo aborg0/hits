@@ -1,4 +1,4 @@
-#summary Images
+#summary Images, videos
 #labels Featured,Screenshots
 
 = Introduction =
@@ -30,6 +30,8 @@ http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simple
 
 == Heatmap with Dendrogram ==
 http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapDendrogramView.png
+
+<wiki:video url="http://www.youtube.com/watch?v=wJNyGALgnJY" width="640" height="480">
 
 == Rank ==
 http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/rankConfigure.png
