@@ -1,4 +1,4 @@
-#summary Describes the installation/update steps & truobleshooting
+#summary Describes the installation/update steps & troubleshooting
 #labels Featured
 = Installation instructions =
 
@@ -8,7 +8,7 @@ You may also want to check the [Dependencies dependencies] page
 
 This video shows the installation of KNIME, HCDC and HiTS (without the R, Rserve, cellHTS2 installs):
 
-<wiki:video url="http://www.youtube.com/watch?v=lscXtomHFI8">
+<wiki:video url="http://www.youtube.com/watch?v=lscXtomHFI8" width="640" height="480">
 
 == Prerequisites ==
 
