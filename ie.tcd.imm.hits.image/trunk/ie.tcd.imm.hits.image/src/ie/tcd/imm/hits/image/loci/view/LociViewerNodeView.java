@@ -3,17 +3,17 @@ package ie.tcd.imm.hits.image.loci.view;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageCanvas;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.io.IOException;
 import java.util.Map;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.plugins.util.DataBrowser;
 import loci.plugins.util.ImagePlusReader;
 
 import org.knime.core.node.NodeView;
@@ -35,7 +35,7 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 	 */
 	protected LociViewerNodeView(final LociViewerNodeModel nodeModel) {
 		super(nodeModel);
-		((JComponent) getComponent()).add(panel);
+		setComponent(new JScrollPane(panel));
 	}
 
 	/**
@@ -96,10 +96,11 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 			// }
 			panel.removeAll();
 
-			panel.add(new ImageCanvas(new ImagePlus("", stack)));
 			final ImagePlus imagePlus = new ImagePlus("aaa", stack);
+			new ImageConverter(imagePlus).convertRGBStackToRGB();
 			imagePlus.setFileInfo(imagePlus.getFileInfo());
-			new DataBrowser(imagePlus).setVisible(true);
+			panel.add(new ImageCanvas(imagePlus));
+			// new DataBrowser(imagePlus).setVisible(true);
 		} catch (final FormatException e) {
 			panel.removeAll();
 		} catch (final IOException e) {
