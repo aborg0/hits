@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="lib/loci_tools_2009_09_02.jar" sourcepath="lib/source/loci-tools-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/forms-1.0.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/loci-common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bio-formats.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/loci_plugins.jar" sourcepath="lib/source/ij143f-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
