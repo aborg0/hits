@@ -17,6 +17,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataCellDataInput;
 import org.knime.core.data.DataCellDataOutput;
 import org.knime.core.data.DataCellSerializer;
+import org.knime.core.data.DataType;
 import org.knime.core.node.NodeLogger;
 
 /**
@@ -24,16 +25,18 @@ import org.knime.core.node.NodeLogger;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class OMEReaderCell extends DataCell {
-	private static final NodeLogger logger = NodeLogger.getLogger(LociReaderNodeModel.class);
-	
+public class LociReaderCell extends DataCell implements LociReaderValue {
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(LociReaderNodeModel.class);
+	public static final DataType TYPE = DataType.getType(LociReaderCell.class);
+
 	/**
 	 * TODO Javadoc!
 	 * 
 	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
 	 */
-	private static class OMEReaderCellSerializer implements
-			DataCellSerializer<OMEReaderCell> {
+	private static class LociReaderCellSerializer implements
+			DataCellSerializer<LociReaderCell> {
 
 		/*
 		 * (non-Javadoc)
@@ -43,24 +46,30 @@ public class OMEReaderCell extends DataCell {
 		 * .data.DataCellDataInput)
 		 */
 		@Override
-		public OMEReaderCell deserialize(final DataCellDataInput input)
+		public LociReaderCell deserialize(final DataCellDataInput input)
 				throws IOException {
-			int serializedLength = input.readInt();
+			final int serializedLength = input.readInt();
 			assert serializedLength > 0 : serializedLength;
-			byte[] serData = new byte[serializedLength];
-			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serData));
+			final byte[] serData = new byte[serializedLength];
+			input.readFully(serData);
+			final ObjectInputStream ois = new ObjectInputStream(
+					new ByteArrayInputStream(serData));
 			try {
-				Object readObject = ois.readObject();
+				final Object readObject = ois.readObject();
 				if (readObject instanceof FormatReader) {
-					FormatReader reader = (FormatReader) readObject;
-					return new OMEReaderCell(reader);
+					final FormatReader reader = (FormatReader) readObject;
+					return new LociReaderCell(reader);
 				}
-				String errorMessage = "Wrong data read: " + readObject.getClass() + "; expected a subclass of " + FormatReader.class;
+				final String errorMessage = "Wrong data read: "
+						+ readObject.getClass() + "; expected a subclass of "
+						+ FormatReader.class;
 				logger.error(errorMessage);
 				throw new IllegalStateException(errorMessage);
-			} catch (ClassNotFoundException e) {
+			} catch (final ClassNotFoundException e) {
 				logger.error("Not found: " + e.getMessage(), e);
 				throw new RuntimeException(e);
+			} finally {
+				ois.close();
 			}
 		}
 
@@ -72,17 +81,17 @@ public class OMEReaderCell extends DataCell {
 		 * .DataCell, org.knime.core.data.DataCellDataOutput)
 		 */
 		@Override
-		public void serialize(final OMEReaderCell cell,
+		public void serialize(final LociReaderCell cell,
 				final DataCellDataOutput output) throws IOException {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			final ObjectOutputStream oos = new ObjectOutputStream(bos);
 			try {
 				oos.writeObject(cell.reader);
-			}finally {
+			} finally {
 				oos.close();
 			}
-			byte[] byteArray = bos.toByteArray();
-			output.write(byteArray.length);
+			final byte[] byteArray = bos.toByteArray();
+			output.writeInt(byteArray.length);
 			output.write(byteArray);
 		}
 
@@ -92,21 +101,21 @@ public class OMEReaderCell extends DataCell {
 
 	private final FormatReader reader;
 
-	private static final DataCellSerializer<OMEReaderCell> SERIALIZER = new OMEReaderCellSerializer();
+	private static final DataCellSerializer<LociReaderCell> SERIALIZER = new LociReaderCellSerializer();
 
 	/**
 	 * Get serializer as required by {@link DataCell}.
 	 * 
 	 * @return Such a serializer.
 	 */
-	public static final DataCellSerializer<OMEReaderCell> getCellSerializer() {
+	public static final DataCellSerializer<LociReaderCell> getCellSerializer() {
 		return SERIALIZER;
 	}
 
 	/**
 	 * 
 	 */
-	public OMEReaderCell(final FormatReader reader) {
+	public LociReaderCell(final FormatReader reader) {
 		super();
 		this.reader = reader;
 	}
@@ -122,7 +131,7 @@ public class OMEReaderCell extends DataCell {
 		if (dc == this) {
 			return true;
 		}
-		return reader.equals(((OMEReaderCell) dc).reader);
+		return reader.equals(((LociReaderCell) dc).reader);
 	}
 
 	/*
@@ -145,6 +154,7 @@ public class OMEReaderCell extends DataCell {
 		return reader.toString();
 	}
 
+	@Override
 	public FormatReader getReader() {
 		return reader;
 	}

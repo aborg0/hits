@@ -97,7 +97,9 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 			panel.removeAll();
 
 			panel.add(new ImageCanvas(new ImagePlus("", stack)));
-			new DataBrowser(new ImagePlus("aaa", stack)).setVisible(true);
+			final ImagePlus imagePlus = new ImagePlus("aaa", stack);
+			imagePlus.setFileInfo(imagePlus.getFileInfo());
+			new DataBrowser(imagePlus).setVisible(true);
 		} catch (final FormatException e) {
 			panel.removeAll();
 		} catch (final IOException e) {

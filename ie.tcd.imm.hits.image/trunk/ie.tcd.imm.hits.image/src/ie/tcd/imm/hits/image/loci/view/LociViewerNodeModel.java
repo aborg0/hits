@@ -1,6 +1,6 @@
 package ie.tcd.imm.hits.image.loci.view;
 
-import ie.tcd.imm.hits.image.loci.OMEReaderCell;
+import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.io.File;
@@ -103,7 +103,7 @@ public class LociViewerNodeModel extends NodeModel {
 			}
 			inner2.put(field, Pair.apply(/*
 										 * .MetadataTools .createOMEXMLMetadata(
-										 */((OMEReaderCell) row.getCell(4))
+										 */((LociReaderCell) row.getCell(4))
 					.getReader()/* ) */, ((StringValue) row.getCell(5))
 					.getStringValue()));
 		}

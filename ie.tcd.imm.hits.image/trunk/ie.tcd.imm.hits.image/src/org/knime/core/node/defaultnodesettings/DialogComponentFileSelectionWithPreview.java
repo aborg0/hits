@@ -27,7 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import loci.formats.ChannelMerger;
+import loci.formats.ChannelSeparator;
 import loci.formats.CoreMetadata;
 import loci.plugins.util.ImagePlusReader;
 
@@ -99,7 +99,6 @@ public class DialogComponentFileSelectionWithPreview extends
 				validExtensions);
 		metaInfo = new JPanel();
 		imagePanel = new ImagePanel(400, 400);
-		// imagePanel.setPreferredSize(new Dimension(400, 400));
 		getComponentPanel().add(new JScrollPane(imagePanel));
 		getComponentPanel().add(new JScrollPane(metaInfo));
 	}
@@ -125,18 +124,15 @@ public class DialogComponentFileSelectionWithPreview extends
 			}
 			return;
 		}
-		// final ImageInfo imageInfo = new ImageInfo();
-		// imageInfo.testRead(new String[] { imageUrl, "-omexml", "-nopix",
-		// "-nometa" });
 		final StringBuilder fileInfo = new StringBuilder();
 		final ImagePlus[] pointer = new ImagePlus[1];
 
 		final Runnable runnable = new Runnable() {
 			public void run() {
-				final ImagePlusReader imageReader = // new
-				// ImagePlusReader();
-				ImagePlusReader.makeImagePlusReader(ChannelMerger
-						.makeChannelMerger(ImagePlusReader.makeImageReader()));
+				final ImagePlusReader imageReader = ImagePlusReader
+						.makeImagePlusReader(ChannelSeparator
+								.makeChannelSeparator(ImagePlusReader
+										.makeImageReader()));
 
 				try {
 
@@ -162,30 +158,7 @@ public class DialogComponentFileSelectionWithPreview extends
 								logger.debug("i: " + i);
 							}
 						}
-						// final JDialog dialog = new JDialog();
-						// final Panel[] panels = new Panel[imageReader
-						// .getSeriesCount()];
-						// for (int i = panels.length; i-- > 0;) {
-						// panels[i] = new Panel();
-						// }
-						// final ThumbLoader thumbLoader = new ThumbLoader(
-						// imageReader, panels, dialog, false);
-						// final ExecutorService executor = new
-						// ThreadPoolExecutor(
-						// 1, 1, 900, TimeUnit.SECONDS,
-						// new ArrayBlockingQueue<Runnable>(1, true));
-						// final Future<?> future =
-						// executor.submit(thumbLoader);
-						// final JTabbedPane view = new JTabbedPane(
-						// SwingConstants.LEFT);
-						// dialog.add(new JScrollPane(view));
-						// for (final Panel panel : panels) {
-						// view.addTab("", panel);
-						// }
-						// dialog.setVisible(true);
-						final ImagePlus imagePlus = new ImagePlus("xx", stack
-						// .getProcessor(1)
-						);// IJ.openImage(imageUrl);
+						final ImagePlus imagePlus = new ImagePlus("xx", stack);
 						metaInfo.removeAll();
 						fileInfo.append(imagePlus == null ? "" : imagePlus
 								.getFileInfo() == null ? "" : imagePlus
@@ -203,9 +176,6 @@ public class DialogComponentFileSelectionWithPreview extends
 								.getCoreMetadata();
 						fileInfo.append(coreMetadata[0].seriesMetadata).append(
 								"\n");
-						// for (final CoreMetadata cm : coreMetadata) {
-						// fileInfo.append(cm.imageCount).append("\n");
-						// }
 
 						final Hashtable<?, ?> globalMetadata = imageReader
 								.getGlobalMetadata();
@@ -224,16 +194,12 @@ public class DialogComponentFileSelectionWithPreview extends
 							metaInfo.add(new JScrollPane(new JTextArea(fileInfo
 									.toString(), 5, 80)));
 							logger.info(fileInfo);
-							// final ImageConverter imageConverter = new
-							// ImageConverter(
-							// imagePlus);
-							// imageConverter.convertRGBStackToRGB();
+							final ImageConverter imageConverter = new ImageConverter(
+									pointer[0]);
+							imageConverter.convertRGBStackToRGB();
 							final Image image = pointer[0].getImage();
 							assert image != null;
 							imagePanel.setImage(image);
-							// future.get(3, TimeUnit.SECONDS);
-							// thumbLoader.stop();
-							// imageReader.setMetadataStore(null);
 							getComponentPanel().revalidate();
 							getComponentPanel().repaint();
 						}

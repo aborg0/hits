@@ -1,6 +1,7 @@
 package ie.tcd.imm.hits.image.loci.read;
 
-import ie.tcd.imm.hits.image.loci.OMEReaderCell;
+import ie.tcd.imm.hits.image.loci.LociReaderCell;
+import ie.tcd.imm.hits.util.Misc;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +88,7 @@ public class LociReaderNodeModel extends NodeModel {
 								DataType.getMissingCell()/* Plate */,
 								DataType.getMissingCell()/* Row */,
 								DataType.getMissingCell()/* column */,
-								new OMEReaderCell(
+								new LociReaderCell(
 										(FormatReader) ((ImageReader) ((ChannelSeparator) reader
 												.getReader()).getReader())
 												.getReader()),
@@ -104,8 +105,9 @@ public class LociReaderNodeModel extends NodeModel {
 					}
 					plateContainer.addRowToTable(new DefaultRow(new RowKey(
 							"Row_" + i), new StringCell(file.getPath()),
-							new StringCell(String.valueOf('A' + i / 8 / 12)),
-							new IntCell(i / 8 % 12), new IntCell(i % 8),
+							new StringCell(Misc.toUpperLetter(Integer
+									.toString(i / 8 / 12 + 1))), new IntCell(
+									i / 8 % 12), new IntCell(i % 8),
 							new StringCell(file.getPath()), new IntCell(i)));
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);
@@ -142,7 +144,7 @@ public class LociReaderNodeModel extends NodeModel {
 				"Column", IntCell.TYPE).createSpec(),
 				new DataColumnSpecCreator("Field", IntCell.TYPE).createSpec(),
 				new DataColumnSpecCreator("OME", DataType
-						.getType(OMEReaderCell.class)).createSpec(),
+						.getType(LociReaderCell.class)).createSpec(),
 				new DataColumnSpecCreator("OME-id", StringCell.TYPE)
 						.createSpec());
 	}
