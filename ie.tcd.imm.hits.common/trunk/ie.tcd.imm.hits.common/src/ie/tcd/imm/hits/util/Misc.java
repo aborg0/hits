@@ -72,7 +72,7 @@ public class Misc {
 	 * 
 	 * @param val
 	 *            An integer number as {@link String}. (Between {@code 1} and
-	 *            {@code 26}.)
+	 *            {@code 32}.)
 	 * @return A single letter {@link String}. For {@code 1}, it returns {@code
 	 *         A}.
 	 * @throws NumberFormatException
@@ -92,7 +92,7 @@ public class Misc {
 	 * 
 	 * @param val
 	 *            An integer number as {@link String}. (Between {@code 1} and
-	 *            {@code 26}.)
+	 *            {@code 32}.)
 	 * @return A single letter {@link String}. For {@code 1}, it returns {@code
 	 *         a}.
 	 * @throws NumberFormatException
@@ -112,7 +112,7 @@ public class Misc {
 	 * 
 	 * @param val
 	 *            An integer number as {@link String}. (Between {@code 1} and
-	 *            {@code 26}, inclusive.)
+	 *            {@code 32}, inclusive.)
 	 * @param upper
 	 *            If {@code true} the returned letter is uppercase.
 	 * @return A single letter {@link String}. For {@code 1}, it returns {@code
@@ -136,9 +136,13 @@ public class Misc {
 	}
 
 	/**
+	 * Converts a number to a single letter.
+	 * 
 	 * @param upper
+	 *            The result is uppercase or lowercase.
 	 * @param v
-	 * @return
+	 *            The number to convert. ({@code 1} is {@code A} or {@code a})
+	 * @return A letter from {@code A} or {@code a} to {@code Z} or {@code z}.
 	 */
 	private static char singleToLetter(final boolean upper, final int v) {
 		return (char) ((upper ? 'A' : 'a') + v - 1);
@@ -151,7 +155,8 @@ public class Misc {
 	 * @param letter
 	 *            A {@link String} containing a single letter.
 	 * @return An integer represented as {@link String}, from {@code letter},
-	 *         where {@code a}, {@code A} are {@code 0}.
+	 *         where {@code a}, {@code A} are {@code 0}. ({@code a} is {@code 1}
+	 *         )
 	 */
 	public static String toNumber(final String letter) {
 		final String trimmed = letter.trim();
@@ -168,8 +173,12 @@ public class Misc {
 	}
 
 	/**
+	 * Converts a letter to a number.
+	 * 
 	 * @param c
-	 * @return
+	 *            A letter between {@code A} and {@code Z}, or {@code a} and
+	 *            {@code z}.
+	 * @return The index of letter. ({@code A}, or {@code a} is {@code 1})
 	 */
 	private static int singleToNumber(final char c) {
 		return Character.toLowerCase(c) - 'a' + 1;
