@@ -100,6 +100,7 @@ public class LociReaderNodeModel extends NodeModel {
 					exec.checkCanceled();
 					reader.setSeries(i);
 					if (Runtime.getRuntime().freeMemory() < 1000000) {
+						exec.setMessage("stopped because of not enough memory");
 						logger.warn("stopped because of not enough memory");
 						break;
 					}
@@ -143,9 +144,9 @@ public class LociReaderNodeModel extends NodeModel {
 				StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
 				"Column", IntCell.TYPE).createSpec(),
 				new DataColumnSpecCreator("Field", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("OME", DataType
+				new DataColumnSpecCreator("LOCI", DataType
 						.getType(LociReaderCell.class)).createSpec(),
-				new DataColumnSpecCreator("OME-id", StringCell.TYPE)
+				new DataColumnSpecCreator("LOCI-id", StringCell.TYPE)
 						.createSpec());
 	}
 
@@ -155,7 +156,7 @@ public class LociReaderNodeModel extends NodeModel {
 				StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
 				"Column", IntCell.TYPE).createSpec(),
 				new DataColumnSpecCreator("Field", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("OME-id", StringCell.TYPE)
+				new DataColumnSpecCreator("LOCI-id", StringCell.TYPE)
 						.createSpec(), new DataColumnSpecCreator("Image-id",
 						IntCell.TYPE).createSpec());
 	}
