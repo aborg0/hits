@@ -103,12 +103,13 @@ public class LeafOrderingNodeModel extends NodeModel {
 					.valueOf(idx++)));
 		}
 		exec.setMessage("creating final tree");
-		final ClusterViewNode tree = buildNewTree(convertM(m), origRoot, rows)
+		final ClusterViewNode tree = buildNewTree(convertM(m), origRoot, rows, exec)
 				.getO1();
 		final ArrayList<DistanceVectorDataValue> origList = new ArrayList<DistanceVectorDataValue>(
 				model.getClusterDistances().length + 1), newList = new ArrayList<DistanceVectorDataValue>(
 				model.getClusterDistances().length + 1);
 		flatten(origRoot, origList, distanceMatrix);
+		exec.checkCanceled();
 		flatten(tree, newList, distanceMatrix);
 		logger.info("Before:      " + sumDistance(origList));
 		logger.info("After:       " + sumDistance(newList));
@@ -192,7 +193,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 	private static Triple<ClusterViewNode, RowKey, RowKey> buildNewTree(
 			final Map<DendrogramNode, Map<Pair<RowKey, RowKey>, Number>> m,
 			final DendrogramNode root,
-			final Map<RowKey, Pair<DataRow, Integer>> rows) {
+			final Map<RowKey, Pair<DataRow, Integer>> rows, ExecutionContext exec) throws CanceledExecutionException {
 		if (root.isLeaf()) {
 			final Pair<DataRow, Integer> leafRow = rows.get(RowKeyHelper
 					.getKey(root));
@@ -201,9 +202,10 @@ public class LeafOrderingNodeModel extends NodeModel {
 							.getLeft().getKey(), leafRow.getLeft().getKey());
 		}
 		final Triple<ClusterViewNode, RowKey, RowKey> firstTree = buildNewTree(
-				m, root.getFirstSubnode(), rows);
+				m, root.getFirstSubnode(), rows, exec);
+		exec.checkCanceled();
 		final Triple<ClusterViewNode, RowKey, RowKey> secondTree = buildNewTree(
-				m, root.getSecondSubnode(), rows);
+				m, root.getSecondSubnode(), rows, exec);
 		final Map<Pair<RowKey, RowKey>, Number> map = m.get(root);
 		Pair<RowKey, RowKey> pairNoChange = Pair.apply(firstTree.getO3(),
 				secondTree.getO2());
@@ -233,7 +235,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 			final DendrogramNode root,
 			final Map<Triple<DendrogramNode, RowKey, RowKey>, Number> m,
 			final Map<RowKey, DistanceVectorDataValue> d, final int allLeaves,
-			final ExecutionContext exec) {
+			final ExecutionContext exec) throws CanceledExecutionException {
 		if (root.isLeaf()) {
 			final RowKey key = RowKeyHelper.getKey(root);
 			return Collections.singletonMap(Triple.apply(root, key, key),
@@ -251,6 +253,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 		final Set<RowKey> leftKeys = computeLeaves(w);
 		final Set<RowKey> rightKeys = computeLeaves(x);
 		computeM(root, d, w, x, rightM, ret, leftKeys, rightKeys);
+		exec.checkCanceled();
 		computeM(root, d, x, w, leftM, ret, rightKeys, leftKeys);
 		exec.setProgress(((double) leftKeys.size() + rightKeys.size())
 				/ allLeaves);
