@@ -17,11 +17,17 @@ import javax.swing.UnsupportedLookAndFeelException;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.plugins.util.ImagePlusReader;
+import loci.visbio.PanelManager;
+import loci.visbio.SystemManager;
 import loci.visbio.TaskManager;
 import loci.visbio.VisBioEvent;
 import loci.visbio.VisBioFrame;
+import loci.visbio.WindowManager;
 import loci.visbio.data.DataControls;
 import loci.visbio.data.DataManager;
+import loci.visbio.overlays.OverlayManager;
+import loci.visbio.state.OptionManager;
+import loci.visbio.state.StateManager;
 import loci.visbio.util.SwingUtil;
 import loci.visbio.view.DisplayManager;
 import loci.visbio.view.DisplayWindow;
@@ -45,7 +51,18 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 	private DataManager dataManager;
 	static {
 		visBioFrame.setVisible(false);
+		final OptionManager om = new OptionManager(visBioFrame);
+		final StateManager sm = new StateManager(visBioFrame);
+		final WindowManager wm = new WindowManager(visBioFrame);
+		// visBioFrame.addManager(sm);
+		visBioFrame.addManager(om);
+		visBioFrame.addManager(wm);
+		visBioFrame.addManager(new PanelManager(visBioFrame));
+		visBioFrame.addManager(new DisplayManager(visBioFrame));
+		visBioFrame.addManager(new OverlayManager(visBioFrame));
+
 		visBioFrame.addManager(new TaskManager(visBioFrame));
+		visBioFrame.addManager(new SystemManager(visBioFrame));
 
 		try {
 			UIManager.setLookAndFeel(UIManager
@@ -155,6 +172,7 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 			// final DefaultMutableTreeNode root = dataManager.getDataRoot();
 			// root.add(new DefaultMutableTreeNode(r));
 			final DataControls dataControls = new DataControls(dataManager);
+			dataManager.addData(new ProxyDataSet(r));
 			// dataManager.addData(arg0)
 			dataControls.addData(// Dataset.makeTransform(dataManager)
 					new ProxyDataSet(r));

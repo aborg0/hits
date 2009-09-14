@@ -130,9 +130,8 @@ public class DialogComponentFileSelectionWithPreview extends
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				final ImagePlusReader imageReader = ImagePlusReader
-						.makeImagePlusReader(ChannelSeparator
-								.makeChannelSeparator(ImagePlusReader
-										.makeImageReader()));
+						.makeImagePlusReader(new ChannelSeparator(
+								ImagePlusReader.makeImageReader()));
 
 				try {
 
@@ -164,7 +163,7 @@ public class DialogComponentFileSelectionWithPreview extends
 								.getFileInfo() == null ? "" : imagePlus
 								.getFileInfo().toString());
 						final Hashtable<?, ?> seriesMetadata = imageReader
-								.getSeriesMetadata();
+								.getMetadata();
 						fileInfo.append("\nSeries\n");
 						for (final Entry<?, ?> entry : seriesMetadata
 								.entrySet()) {
@@ -172,18 +171,18 @@ public class DialogComponentFileSelectionWithPreview extends
 									.append(entry.getValue()).append("\n");
 						}
 						fileInfo.append("\nCoreMeta\n");
-						final CoreMetadata[] coreMetadata = imageReader
+						final CoreMetadata coreMetadata = imageReader
 								.getCoreMetadata();
-						fileInfo.append(coreMetadata[0].seriesMetadata).append(
+						fileInfo.append(coreMetadata.seriesMetadata).append(
 								"\n");
 
-						final Hashtable<?, ?> globalMetadata = imageReader
-								.getGlobalMetadata();
-						for (final Entry<?, ?> entry : globalMetadata
-								.entrySet()) {
-							fileInfo.append(entry.getKey()).append(" -> ")
-									.append(entry.getValue()).append("\n");
-						}
+						// final Hashtable<?, ?> globalMetadata = imageReader
+						// .getGlobalMetadata();
+						// for (final Entry<?, ?> entry : globalMetadata
+						// .entrySet()) {
+						// fileInfo.append(entry.getKey()).append(" -> ")
+						// .append(entry.getValue()).append("\n");
+						// }
 						pointer[0] = imagePlus;
 					} finally {
 						imageReader.close();

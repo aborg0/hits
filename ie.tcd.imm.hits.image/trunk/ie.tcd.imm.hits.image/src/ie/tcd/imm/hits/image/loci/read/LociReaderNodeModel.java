@@ -10,7 +10,6 @@ import java.net.URI;
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
 import loci.formats.ImageReader;
-import loci.formats.meta.DummyMetadata;
 import loci.plugins.util.ImagePlusReader;
 
 import org.knime.core.data.DataColumnSpecCreator;
@@ -71,13 +70,12 @@ public class LociReaderNodeModel extends NodeModel {
 			// folder.getStringValue(),
 			// "-omexml", "-nopix", "-nometa", "-nocore" });
 			final ImagePlusReader reader = ImagePlusReader
-					.makeImagePlusReader(ChannelSeparator
-							.makeChannelSeparator(ImagePlusReader
-									.makeImageReader()));
+					.makeImagePlusReader(new ChannelSeparator(ImagePlusReader
+							.makeImageReader()));
 			reader.setMetadataFiltered(true);
 			reader.setOriginalMetadataPopulated(false);
 			// final IMetadata omeXml = MetadataTools.createOMEXMLMetadata();
-			reader.setMetadataStore(new DummyMetadata());
+			// reader.setMetadataStore(new DummyMetadata());
 			for (final URI file : visit(new File(folder.getStringValue()))) {
 				reader.setId(file.getPath());
 				logger.debug("loaded: " + file);

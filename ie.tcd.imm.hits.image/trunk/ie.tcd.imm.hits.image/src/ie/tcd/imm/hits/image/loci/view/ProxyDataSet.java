@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
+import loci.formats.ChannelSeparator;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.formats.gui.BufferedImageReader;
@@ -30,9 +31,9 @@ public class ProxyDataSet extends Dataset {
 	/**
 	 * 
 	 */
-	public ProxyDataSet(final FormatReader reader) {
+	public ProxyDataSet(final FormatReader r) {
 		super();
-		this.reader = new BufferedImageReader(reader);
+		this.reader = new BufferedImageReader(new ChannelSeparator(r));
 		initState(null);
 	}
 
@@ -131,7 +132,7 @@ public class ProxyDataSet extends Dataset {
 
 		// construct metadata controls
 		// status(3, numTasks, "Finishing");
-		// controls = new DatasetWidget(this);
+		// controls = new DummyDatasetWidget(this);
 
 		// construct thumbnail handler
 		// String path = new File(pattern).getParent();

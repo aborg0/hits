@@ -24,6 +24,7 @@
     </ports>    
     <views>
         <view index="0" name="LOCI plate viewer">Shows the referenced images</view>
+        <view index="1" name="simple LOCI plate viewer">Shows the referenced images with a simple UI</view>
         <!--view index="1" name="name of second view">Description of second view...</view-->
     </views>
 </knimeNode>

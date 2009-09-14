@@ -31,7 +31,7 @@ import org.knime.core.node.NodeSettingsWO;
  */
 public class LociViewerNodeModel extends NodeModel {
 
-	/** Plate, row, column, field, image id (series), OME data */
+	/** Plate, row, column, field, image id (series), LOCI data */
 	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
 
 	/**
@@ -247,6 +247,7 @@ public class LociViewerNodeModel extends NodeModel {
 		// TODO: generated method stub
 	}
 
+	/** @return Plate, row, column, field, image id (series), LOCI data */
 	public Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> getJoinTable() {
 		return joinTable;
 	}
