@@ -87,7 +87,7 @@ public abstract class TokenizerTests {
 					.getEndPosition()
 					+ amount, s.getText());
 		}
-		if (token instanceof GroupToken) {
+		if (token instanceof GroupToken<?, ?>) {
 			final GroupToken<? extends Token, ? extends Token> g = (GroupToken<?, ?>) token;
 			return new GroupToken<Token, Token>(
 					shift(g.getGroupStart(), amount), shift(g.getContent(),

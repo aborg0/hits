@@ -23,9 +23,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
+@SuppressWarnings("boxing")
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SimpleIntervalTests {
-	@SuppressWarnings("boxing")
 	@DataProvider(name = "simple")
 	public Object[][] simpleData() {
 		return new Object[][] {

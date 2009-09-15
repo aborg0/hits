@@ -53,7 +53,7 @@ public abstract class AbstractControlTest {
 	protected SliderModel slider2;
 	private JFrame frame;
 	/** The {@link ControlsHandler} to create the {@link VariableControl}s. */
-	protected ControlsHandler<? extends SettingsModel> controlsHandler;
+	protected ControlsHandler<? extends SettingsModel, SliderModel> controlsHandler;
 	private Robot robot;
 
 	/**

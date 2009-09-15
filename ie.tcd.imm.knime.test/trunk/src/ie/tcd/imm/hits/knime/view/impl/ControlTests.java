@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  */
 @GUITest
 @Test
+@SuppressWarnings("deprecation")
 public class ControlTests extends AbstractControlTest {
 	/**
 	 * 
@@ -83,12 +84,12 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 1000)
 	@GUITest
 	public void list() {
-		final VariableControl<? extends SettingsModel> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.List,
 						SelectionType.MultipleAtLeastOne,
 						SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?> component1 = controlsHandler.getComponent(
+		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
 				slider2, ControlTypes.List, SelectionType.MultipleAtLeastOne,
 				SplitType.SeconderSplit);
 		final JPanel view2 = (JPanel) component1.getView();
@@ -106,11 +107,11 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 2000)
 	@GUITest
 	public void comboBox() {
-		final VariableControl<? extends SettingsModel> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.ComboBox,
 						SelectionType.Single, SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?> component1 = controlsHandler.getComponent(
+		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
 				slider2, ControlTypes.ComboBox, SelectionType.Single,
 				SplitType.SingleSelect);
 		final JPanel view2 = (JPanel) component1.getView();
@@ -128,11 +129,11 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 2000)
 	@GUITest
 	public void slider() {
-		final VariableControl<? extends SettingsModel> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.Slider,
 						SelectionType.Single, SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?> component1 = controlsHandler.getComponent(
+		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
 				slider2, ControlTypes.Slider, SelectionType.Single,
 				SplitType.SingleSelect);
 		final JPanel view2 = (JPanel) component1.getView();

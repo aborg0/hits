@@ -59,7 +59,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class MockTest {
 	private JFrame frame;
-	private ControlsHandler<SettingsModel> controlsHandler;
+	private ControlsHandler<SettingsModel, SliderModel> controlsHandler;
 
 	private static final String UPPER_RIGHT = "upper right";
 	private static final String UPPER_LEFT = "upper left";
