@@ -26,13 +26,13 @@ import org.knime.core.node.port.PortObjectSpec;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-abstract class AbstractVariableControl extends DialogComponent implements
-		VariableControl<SettingsModel> {
+abstract class AbstractVariableControl<Model> extends DialogComponent implements
+		VariableControl<SettingsModel, Model> {
 	private final JToolBar panel = new JToolBar();
 
 	private final SelectionType selectionType;
 
-	private final ControlsHandler<SettingsModel> controlHandler;
+	private final ControlsHandler<SettingsModel, Model> controlHandler;
 
 	private final ChangeListener changeListener;
 
@@ -50,7 +50,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 */
 	public AbstractVariableControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlHandler,
+			final ControlsHandler<SettingsModel, Model> controlHandler,
 			final ChangeListener changeListener) {
 		super(model);
 		panel.setBorder(new TitledBorder(model.getConfigName()));
@@ -174,7 +174,7 @@ abstract class AbstractVariableControl extends DialogComponent implements
 	 * @see ie.tcd.imm.hits.util.swing.VariableControl#getControlsHandler()
 	 */
 	@Override
-	public ControlsHandler<SettingsModel> getControlsHandler() {
+	public ControlsHandler<SettingsModel, Model> getControlsHandler() {
 		return controlHandler;
 	}
 

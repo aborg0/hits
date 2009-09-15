@@ -3,8 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view;
 
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -30,12 +28,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  *            The type of the used model in {@link VariableControl}.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public interface ControlsHandler<ModelType> {
+public interface ControlsHandler<ModelType, Model> {
 	/**
 	 * Creates or gets the component for the {@code slider} with the type of
 	 * {@code controlType}.
 	 * 
-	 * @param slider
+	 * @param model
 	 *            The slider which the control belongs to.
 	 * @param controlType
 	 *            The type of the control.
@@ -47,8 +45,8 @@ public interface ControlsHandler<ModelType> {
 	 * @return The associated component in the proper form.
 	 */
 	@Deprecated
-	public VariableControl<? extends ModelType> getComponent(
-			final SliderModel slider, final ControlTypes controlType,
+	public VariableControl<? extends ModelType, Model> getComponent(
+			final Model model, final ControlTypes controlType,
 			final SelectionType selectionType, SplitType splitType);
 
 	/**
@@ -85,7 +83,7 @@ public interface ControlsHandler<ModelType> {
 	 * @see #deregister(SliderModel)
 	 * @see #setContainer(JComponent, SplitType, String)
 	 */
-	public boolean register(final SliderModel model, final SplitType splitType,
+	public boolean register(final Model model, final SplitType splitType,
 			@Nullable final String nameOfContainer,
 			final ControlTypes preferredControlType);
 
@@ -102,7 +100,7 @@ public interface ControlsHandler<ModelType> {
 	 *         or not ({@code false}).
 	 * @see #register(SliderModel, SplitType, String, ControlTypes)
 	 */
-	public boolean deregister(SliderModel model);
+	public boolean deregister(Model model);
 
 	/**
 	 * Registers {@code container} as a {@link Container} for the
@@ -134,7 +132,7 @@ public interface ControlsHandler<ModelType> {
 	 * @return Indicates whether the it has moved ({@code true}) or not ({@code
 	 *         false}).
 	 */
-	public boolean move(VariableControl<ModelType> variableControl,
+	public boolean move(VariableControl<ModelType, Model> variableControl,
 			@Nullable String nameOfContainer);
 
 	/**
@@ -152,7 +150,7 @@ public interface ControlsHandler<ModelType> {
 	 *         {@code false}).
 	 */
 	public boolean changeControlType(
-			VariableControl<ModelType> variableControl, ControlTypes type);
+			VariableControl<ModelType, Model> variableControl, ControlTypes type);
 
 	/**
 	 * @return The possible component positions.
@@ -207,8 +205,9 @@ public interface ControlsHandler<ModelType> {
 	 * @return Indicates whether the change has done ({@code true}) or not (
 	 *         {@code false}).
 	 */
-	public boolean exchangeControls(final VariableControl<ModelType> first,
-			final VariableControl<ModelType> second);
+	public boolean exchangeControls(
+			final VariableControl<ModelType, Model> first,
+			final VariableControl<ModelType, Model> second);
 
 	/**
 	 * Finds the handled {@link VariableControl}s with {@link SplitType}:
@@ -219,6 +218,6 @@ public interface ControlsHandler<ModelType> {
 	 * @return The {@link VariableControl}s with {@link SplitType}: {@code
 	 *         splitType}.
 	 */
-	public Set<VariableControl<ModelType>> getVariableControlsAt(
+	public Set<VariableControl<ModelType, Model>> getVariableControlsAt(
 			SplitType splitType);
 }

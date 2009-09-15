@@ -31,7 +31,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class ComboBoxControl extends AbstractVariableControl {
+public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
 	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
 
 	/**
@@ -43,7 +43,7 @@ class ComboBoxControl extends AbstractVariableControl {
 	 */
 	public ComboBoxControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler,
+			final ControlsHandler<SettingsModel, Model> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		switch (selectionType) {

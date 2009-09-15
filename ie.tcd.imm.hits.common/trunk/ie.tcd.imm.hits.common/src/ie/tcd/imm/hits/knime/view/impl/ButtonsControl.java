@@ -28,7 +28,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-class ButtonsControl extends AbstractVariableControl {
+public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 	/**
 	 * The listener for the buttons.
 	 */
@@ -110,7 +110,7 @@ class ButtonsControl extends AbstractVariableControl {
 	 */
 	public ButtonsControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler,
+			final ControlsHandler<SettingsModel, Model> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		updateComponent();

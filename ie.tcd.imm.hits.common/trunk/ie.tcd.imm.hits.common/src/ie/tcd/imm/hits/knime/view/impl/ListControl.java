@@ -35,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class ListControl extends AbstractVariableControl {
+public class ListControl<Model> extends AbstractVariableControl<Model> {
 	/**
 	 * Constructs a {@link ListControl}.
 	 * 
@@ -49,9 +49,9 @@ class ListControl extends AbstractVariableControl {
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
-	ListControl(final SettingsModelListSelection model,
+	public ListControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler,
+			final ControlsHandler<SettingsModel, Model> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		list.setName(model.getConfigName());

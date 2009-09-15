@@ -49,7 +49,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class ControlsHandlerKNIMEFactory implements
-		ControlsHandler<SettingsModel> {
+		ControlsHandler<SettingsModel, SliderModel> {
 
 	/**
 	 * A {@link ChangeEvent} for the model changes of the {@link SliderModel}s.
@@ -78,7 +78,7 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
-	private final Map<SliderModel, VariableControl<SettingsModel>> cache = new WeakHashMap<SliderModel, VariableControl<SettingsModel>>();
+	private final Map<SliderModel, VariableControl<SettingsModel, SliderModel>> cache = new WeakHashMap<SliderModel, VariableControl<SettingsModel, SliderModel>>();
 	private final EnumMap<SplitType, Map<String, WeakReference<JComponent>>> containers = new EnumMap<SplitType, Map<String, WeakReference<JComponent>>>(
 			SplitType.class);
 	{
@@ -88,21 +88,23 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 	}
 
-	private final Map<JComponent, /* Weak */Map<VariableControl<SettingsModel>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<SettingsModel>, Boolean>>();
-	private final Map<VariableControl<? extends SettingsModel>, JComponent> controlToComponent = new WeakHashMap<VariableControl<? extends SettingsModel>, JComponent>();
+	private final Map<JComponent, /* Weak */Map<VariableControl<SettingsModel, SliderModel>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<SettingsModel, SliderModel>, Boolean>>();
+	private final Map<VariableControl<? extends SettingsModel, SliderModel>, JComponent> controlToComponent = new WeakHashMap<VariableControl<? extends SettingsModel, SliderModel>, JComponent>();
 	private final List<WeakReference<ChangeListener>> listeners = new ArrayList<WeakReference<ChangeListener>>();
 	private ShapeModel arrangement;
 
-	private final Map<SplitType, Map<VariableControl<SettingsModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel>, Boolean>>(
+	private final Map<SplitType, Map<VariableControl<SettingsModel, SliderModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel, SliderModel>, Boolean>>(
 			SplitType.class);
 	{
 		for (final SplitType type : SplitType.values()) {
-			splitToControls.put(type,
-					new WeakHashMap<VariableControl<SettingsModel>, Boolean>());
+			splitToControls
+					.put(
+							type,
+							new WeakHashMap<VariableControl<SettingsModel, SliderModel>, Boolean>());
 		}
 	}
 
-	private final Map<VariableControl<? extends SettingsModel>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel>, SplitType>();
+	private final Map<VariableControl<? extends SettingsModel, SliderModel>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel, SliderModel>, SplitType>();
 
 	/**
 	 * Constructs a {@link ControlsHandlerKNIMEFactory}.
@@ -115,7 +117,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VariableControl<SettingsModel> getComponent(
+	public VariableControl<SettingsModel, SliderModel> getComponent(
 			final SliderModel slider, final ControlTypes controlType,
 			final SelectionType selectionType, final SplitType split) {
 		if (!cache.containsKey(slider)) {
@@ -154,7 +156,7 @@ public class ControlsHandlerKNIMEFactory implements
 			}
 			final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 					name, vals, selected);
-			final VariableControl<SettingsModel> control = createControl(
+			final VariableControl<SettingsModel, SliderModel> control = createControl(
 					slider, controlType, settingsModelListSelection,
 					selectionType, split);
 			cache.put(slider, control);
@@ -192,7 +194,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 *            Only needed for the popup menu.
 	 * @return The control with the proper parameters.
 	 */
-	private VariableControl<SettingsModel> createControl(
+	private VariableControl<SettingsModel, SliderModel> createControl(
 			final SliderModel slider, final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final SelectionType selectionType, final SplitType split) {
@@ -264,30 +266,30 @@ public class ControlsHandlerKNIMEFactory implements
 	 *            popup menu.
 	 * @return The {@link VariableControl} with the desired parameters.
 	 */
-	private VariableControl<SettingsModel> createControl(
+	private VariableControl<SettingsModel, SliderModel> createControl(
 			final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final ChangeListener changeListener, final SelectionType selection,
 			final SplitType split) {
-		final VariableControl<SettingsModel> ret;
+		final VariableControl<SettingsModel, SliderModel> ret;
 		switch (controlType) {
 		case Buttons:
-			ret = new ButtonsControl(settingsModelListSelection, selection,
-					this, changeListener);
+			ret = new ButtonsControl<SliderModel>(settingsModelListSelection,
+					selection, this, changeListener);
 			break;
 		case List:
-			ret = new ListControl(settingsModelListSelection, selection, this,
-					changeListener);
+			ret = new ListControl<SliderModel>(settingsModelListSelection,
+					selection, this, changeListener);
 			break;
 		case ComboBox:
-			ret = new ComboBoxControl(settingsModelListSelection, selection,
-					this, changeListener);
+			ret = new ComboBoxControl<SliderModel>(settingsModelListSelection,
+					selection, this, changeListener);
 			break;
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
 		case Slider:
-			ret = new SliderControl(settingsModelListSelection, selection,
-					this, changeListener);
+			ret = new SliderControl<SliderModel>(settingsModelListSelection,
+					selection, this, changeListener);
 			break;
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
@@ -306,9 +308,10 @@ public class ControlsHandlerKNIMEFactory implements
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
 		}
-		final PopupMenu<SettingsModel> popupMenu = new PopupMenu<SettingsModel>(
+		final PopupMenu<SettingsModel, SliderModel> popupMenu = new PopupMenu<SettingsModel, SliderModel>(
 				ret, split, this);
-		((AbstractVariableControl) ret).getPanel().addMouseListener(popupMenu);
+		((AbstractVariableControl<?>) ret).getPanel().addMouseListener(
+				popupMenu);
 		ret.getView().addMouseListener(popupMenu);
 		for (final Component comp : ret.getView().getComponents()) {
 			comp.addMouseListener(popupMenu);
@@ -321,7 +324,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 */
 	@Override
 	public boolean changeControlType(
-			final VariableControl<SettingsModel> variableControl,
+			final VariableControl<SettingsModel, SliderModel> variableControl,
 			final ControlTypes type) {
 		if (type == variableControl.getType()) {
 			return false;
@@ -330,7 +333,7 @@ public class ControlsHandlerKNIMEFactory implements
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map = componentToControls
 				.get(component);
 		final Boolean removed = map.remove(variableControl);
 		assert removed != null;
@@ -347,13 +350,13 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 		component.remove(variableControl.getView());
 		SliderModel slider = null;
-		for (final Entry<SliderModel, VariableControl<SettingsModel>> entry : cache
+		for (final Entry<SliderModel, VariableControl<SettingsModel, SliderModel>> entry : cache
 				.entrySet()) {
 			if (entry.getValue().equals(variableControl)) {
 				slider = entry.getKey();
 			}
 		}
-		final VariableControl<? extends SettingsModel> removedVariableControl = cache
+		final VariableControl<? extends SettingsModel, SliderModel> removedVariableControl = cache
 				.remove(slider);
 		assert removedVariableControl != null;
 		final SettingsModelListSelection settingsModel = (SettingsModelListSelection) variableControl
@@ -362,8 +365,9 @@ public class ControlsHandlerKNIMEFactory implements
 				.getModelChangeListener());
 		final SplitType splitType = controlToSplit.get(removedVariableControl);
 		assert splitType != null;
-		final VariableControl<SettingsModel> control = createControl(type,
-				settingsModel, createChangeListener(slider, settingsModel),
+		final VariableControl<SettingsModel, SliderModel> control = createControl(
+				type, settingsModel,
+				createChangeListener(slider, settingsModel),
 				removedVariableControl.getSelectionType(), splitType);
 		cache.put(slider, control);
 		component.add(control.getView(), originalPosition);
@@ -371,7 +375,7 @@ public class ControlsHandlerKNIMEFactory implements
 		addToMap(map, control);
 		controlToComponent.put(control, component);
 		controlToSplit.put(control, splitType);
-		final Map<VariableControl<SettingsModel>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map2 = splitToControls
 				.get(splitType);
 		addToMap(map2, variableControl);
 		return true;
@@ -388,7 +392,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 */
 	private boolean deregister(final SliderModel model,
 			final SplitType splitType) {
-		final VariableControl<? extends SettingsModel> variableControl = cache
+		final VariableControl<? extends SettingsModel, SliderModel> variableControl = cache
 				.get(model);
 		if (variableControl == null) {
 			return false;
@@ -397,7 +401,7 @@ public class ControlsHandlerKNIMEFactory implements
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
 		final Boolean removed = map.remove(variableControl);
@@ -407,13 +411,13 @@ public class ControlsHandlerKNIMEFactory implements
 		final JComponent removedComponent = controlToComponent
 				.remove(variableControl);
 		assert removedComponent != null;
-		final VariableControl<? extends SettingsModel> removedVariableControl = cache
+		final VariableControl<? extends SettingsModel, SliderModel> removedVariableControl = cache
 				.remove(model);
 		assert removedVariableControl != null;
 		assert removedVariableControl == variableControl;
 		removedVariableControl.getModel().removeChangeListener(
 				removedVariableControl.getModelChangeListener());
-		final Map<VariableControl<SettingsModel>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map2 = splitToControls
 				.get(splitType);
 		assert map2 != null;
 		map2.remove(removedVariableControl);
@@ -426,7 +430,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 */
 	@Override
 	public boolean deregister(final SliderModel model) {
-		final VariableControl<? extends SettingsModel> variableControl = cache
+		final VariableControl<? extends SettingsModel, SliderModel> variableControl = cache
 				.get(model);
 		if (variableControl == null) {
 			return false;
@@ -447,7 +451,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean move(final VariableControl<SettingsModel> variableControl,
+	public boolean move(
+			final VariableControl<SettingsModel, SliderModel> variableControl,
 			final String nameOfContainer) {
 		final JComponent newContainer = getContainer(
 				getSplitType(variableControl), nameOfContainer);
@@ -458,7 +463,7 @@ public class ControlsHandlerKNIMEFactory implements
 		if (oldContainer == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel>, Boolean> oldControls = componentToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> oldControls = componentToControls
 				.get(oldContainer);
 		// Transaction start
 		oldControls.remove(variableControl);
@@ -466,7 +471,7 @@ public class ControlsHandlerKNIMEFactory implements
 		oldContainer.revalidate();
 		newContainer.add(variableControl.getView());
 		newContainer.revalidate();
-		final Map<VariableControl<SettingsModel>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map = componentToControls
 				.get(newContainer);
 		assert map != null;
 		addToMap(map, variableControl);
@@ -481,7 +486,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 * @return The {@link SplitType} of {@code variableControl}.
 	 */
 	private SplitType getSplitType(
-			final VariableControl<SettingsModel> variableControl) {
+			final VariableControl<SettingsModel, SliderModel> variableControl) {
 		return controlToSplit.get(variableControl);
 	}
 
@@ -495,8 +500,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 *            A handled {@link VariableControl}.
 	 */
 	private void addToMap(
-			final Map<VariableControl<SettingsModel>, Boolean> map,
-			final VariableControl<SettingsModel> variableControl) {
+			final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map,
+			final VariableControl<SettingsModel, SliderModel> variableControl) {
 		map.put(variableControl, Boolean.TRUE);
 	}
 
@@ -510,10 +515,10 @@ public class ControlsHandlerKNIMEFactory implements
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
-		final VariableControl<SettingsModel> variableControl = getComponent(
+		final VariableControl<SettingsModel, SliderModel> variableControl = getComponent(
 				model, controlType,
 				modelType == SplitType.SingleSelect ? SelectionType.Single
 						: SelectionType.MultipleAtLeastOne, modelType);
@@ -522,7 +527,7 @@ public class ControlsHandlerKNIMEFactory implements
 		}
 		component.add(variableControl.getView());
 		addToMap(map, variableControl);
-		final Map<VariableControl<SettingsModel>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, SliderModel>, Boolean> map2 = splitToControls
 				.get(modelType);
 		addToMap(map2, variableControl);
 		controlToSplit.put(variableControl, modelType);
@@ -565,8 +570,10 @@ public class ControlsHandlerKNIMEFactory implements
 			map.put(null, new WeakReference<JComponent>(container));
 		}
 		map.put(name, new WeakReference<JComponent>(container));
-		componentToControls.put(container,
-				new WeakHashMap<VariableControl<SettingsModel>, Boolean>());
+		componentToControls
+				.put(
+						container,
+						new WeakHashMap<VariableControl<SettingsModel, SliderModel>, Boolean>());
 	}
 
 	/**
@@ -627,8 +634,9 @@ public class ControlsHandlerKNIMEFactory implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean exchangeControls(final VariableControl<SettingsModel> first,
-			final VariableControl<SettingsModel> second) {
+	public boolean exchangeControls(
+			final VariableControl<SettingsModel, SliderModel> first,
+			final VariableControl<SettingsModel, SliderModel> second) {
 		assert arrangement != null;
 		final Pair<SplitType, String> firstPos = getPosition(first);
 		final Pair<SplitType, String> secondPos = getPosition(second);
@@ -725,7 +733,8 @@ public class ControlsHandlerKNIMEFactory implements
 	 * @return The found {@link SliderModel} or {@code null}.
 	 */
 	private @Nullable
-	SliderModel findSlider(final VariableControl<SettingsModel> control,
+	SliderModel findSlider(
+			final VariableControl<SettingsModel, SliderModel> control,
 			final Set<SliderModel> sliderModels) {
 		for (final SliderModel sliderModel : sliderModels) {
 			if (((SettingsModelListSelection) control.getModel())
@@ -767,7 +776,7 @@ public class ControlsHandlerKNIMEFactory implements
 	 */
 	private @Nullable
 	Pair<SplitType, String> getPosition(
-			final VariableControl<SettingsModel> variableControl) {
+			final VariableControl<SettingsModel, SliderModel> variableControl) {
 		Pair<SplitType, String> ret = null;
 		final JComponent view = controlToComponent.get(variableControl);// variableControl.getView();
 		for (final Entry<SplitType, Map<String, WeakReference<JComponent>>> entry : containers
@@ -805,10 +814,10 @@ public class ControlsHandlerKNIMEFactory implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<VariableControl<SettingsModel>> getVariableControlsAt(
+	public Set<VariableControl<SettingsModel, SliderModel>> getVariableControlsAt(
 			final SplitType splitType) {
-		final Set<VariableControl<SettingsModel>> ret = new HashSet<VariableControl<SettingsModel>>();
-		for (final VariableControl<SettingsModel> variableControl : splitToControls
+		final Set<VariableControl<SettingsModel, SliderModel>> ret = new HashSet<VariableControl<SettingsModel, SliderModel>>();
+		for (final VariableControl<SettingsModel, SliderModel> variableControl : splitToControls
 				.get(splitType).keySet()) {
 			ret.add(variableControl);
 		}

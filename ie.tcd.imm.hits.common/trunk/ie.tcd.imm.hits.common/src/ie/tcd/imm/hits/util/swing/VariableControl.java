@@ -23,7 +23,7 @@ import javax.swing.event.ChangeListener;
  * @param <ModelType>
  *            The type of the model used inside.
  */
-public interface VariableControl<ModelType> {
+public interface VariableControl<ModelType, Model> {
 
 	/**
 	 * The supported control types.
@@ -98,7 +98,7 @@ public interface VariableControl<ModelType> {
 	/**
 	 * @return The associated {@link ControlsHandler}.
 	 */
-	public ControlsHandler<ModelType> getControlsHandler();
+	public ControlsHandler<ModelType, Model> getControlsHandler();
 
 	/**
 	 * @return The type of the implementation.

@@ -36,10 +36,10 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  *            The type of the associated model.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class PopupMenu<ModelType> implements MouseListener {
+public class PopupMenu<ModelType, Model> implements MouseListener {
 	private final JPopupMenu popup;
-	private final ControlsHandler<ModelType> controlsHandler;
-	private final VariableControl<ModelType> control;
+	private final ControlsHandler<ModelType, Model> controlsHandler;
+	private final VariableControl<ModelType, Model> control;
 
 	/**
 	 * An action to change to another {@link SplitType type} of container.
@@ -125,9 +125,9 @@ public class PopupMenu<ModelType> implements MouseListener {
 	 * @param controlsHandler
 	 *            This should the {@link ControlsHandler} for {@code control}.
 	 */
-	public PopupMenu(final VariableControl<ModelType> control,
+	public PopupMenu(final VariableControl<ModelType, Model> control,
 			final SplitType split,
-			final ControlsHandler<ModelType> controlsHandler) {
+			final ControlsHandler<ModelType, Model> controlsHandler) {
 		super();
 		this.control = control;
 		this.controlsHandler = controlsHandler;

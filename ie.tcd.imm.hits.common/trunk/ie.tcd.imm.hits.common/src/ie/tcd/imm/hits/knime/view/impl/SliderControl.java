@@ -32,7 +32,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class SliderControl extends AbstractVariableControl {
+public class SliderControl<Model> extends AbstractVariableControl<Model> {
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,
 			0, 1, 1));
 
@@ -45,7 +45,7 @@ class SliderControl extends AbstractVariableControl {
 	 */
 	public SliderControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel> controlsHandler,
+			final ControlsHandler<SettingsModel, Model> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		switch (selectionType) {

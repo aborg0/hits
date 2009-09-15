@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-class SettingsModelListSelection extends SettingsModel implements
+public class SettingsModelListSelection extends SettingsModel implements
 		ListSelection<String> {
 
 	/**

@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Export-Package: ie.tcd.imm.hits.knime.util;version="0.4.0",
- ie.tcd.imm.hits.knime.view.heatmap;version="0.4.0";x-friends:="ie.tcd.imm.hits.exp",
+ ie.tcd.imm.hits.knime.view.heatmap;version="0.4.0";x-friends:="ie.tcd.imm.hits.exp,ie.tcd.imm.knime.test",
+ ie.tcd.imm.hits.knime.view.impl;x-friends:="ie.tcd.imm.knime.test",
  ie.tcd.imm.hits.util;version="0.4.0",
  ie.tcd.imm.hits.util.interval;version="0.4.0",
  ie.tcd.imm.hits.util.swing;version="0.4.0",
@@ -22,7 +23,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.batik.svggen;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
  org.apache.batik.dom;bundle-version="[1.6.0,2.0.0)";resolution:=optional,
  org.eclipse.core.filesystem;bundle-version="1.1.0",
- org.apache.commons.math;bundle-version="[1.2.0,3.0.0)"
+ org.apache.commons.math;bundle-version="[1.2.0,3.0.0)",
+ net.rforge.REngine;bundle-version="0.6.0",
+ net.rforge.Rserve;bundle-version="0.6.0"
 Bundle-Vendor: TCD
 Bundle-Version: 0.4.0.qualifier
 Bundle-ManifestVersion: 2
