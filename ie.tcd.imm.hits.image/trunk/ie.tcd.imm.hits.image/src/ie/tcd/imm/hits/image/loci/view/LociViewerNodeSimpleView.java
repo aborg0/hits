@@ -7,11 +7,13 @@ import ij.process.ImageProcessor;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,24 +22,21 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import loci.formats.ChannelSeparator;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+import loci.formats.in.InCellReader;
 import loci.plugins.util.ImagePlusReader;
 
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
 
-import visad.Cell;
-import visad.CellImpl;
 import visad.DataReferenceImpl;
 import visad.ImageFlatField;
 import visad.LocalDisplay;
-import visad.Real;
-import visad.RealType;
 import visad.ScalarMap;
 import visad.VisADException;
 import visad.java2d.DisplayImplJ2D;
-import visad.util.VisADSlider;
 
 /**
  * <code>NodeView</code> for the "OMEViewer" Node. Shows images based on OME.
@@ -103,12 +102,15 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 			// .setId("C:/Users/bakosg.COLLEGE/tmp/AL-July-Screen Plate 4/19-07-2008 01.41.45 Plate 4.xdce");
 			// MetadataTools.convertMetadata(metadata, r.getMetadataStore());
 			final FormatReader r = ids.values().iterator().next();
+			final ImagePlusReader reader = ImagePlusReader
+					.makeImagePlusReader(ChannelSeparator
+							.makeChannelSeparator(r));
 			// MetadataTools.populatePixels(metadata, r);
 			final int sizeX = r.getSizeX();
 			final int sizeY = r.getSizeY();
 			final ImageStack stack = new ImageStack(sizeX, sizeY);
 			final int imageCount = r.getImageCount();
-			// logger.debug(imageCount);
+			logger.debug(imageCount);
 			// for (int j = 0; j < Math.min(1, reader.getSeriesCount()); j++) {
 			final int j = 0;
 			r.setSeries(j);
@@ -127,12 +129,14 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 
 			final ImagePlus imagePlus = new ImagePlus("aaa", stack);
 			// new ImageConverter(imagePlus).convertRGBStackToRGB();
-			imagePlus.setFileInfo(imagePlus.getFileInfo());
+			// imagePlus.setFileInfo(imagePlus.getFileInfo());
 			LocalDisplay displayImplJ2D;
 			try {
 				displayImplJ2D = new DisplayImplJ2D("");
-				final ImageFlatField d = new ImageFlatField(imagePlus
-						.getBufferedImage());
+				final ImageFlatField d = new ImageFlatField(
+				// new BufferedImage(
+						// sizeX, sizeY, BufferedImage.TYPE_INT_RGB)
+						imagePlus.getBufferedImage());
 				for (final ScalarMap map : d.getType().guessMaps(false)) {
 					displayImplJ2D.addMap(map);
 				}
@@ -141,8 +145,8 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 				displayImplJ2D.addReference(ref);
 				final Component component = displayImplJ2D.getComponent();
 				component.setPreferredSize(new Dimension(800, 600));
-				final DataReferenceImpl channelRef = new DataReferenceImpl(
-						"channel");
+				// final DataReferenceImpl channelRef = new DataReferenceImpl(
+				// "channel");
 				final JSlider plateSlider = new JSlider();
 				final Map<Integer, String> plateValues = new LinkedHashMap<Integer, String>();
 				setValues(plateSlider, joinTable.keySet(), plateValues);
@@ -153,24 +157,48 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 				// rowListener.stateChanged(null);
 				final JSlider fieldSlider = new JSlider();
 				final Map<Integer, Integer> fieldValues = new LinkedHashMap<Integer, Integer>();
-				// colListener.stateChanged(null);
-				final ChangeListener fieldListener = new ChangeListener() {
+				final JSlider channelSlider = new JSlider();
+				final LinkedHashMap<Integer, String> channelValues = new LinkedHashMap<Integer, String>();
+				{
+					for (int i = 0; i < r.getChannelDimLengths()[0]; ++i) {
+						String channelName = // MetadataTools.asRetrieve(
+						// r.getMetadataStore()).getLogicalChannelEmWave(
+						// 0, i)
+						// + " "
+						// + MetadataTools
+						// .asRetrieve(r.getMetadataStore())
+						// .getLogicalChannelExWave(0, i);
+						"channel " + (i + 1);
+
+						if (reader.getReader() instanceof InCellReader) {
+							final InCellReader rr = (InCellReader) reader
+									.getReader();
+							channelName = rr.getChannelNames().get(i);
+						}
+						channelValues.put(Integer.valueOf(i), channelName);
+					}
+				}
+				setValues(channelSlider, new LinkedHashSet<String>(
+						channelValues.values()), channelValues);
+				final ChangeListener channelListener = new ChangeListener() {
 					@Override
 					public void stateChanged(final ChangeEvent e) {
 						ImageProcessor ip;
 						try {
-							final int newValue = (int) (((Real) channelRef
-									.getData()).getValue() + .5);
-							final Integer key = joinTable.get(
-									plateValues.get(plateSlider.getValue()))
+							final int newValue = channelSlider.getValue();
+							final Entry<Integer, FormatReader> pair = joinTable
+									.get(
+											plateValues.get(plateSlider
+													.getValue()))
 									.get(rowValues.get(rowSlider.getValue()))
 									.get(colValues.get(colSlider.getValue()))
 									.get(
 											fieldValues.get(fieldSlider
 													.getValue())).entrySet()
-									.iterator().next().getKey();
+									.iterator().next();
+							final Integer key = pair.getKey();
 							final ImagePlusReader imagePlusReader = ImagePlusReader
-									.makeImagePlusReader(r);
+									.makeImagePlusReader(pair.getValue());
 							imagePlusReader.setSeries(key);
 							final ImageProcessor[] openProcessors = imagePlusReader
 									.openProcessors(newValue);
@@ -187,6 +215,14 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 							// TODO Auto-generated catch block
 							ex.printStackTrace();
 						}
+					}
+				};
+				channelSlider.addChangeListener(channelListener);
+				// colListener.stateChanged(null);
+				final ChangeListener fieldListener = new ChangeListener() {
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						channelListener.stateChanged(e);
 					}
 				};
 				fieldSlider.addChangeListener(fieldListener);
@@ -220,56 +256,57 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 					@Override
 					public void stateChanged(final ChangeEvent e) {
 						rowValues.clear();
-						setValues(rowSlider, joinTable.get(
+						setValues(rowSlider, new TreeSet<String>(joinTable.get(
 								plateValues.get(plateSlider.getValue()))
-								.keySet(), rowValues);
+								.keySet()), rowValues);
 						rowListener.stateChanged(e);
 					}
 				};
 
-				final VisADSlider channelSlider = new VisADSlider(channelRef,
-						0, imageCount - 1, 0, RealType.Generic, "channel");
+				// final VisADSlider channelSlider = new VisADSlider(channelRef,
+				// 0, imageCount - 1, 0, RealType.Generic, "channel");
 				// final StepWidget stepWidget = new StepWidget(true);
 				// stepWidget.setBounds(1, imageCount, 1);
-				final Cell channelCell = new CellImpl() {
-
-					@Override
-					public void doAction() throws VisADException,
-							RemoteException {
-						ImageProcessor ip;
-						try {
-							final int newValue = (int) (((Real) channelRef
-									.getData()).getValue() + .5);
-							if (Math.abs(newValue
-									- ((Real) channelRef.getData()).getValue()) > .005) {
-								channelRef.setData(new Real(newValue));
-								return;
-							}
-							final ImagePlusReader imagePlusReader = ImagePlusReader
-									.makeImagePlusReader(r);
-							final int key = joinTable.get(
-									plateValues.get(plateSlider.getValue()))
-									.get(rowValues.get(rowSlider.getValue()))
-									.get(colValues.get(colSlider.getValue()))
-									.get(
-											fieldValues.get(fieldSlider
-													.getValue())).entrySet()
-									.iterator().next().getKey().intValue();
-							imagePlusReader.setSeries(key);
-							ip = /* reader */imagePlusReader
-									.openProcessors(newValue)[0];
-							ref.setData(new ImageFlatField(
-									new ImagePlus("", ip).getBufferedImage()));
-						} catch (final FormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (final IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-				};
+				// final Cell channelCell = new CellImpl() {
+				//
+				// @Override
+				// public void doAction() throws VisADException,
+				// RemoteException {
+				// ImageProcessor ip;
+				// try {
+				// // final int newValue = (int) (((Real) channelRef
+				// // .getData()).getValue() + .5);
+				// // if (Math.abs(newValue
+				// // - ((Real) channelRef.getData()).getValue()) >
+				// // .005) {
+				// // channelRef.setData(new Real(newValue));
+				// // return;
+				// // }
+				// final ImagePlusReader imagePlusReader = ImagePlusReader
+				// .makeImagePlusReader(r);
+				// final int key = joinTable.get(
+				// plateValues.get(plateSlider.getValue()))
+				// .get(rowValues.get(rowSlider.getValue()))
+				// .get(colValues.get(colSlider.getValue()))
+				// .get(
+				// fieldValues.get(fieldSlider
+				// .getValue())).entrySet()
+				// .iterator().next().getKey().intValue();
+				// imagePlusReader.setSeries(key);
+				// ip = /* reader */imagePlusReader
+				// .openProcessors(channelSlider.getValue())[0];
+				// ref.setData(new ImageFlatField(
+				// new ImagePlus("", ip).getBufferedImage()));
+				// } catch (final FormatException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// } catch (final IOException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
+				//
+				// }
+				// };
 				panel.add(component);
 				panel.add(channelSlider);
 				panel.add(plateSlider);
@@ -280,7 +317,7 @@ public class LociViewerNodeSimpleView extends NodeView<LociViewerNodeModel> {
 				plateSlider.addChangeListener(plateListener);
 				plateSlider.setValue(0);
 				plateListener.stateChanged(null);
-				channelCell.addReference(channelRef);
+				// channelCell.addReference(channelRef);
 				// panel.add(stepWidget);
 			} catch (final VisADException e) {
 				logger.error("Unable to create display", e);

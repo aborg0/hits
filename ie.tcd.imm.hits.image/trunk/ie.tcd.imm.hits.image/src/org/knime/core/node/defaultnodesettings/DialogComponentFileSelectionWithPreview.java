@@ -163,7 +163,7 @@ public class DialogComponentFileSelectionWithPreview extends
 								.getFileInfo() == null ? "" : imagePlus
 								.getFileInfo().toString());
 						final Hashtable<?, ?> seriesMetadata = imageReader
-								.getMetadata();
+								.getSeriesMetadata();
 						fileInfo.append("\nSeries\n");
 						for (final Entry<?, ?> entry : seriesMetadata
 								.entrySet()) {
@@ -171,9 +171,9 @@ public class DialogComponentFileSelectionWithPreview extends
 									.append(entry.getValue()).append("\n");
 						}
 						fileInfo.append("\nCoreMeta\n");
-						final CoreMetadata coreMetadata = imageReader
+						final CoreMetadata[] coreMetadata = imageReader
 								.getCoreMetadata();
-						fileInfo.append(coreMetadata.seriesMetadata).append(
+						fileInfo.append(coreMetadata[0].seriesMetadata).append(
 								"\n");
 
 						// final Hashtable<?, ?> globalMetadata = imageReader

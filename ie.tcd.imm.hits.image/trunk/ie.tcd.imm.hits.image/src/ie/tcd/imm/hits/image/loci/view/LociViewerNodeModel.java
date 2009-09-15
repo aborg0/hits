@@ -4,9 +4,15 @@ import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Pair;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import loci.formats.FormatReader;
 
@@ -30,6 +36,7 @@ import org.knime.core.node.NodeSettingsWO;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociViewerNodeModel extends NodeModel {
+	private static final String JOIN_TABLE_FILE = "join.zip";
 
 	/** Plate, row, column, field, image id (series), LOCI data */
 	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
@@ -230,11 +237,34 @@ public class LociViewerNodeModel extends NodeModel {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
+		final FileInputStream fis = new FileInputStream(joinTableFile);
+		try {
+			final GZIPInputStream zis = new GZIPInputStream(fis);
+			try {
+				final ObjectInputStream oos = new ObjectInputStream(zis);
+				try {
+					final Object readObject = oos.readObject();
+					if (readObject instanceof Map<?, ?>) {
+						final Map<?, ?> newMap = (Map<?, ?>) readObject;
+						joinTable = (Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>) newMap;
+					}
+				} catch (final ClassNotFoundException e) {
+					throw new IOException(e);
+				} finally {
+					oos.close();
+				}
+			} finally {
+				zis.close();
+			}
+		} finally {
+			fis.close();
+		}
 	}
 
 	/**
@@ -244,7 +274,23 @@ public class LociViewerNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
+		final FileOutputStream fos = new FileOutputStream(joinTableFile);
+		try {
+			final GZIPOutputStream zos = new GZIPOutputStream(fos);
+			try {
+				final ObjectOutputStream oos = new ObjectOutputStream(zos);
+				try {
+					oos.writeObject(this.joinTable);
+				} finally {
+					oos.close();
+				}
+			} finally {
+				zos.close();
+			}
+		} finally {
+			fos.close();
+		}
 	}
 
 	/** @return Plate, row, column, field, image id (series), LOCI data */

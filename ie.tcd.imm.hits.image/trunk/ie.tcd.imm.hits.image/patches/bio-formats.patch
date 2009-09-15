@@ -1,20 +1,39 @@
-Index: .classpath
+Index: src/loci/formats/gui/GUITools.java
 ===================================================================
---- .classpath	(revision 5451)
-+++ .classpath	(working copy)
-@@ -3,8 +3,8 @@
- 	<classpathentry kind="src" path="src"/>
- 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
- 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
--	<classpathentry combineaccessrules="false" kind="src" path="/ome-xml"/>
- 	<classpathentry combineaccessrules="false" kind="src" path="/jai"/>
- 	<classpathentry combineaccessrules="false" kind="src" path="/External libraries"/>
-+	<classpathentry combineaccessrules="false" kind="src" path="/ome-xml"/>
- 	<classpathentry kind="output" path="build/classes"/>
- </classpath>
+--- src/loci/formats/gui/GUITools.java	(revision 5469)
++++ src/loci/formats/gui/GUITools.java	(working copy)
+@@ -79,8 +79,8 @@
+     if (handler instanceof ImageReader) {
+       ImageReader imageReader = (ImageReader) handler;
+       IFormatReader[] readers = imageReader.getReaders();
+-      Vector filterList = new Vector();
+-      Vector comboList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
++      Vector<FileFilter> comboList = new Vector<FileFilter>();
+       for (int i=0; i<readers.length; i++) {
+         filterList.add(new FormatFileFilter(readers[i]));
+         // NB: Some readers need to open a file to determine if it is the
+@@ -102,7 +102,7 @@
+     }
+     else if (handler instanceof ImageWriter) {
+       IFormatWriter[] writers = ((ImageWriter) handler).getWriters();
+-      Vector filterList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
+       for (int i=0; i<writers.length; i++) {
+         String[] suffixes = writers[i].getSuffixes();
+         String format = writers[i].getFormat();
+@@ -220,7 +220,7 @@
+    * Sorts the given list of file filters, keeping the "All supported
+    * file types" combo filter (if any) at the front of the list.
+    */
+-  private static FileFilter[] sortFilters(Vector filterList) {
++  private static FileFilter[] sortFilters(Vector<FileFilter> filterList) {
+     FileFilter[] filters = ComboFileFilter.sortFilters(filterList);
+     shuffleAllTypesToFront(filters);
+     return filters;
 Index: src/loci/formats/tiff/IFDList.java
 ===================================================================
---- src/loci/formats/tiff/IFDList.java	(revision 5451)
+--- src/loci/formats/tiff/IFDList.java	(revision 5469)
 +++ src/loci/formats/tiff/IFDList.java	(working copy)
 @@ -34,4 +34,6 @@
   *
@@ -26,7 +45,7 @@ Index: src/loci/formats/tiff/IFDList.java
 +}
 Index: src/loci/formats/in/MinimalTiffReader.java
 ===================================================================
---- src/loci/formats/in/MinimalTiffReader.java	(revision 5451)
+--- src/loci/formats/in/MinimalTiffReader.java	(revision 5469)
 +++ src/loci/formats/in/MinimalTiffReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats.in;
@@ -75,17 +94,20 @@ Index: src/loci/formats/in/MinimalTiffReader.java
  }
 Index: src/loci/formats/in/InCellReader.java
 ===================================================================
---- src/loci/formats/in/InCellReader.java	(revision 5451)
+--- src/loci/formats/in/InCellReader.java	(revision 5469)
 +++ src/loci/formats/in/InCellReader.java	(working copy)
-@@ -24,6 +24,7 @@
+@@ -24,7 +24,10 @@
  package loci.formats.in;
  
  import java.io.IOException;
 +import java.io.Serializable;
++import java.util.Collections;
  import java.util.Hashtable;
++import java.util.List;
  import java.util.Vector;
  
-@@ -54,6 +55,7 @@
+ import loci.common.DataTools;
+@@ -54,6 +57,7 @@
  public class InCellReader extends FormatReader {
  
    // -- Constants --
@@ -93,7 +115,27 @@ Index: src/loci/formats/in/InCellReader.java
  
    public static final String INCELL_MAGIC_STRING = "IN Cell Analyzer 1000";
  
-@@ -852,8 +854,10 @@
+@@ -539,9 +543,17 @@
+     setSeries(0);
+   }
+ 
+-  // -- Helper classes --
+ 
+-  class MinimalInCellHandler extends DefaultHandler {
++  /**
++   * @return The channelNames.
++   */
++  public List<String> getChannelNames() {
++	return channelNames == null ? null : Collections.unmodifiableList(channelNames);
++  }
++
++// -- Helper classes --
++
++class MinimalInCellHandler extends DefaultHandler {
+     private String currentImageFile;
+     private int wellRow, wellCol;
+     private int nChannels = 0;
+@@ -861,8 +873,10 @@
      }
    }
  
@@ -108,7 +150,7 @@ Index: src/loci/formats/in/InCellReader.java
      public Float zPosition;
 Index: src/loci/formats/IFormatHandler.java
 ===================================================================
---- src/loci/formats/IFormatHandler.java	(revision 5451)
+--- src/loci/formats/IFormatHandler.java	(revision 5469)
 +++ src/loci/formats/IFormatHandler.java	(working copy)
 @@ -24,6 +24,7 @@
  package loci.formats;
@@ -129,7 +171,7 @@ Index: src/loci/formats/IFormatHandler.java
    boolean isThisType(String name);
 Index: src/loci/formats/FormatReader.java
 ===================================================================
---- src/loci/formats/FormatReader.java	(revision 5451)
+--- src/loci/formats/FormatReader.java	(revision 5469)
 +++ src/loci/formats/FormatReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats;
@@ -251,7 +293,7 @@ Index: src/loci/formats/FormatReader.java
  }
 Index: src/loci/formats/CoreMetadata.java
 ===================================================================
---- src/loci/formats/CoreMetadata.java	(revision 5451)
+--- src/loci/formats/CoreMetadata.java	(revision 5469)
 +++ src/loci/formats/CoreMetadata.java	(working copy)
 @@ -23,6 +23,7 @@
  
@@ -295,7 +337,7 @@ Index: src/loci/formats/CoreMetadata.java
  }
 Index: src/loci/formats/FormatHandler.java
 ===================================================================
---- src/loci/formats/FormatHandler.java	(revision 5451)
+--- src/loci/formats/FormatHandler.java	(revision 5469)
 +++ src/loci/formats/FormatHandler.java	(working copy)
 @@ -23,6 +23,9 @@
  
