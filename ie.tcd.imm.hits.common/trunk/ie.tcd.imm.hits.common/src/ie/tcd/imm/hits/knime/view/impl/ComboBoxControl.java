@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -31,9 +32,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Model>
  *            Type of the model for values.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
+public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
+		AbstractVariableControl<Model, Sel> {
 	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
 
 	/**
@@ -48,7 +52,7 @@ public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
 	 */
 	public ComboBoxControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel, Model> controlsHandler,
+			final ControlsHandler<SettingsModel, Model, Sel> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		switch (selectionType) {
@@ -172,7 +176,7 @@ public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final ComboBoxControl<?> other = (ComboBoxControl<?>) obj;
+		final ComboBoxControl<?, ?> other = (ComboBoxControl<?, ?>) obj;
 		if (combobox == null) {
 			if (other.combobox != null) {
 				return false;

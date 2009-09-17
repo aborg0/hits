@@ -6,6 +6,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
@@ -37,12 +38,15 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  *            The type of the associated model.
  * @param <Model>
  *            Type of the model for values.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class PopupMenu<ModelType, Model> implements MouseListener {
+public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
+		implements MouseListener {
 	private final JPopupMenu popup;
-	private final ControlsHandler<ModelType, Model> controlsHandler;
-	private final VariableControl<ModelType, Model> control;
+	private final ControlsHandler<ModelType, Model, Sel> controlsHandler;
+	private final VariableControl<ModelType, Model, Sel> control;
 
 	/**
 	 * An action to change to another {@link SplitType type} of container.
@@ -131,9 +135,9 @@ public class PopupMenu<ModelType, Model> implements MouseListener {
 	 * @param controlsHandler
 	 *            This should the {@link ControlsHandler} for {@code control}.
 	 */
-	public PopupMenu(final VariableControl<ModelType, Model> control,
+	public PopupMenu(final VariableControl<ModelType, Model, Sel> control,
 			final SplitType split,
-			final ControlsHandler<ModelType, Model> controlsHandler) {
+			final ControlsHandler<ModelType, Model, Sel> controlsHandler) {
 		super();
 		this.control = control;
 		this.controlsHandler = controlsHandler;

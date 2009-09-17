@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -41,8 +42,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
-public class ControlsHandlerKNIMEFactory extends
-		ControlsHandlerAbstractFactory<SliderModel> {
+public class ControlsHandlerKNIMEFactory
+		extends
+		ControlsHandlerAbstractFactory<Pair<ParameterModel, Object>, SliderModel> {
 
 	/**
 	 * A {@link ChangeEvent} for the model changes of the {@link SliderModel}s.
@@ -73,14 +75,14 @@ public class ControlsHandlerKNIMEFactory extends
 
 	private ShapeModel arrangement;
 
-	private final Map<SplitType, Map<VariableControl<SettingsModel, SliderModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel, SliderModel>, Boolean>>(
+	private final Map<SplitType, Map<VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel>, Boolean>>(
 			SplitType.class);
 	{
 		for (final SplitType type : SplitType.values()) {
 			splitToControls
 					.put(
 							type,
-							new WeakHashMap<VariableControl<SettingsModel, SliderModel>, Boolean>());
+							new WeakHashMap<VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel>, Boolean>());
 		}
 	}
 
@@ -110,8 +112,8 @@ public class ControlsHandlerKNIMEFactory extends
 	 */
 	@Override
 	public boolean exchangeControls(
-			final VariableControl<SettingsModel, SliderModel> first,
-			final VariableControl<SettingsModel, SliderModel> second) {
+			final VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> first,
+			final VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> second) {
 		assert arrangement != null;
 		final Pair<SplitType, String> firstPos = getPosition(first);
 		final Pair<SplitType, String> secondPos = getPosition(second);
@@ -209,7 +211,7 @@ public class ControlsHandlerKNIMEFactory extends
 	 */
 	private @Nullable
 	SliderModel findSlider(
-			final VariableControl<SettingsModel, SliderModel> control,
+			final VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> control,
 			final Set<SliderModel> sliderModels) {
 		for (final SliderModel sliderModel : sliderModels) {
 			if (((SettingsModelListSelection) control.getModel())
@@ -249,10 +251,11 @@ public class ControlsHandlerKNIMEFactory extends
 	 * </ul>
 	 */
 	@Override
-	protected VariableControl<SettingsModel, SliderModel> createNewControl(
-			final SliderModel slider, final ControlTypes controlType,
-			final SelectionType selectionType, final SplitType split) {
-		final String name = createName(slider);
+	protected VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> createNewControl(
+			final Selectable<Pair<ParameterModel, Object>> slider,
+			final ControlTypes controlType, final SelectionType selectionType,
+			final SplitType split) {
+		final String name = createName((SliderModel) slider);
 		final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 				.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
@@ -286,7 +289,7 @@ public class ControlsHandlerKNIMEFactory extends
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				name, vals, selected);
-		final VariableControl<SettingsModel, SliderModel> control = createControl(
+		final VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> control = createControl(
 				slider, controlType, settingsModelListSelection, selectionType,
 				split);
 		return control;
@@ -295,7 +298,7 @@ public class ControlsHandlerKNIMEFactory extends
 	@Override
 	protected void adjustModel(final Set<String> selections,
 			final List<String> values, final Set<Integer> selectedIndices,
-			final SliderModel slider) {
+			final Selectable<Pair<ParameterModel, Object>> slider) {
 		final Set<Integer> sliderSelection = new HashSet<Integer>(slider
 				.getSelections());
 		if (selectedIndices.size() == 1) {

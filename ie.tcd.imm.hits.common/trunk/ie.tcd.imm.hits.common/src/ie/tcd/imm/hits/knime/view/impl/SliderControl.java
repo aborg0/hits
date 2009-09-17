@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -32,9 +33,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Model>
  *            Type of the model for values.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class SliderControl<Model> extends AbstractVariableControl<Model> {
+public class SliderControl<Model, Sel extends Selectable<Model>> extends
+		AbstractVariableControl<Model, Sel> {
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,
 			0, 1, 1));
 
@@ -50,7 +54,7 @@ public class SliderControl<Model> extends AbstractVariableControl<Model> {
 	 */
 	public SliderControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel, Model> controlsHandler,
+			final ControlsHandler<SettingsModel, Model, Sel> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		switch (selectionType) {
@@ -193,7 +197,7 @@ public class SliderControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final SliderControl<?> other = (SliderControl<?>) obj;
+		final SliderControl<?, ?> other = (SliderControl<?, ?>) obj;
 		if (slider == null) {
 			if (other.slider != null) {
 				return false;

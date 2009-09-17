@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view;
 
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -28,9 +29,11 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  *            The type of the used (inner) model in {@link VariableControl}.
  * @param <Model>
  *            The type of the model.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public interface ControlsHandler<ModelType, Model> {
+public interface ControlsHandler<ModelType, Model, Sel extends Selectable<Model>> {
 	/**
 	 * Creates or gets the component for the {@code slider} with the type of
 	 * {@code controlType}.
@@ -47,8 +50,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 * @return The associated component in the proper form.
 	 */
 	@Deprecated
-	public VariableControl<? extends ModelType, Model> getComponent(
-			final Model model, final ControlTypes controlType,
+	public VariableControl<? extends ModelType, ? extends Model, ? extends Sel> getComponent(
+			final Selectable<Model> model, final ControlTypes controlType,
 			final SelectionType selectionType, SplitType splitType);
 
 	/**
@@ -56,7 +59,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 * container associated with {@code containerType}.
 	 * <p>
 	 * Registering a {@code model} again will <b>automatically
-	 * {@link #deregister(Object)} it</b> and register with the new parameters.!
+	 * {@link #deregister(Selectable)} it</b> and register with the new
+	 * parameters.!
 	 * 
 	 * @param model
 	 *            The model of the control to register.
@@ -69,10 +73,10 @@ public interface ControlsHandler<ModelType, Model> {
 	 *            The preferred control type for the {@code model}.
 	 * @return Indicates whether the registration did something ({@code true})
 	 *         or not ({@code false}).
-	 * @see #deregister(Object)
+	 * @see #deregister(Selectable)
 	 * @see #setContainer(JComponent, SplitType, String)
 	 */
-	public boolean register(final Model model, final SplitType splitType,
+	public boolean register(final Sel model, final SplitType splitType,
 			@Nullable final String nameOfContainer,
 			final ControlTypes preferredControlType);
 
@@ -80,21 +84,21 @@ public interface ControlsHandler<ModelType, Model> {
 	 * Removes all {@link VariableControl}s associated to the {@code model}.
 	 * <p>
 	 * If {@code model} previously was not
-	 * {@link #register(Object, SplitType, String, ControlTypes) registered} it
-	 * will do nothing.
+	 * {@link #register(Selectable, SplitType, String, ControlTypes) registered}
+	 * it will do nothing.
 	 * 
 	 * @param model
 	 *            A previously registered {@code Model}.
 	 * @return Indicates whether the deregistration did something ({@code true})
 	 *         or not ({@code false}).
-	 * @see #register(Object, SplitType, String, ControlTypes)
+	 * @see #register(Selectable, SplitType, String, ControlTypes)
 	 */
-	public boolean deregister(Model model);
+	public boolean deregister(Sel model);
 
 	/**
 	 * Registers {@code container} as a {@link Container} for the {@code Model}s
 	 * with type {@code type}. It can be referenced as {@code name} in
-	 * {@link #register(Object, SplitType, String, ControlTypes)}.
+	 * {@link #register(Selectable, SplitType, String, ControlTypes)}.
 	 * 
 	 * @param container
 	 *            A {@link JComponent}.
@@ -102,7 +106,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 *            A {@link SplitType} of the {@code Model}.
 	 * @param name
 	 *            A name associated to the {@code container}
-	 * @see #register(Object, SplitType, String, ControlTypes)
+	 * @see #register(Selectable, SplitType, String, ControlTypes)
 	 */
 	public void setContainer(JComponent container, SplitType type, String name);
 
@@ -111,7 +115,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 * position: {@code containerType} and {@code nameOfContainer}.
 	 * 
 	 * @param variableControl
-	 *            A {@link #register(Object, SplitType, String, ControlTypes)
+	 *            A
+	 *            {@link #register(Selectable, SplitType, String, ControlTypes)
 	 *            registered} {@link VariableControl}.
 	 * @param nameOfContainer
 	 *            The <b>new</b> name of the container. May be {@code null},
@@ -119,7 +124,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 * @return Indicates whether the it has moved ({@code true}) or not ({@code
 	 *         false}).
 	 */
-	public boolean move(VariableControl<ModelType, Model> variableControl,
+	public boolean move(VariableControl<ModelType, Model, Sel> variableControl,
 			@Nullable String nameOfContainer);
 
 	/**
@@ -128,7 +133,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 * nothing.
 	 * 
 	 * @param variableControl
-	 *            A {@link #register(Object, SplitType, String, ControlTypes)
+	 *            A
+	 *            {@link #register(Selectable, SplitType, String, ControlTypes)
 	 *            registered} {@link VariableControl}.
 	 * @param type
 	 *            The <b>new</b> {@link ControlTypes} of the {@code slider}.
@@ -136,7 +142,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 *         {@code false}).
 	 */
 	public boolean changeControlType(
-			VariableControl<ModelType, Model> variableControl, ControlTypes type);
+			VariableControl<ModelType, Model, Sel> variableControl,
+			ControlTypes type);
 
 	/**
 	 * @return The possible component positions.
@@ -192,8 +199,8 @@ public interface ControlsHandler<ModelType, Model> {
 	 *         {@code false}).
 	 */
 	public boolean exchangeControls(
-			final VariableControl<ModelType, Model> first,
-			final VariableControl<ModelType, Model> second);
+			final VariableControl<ModelType, Model, Sel> first,
+			final VariableControl<ModelType, Model, Sel> second);
 
 	/**
 	 * Finds the handled {@link VariableControl}s with {@link SplitType}:
@@ -204,6 +211,6 @@ public interface ControlsHandler<ModelType, Model> {
 	 * @return The {@link VariableControl}s with {@link SplitType}: {@code
 	 *         splitType}.
 	 */
-	public Set<VariableControl<ModelType, Model>> getVariableControlsAt(
+	public Set<VariableControl<ModelType, Model, Sel>> getVariableControlsAt(
 			SplitType splitType);
 }

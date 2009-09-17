@@ -84,14 +84,15 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 1000)
 	@GUITest
 	public void list() {
-		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.List,
 						SelectionType.MultipleAtLeastOne,
 						SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.List, SelectionType.MultipleAtLeastOne,
-				SplitType.SeconderSplit);
+		final VariableControl<?, ?, ?> component1 = controlsHandler
+				.getComponent(slider2, ControlTypes.List,
+						SelectionType.MultipleAtLeastOne,
+						SplitType.SeconderSplit);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JListFixture list = window.list(ControlsHandlerKNIMEFactory
@@ -107,13 +108,13 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 2000)
 	@GUITest
 	public void comboBox() {
-		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.ComboBox,
 						SelectionType.Single, SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.ComboBox, SelectionType.Single,
-				SplitType.SingleSelect);
+		final VariableControl<?, ?, ?> component1 = controlsHandler
+				.getComponent(slider2, ControlTypes.ComboBox,
+						SelectionType.Single, SplitType.SingleSelect);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JComboBoxFixture comboBox = window
@@ -129,13 +130,13 @@ public class ControlTests extends AbstractControlTest {
 	@Test(timeOut = 3000)
 	@GUITest
 	public void slider() {
-		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler
+		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler
 				.getComponent(slider1, ControlTypes.Slider,
 						SelectionType.Single, SplitType.PrimarySplit);
 		final JPanel view1 = (JPanel) component0.getView();
-		final VariableControl<?, ?> component1 = controlsHandler.getComponent(
-				slider2, ControlTypes.Slider, SelectionType.Single,
-				SplitType.SingleSelect);
+		final VariableControl<?, ?, ?> component1 = controlsHandler
+				.getComponent(slider2, ControlTypes.Slider,
+						SelectionType.Single, SplitType.SingleSelect);
 		final JPanel view2 = (JPanel) component1.getView();
 		addViews(view1, view2);
 		final JSliderFixture slider = window.slider(ControlsHandlerKNIMEFactory

@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.util.swing;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.util.Selectable;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -24,8 +25,10 @@ import javax.swing.event.ChangeListener;
  *            The type of the model used inside.
  * @param <Model>
  *            The model of the alternatives.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
-public interface VariableControl<ModelType, Model> {
+public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>> {
 
 	/**
 	 * The supported control types.
@@ -100,7 +103,7 @@ public interface VariableControl<ModelType, Model> {
 	/**
 	 * @return The associated {@link ControlsHandler}.
 	 */
-	public ControlsHandler<ModelType, Model> getControlsHandler();
+	public ControlsHandler<ModelType, Model, Sel> getControlsHandler();
 
 	/**
 	 * @return The type of the implementation.

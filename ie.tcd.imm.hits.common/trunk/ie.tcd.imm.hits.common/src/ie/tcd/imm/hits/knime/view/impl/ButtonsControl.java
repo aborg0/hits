@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -29,8 +30,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Model>
  *            Type of the model for values.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
-public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
+public class ButtonsControl<Model, Sel extends Selectable<Model>> extends
+		AbstractVariableControl<Model, Sel> {
 	/**
 	 * The listener for the buttons.
 	 */
@@ -107,7 +111,7 @@ public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 	 */
 	public ButtonsControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel, Model> controlsHandler,
+			final ControlsHandler<SettingsModel, Model, Sel> controlsHandler,
 			final ChangeListener changeListener) {
 		super(model, selectionType, controlsHandler, changeListener);
 		updateComponent();
@@ -221,7 +225,7 @@ public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final ButtonsControl<?> other = (ButtonsControl<?>) obj;
+		final ButtonsControl<?, ?> other = (ButtonsControl<?, ?>) obj;
 		if (buttons == null) {
 			if (other.buttons != null) {
 				return false;

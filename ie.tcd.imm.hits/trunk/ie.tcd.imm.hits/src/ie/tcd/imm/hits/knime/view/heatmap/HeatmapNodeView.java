@@ -337,7 +337,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			Collections.<String> emptyList(), Collections
 					.<StatTypes> emptyList());
 
-	private final ControlsHandler<? extends SettingsModel, SliderModel> controlsHandler = new ControlsHandlerKNIMEFactory();
+	private final ControlsHandler<? extends SettingsModel, Pair<ParameterModel, Object>, SliderModel> controlsHandler = new ControlsHandlerKNIMEFactory();
 
 	/**
 	 * This {@link HiLiteListener} updates the {@link HeatmapPanel} on changes
@@ -1620,7 +1620,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	/**
 	 * @return The {@link ControlsHandler} of the view.
 	 */
-	public ControlsHandler<? extends SettingsModel, SliderModel> getControlsHandler() {
+	public ControlsHandler<? extends SettingsModel, Pair<ParameterModel, Object>, SliderModel> getControlsHandler() {
 		return controlsHandler;
 	}
 

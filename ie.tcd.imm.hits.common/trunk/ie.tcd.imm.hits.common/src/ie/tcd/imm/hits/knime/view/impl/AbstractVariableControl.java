@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -27,14 +28,17 @@ import org.knime.core.node.port.PortObjectSpec;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Model>
  *            The model for visible values
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
-public abstract class AbstractVariableControl<Model> extends DialogComponent
-		implements VariableControl<SettingsModel, Model> {
+public abstract class AbstractVariableControl<Model, Sel extends Selectable<Model>>
+		extends DialogComponent implements
+		VariableControl<SettingsModel, Model, Sel> {
 	private final JToolBar panel = new JToolBar();
 
 	private final SelectionType selectionType;
 
-	private final ControlsHandler<SettingsModel, Model> controlHandler;
+	private final ControlsHandler<SettingsModel, Model, Sel> controlHandler;
 
 	private final ChangeListener changeListener;
 
@@ -52,7 +56,7 @@ public abstract class AbstractVariableControl<Model> extends DialogComponent
 	 */
 	public AbstractVariableControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
-			final ControlsHandler<SettingsModel, Model> controlHandler,
+			final ControlsHandler<SettingsModel, Model, Sel> controlHandler,
 			final ChangeListener changeListener) {
 		super(model);
 		panel.setBorder(new TitledBorder(model.getConfigName()));
@@ -176,7 +180,7 @@ public abstract class AbstractVariableControl<Model> extends DialogComponent
 	 * @see ie.tcd.imm.hits.util.swing.VariableControl#getControlsHandler()
 	 */
 	@Override
-	public ControlsHandler<SettingsModel, Model> getControlsHandler() {
+	public ControlsHandler<SettingsModel, Model, Sel> getControlsHandler() {
 		return controlHandler;
 	}
 
@@ -213,12 +217,12 @@ public abstract class AbstractVariableControl<Model> extends DialogComponent
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final AbstractVariableControl<?> other = (AbstractVariableControl<?>) obj;
+		final AbstractVariableControl<?, ?> other = (AbstractVariableControl<?, ?>) obj;
 		if (controlHandler == null) {
 			if (other.controlHandler != null) {
 				return false;
 			}
-		} else if (controlHandler != other.controlHandler) {
+		} else if (!controlHandler.equals(other.controlHandler)) {
 			return false;
 		}
 		if (panel == null) {

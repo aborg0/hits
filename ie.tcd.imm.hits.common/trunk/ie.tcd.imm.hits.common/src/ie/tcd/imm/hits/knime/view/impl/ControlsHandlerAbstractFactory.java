@@ -6,6 +6,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -41,13 +42,15 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <Model>
  *            The actual model used for the controls.
+ * @param <Sel>
+ *            The type of the container of {@code Model}s.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
-public abstract class ControlsHandlerAbstractFactory<Model> implements
-		ControlsHandler<SettingsModel, Model> {
+public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectable<Model>>
+		implements ControlsHandler<SettingsModel, Model, Sel> {
 
-	private final Map<Model, VariableControl<SettingsModel, Model>> cache = new WeakHashMap<Model, VariableControl<SettingsModel, Model>>();
+	private final Map<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>> cache = new WeakHashMap<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>>();
 
 	private final EnumMap<SplitType, Map<String, WeakReference<JComponent>>> containers = new EnumMap<SplitType, Map<String, WeakReference<JComponent>>>(
 			SplitType.class);
@@ -58,22 +61,22 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		}
 	}
 
-	private final Map<JComponent, /* Weak */Map<VariableControl<SettingsModel, Model>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<SettingsModel, Model>, Boolean>>();
-	private final Map<VariableControl<? extends SettingsModel, Model>, JComponent> controlToComponent = new WeakHashMap<VariableControl<? extends SettingsModel, Model>, JComponent>();
+	private final Map<JComponent, /* Weak */Map<VariableControl<SettingsModel, Model, Sel>, Boolean>> componentToControls = new WeakHashMap<JComponent, Map<VariableControl<SettingsModel, Model, Sel>, Boolean>>();
+	private final Map<VariableControl<SettingsModel, Model, Sel>, JComponent> controlToComponent = new WeakHashMap<VariableControl<SettingsModel, Model, Sel>, JComponent>();
 	private final List<WeakReference<ChangeListener>> listeners = new ArrayList<WeakReference<ChangeListener>>();
 
-	private final Map<SplitType, Map<VariableControl<SettingsModel, Model>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel, Model>, Boolean>>(
+	private final Map<SplitType, Map<VariableControl<SettingsModel, Model, Sel>, Boolean>> splitToControls = new EnumMap<SplitType, Map<VariableControl<SettingsModel, Model, Sel>, Boolean>>(
 			SplitType.class);
 	{
 		for (final SplitType type : SplitType.values()) {
 			splitToControls
 					.put(
 							type,
-							new WeakHashMap<VariableControl<SettingsModel, Model>, Boolean>());
+							new WeakHashMap<VariableControl<SettingsModel, Model, Sel>, Boolean>());
 		}
 	}
 
-	private final Map<VariableControl<? extends SettingsModel, Model>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel, Model>, SplitType>();
+	private final Map<VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>>, SplitType> controlToSplit = new WeakHashMap<VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>>, SplitType>();
 
 	/**
 	 * Constructs a {@link ControlsHandlerAbstractFactory}.
@@ -86,11 +89,11 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VariableControl<SettingsModel, Model> getComponent(
-			final Model slider, final ControlTypes controlType,
+	public VariableControl<SettingsModel, Model, Sel> getComponent(
+			final Selectable<Model> slider, final ControlTypes controlType,
 			final SelectionType selectionType, final SplitType split) {
 		if (!cache.containsKey(slider)) {
-			final VariableControl<SettingsModel, Model> control = createNewControl(
+			final VariableControl<SettingsModel, Model, Sel> control = createNewControl(
 					slider, controlType, selectionType, split);
 			cache.put(slider, control);
 		}
@@ -102,8 +105,8 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * Implementation specific!
 	 * <p>
 	 * Only called from
-	 * {@link #getComponent(Object, ControlTypes, SelectionType, SplitType)},
-	 * when no suitable found in the cache.
+	 * {@link #getComponent(Selectable, ControlTypes, SelectionType, SplitType)}
+	 * , when no suitable found in the cache.
 	 * 
 	 * @param model
 	 *            The model of the new control.
@@ -115,9 +118,9 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *            The {@link SplitType} of the new control.
 	 * @return The new control instance.
 	 */
-	protected abstract VariableControl<SettingsModel, Model> createNewControl(
-			Model model, ControlTypes controlType, SelectionType selectionType,
-			SplitType split);
+	protected abstract VariableControl<SettingsModel, Model, Sel> createNewControl(
+			final Selectable<Model> model, final ControlTypes controlType,
+			final SelectionType selectionType, final SplitType split);
 
 	/**
 	 * Creates a {@link VariableControl} for {@code slider} (with popup menu).
@@ -135,8 +138,8 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *            Only needed for the popup menu.
 	 * @return The control with the proper parameters.
 	 */
-	protected VariableControl<SettingsModel, Model> createControl(
-			final Model slider, final ControlTypes controlType,
+	protected VariableControl<SettingsModel, Model, Sel> createControl(
+			final Selectable<Model> slider, final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final SelectionType selectionType, final SplitType split) {
 		final ChangeListener changeListener = createChangeListener(slider,
@@ -154,7 +157,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *         selections to {@code settingsModelListSelection} selections to be
 	 *         in synchrony.
 	 */
-	public ChangeListener createChangeListener(final Model slider,
+	public ChangeListener createChangeListener(final Selectable<Model> slider,
 			final SettingsModelListSelection settingsModelListSelection) {
 		final ChangeListener changeListener = new ChangeListener() {
 			@Override
@@ -207,7 +210,8 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *            The model to modify.
 	 */
 	protected abstract void adjustModel(Set<String> selections,
-			List<String> values, Set<Integer> selectedIndices, Model model);
+			List<String> values, Set<Integer> selectedIndices,
+			Selectable<Model> model);
 
 	/**
 	 * @param controlType
@@ -223,29 +227,29 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *            popup menu.
 	 * @return The {@link VariableControl} with the desired parameters.
 	 */
-	protected VariableControl<SettingsModel, Model> createControl(
+	protected VariableControl<SettingsModel, Model, Sel> createControl(
 			final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final ChangeListener changeListener, final SelectionType selection,
 			final SplitType split) {
-		final VariableControl<SettingsModel, Model> ret;
+		final VariableControl<SettingsModel, Model, Sel> ret;
 		switch (controlType) {
 		case Buttons:
-			ret = new ButtonsControl<Model>(settingsModelListSelection,
+			ret = new ButtonsControl<Model, Sel>(settingsModelListSelection,
 					selection, this, changeListener);
 			break;
 		case List:
-			ret = new ListControl<Model>(settingsModelListSelection, selection,
-					this, changeListener);
+			ret = new ListControl<Model, Sel>(settingsModelListSelection,
+					selection, this, changeListener);
 			break;
 		case ComboBox:
-			ret = new ComboBoxControl<Model>(settingsModelListSelection,
+			ret = new ComboBoxControl<Model, Sel>(settingsModelListSelection,
 					selection, this, changeListener);
 			break;
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
 		case Slider:
-			ret = new SliderControl<Model>(settingsModelListSelection,
+			ret = new SliderControl<Model, Sel>(settingsModelListSelection,
 					selection, this, changeListener);
 			break;
 		case RadioButton:
@@ -265,9 +269,9 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
 		}
-		final PopupMenu<SettingsModel, Model> popupMenu = new PopupMenu<SettingsModel, Model>(
+		final PopupMenu<SettingsModel, Model, Sel> popupMenu = new PopupMenu<SettingsModel, Model, Sel>(
 				ret, split, this);
-		((AbstractVariableControl<?>) ret).getPanel().addMouseListener(
+		((AbstractVariableControl<?, ?>) ret).getPanel().addMouseListener(
 				popupMenu);
 		ret.getView().addMouseListener(popupMenu);
 		for (final Component comp : ret.getView().getComponents()) {
@@ -281,7 +285,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 */
 	@Override
 	public boolean changeControlType(
-			final VariableControl<SettingsModel, Model> variableControl,
+			final VariableControl<SettingsModel, Model, Sel> variableControl,
 			final ControlTypes type) {
 		if (type == variableControl.getType()) {
 			return false;
@@ -290,7 +294,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map = componentToControls
 				.get(component);
 		final Boolean removed = map.remove(variableControl);
 		assert removed != null;
@@ -306,14 +310,14 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 			}
 		}
 		component.remove(variableControl.getView());
-		Model slider = null;
-		for (final Entry<Model, VariableControl<SettingsModel, Model>> entry : cache
+		Selectable<Model> slider = null;
+		for (final Entry<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>> entry : cache
 				.entrySet()) {
 			if (entry.getValue().equals(variableControl)) {
 				slider = entry.getKey();
 			}
 		}
-		final VariableControl<? extends SettingsModel, Model> removedVariableControl = cache
+		final VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>> removedVariableControl = cache
 				.remove(slider);
 		assert removedVariableControl != null;
 		final SettingsModelListSelection settingsModel = (SettingsModelListSelection) variableControl
@@ -322,7 +326,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 				.getModelChangeListener());
 		final SplitType splitType = controlToSplit.get(removedVariableControl);
 		assert splitType != null;
-		final VariableControl<SettingsModel, Model> control = createControl(
+		final VariableControl<SettingsModel, Model, Sel> control = createControl(
 				type, settingsModel,
 				createChangeListener(slider, settingsModel),
 				removedVariableControl.getSelectionType(), splitType);
@@ -332,7 +336,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		addToMap(map, control);
 		controlToComponent.put(control, component);
 		controlToSplit.put(control, splitType);
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map2 = splitToControls
 				.get(splitType);
 		addToMap(map2, variableControl);
 		return true;
@@ -347,8 +351,9 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 *            A {@link SplitType} for the model.
 	 * @return On success {@code true}, else {@code false}.
 	 */
-	protected boolean deregister(final Model model, final SplitType splitType) {
-		final VariableControl<? extends SettingsModel, Model> variableControl = cache
+	protected boolean deregister(final Selectable<Model> model,
+			final SplitType splitType) {
+		final VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>> variableControl = cache
 				.get(model);
 		if (variableControl == null) {
 			return false;
@@ -357,7 +362,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
 		final Boolean removed = map.remove(variableControl);
@@ -367,13 +372,13 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		final JComponent removedComponent = controlToComponent
 				.remove(variableControl);
 		assert removedComponent != null;
-		final VariableControl<? extends SettingsModel, Model> removedVariableControl = cache
+		final VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>> removedVariableControl = cache
 				.remove(model);
 		assert removedVariableControl != null;
 		assert removedVariableControl == variableControl;
 		removedVariableControl.getModel().removeChangeListener(
 				removedVariableControl.getModelChangeListener());
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map2 = splitToControls
 				.get(splitType);
 		assert map2 != null;
 		map2.remove(removedVariableControl);
@@ -385,8 +390,8 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean deregister(final Model model) {
-		final VariableControl<? extends SettingsModel, Model> variableControl = cache
+	public boolean deregister(final Sel model) {
+		final VariableControl<? extends SettingsModel, ? extends Model, ? extends Selectable<Model>> variableControl = cache
 				.get(model);
 		if (variableControl == null) {
 			return false;
@@ -408,7 +413,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 */
 	@Override
 	public boolean move(
-			final VariableControl<SettingsModel, Model> variableControl,
+			final VariableControl<SettingsModel, Model, Sel> variableControl,
 			final String nameOfContainer) {
 		final JComponent newContainer = getContainer(
 				getSplitType(variableControl), nameOfContainer);
@@ -419,7 +424,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		if (oldContainer == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel, Model>, Boolean> oldControls = componentToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> oldControls = componentToControls
 				.get(oldContainer);
 		// Transaction start
 		oldControls.remove(variableControl);
@@ -427,7 +432,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		oldContainer.revalidate();
 		newContainer.add(variableControl.getView());
 		newContainer.revalidate();
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map = componentToControls
 				.get(newContainer);
 		assert map != null;
 		addToMap(map, variableControl);
@@ -442,22 +447,22 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * @return The {@link SplitType} of {@code variableControl}.
 	 */
 	private SplitType getSplitType(
-			final VariableControl<SettingsModel, Model> variableControl) {
+			final VariableControl<SettingsModel, Model, Sel> variableControl) {
 		return controlToSplit.get(variableControl);
 	}
 
 	/**
 	 * Adds {@code variableControl} with {@link Boolean#TRUE} to {@code map}.
 	 * 
+	 * @param <K>
+	 *            Type of keys.
 	 * @param map
 	 *            A map which should contain {@link VariableControl} and
 	 *            {@link Boolean}s.
 	 * @param variableControl
 	 *            A handled {@link VariableControl}.
 	 */
-	private void addToMap(
-			final Map<VariableControl<SettingsModel, Model>, Boolean> map,
-			final VariableControl<SettingsModel, Model> variableControl) {
+	private <K> void addToMap(final Map<K, Boolean> map, final K variableControl) {
 		map.put(variableControl, Boolean.TRUE);
 	}
 
@@ -465,16 +470,16 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean register(final Model model, final SplitType modelType,
+	public boolean register(final Sel model, final SplitType modelType,
 			final String nameOfContainer, final ControlTypes controlType) {
 		final JComponent component = getContainer(modelType, nameOfContainer);
 		if (component == null) {
 			return false;
 		}
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map = componentToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map = componentToControls
 				.get(component);
 		assert map != null;
-		final VariableControl<SettingsModel, Model> variableControl = getComponent(
+		final VariableControl<SettingsModel, Model, Sel> variableControl = getComponent(
 				model, controlType,
 				modelType == SplitType.SingleSelect ? SelectionType.Single
 						: SelectionType.MultipleAtLeastOne, modelType);
@@ -483,7 +488,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		}
 		component.add(variableControl.getView());
 		addToMap(map, variableControl);
-		final Map<VariableControl<SettingsModel, Model>, Boolean> map2 = splitToControls
+		final Map<VariableControl<SettingsModel, Model, Sel>, Boolean> map2 = splitToControls
 				.get(modelType);
 		addToMap(map2, variableControl);
 		controlToSplit.put(variableControl, modelType);
@@ -529,7 +534,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 		componentToControls
 				.put(
 						container,
-						new WeakHashMap<VariableControl<SettingsModel, Model>, Boolean>());
+						new WeakHashMap<VariableControl<SettingsModel, Model, Sel>, Boolean>());
 	}
 
 	/**
@@ -591,8 +596,8 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 */
 	@Override
 	public abstract boolean exchangeControls(
-			final VariableControl<SettingsModel, Model> first,
-			final VariableControl<SettingsModel, Model> second);
+			final VariableControl<SettingsModel, Model, Sel> first,
+			final VariableControl<SettingsModel, Model, Sel> second);
 
 	/**
 	 * Notifies the added (and still not garbage collected)
@@ -623,7 +628,7 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 */
 	protected @Nullable
 	Pair<SplitType, String> getPosition(
-			final VariableControl<SettingsModel, Model> variableControl) {
+			final VariableControl<SettingsModel, Model, Sel> variableControl) {
 		Pair<SplitType, String> ret = null;
 		final JComponent view = controlToComponent.get(variableControl);// variableControl.getView();
 		for (final Entry<SplitType, Map<String, WeakReference<JComponent>>> entry : containers
@@ -651,10 +656,10 @@ public abstract class ControlsHandlerAbstractFactory<Model> implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<VariableControl<SettingsModel, Model>> getVariableControlsAt(
+	public Set<VariableControl<SettingsModel, Model, Sel>> getVariableControlsAt(
 			final SplitType splitType) {
-		final Set<VariableControl<SettingsModel, Model>> ret = new HashSet<VariableControl<SettingsModel, Model>>();
-		for (final VariableControl<SettingsModel, Model> variableControl : splitToControls
+		final Set<VariableControl<SettingsModel, Model, Sel>> ret = new HashSet<VariableControl<SettingsModel, Model, Sel>>();
+		for (final VariableControl<SettingsModel, Model, Sel> variableControl : splitToControls
 				.get(splitType).keySet()) {
 			ret.add(variableControl);
 		}
