@@ -8,6 +8,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
@@ -216,10 +217,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 					final ParameterModel secondary = seconderParameters
 							.isEmpty() ? null : seconderParameters.iterator()
 							.next();
-					final SliderModel primSlider = LegendPanel
+					final Selectable<Pair<ParameterModel, Object>> primSlider = LegendPanel
 							.getCurrentSlider(sliders, primary);
-					final SliderModel secSlider = LegendPanel.getCurrentSlider(
-							sliders, secondary);
+					final Selectable<Pair<ParameterModel, Object>> secSlider = LegendPanel
+							.getCurrentSlider(sliders, secondary);
 					final Pair<ParameterModel, Object> primPair = selectPair(
 							prim, primSlider);
 					final Pair<ParameterModel, Object> secPair = selectPair(
@@ -261,7 +262,8 @@ public class LegendPanel extends JPanel implements ActionListener {
 				 */
 				@Nullable
 				private Pair<ParameterModel, Object> selectPair(
-						final int index, final SliderModel slider) {
+						final int index,
+						final Selectable<Pair<ParameterModel, Object>> slider) {
 					if (slider == null) {
 						return null;
 					}
@@ -337,7 +339,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					angle += 180 / primaryCount;
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel currentSlider = LegendPanel
+						final Selectable<Pair<ParameterModel, Object>> currentSlider = LegendPanel
 								.getCurrentSlider(sliders, model);
 						if (currentSlider != null) {
 							for (final Entry<Integer, Pair<ParameterModel, Object>> entry : currentSlider
@@ -397,7 +399,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 								.iterator().next();
 						g.drawString(paramModel.getShortName(), radius / 2,
 								(int) (radius * 1.2));
-						final SliderModel slider = LegendPanel
+						final Selectable<Pair<ParameterModel, Object>> slider = LegendPanel
 								.getCurrentSlider(sliders, paramModel);
 						if (slider == null) {
 							return;
@@ -428,7 +430,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 					g.setColor(borderColor);
 					for (final ParameterModel model : getModel().getMain()
 							.getPrimerParameters()) {
-						final SliderModel slider = LegendPanel
+						final Selectable<Pair<ParameterModel, Object>> slider = LegendPanel
 								.getCurrentSlider(sliders, model);
 						g.drawString(model.getShortName(), 10, 15);
 						int i = 0;
@@ -448,7 +450,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						g.drawString(model.getShortName(), -bounds.height + 5,
 								15);
 						int i = 0;
-						final SliderModel slider = LegendPanel
+						final Selectable<Pair<ParameterModel, Object>> slider = LegendPanel
 								.getCurrentSlider(sliders, model);
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
@@ -468,14 +470,14 @@ public class LegendPanel extends JPanel implements ActionListener {
 			}
 		}
 
-		/**
-		 * @param showLabels
-		 *            Changes the labels' visibility.
-		 */
-		public void setShowLabels(final boolean showLabels) {
-			this.showLabels = showLabels;
-			repaint();
-		}
+		// /**
+		// * @param showLabels
+		// * Changes the labels' visibility.
+		// */
+		// public void setShowLabels(final boolean showLabels) {
+		// this.showLabels = showLabels;
+		// repaint();
+		// }
 
 		@Override
 		public void setModel(final ViewModel model) {
@@ -764,18 +766,19 @@ public class LegendPanel extends JPanel implements ActionListener {
 						.getArrangementModel().getSliderModels();
 				final ParameterModel primary = model.getMain()
 						.getPrimerParameters().iterator().next();
-				final SliderModel primarySlider = SliderModel.findSlider(
-						sliders, primary.getType());
+				final Selectable<Pair<ParameterModel, Object>> primarySlider = SliderModel
+						.findSlider(sliders, primary.getType());
 				final ParameterModel secondary = model.getMain()
 						.getSeconderParameters().size() == 0 ? null : model
 						.getMain().getSeconderParameters().iterator().next();
-				final SliderModel secondarySlider = SliderModel.findSlider(
-						sliders, secondary == null ? StatTypes.experimentName
-								: secondary.getType());
-				final SliderModel statSlider = SliderModel.findSlider(sliders,
-						StatTypes.metaStatType);
-				final SliderModel paramSlider = SliderModel.findSlider(sliders,
-						StatTypes.parameter);
+				final Selectable<Pair<ParameterModel, Object>> secondarySlider = SliderModel
+						.findSlider(sliders,
+								secondary == null ? StatTypes.experimentName
+										: secondary.getType());
+				final Selectable<Pair<ParameterModel, Object>> statSlider = SliderModel
+						.findSlider(sliders, StatTypes.metaStatType);
+				final Selectable<Pair<ParameterModel, Object>> paramSlider = SliderModel
+						.findSlider(sliders, StatTypes.parameter);
 				final ColourModel cm = currentViewModel.getMain()
 						.getColourModel();
 				switch (primary.getType()) {
@@ -940,10 +943,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 		}
 	}
 
-	private static SliderModel getCurrentSlider(
+	private static Selectable<Pair<ParameterModel, Object>> getCurrentSlider(
 			final Collection<SliderModel> sliders,
 			@Nullable final ParameterModel model) {
-		SliderModel currentSlider = null;
+		Selectable<Pair<ParameterModel, Object>> currentSlider = null;
 		for (final SliderModel slider : sliders) {
 			for (final ParameterModel pm : slider.getParameters()) {
 				if (pm.equals(model)) {

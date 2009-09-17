@@ -25,7 +25,9 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <ModelType>
- *            The type of the used model in {@link VariableControl}.
+ *            The type of the used (inner) model in {@link VariableControl}.
+ * @param <Model>
+ *            The type of the model.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ControlsHandler<ModelType, Model> {
@@ -54,20 +56,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 * container associated with {@code containerType}.
 	 * <p>
 	 * Registering a {@code model} again will <b>automatically
-	 * {@link #deregister(SliderModel)} it</b> and register with the new
-	 * parameters.!
-	 * <p>
-	 * This will create the {@link VariableControl} with the default
-	 * {@link ControlTypes} for each {@link Type}:
-	 * <ul>
-	 * <li>{@link Type#Hidden} &rarr; {@link ControlTypes#ComboBox}</li>
-	 * <li>{@link Type#ScrollHorisontal} &rarr;
-	 * {@link ControlTypes#ScrollBarHorisontal}</li>
-	 * <li>{@link Type#ScrollVertical} &rarr;
-	 * {@link ControlTypes#ScrollBarVertical}</li>
-	 * <li>{@link Type#Selector} &rarr; {@link ControlTypes#Slider}</li>
-	 * <li>{@link Type#Splitter} &rarr; {@link ControlTypes#Buttons}</li>
-	 * </ul>
+	 * {@link #deregister(Object)} it</b> and register with the new parameters.!
 	 * 
 	 * @param model
 	 *            The model of the control to register.
@@ -80,7 +69,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 *            The preferred control type for the {@code model}.
 	 * @return Indicates whether the registration did something ({@code true})
 	 *         or not ({@code false}).
-	 * @see #deregister(SliderModel)
+	 * @see #deregister(Object)
 	 * @see #setContainer(JComponent, SplitType, String)
 	 */
 	public boolean register(final Model model, final SplitType splitType,
@@ -91,30 +80,29 @@ public interface ControlsHandler<ModelType, Model> {
 	 * Removes all {@link VariableControl}s associated to the {@code model}.
 	 * <p>
 	 * If {@code model} previously was not
-	 * {@link #register(SliderModel, SplitType, String, ControlTypes)
-	 * registered} it will do nothing.
+	 * {@link #register(Object, SplitType, String, ControlTypes) registered} it
+	 * will do nothing.
 	 * 
 	 * @param model
-	 *            A previously registered {@link SliderModel}.
+	 *            A previously registered {@code Model}.
 	 * @return Indicates whether the deregistration did something ({@code true})
 	 *         or not ({@code false}).
-	 * @see #register(SliderModel, SplitType, String, ControlTypes)
+	 * @see #register(Object, SplitType, String, ControlTypes)
 	 */
 	public boolean deregister(Model model);
 
 	/**
-	 * Registers {@code container} as a {@link Container} for the
-	 * {@link SliderModel}s with type {@code type}. It can be referenced as
-	 * {@code name} in
-	 * {@link #register(SliderModel, SplitType, String, ControlTypes)}.
+	 * Registers {@code container} as a {@link Container} for the {@code Model}s
+	 * with type {@code type}. It can be referenced as {@code name} in
+	 * {@link #register(Object, SplitType, String, ControlTypes)}.
 	 * 
 	 * @param container
 	 *            A {@link JComponent}.
 	 * @param type
-	 *            A {@link SplitType} of the {@link SliderModel}.
+	 *            A {@link SplitType} of the {@code Model}.
 	 * @param name
 	 *            A name associated to the {@code container}
-	 * @see #register(SliderModel, SplitType, String, ControlTypes)
+	 * @see #register(Object, SplitType, String, ControlTypes)
 	 */
 	public void setContainer(JComponent container, SplitType type, String name);
 
@@ -123,8 +111,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 * position: {@code containerType} and {@code nameOfContainer}.
 	 * 
 	 * @param variableControl
-	 *            A
-	 *            {@link #register(SliderModel, SplitType, String, ControlTypes)
+	 *            A {@link #register(Object, SplitType, String, ControlTypes)
 	 *            registered} {@link VariableControl}.
 	 * @param nameOfContainer
 	 *            The <b>new</b> name of the container. May be {@code null},
@@ -136,13 +123,12 @@ public interface ControlsHandler<ModelType, Model> {
 			@Nullable String nameOfContainer);
 
 	/**
-	 * Changes the {@link ControlTypes} of the registered {@link SliderModel} (
+	 * Changes the {@link ControlTypes} of the registered {@code Model} (
 	 * {@code slider}) to {@code type} if possible. If not possible it will do
 	 * nothing.
 	 * 
 	 * @param variableControl
-	 *            A
-	 *            {@link #register(SliderModel, SplitType, String, ControlTypes)
+	 *            A {@link #register(Object, SplitType, String, ControlTypes)
 	 *            registered} {@link VariableControl}.
 	 * @param type
 	 *            The <b>new</b> {@link ControlTypes} of the {@code slider}.
@@ -162,7 +148,7 @@ public interface ControlsHandler<ModelType, Model> {
 	 * Selects a {@link JComponent} if exists with the proper properties.
 	 * 
 	 * @param containerType
-	 *            A {@link Type}.
+	 *            A {@link SplitType}.
 	 * @param nameOfContainer
 	 *            A name of the container. May be {@code null}.
 	 * @return The {@link JComponent} associated to {@code containerType} and
@@ -175,8 +161,8 @@ public interface ControlsHandler<ModelType, Model> {
 
 	/**
 	 * Adds a {@link ChangeListener} ({@code changeListener}) to
-	 * {@link ControlsHandler}. This will notify the listener about the
-	 * {@link SliderModel} type changes.
+	 * {@link ControlsHandler}. This will notify the listener about the {@code
+	 * Model} type changes.
 	 * 
 	 * @param changeListener
 	 *            A {@link ChangeListener}.

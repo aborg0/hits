@@ -13,6 +13,7 @@ public final class SuffixFilenameFilter implements FilenameFilter {
 
 	/**
 	 * @param suffix
+	 *            The suffix to match. (<em>Not</em> regular expression.)
 	 */
 	public SuffixFilenameFilter(final String suffix) {
 		super();

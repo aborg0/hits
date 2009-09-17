@@ -12,6 +12,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -371,13 +372,14 @@ public class ControlPanel extends JPanel {
 			return mainArrangement.toString();
 		}
 
-		public void addValue(final SliderModel slider, final Integer origKey,
+		public void addValue(final Selectable<?> slider, final Integer origKey,
 				final Pair<ParameterModel, Object> map) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void removeValue(final SliderModel slider, final Integer origKey) {
+		public void removeValue(final Selectable<?> slider,
+				final Integer origKey) {
 			// TODO Auto-generated method stub
 
 		}

@@ -38,6 +38,8 @@ public class TokenizeException extends ParseException {
 	 *            From this position the {@link Tokenizer} can be continued with
 	 *            {@code continueState}.
 	 * @param continueState
+	 *            The state where the parsing should continue. Might be {@code
+	 *            null}.
 	 */
 	public <T> TokenizeException(final String s, final int errorOffset,
 			@Nullable final T errorState, final int continueOffset,

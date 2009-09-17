@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,6 +35,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <ModelType>
  *            The type of the associated model.
+ * @param <Model>
+ *            Type of the model for values.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class PopupMenu<ModelType, Model> implements MouseListener {
@@ -51,6 +54,7 @@ public class PopupMenu<ModelType, Model> implements MouseListener {
 
 		/**
 		 * @param splitType
+		 *            The {@link SplitType} of the {@link Action}.
 		 */
 		public ChangeAction(final SplitType splitType) {
 			this.splitType = splitType;
@@ -77,6 +81,7 @@ public class PopupMenu<ModelType, Model> implements MouseListener {
 
 		/**
 		 * @param position
+		 *            The position to move.
 		 */
 		public MoveAction(final Pair<SplitType, String> position) {
 			this.position = position;
@@ -102,6 +107,7 @@ public class PopupMenu<ModelType, Model> implements MouseListener {
 
 		/**
 		 * @param controlTypes
+		 *            The {@link ControlTypes}.
 		 */
 		public VisualChangeAction(final ControlTypes controlTypes) {
 			this.controlTypes = controlTypes;

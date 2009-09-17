@@ -30,6 +30,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#Slider}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            Type of the model for values.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SliderControl<Model> extends AbstractVariableControl<Model> {
@@ -38,8 +40,11 @@ public class SliderControl<Model> extends AbstractVariableControl<Model> {
 
 	/**
 	 * @param model
+	 *            The {@link SettingsModelListSelection}.
 	 * @param selectionType
+	 *            The initial {@link SelectionType}.
 	 * @param controlsHandler
+	 *            The used {@link ControlsHandler}.
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
@@ -188,7 +193,7 @@ public class SliderControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final SliderControl other = (SliderControl) obj;
+		final SliderControl<?> other = (SliderControl<?>) obj;
 		if (slider == null) {
 			if (other.slider != null) {
 				return false;

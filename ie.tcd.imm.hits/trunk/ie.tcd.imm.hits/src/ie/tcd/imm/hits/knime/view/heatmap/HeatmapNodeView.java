@@ -18,6 +18,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.swing.ImageType;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -245,7 +246,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				return;
 			}
 			if (actual < others.size()) {
-				final SliderModel slider = others.get(actual);
+				final Selectable<?> slider = others.get(actual);
 				final Integer original = slider.getSelections().iterator()
 						.next();
 				for (final Integer key : slider.getValueMapping().keySet()) {
@@ -490,7 +491,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		private int possibleValueCount(final Collection<SliderModel> sliders) {
 			int allCount = 0;
-			for (final SliderModel slider : sliders) {
+			for (final Selectable<?> slider : sliders) {
 				allCount += slider.getSelections().size();
 			}
 			return allCount;
@@ -759,7 +760,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					break;
 				case Hidden:
 				case Selector:
-					for (final SliderModel m : entry.getValue()) {
+					for (final Selectable<?> m : entry.getValue()) {
 						if (m.getSelections().size() > 1) {
 							m.selectSingle(m.getSelections().iterator().next());
 						}

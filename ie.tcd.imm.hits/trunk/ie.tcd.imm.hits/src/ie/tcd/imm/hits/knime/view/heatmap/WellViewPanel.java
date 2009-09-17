@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.Selectable;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -367,7 +368,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	public static int selectValueCount(final List<ParameterModel> parameters,
 			final Collection<SliderModel> sliders) {
 		int ret = 0;
-		SliderModel current = null;
+		Selectable<?> current = null;
 		for (final SliderModel slider : sliders) {
 			if (slider.getParameters().equals(parameters)) {
 				current = slider;
@@ -388,6 +389,7 @@ public class WellViewPanel extends JPanel implements Hiliteable,
 	 * Sets a new {@link ViewModel}, {@code model}.
 	 * 
 	 * @param model
+	 *            The new {@link ViewModel}.
 	 */
 	public void setModel(final ViewModel model) {
 		this.model = model;

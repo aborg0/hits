@@ -99,8 +99,11 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 
 	/**
 	 * @param name
+	 *            The name of the {@link Action}.
 	 * @param colourSelector
+	 *            The {@link ColourSelector} instance of colours.
 	 * @param type
+	 *            The result image format.
 	 * 
 	 * @see #ExportLegendAction(String, Icon, ColourSelector, ImageType)
 	 */
@@ -138,7 +141,9 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 
 			@SuppressWarnings("unchecked")
 			private final Tokenizer groupingTokenizer = new TokenizerFactory()
-					.createGroupingTokenizer(Pair.<Token, List<Token>>leftNull(Collections.<Token> emptyList()), Arrays
+					.createGroupingTokenizer(Pair
+							.<Token, List<Token>> leftNull(Collections
+									.<Token> emptyList()), Arrays
 							.<Class<? extends Token>> asList(SimpleToken.class,
 									CompoundToken.class), false, Pattern
 							.compile("\\{"), Pattern.compile("\\}"), 0);

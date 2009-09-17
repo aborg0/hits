@@ -22,6 +22,8 @@ import javax.swing.event.ChangeListener;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <ModelType>
  *            The type of the model used inside.
+ * @param <Model>
+ *            The model of the alternatives.
  */
 public interface VariableControl<ModelType, Model> {
 

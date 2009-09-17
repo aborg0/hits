@@ -148,8 +148,13 @@ public class SettingsModelListSelection extends SettingsModel implements
 	}
 
 	/**
+	 * Updates the model with {@code newValues}, {@code newSelections}
+	 * collections.
+	 * 
 	 * @param newValues
+	 *            The new possible values.
 	 * @param newSelections
+	 *            The new selected values.
 	 */
 	private void updateModel(final List<String> newValues,
 			final Iterable<String> newSelections) {
@@ -180,7 +185,9 @@ public class SettingsModelListSelection extends SettingsModel implements
 
 	/**
 	 * @param settings
+	 *            The {@link NodeSettingsRO} to read from.
 	 * @throws InvalidSettingsException
+	 *             If the read is unsuccessful from the {@code settings}.
 	 */
 	private void updateModel(final NodeSettingsRO settings)
 			throws InvalidSettingsException {

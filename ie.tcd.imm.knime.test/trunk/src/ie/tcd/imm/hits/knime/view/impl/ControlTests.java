@@ -126,7 +126,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link SliderControl}.
 	 */
-	@Test(timeOut = 2000)
+	@Test(timeOut = 3000)
 	@GUITest
 	public void slider() {
 		final VariableControl<? extends SettingsModel, ?> component0 = controlsHandler

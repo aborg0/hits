@@ -10,6 +10,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ComplexModelFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
@@ -316,9 +317,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	 */
 	private void findColourValues(final Format format, final Color[][] colors,
 			final Object scores, final ColourModel colourModel,
-			final SliderModel firstParamSlider,
+			final Selectable<Pair<ParameterModel, Object>> firstParamSlider,
 			@Nullable final Integer firstSelection, final int firstIndex,
-			final SliderModel secondParamSlider,
+			final Selectable<Pair<ParameterModel, Object>> secondParamSlider,
 			@Nullable final Integer secondSelection, final int secondIndex,
 			final List<SliderModel> sliderList, final int sliderIndex) {
 		final int firstParamCount = firstParamSlider == null ? 1
@@ -328,7 +329,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 			Map<?, ?> map = (Map<?, ?>) scores;
 
 			for (int i = sliderIndex; i < sliderList.size(); ++i) {
-				final SliderModel sliderModel = sliderList.get(i);
+				final Selectable<Pair<ParameterModel, Object>> sliderModel = sliderList
+						.get(i);
 				if (map == null) {
 					return;
 				}
@@ -449,10 +451,10 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	 *            The type of the values in {@code posMap}.
 	 * @param posMap
 	 *            The map of the positions ({@code 0} (inclusive) to
-	 *            {@link SliderModel#MAX_INDEPENDENT_FACTORS}{@code} exclusive)
-	 *            to the values. The values will be added to the lists. It is a
-	 *            good choice to have these lists modifiable and empty at the
-	 *            beginning.
+	 *            {@link SliderModel#MAX_INDEPENDENT_FACTORS}{@code -1}
+	 *            exclusive) to the values. The values will be added to the
+	 *            lists. It is a good choice to have these lists modifiable and
+	 *            empty at the beginning.
 	 * @param slider
 	 *            A {@link SliderModel}.
 	 * @param cls
@@ -469,7 +471,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 
 	private int computeSplitterCount(final Collection<SliderModel> sliders) {
 		int ret = 1;
-		for (final SliderModel slider : sliders) {
+		for (final Selectable<?> slider : sliders) {
 			if (slider != null) {
 				ret *= slider.getSelections().size();
 			}

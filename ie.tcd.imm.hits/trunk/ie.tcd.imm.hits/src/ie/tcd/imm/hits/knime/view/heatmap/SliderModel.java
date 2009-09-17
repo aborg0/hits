@@ -6,6 +6,7 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.event.ActionEvent;
@@ -27,7 +28,8 @@ import org.eclipse.swt.widgets.Slider;
 /**
  * This is something that represents a {@link ParameterModel} list and values.
  */
-public class SliderModel implements Serializable {
+public class SliderModel implements Serializable,
+		Selectable<Pair<ParameterModel, Object>> {
 	private static final long serialVersionUID = 8868671426882187720L;
 
 	/**
@@ -56,9 +58,6 @@ public class SliderModel implements Serializable {
 	public static final int MAX_INDEPENDENT_FACTORS = 3;
 
 	private final int subId;
-
-	@Deprecated
-	private final SliderModel.Type type;
 
 	private final List<ParameterModel> parameters = new ArrayList<ParameterModel>();
 	private final Map<Integer, Pair<ParameterModel, Object>> valueMapping = new HashMap<Integer, Pair<ParameterModel, Object>>();
@@ -122,7 +121,7 @@ public class SliderModel implements Serializable {
 					throw new IllegalStateException("Unknown slider type: "
 							+ type);
 				}
-				final SliderModel slider = new SliderModel(type, 0, parameters,
+				final SliderModel slider = new SliderModel(0, parameters,
 						valueMapping, controlTypes);
 				sliders.add(slider);
 				ret.add(slider);
@@ -131,21 +130,18 @@ public class SliderModel implements Serializable {
 		}
 	}
 
-	private SliderModel(final SliderModel.Type type, final int subId,
-			final List<ParameterModel> parameters,
+	private SliderModel(final int subId, final List<ParameterModel> parameters,
 			final Map<Integer, Pair<ParameterModel, Object>> valueMapping,
 			final ControlTypes controlType) {
-		this(type, subId, parameters, valueMapping, valueMapping.keySet(),
+		this(subId, parameters, valueMapping, valueMapping.keySet(),
 				controlType);
 	}
 
-	private SliderModel(final SliderModel.Type type, final int subId,
-			final List<ParameterModel> parameters,
+	private SliderModel(final int subId, final List<ParameterModel> parameters,
 			final Map<Integer, Pair<ParameterModel, Object>> valueMapping,
 			final Set<Integer> selection,
 			final ControlTypes preferredControlType) {
 		super();
-		this.type = type;
 		this.subId = subId;
 		this.preferredControlType = preferredControlType;
 		this.parameters.addAll(parameters);
@@ -223,14 +219,6 @@ public class SliderModel implements Serializable {
 	}
 
 	/**
-	 * @return The position of the slider.
-	 */
-	@Deprecated
-	public SliderModel.Type getType() {
-		return type;
-	}
-
-	/**
 	 * @return The parameters belonging to this {@link SliderModel}.
 	 */
 	public List<ParameterModel> getParameters() {
@@ -245,22 +233,20 @@ public class SliderModel implements Serializable {
 		return Collections.unmodifiableMap(valueMapping);
 	}
 
-	/**
-	 * @return The selected (to view) values of the {@link SliderModel}. (
-	 *         <em>Not modifiable!</em>)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ie.tcd.imm.hits.knime.view.heatmap.Selectable#getSelections()
 	 */
 	public Set<Integer> getSelections() {
 		return Collections.unmodifiableSet(selections);
 	}
 
-	/**
-	 * Selects the value with key {@code val}.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param val
-	 *            The value key to select.
-	 * @see #getSelections()
-	 * @see #deselect(Integer)
-	 * @see #getValueMapping()
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#select(java.lang.Integer)
 	 */
 	public void select(final Integer val) {
 		final boolean add = selections.add(val);
@@ -269,11 +255,12 @@ public class SliderModel implements Serializable {
 		}
 	}
 
-	/**
-	 * Selects a single value with key: {@code val}.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param val
-	 *            A possible value. (Starting from {@code 1}).
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#selectSingle(java.lang.
+	 * Integer)
 	 */
 	public void selectSingle(final Integer val) {
 		if (selections.size() == 1 && selections.contains(val)) {
@@ -285,14 +272,11 @@ public class SliderModel implements Serializable {
 
 	}
 
-	/**
-	 * Deselects the value with key {@code val}.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @param val
-	 *            The value key to deselect.
-	 * @see #getSelections()
-	 * @see #select(Integer)
-	 * @see #getValueMapping()
+	 * @see
+	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#deselect(java.lang.Integer)
 	 */
 	public void deselect(final Integer val) {
 		final boolean remove = selections.remove(val);

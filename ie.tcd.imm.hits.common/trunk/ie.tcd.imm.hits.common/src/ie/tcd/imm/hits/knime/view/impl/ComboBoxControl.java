@@ -29,6 +29,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#ComboBox}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            Type of the model for values.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
@@ -36,8 +38,11 @@ public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
 
 	/**
 	 * @param model
+	 *            The {@link SettingsModelListSelection}.
 	 * @param selectionType
+	 *            The initial {@link SelectionType}.
 	 * @param controlsHandler
+	 *            The {@link ControlsHandler} instance.
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
 	 */
@@ -167,7 +172,7 @@ public class ComboBoxControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final ComboBoxControl other = (ComboBoxControl) obj;
+		final ComboBoxControl<?> other = (ComboBoxControl<?>) obj;
 		if (combobox == null) {
 			if (other.combobox != null) {
 				return false;

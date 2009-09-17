@@ -27,6 +27,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#Buttons}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            Type of the model for values.
  */
 public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 	/**
@@ -38,11 +40,6 @@ public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 		private final ListSelection<String> listSelection;
 		private final SelectionType selectionType;
 
-		/**
-		 * @param value
-		 * @param listSelection
-		 * @param selectionType
-		 */
 		private ButtonActionListener(final String value,
 				final ListSelection<String> listSelection,
 				final SelectionType selectionType) {
@@ -224,7 +221,7 @@ public class ButtonsControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final ButtonsControl other = (ButtonsControl) obj;
+		final ButtonsControl<?> other = (ButtonsControl<?>) obj;
 		if (buttons == null) {
 			if (other.buttons != null) {
 				return false;

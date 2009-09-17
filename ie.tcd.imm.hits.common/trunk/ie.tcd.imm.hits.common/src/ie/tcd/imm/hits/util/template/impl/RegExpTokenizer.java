@@ -28,7 +28,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class RegExpTokenizer extends TokenizerHelper implements Tokenizer, Serializable {
+public class RegExpTokenizer extends TokenizerHelper implements Tokenizer,
+		Serializable {
 	private static final long serialVersionUID = 7828487000830931865L;
 
 	/**
@@ -70,8 +71,7 @@ public class RegExpTokenizer extends TokenizerHelper implements Tokenizer, Seria
 	 *            ).
 	 * 
 	 */
-	public RegExpTokenizer(final int offset,
-			@RegEx final String splitExpression) {
+	public RegExpTokenizer(final int offset, @RegEx final String splitExpression) {
 		super();
 		this.offset = offset;
 		pattern = Pattern.compile(splitExpression);
@@ -95,9 +95,8 @@ public class RegExpTokenizer extends TokenizerHelper implements Tokenizer, Seria
 	 * @param text
 	 *            The text to analyse.
 	 * @return A mixture of the {@link SimpleToken}s and {@link SplitToken}s.
-	 * @throws TokenizeException
 	 */
-	protected List<Token> splitter(final String text) throws TokenizeException {
+	protected List<Token> splitter(final String text) {
 		final Matcher matcher = pattern.matcher(text.substring(offset));
 		final String[] parts = pattern.split(text.substring(offset), -1);
 		final List<Token> ret = new ArrayList<Token>();
@@ -122,6 +121,9 @@ public class RegExpTokenizer extends TokenizerHelper implements Tokenizer, Seria
 		return ret;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Token> parse(final String text) throws TokenizeException {
 		return filter(splitter(text), SimpleToken.class, true);

@@ -33,6 +33,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * {@link VariableControl.ControlTypes#List}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            Type of the model for values.
  */
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ListControl<Model> extends AbstractVariableControl<Model> {
@@ -216,7 +218,7 @@ public class ListControl<Model> extends AbstractVariableControl<Model> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final ListControl other = (ListControl) obj;
+		final ListControl<?> other = (ListControl<?>) obj;
 		if (list == null) {
 			if (other.list != null) {
 				return false;

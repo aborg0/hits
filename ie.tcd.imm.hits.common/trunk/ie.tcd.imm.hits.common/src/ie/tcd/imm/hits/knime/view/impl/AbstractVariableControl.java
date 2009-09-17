@@ -25,9 +25,11 @@ import org.knime.core.node.port.PortObjectSpec;
  * implementations in this package.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            The model for visible values
  */
-abstract class AbstractVariableControl<Model> extends DialogComponent implements
-		VariableControl<SettingsModel, Model> {
+public abstract class AbstractVariableControl<Model> extends DialogComponent
+		implements VariableControl<SettingsModel, Model> {
 	private final JToolBar panel = new JToolBar();
 
 	private final SelectionType selectionType;
@@ -153,7 +155,7 @@ abstract class AbstractVariableControl<Model> extends DialogComponent implements
 	/**
 	 * @return the panel
 	 */
-	protected JToolBar getPanel() {
+	public JToolBar getPanel() {
 		return panel;
 	}
 
@@ -211,7 +213,7 @@ abstract class AbstractVariableControl<Model> extends DialogComponent implements
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final AbstractVariableControl other = (AbstractVariableControl) obj;
+		final AbstractVariableControl<?> other = (AbstractVariableControl<?>) obj;
 		if (controlHandler == null) {
 			if (other.controlHandler != null) {
 				return false;
