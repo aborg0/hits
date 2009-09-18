@@ -12,15 +12,16 @@
         
         
         <option name="folder">The folder of images</option>
+        <option name="extensions">Extensions to select the image files</option>
         <!--option name="short name of second option (like in the dialog)">description of second option</option-->
     </fullDescription>
     
     <ports>
         <!--inPort index="0" name="In-Port name">Description of first input port...</inPort-->
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <outPort index="1" name="Out-Port name">Description of first output port...</outPort>
-        <outPort index="2" name="Out-Port name">Description of first output port...</outPort>
+        <outPort index="0" name="mapping to readers">maps the images to LOCI readers</outPort>
+        <outPort index="1" name="readers">LOCI readers</outPort>
+        <outPort index="2" name="metadata">metadata from readers</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     <!-- views>

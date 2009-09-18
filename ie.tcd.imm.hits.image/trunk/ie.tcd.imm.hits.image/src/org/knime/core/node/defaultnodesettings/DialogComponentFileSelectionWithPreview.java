@@ -9,11 +9,15 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -21,17 +25,25 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.CoreMetadata;
+import loci.formats.gui.ExtensionFileFilter;
 import loci.plugins.util.ImagePlusReader;
 
 import org.hcdc.plate.ImagePanel;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 
 /**
@@ -45,6 +57,8 @@ public class DialogComponentFileSelectionWithPreview extends
 			.getLogger(DialogComponentFileSelectionWithPreview.class);
 	private JPanel metaInfo;
 	private ImagePanel imagePanel;
+	private String extension = "";
+	private JList fileNames = new JList(new DefaultListModel());
 	private ExecutorService threadPoolExecutor = new ThreadPoolExecutor(1, 1,
 			60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
 	private volatile Future<?> future;
@@ -99,16 +113,58 @@ public class DialogComponentFileSelectionWithPreview extends
 				validExtensions);
 		metaInfo = new JPanel();
 		imagePanel = new ImagePanel(400, 400);
+		final JComboBox extensionsCombobox = new JComboBox(new String[] {
+				"xdce", "png", "tif" });
+		extensionsCombobox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				setExtension((String) extensionsCombobox.getSelectedItem());
+			}
+		});
+		getComponentPanel().add(extensionsCombobox);
 		getComponentPanel().add(new JScrollPane(imagePanel));
 		getComponentPanel().add(new JScrollPane(metaInfo));
+		getComponentPanel().add(new JScrollPane(fileNames));
+		fileNames.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		fileNames.getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+					@Override
+					public void valueChanged(final ListSelectionEvent e) {
+						stopPreview();
+						final Object selectedValue = fileNames
+								.getSelectedValue();
+						if (selectedValue != null) {
+							final File modelFile = new File(
+									((SettingsModelString) getModel())
+											.getStringValue());
+							final File file = modelFile.isFile() ? modelFile
+									: new File(modelFile.getAbsolutePath()
+											.concat((String) selectedValue));
+							updatePreview(file.getAbsolutePath());
+						}
+					}
+				});
 	}
 
 	@Override
 	protected void updateComponent() {
 		super.updateComponent();
-		final String imageUrl = ((SettingsModelString) getModel())
-				.getStringValue();
-		if (!new File(imageUrl).exists()) {
+		final SettingsModelString model = (SettingsModelString) getModel();
+		final String imageUrl = model.getStringValue();
+		if (imageUrl.contains("**")) {
+			model.setStringValue(model.getStringValue().substring(0,
+					imageUrl.indexOf("**")));
+			setExtension(imageUrl.substring(imageUrl.indexOf("**") + 2));
+		}
+		updatePreview(imageUrl);
+	}
+
+	/**
+	 * @param imageUrl
+	 */
+	private void updatePreview(final String imageUrl) {
+		final File file = new File(imageUrl);
+		if (!file.exists() || !file.isFile()) {
 			if (imagePanel != null) {
 				stopPreview();
 				try {
@@ -122,8 +178,10 @@ public class DialogComponentFileSelectionWithPreview extends
 			if (metaInfo != null) {
 				metaInfo.removeAll();
 			}
+			updateList(imageUrl, extension);
 			return;
 		}
+		updateList(imageUrl, extension);
 		final StringBuilder fileInfo = new StringBuilder();
 		final ImagePlus[] pointer = new ImagePlus[1];
 
@@ -255,6 +313,81 @@ public class DialogComponentFileSelectionWithPreview extends
 			// if (notExecuted.size() > 0) {
 			// logger.debug("Terminated " + notExecuted.size() + " task(s).");
 			// }
+		}
+	}
+
+	public void setExtension(final String extension) {
+		if (!this.extension.equals(extension)) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateList(((SettingsModelString) getModel())
+							.getStringValue(), extension);
+				}
+			});
+		}
+		this.extension = extension;
+	}
+
+	private void updateList(final String folderName, final String extension) {
+		stopPreview();
+		if (fileNames == null) {
+			return;
+		}
+		((DefaultListModel) fileNames.getModel()).clear();
+		final File parent = new File(folderName);
+		if (parent.isFile()) {
+			((DefaultListModel) fileNames.getModel()).addElement(parent
+					.getName());
+		}
+		final List<String> contents = new ArrayList<String>();
+		final java.io.FileFilter fileFilter = new ExtensionFileFilter(
+				extension, "");
+		visit(parent, parent, contents, fileFilter);
+		for (final String string : contents) {
+			((DefaultListModel) fileNames.getModel()).addElement(string);
+		}
+	}
+
+	private void visit(final File origParent, final File parent,
+			final List<String> contents, final java.io.FileFilter fileFilter) {
+		final String origPath = origParent.getAbsolutePath();
+		if (parent.isFile() && fileFilter.accept(parent)) {
+			addFile(parent, origPath, contents);
+		}
+		final File[] listFiles = parent.listFiles(fileFilter);
+		if (listFiles == null) {
+			return;
+		}
+		for (final File file : listFiles) {
+			addFile(file, origPath, contents);
+		}
+		for (final File possFolder : parent.listFiles()) {
+			if (possFolder.isDirectory()) {
+				visit(origParent, possFolder, contents, fileFilter);
+			}
+		}
+	}
+
+	/**
+	 * @param file
+	 * @param origPath
+	 * @param contents
+	 */
+	private void addFile(final File file, final String origPath,
+			final List<String> contents) {
+		final String absolutePath = file.getAbsolutePath();
+		if (file.isFile() && absolutePath.startsWith(origPath)) {
+			contents.add(absolutePath.substring(origPath.length()));
+		}
+	}
+
+	@Override
+	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+		super.validateSettingsBeforeSave();
+		final SettingsModelString model = (SettingsModelString) getModel();
+		if (new File(model.getStringValue()).isDirectory()) {
+			model.setStringValue(model.getStringValue() + "**" + extension);
 		}
 	}
 }

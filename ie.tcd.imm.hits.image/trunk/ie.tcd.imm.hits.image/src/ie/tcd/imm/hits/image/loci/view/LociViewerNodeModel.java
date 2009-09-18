@@ -1,5 +1,6 @@
 package ie.tcd.imm.hits.image.loci.view;
 
+import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Pair;
 
@@ -56,9 +57,33 @@ public class LociViewerNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		joinTable = new HashMap<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>();
 
+		final int plate0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_PLATE);
+		final int row0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_ROW);
+		final int col0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_COLUMN);
+		final int field0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_FIELD);
+		final int id0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_ID);
+		final int imageId0Index = inData[0].getDataTableSpec().findColumnIndex(
+				PublicConstants.IMAGE_ID);
+		final int plate1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_PLATE);
+		final int row1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_ROW);
+		final int col1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_COLUMN);
+		final int field1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_FIELD);
+		final int content1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_IMAGE_CONTENT);
+		final int id1Index = inData[1].getDataTableSpec().findColumnIndex(
+				PublicConstants.LOCI_ID);
 		final Map<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>> xmls = new HashMap<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>>();
 		for (final DataRow row : inData[1]) {
-			final DataCell plateCell = row.getCell(0);
+			final DataCell plateCell = row.getCell(plate1Index);
 			final String plate;
 			if (plateCell instanceof StringValue) {
 				plate = ((StringValue) plateCell).getStringValue();
@@ -74,7 +99,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>> inner0 = xmls
 					.get(plate);
 			final String rowValue;
-			final DataCell rowCell = row.getCell(1);
+			final DataCell rowCell = row.getCell(row1Index);
 			if (rowCell instanceof StringValue) {
 				rowValue = ((StringValue) rowCell).getStringValue();
 			} else {
@@ -89,7 +114,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<Integer, Map<Integer, Pair<FormatReader, String>>> inner1 = inner0
 					.get(rowValue);
 			final Integer column;
-			final DataCell columnCell = row.getCell(2);
+			final DataCell columnCell = row.getCell(col1Index);
 			if (columnCell instanceof IntValue) {
 				column = Integer.valueOf(((IntValue) columnCell).getIntValue());
 			} else {
@@ -102,7 +127,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<Integer, Pair<FormatReader, String>> inner2 = inner1
 					.get(column);
 			final Integer field;
-			final DataCell fieldCell = row.getCell(3);
+			final DataCell fieldCell = row.getCell(field1Index);
 			if (fieldCell instanceof IntValue) {
 				field = Integer.valueOf(((IntValue) fieldCell).getIntValue());
 			} else {
@@ -110,14 +135,14 @@ public class LociViewerNodeModel extends NodeModel {
 			}
 			inner2.put(field, Pair.apply(/*
 										 * .MetadataTools .createOMEXMLMetadata(
-										 */((LociReaderCell) row.getCell(4))
-					.getReader()/* ) */, ((StringValue) row.getCell(5))
-					.getStringValue()));
+										 */((LociReaderCell) row
+					.getCell(content1Index)).getReader()/* ) */,
+					((StringValue) row.getCell(id1Index)).getStringValue()));
 		}
 
 		for (final DataRow row : inData[0]) {
 			final String plate;
-			final DataCell plateCell = row.getCell(0);
+			final DataCell plateCell = row.getCell(plate0Index);
 			if (plateCell instanceof StringValue) {
 				plate = ((StringValue) plateCell).getStringValue();
 			} else {
@@ -134,7 +159,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>> other0 = joinTable
 					.get(plate);
 			final String rowValue;
-			final DataCell rowCell = row.getCell(1);
+			final DataCell rowCell = row.getCell(row0Index);
 			if (rowCell instanceof StringValue) {
 				rowValue = ((StringValue) rowCell).getStringValue();
 			} else {
@@ -151,7 +176,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<Integer, Map<Integer, Map<Integer, FormatReader>>> other1 = other0
 					.get(rowValue);
 			final Integer column;
-			final DataCell columnCell = row.getCell(2);
+			final DataCell columnCell = row.getCell(col0Index);
 			if (columnCell instanceof IntValue) {
 				column = Integer.valueOf(((IntValue) columnCell).getIntValue());
 			} else {
@@ -166,7 +191,7 @@ public class LociViewerNodeModel extends NodeModel {
 			final Map<Integer, Map<Integer, FormatReader>> other2 = other1
 					.get(column);
 			final Integer field;
-			final DataCell fieldCell = row.getCell(3);
+			final DataCell fieldCell = row.getCell(field0Index);
 			if (fieldCell instanceof IntValue) {
 				field = Integer.valueOf(((IntValue) fieldCell).getIntValue());
 			} else {
@@ -179,13 +204,13 @@ public class LociViewerNodeModel extends NodeModel {
 			}
 			final Map<Integer, FormatReader> other3 = other2.get(field);
 
-			final DataCell omeIdCell = row.getCell(4);
+			final DataCell omeIdCell = row.getCell(id0Index);
 			final String omeId = ((StringValue) omeIdCell).getStringValue();
 			if (!omeId.equals(pair.getRight())) {
 				throw new IllegalStateException("Not matching ids: " + omeId
 						+ " <-> " + pair.getRight());
 			}
-			other3.put(Integer.valueOf(((IntValue) row.getCell(5))
+			other3.put(Integer.valueOf(((IntValue) row.getCell(imageId0Index))
 					.getIntValue()), pair.getLeft());
 		}
 		return new BufferedDataTable[] {};

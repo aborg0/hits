@@ -1,11 +1,14 @@
 package ie.tcd.imm.hits.image.loci.read;
 
+import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Misc;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
@@ -30,6 +33,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+
+import visad.util.ExtensionFileFilter;
 
 /**
  * This is the model implementation of OMEReader. This node reads image
@@ -76,7 +81,19 @@ public class LociReaderNodeModel extends NodeModel {
 			reader.setOriginalMetadataPopulated(false);
 			// final IMetadata omeXml = MetadataTools.createOMEXMLMetadata();
 			// reader.setMetadataStore(new DummyMetadata());
-			for (final URI file : visit(new File(folder.getStringValue()))) {
+			final String rawFolder = folder.getStringValue();
+			final File f = new File(rawFolder);
+			String extension;
+			File folderFile;
+			if (f.isFile()) {
+				folderFile = f;
+				extension = "";
+			} else {
+				folderFile = new File(rawFolder.substring(0, rawFolder
+						.indexOf("**")));
+				extension = rawFolder.substring(rawFolder.indexOf("**") + 2);
+			}
+			for (final URI file : visit(folderFile, extension)) {
 				reader.setId(file.getPath());
 				logger.debug("loaded: " + file);
 				xmlPlateContainer
@@ -128,8 +145,52 @@ public class LociReaderNodeModel extends NodeModel {
 				xmlPlateContainer.getTable(), experimentContainer.getTable() };
 	}
 
-	private URI[] visit(final File file) {
-		return new URI[] { file.toURI() };
+	private URI[] visit(final File file, final String extension) {
+		if (file.isFile()) {
+			return new URI[] { file.toURI() };
+		}
+		final ExtensionFileFilter fileFilter = new ExtensionFileFilter(
+				extension, "");
+		final ArrayList<String> contents = new ArrayList<String>();
+		visit(file, file, contents, fileFilter);
+		final URI[] uris = new URI[contents.size()];
+		for (int j = 0; j < uris.length; j++) {
+			uris[j] = new File(file, contents.get(j)).toURI();
+		}
+		return uris;
+	}
+
+	private static void visit(final File origParent, final File parent,
+			final List<String> contents, final java.io.FileFilter fileFilter) {
+		final String origPath = origParent.getAbsolutePath();
+		if (parent.isFile() && fileFilter.accept(parent)) {
+			addFile(parent, origPath, contents);
+		}
+		final File[] listFiles = parent.listFiles(fileFilter);
+		if (listFiles == null) {
+			return;
+		}
+		for (final File file : listFiles) {
+			addFile(file, origPath, contents);
+		}
+		for (final File possFolder : parent.listFiles()) {
+			if (possFolder.isDirectory()) {
+				visit(origParent, possFolder, contents, fileFilter);
+			}
+		}
+	}
+
+	/**
+	 * @param file
+	 * @param origPath
+	 * @param contents
+	 */
+	private static void addFile(final File file, final String origPath,
+			final List<String> contents) {
+		final String absolutePath = file.getAbsolutePath();
+		if (file.isFile() && absolutePath.startsWith(origPath)) {
+			contents.add(absolutePath.substring(origPath.length()));
+		}
 	}
 
 	private static DataTableSpec createExperimentDescriptionSpec() {
@@ -137,25 +198,30 @@ public class LociReaderNodeModel extends NodeModel {
 	}
 
 	private static DataTableSpec createXmlPlateSpec() {
-		return new DataTableSpec(new DataColumnSpecCreator("Plate",
-				StringCell.TYPE).createSpec(), new DataColumnSpecCreator("Row",
-				StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
-				"Column", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("Field", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("LOCI", DataType
-						.getType(LociReaderCell.class)).createSpec(),
-				new DataColumnSpecCreator("LOCI-id", StringCell.TYPE)
-						.createSpec());
+		return new DataTableSpec(new DataColumnSpecCreator(
+				PublicConstants.LOCI_PLATE, StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_ROW,
+						StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
+						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
+						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_IMAGE_CONTENT,
+						DataType.getType(LociReaderCell.class)).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_ID,
+						StringCell.TYPE).createSpec());
 	}
 
 	private static DataTableSpec createPlateSpec() {
-		return new DataTableSpec(new DataColumnSpecCreator("Plate",
-				StringCell.TYPE).createSpec(), new DataColumnSpecCreator("Row",
-				StringCell.TYPE).createSpec(), new DataColumnSpecCreator(
-				"Column", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("Field", IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator("LOCI-id", StringCell.TYPE)
-						.createSpec(), new DataColumnSpecCreator("Image-id",
+		return new DataTableSpec(new DataColumnSpecCreator(
+				PublicConstants.LOCI_PLATE, StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_ROW,
+						StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
+						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
+						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_ID,
+						StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.IMAGE_ID,
 						IntCell.TYPE).createSpec());
 	}
 

@@ -2,6 +2,7 @@ package ie.tcd.imm.hits.image.loci.read;
 
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import loci.formats.ChannelSeparator;
@@ -52,10 +53,10 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 		fileChooser = new DialogComponentFileSelectionWithPreview(
 				new SettingsModelString(LociReaderNodeModel.CFGKEY_FOLDER,
 						LociReaderNodeModel.DEFAULT_FOLDER),
-				LociReaderNodeModel.CFGKEY_FOLDER, validExtensions
-						.toArray(new String[validExtensions.size()])
-		// ".xdce"
-		);
+				LociReaderNodeModel.CFGKEY_FOLDER, JFileChooser.OPEN_DIALOG,
+				true, validExtensions
+						.toArray(new String[validExtensions.size()]));
+		fileChooser.setExtension("xdce");
 		addDialogComponent(fileChooser);
 	}
 
