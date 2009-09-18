@@ -1,6 +1,7 @@
 /* All rights reserved. (C) Copyright 2009, Trinity College Dublin */
 package ie.tcd.imm.hits.util;
 
+import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,5 +55,14 @@ public interface Selectable<MappedValues> {
 	 *         <em>not modifiable</em>!
 	 */
 	public Map<Integer, MappedValues> getValueMapping();
+
+	/**
+	 * Adds an {@link ActionListener}.
+	 * 
+	 * @param actionListener
+	 *            An {@link ActionListener} to notify the listeners about
+	 *            changes.
+	 */
+	public void addActionListener(ActionListener actionListener);
 
 }

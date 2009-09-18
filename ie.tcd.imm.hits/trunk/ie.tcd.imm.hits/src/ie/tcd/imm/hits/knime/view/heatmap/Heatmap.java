@@ -11,6 +11,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.Selector;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ComplexModelFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
@@ -372,8 +373,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		} else {
 			array = (double[]) scores;
 		}
-		SliderModel paramSlider = null;
-		SliderModel statSlider = null;
+		Selector<Pair<ParameterModel, Object>> paramSlider = null;
+		Selector<Pair<ParameterModel, Object>> statSlider = null;
 		for (final SliderModel sliderModel : sliderList) {
 			switch (sliderModel.getParameters().get(0).getType()) {
 			case parameter:

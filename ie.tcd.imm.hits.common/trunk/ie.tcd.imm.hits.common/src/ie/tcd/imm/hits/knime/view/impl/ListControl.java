@@ -54,12 +54,15 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 	 *            The {@link ControlsHandler} for the possible transformations.
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
+	 * @param domainModel
+	 *            The model for possible parameters and selections.
 	 */
 	public ListControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
 			final ControlsHandler<SettingsModel, Model, Sel> controlsHandler,
-			final ChangeListener changeListener) {
-		super(model, selectionType, controlsHandler, changeListener);
+			final ChangeListener changeListener, final Sel domainModel) {
+		super(model, selectionType, controlsHandler, changeListener,
+				domainModel);
 		list.setName(model.getConfigName());
 		updateComponent();
 		switch (selectionType) {

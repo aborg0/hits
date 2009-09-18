@@ -49,12 +49,15 @@ public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 	 *            The {@link ControlsHandler} instance.
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
+	 * @param domainModel
+	 *            The model for possible parameters and selections.
 	 */
 	public ComboBoxControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
 			final ControlsHandler<SettingsModel, Model, Sel> controlsHandler,
-			final ChangeListener changeListener) {
-		super(model, selectionType, controlsHandler, changeListener);
+			final ChangeListener changeListener, final Sel domainModel) {
+		super(model, selectionType, controlsHandler, changeListener,
+				domainModel);
 		switch (selectionType) {
 		case MultipleAtLeastOne:
 		case MultipleOrNone:

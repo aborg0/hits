@@ -50,7 +50,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectable<Model>>
 		implements ControlsHandler<SettingsModel, Model, Sel> {
 
-	private final Map<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>> cache = new WeakHashMap<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>>();
+	private final Map<Sel, VariableControl<SettingsModel, Model, Sel>> cache = new WeakHashMap<Sel, VariableControl<SettingsModel, Model, Sel>>();
 
 	private final EnumMap<SplitType, Map<String, WeakReference<JComponent>>> containers = new EnumMap<SplitType, Map<String, WeakReference<JComponent>>>(
 			SplitType.class);
@@ -90,7 +90,7 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 	 */
 	@Override
 	public VariableControl<SettingsModel, Model, Sel> getComponent(
-			final Selectable<Model> slider, final ControlTypes controlType,
+			final Sel slider, final ControlTypes controlType,
 			final SelectionType selectionType, final SplitType split) {
 		if (!cache.containsKey(slider)) {
 			final VariableControl<SettingsModel, Model, Sel> control = createNewControl(
@@ -119,7 +119,7 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 	 * @return The new control instance.
 	 */
 	protected abstract VariableControl<SettingsModel, Model, Sel> createNewControl(
-			final Selectable<Model> model, final ControlTypes controlType,
+			final Sel model, final ControlTypes controlType,
 			final SelectionType selectionType, final SplitType split);
 
 	/**
@@ -139,12 +139,12 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 	 * @return The control with the proper parameters.
 	 */
 	protected VariableControl<SettingsModel, Model, Sel> createControl(
-			final Selectable<Model> slider, final ControlTypes controlType,
+			final Sel slider, final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final SelectionType selectionType, final SplitType split) {
 		final ChangeListener changeListener = createChangeListener(slider,
 				settingsModelListSelection);
-		return createControl(controlType, settingsModelListSelection,
+		return createControl(slider, controlType, settingsModelListSelection,
 				changeListener, selectionType, split);
 	}
 
@@ -198,22 +198,8 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 	}
 
 	/**
-	 * Adjusts the {@code model} according to the selection.
-	 * 
-	 * @param selections
-	 *            The selected {@link String}s
-	 * @param values
-	 *            The possible values.
-	 * @param selectedIndices
-	 *            The selected indices.
-	 * @param model
-	 *            The model to modify.
-	 */
-	protected abstract void adjustModel(Set<String> selections,
-			List<String> values, Set<Integer> selectedIndices,
-			Selectable<Model> model);
-
-	/**
+	 * @param domainModel
+	 *            The model for possible parameters and selections.
 	 * @param controlType
 	 *            The preferred {@link ControlTypes}.
 	 * @param settingsModelListSelection
@@ -228,7 +214,7 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 	 * @return The {@link VariableControl} with the desired parameters.
 	 */
 	protected VariableControl<SettingsModel, Model, Sel> createControl(
-			final ControlTypes controlType,
+			final Sel domainModel, final ControlTypes controlType,
 			final SettingsModelListSelection settingsModelListSelection,
 			final ChangeListener changeListener, final SelectionType selection,
 			final SplitType split) {
@@ -236,21 +222,21 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 		switch (controlType) {
 		case Buttons:
 			ret = new ButtonsControl<Model, Sel>(settingsModelListSelection,
-					selection, this, changeListener);
+					selection, this, changeListener, domainModel);
 			break;
 		case List:
 			ret = new ListControl<Model, Sel>(settingsModelListSelection,
-					selection, this, changeListener);
+					selection, this, changeListener, domainModel);
 			break;
 		case ComboBox:
 			ret = new ComboBoxControl<Model, Sel>(settingsModelListSelection,
-					selection, this, changeListener);
+					selection, this, changeListener, domainModel);
 			break;
 		case Invisible:
 			throw new UnsupportedOperationException("Not supported yet.");
 		case Slider:
 			ret = new SliderControl<Model, Sel>(settingsModelListSelection,
-					selection, this, changeListener);
+					selection, this, changeListener, domainModel);
 			break;
 		case RadioButton:
 			throw new UnsupportedOperationException("Not supported yet.");
@@ -310,8 +296,8 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 			}
 		}
 		component.remove(variableControl.getView());
-		Selectable<Model> slider = null;
-		for (final Entry<Selectable<Model>, VariableControl<SettingsModel, Model, Sel>> entry : cache
+		Sel slider = null;
+		for (final Entry<Sel, VariableControl<SettingsModel, Model, Sel>> entry : cache
 				.entrySet()) {
 			if (entry.getValue().equals(variableControl)) {
 				slider = entry.getKey();
@@ -327,9 +313,9 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 		final SplitType splitType = controlToSplit.get(removedVariableControl);
 		assert splitType != null;
 		final VariableControl<SettingsModel, Model, Sel> control = createControl(
-				type, settingsModel,
-				createChangeListener(slider, settingsModel),
-				removedVariableControl.getSelectionType(), splitType);
+				slider, type, settingsModel, createChangeListener(slider,
+						settingsModel), removedVariableControl
+						.getSelectionType(), splitType);
 		cache.put(slider, control);
 		component.add(control.getView(), originalPosition);
 		component.revalidate();
@@ -664,5 +650,38 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 			ret.add(variableControl);
 		}
 		return ret;
+	}
+
+	/**
+	 * Adjusts the {@code model} according to the selection.
+	 * 
+	 * @param selections
+	 *            The selected {@link String}s
+	 * @param values
+	 *            The possible values.
+	 * @param selectedIndices
+	 *            The selected indices.
+	 * @param model
+	 *            The model to modify.
+	 */
+	protected void adjustModel(final Set<String> selections,
+			final List<String> values, final Set<Integer> selectedIndices,
+			final Selectable<Model> model) {
+		final Set<Integer> sliderSelection = new HashSet<Integer>(model
+				.getSelections());
+		if (selectedIndices.size() == 1) {
+			model.selectSingle(selectedIndices.iterator().next());
+		} else {
+			for (final Integer index : selectedIndices) {
+				if (!sliderSelection.contains(index)) {
+					model.select(index);
+				}
+			}
+			for (final Integer index : sliderSelection) {
+				if (!selectedIndices.contains(index)) {
+					model.deselect(index);
+				}
+			}
+		}
 	}
 }

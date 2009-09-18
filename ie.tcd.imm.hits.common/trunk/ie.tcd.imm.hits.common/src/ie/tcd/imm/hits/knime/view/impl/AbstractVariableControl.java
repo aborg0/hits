@@ -42,23 +42,28 @@ public abstract class AbstractVariableControl<Model, Sel extends Selectable<Mode
 
 	private final ChangeListener changeListener;
 
+	private final Sel domainModel;
+
 	/**
 	 * Sets the initial parameters.
 	 * 
 	 * @param model
-	 *            The model to use.
+	 *            The model for inner use.
 	 * @param selectionType
 	 *            The supported {@link SelectionType}.
 	 * @param controlHandler
 	 *            The handler for possible transformations.
 	 * @param changeListener
 	 *            The {@link ChangeListener} associated to the {@code model}.
+	 * @param domainModel
+	 *            The model for possible values.
 	 */
 	public AbstractVariableControl(final SettingsModelListSelection model,
 			final SelectionType selectionType,
 			final ControlsHandler<SettingsModel, Model, Sel> controlHandler,
-			final ChangeListener changeListener) {
+			final ChangeListener changeListener, final Sel domainModel) {
 		super(model);
+		this.domainModel = domainModel;
 		panel.setBorder(new TitledBorder(model.getConfigName()));
 		this.selectionType = selectionType;
 		this.controlHandler = controlHandler;
@@ -248,5 +253,10 @@ public abstract class AbstractVariableControl<Model, Sel extends Selectable<Mode
 	@Override
 	public ChangeListener getModelChangeListener() {
 		return changeListener;
+	}
+
+	@Override
+	public Sel getDomainModel() {
+		return domainModel;
 	}
 }

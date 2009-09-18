@@ -9,7 +9,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -252,10 +251,9 @@ public class ControlsHandlerKNIMEFactory
 	 */
 	@Override
 	protected VariableControl<SettingsModel, Pair<ParameterModel, Object>, SliderModel> createNewControl(
-			final Selectable<Pair<ParameterModel, Object>> slider,
-			final ControlTypes controlType, final SelectionType selectionType,
-			final SplitType split) {
-		final String name = createName((SliderModel) slider);
+			final SliderModel slider, final ControlTypes controlType,
+			final SelectionType selectionType, final SplitType split) {
+		final String name = createName(slider);
 		final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 				.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
@@ -293,28 +291,6 @@ public class ControlsHandlerKNIMEFactory
 				slider, controlType, settingsModelListSelection, selectionType,
 				split);
 		return control;
-	}
-
-	@Override
-	protected void adjustModel(final Set<String> selections,
-			final List<String> values, final Set<Integer> selectedIndices,
-			final Selectable<Pair<ParameterModel, Object>> slider) {
-		final Set<Integer> sliderSelection = new HashSet<Integer>(slider
-				.getSelections());
-		if (selectedIndices.size() == 1) {
-			slider.selectSingle(selectedIndices.iterator().next());
-		} else {
-			for (final Integer index : selectedIndices) {
-				if (!sliderSelection.contains(index)) {
-					slider.select(index);
-				}
-			}
-			for (final Integer index : sliderSelection) {
-				if (!selectedIndices.contains(index)) {
-					slider.deselect(index);
-				}
-			}
-		}
 	}
 
 }

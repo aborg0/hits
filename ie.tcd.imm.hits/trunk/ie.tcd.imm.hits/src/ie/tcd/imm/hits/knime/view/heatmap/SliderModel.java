@@ -6,20 +6,16 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.Selector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import javax.annotation.Nullable;
 
@@ -28,8 +24,8 @@ import org.eclipse.swt.widgets.Slider;
 /**
  * This is something that represents a {@link ParameterModel} list and values.
  */
-public class SliderModel implements Serializable,
-		Selectable<Pair<ParameterModel, Object>> {
+public class SliderModel extends Selector<Pair<ParameterModel, Object>>
+		implements Serializable {
 	private static final long serialVersionUID = 8868671426882187720L;
 
 	/**
@@ -60,13 +56,7 @@ public class SliderModel implements Serializable,
 	private final int subId;
 
 	private final List<ParameterModel> parameters = new ArrayList<ParameterModel>();
-	private final Map<Integer, Pair<ParameterModel, Object>> valueMapping = new HashMap<Integer, Pair<ParameterModel, Object>>();
-
-	private final Set<Integer> selections = new HashSet<Integer>();
-
 	private final ControlTypes preferredControlType;
-
-	private final Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
 
 	/**
 	 * Constructs {@link SliderModel}s, with cache.
@@ -95,7 +85,7 @@ public class SliderModel implements Serializable,
 			for (final SliderModel slider : sliders) {
 				if (/* slider.type == type && */parameters
 						.equals(slider.parameters)
-						&& valueMapping.equals(slider.valueMapping)) {
+						&& valueMapping.equals(slider.getValueMapping())) {
 					ret.add(slider);
 				}
 			}
@@ -141,12 +131,10 @@ public class SliderModel implements Serializable,
 			final Map<Integer, Pair<ParameterModel, Object>> valueMapping,
 			final Set<Integer> selection,
 			final ControlTypes preferredControlType) {
-		super();
+		super(valueMapping, selection);
 		this.subId = subId;
 		this.preferredControlType = preferredControlType;
 		this.parameters.addAll(parameters);
-		this.valueMapping.putAll(valueMapping);
-		this.selections.addAll(selection);
 	}
 
 	@Override
@@ -157,8 +145,7 @@ public class SliderModel implements Serializable,
 				+ (parameters == null ? 0 : parameters.hashCode());
 		result = prime * result + subId;
 		// result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result
-				+ (valueMapping == null ? 0 : valueMapping.hashCode());
+		result = prime * result + super.hashCode();
 		return result;
 	}
 
@@ -191,21 +178,7 @@ public class SliderModel implements Serializable,
 		// } else if (type != other.type) {
 		// return false;
 		// }
-		if (valueMapping == null) {
-			if (other.valueMapping != null) {
-				return false;
-			}
-		} else if (!valueMapping.equals(other.valueMapping)) {
-			return false;
-		}
-		if (selections == null) {
-			if (other.selections != null) {
-				return false;
-			}
-		} else if (!selections.equals(other.selections)) {
-			return false;
-		}
-		return true;
+		return super.equals(obj);
 	}
 
 	/**
@@ -225,73 +198,6 @@ public class SliderModel implements Serializable,
 		return Collections.unmodifiableList(parameters);
 	}
 
-	/**
-	 * @return A {@link Map} from the constants to the values. It is
-	 *         <em>not modifiable</em>!
-	 */
-	public Map<Integer, Pair<ParameterModel, Object>> getValueMapping() {
-		return Collections.unmodifiableMap(valueMapping);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ie.tcd.imm.hits.knime.view.heatmap.Selectable#getSelections()
-	 */
-	public Set<Integer> getSelections() {
-		return Collections.unmodifiableSet(selections);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#select(java.lang.Integer)
-	 */
-	public void select(final Integer val) {
-		final boolean add = selections.add(val);
-		if (add) {
-			notifyListeners();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#selectSingle(java.lang.
-	 * Integer)
-	 */
-	public void selectSingle(final Integer val) {
-		if (selections.size() == 1 && selections.contains(val)) {
-			return;
-		}
-		selections.clear();
-		selections.add(val);
-		notifyListeners();
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * ie.tcd.imm.hits.knime.view.heatmap.Selectable#deselect(java.lang.Integer)
-	 */
-	public void deselect(final Integer val) {
-		final boolean remove = selections.remove(val);
-		if (remove) {
-			notifyListeners();
-		}
-	}
-
-	private void notifyListeners() {
-		for (final ActionListener listener : listeners.keySet()) {
-			listener.actionPerformed(new ActionEvent(this, (int) (System
-					.currentTimeMillis() & 0xFFFFFFFF), "selectionChange"));
-		}
-	}
-
 	@Override
 	public String toString() {
 		return preferredControlType + "_" + subId + " " + parameters;
@@ -302,17 +208,6 @@ public class SliderModel implements Serializable,
 	 */
 	public ControlTypes getPreferredControlType() {
 		return preferredControlType;
-	}
-
-	/**
-	 * Adds an {@link ActionListener}.
-	 * 
-	 * @param actionListener
-	 *            An {@link ActionListener} to notify the listeners about
-	 *            changes.
-	 */
-	public void addActionListener(final ActionListener actionListener) {
-		listeners.put(actionListener, Boolean.TRUE);
 	}
 
 	/**
@@ -328,8 +223,8 @@ public class SliderModel implements Serializable,
 	 *         not found.
 	 */
 	public static @Nullable
-	SliderModel findSlider(final Iterable<SliderModel> sliders,
-			final StatTypes statType) {
+	Selector<Pair<ParameterModel, Object>> findSlider(
+			final Iterable<SliderModel> sliders, final StatTypes statType) {
 		for (final SliderModel sliderModel : sliders) {
 			final List<ParameterModel> params = sliderModel.getParameters();
 			if (params.size() > 0

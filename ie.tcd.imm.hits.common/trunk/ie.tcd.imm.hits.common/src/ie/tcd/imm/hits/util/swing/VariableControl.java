@@ -115,4 +115,9 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 	 *         ModelType} {@link #getModel() model}.
 	 */
 	public ChangeListener getModelChangeListener();
+
+	/**
+	 * @return The actual domain model.
+	 */
+	public Sel getDomainModel();
 }

@@ -51,7 +51,7 @@ public interface ControlsHandler<ModelType, Model, Sel extends Selectable<Model>
 	 */
 	@Deprecated
 	public VariableControl<? extends ModelType, ? extends Model, ? extends Sel> getComponent(
-			final Selectable<Model> model, final ControlTypes controlType,
+			final Sel model, final ControlTypes controlType,
 			final SelectionType selectionType, SplitType splitType);
 
 	/**
