@@ -47,6 +47,23 @@ public interface PublicConstants {
 	public static final String GENE_ID_COL_NAME = "GeneID";
 	/** The gene annotation column name in the result table. */
 	public static final String GENE_ANNOTATION_COL_NAME = "GeneSymbol";
+	/** The plate identifier column name in LOCI nodes. */
+	public static final String LOCI_PLATE = "LOCI-Plate";
+	/** The row column name in LOCI nodes. */
+	public static final String LOCI_ROW = "LOCI-Row";
+	/** The 'column' column name in LOCI nodes. */
+	public static final String LOCI_COLUMN = "LOCI-Column";
+	/** The field column name in LOCI nodes. */
+	public static final String LOCI_FIELD = "LOCI-Field";
+	/** The LOCI join identifier column name in LOCI nodes. */
+	public static final String LOCI_ID = "LOCI-Id";
+	/** The LOCI serialised image content column in LOCI nodes. */
+	public static final String LOCI_IMAGE_CONTENT = "LOCI";
+	/**
+	 * The image (series) identifier in sub-images for serialised image
+	 * contents.
+	 */
+	public static final String IMAGE_ID = "Image-Id";
 
 	/**
 	 * Utility methods related to the constants.
