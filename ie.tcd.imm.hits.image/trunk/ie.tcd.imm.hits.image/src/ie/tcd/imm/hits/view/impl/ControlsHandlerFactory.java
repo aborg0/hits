@@ -12,6 +12,8 @@ import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -23,6 +25,7 @@ import java.util.TreeSet;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.event.ChangeEvent;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -156,13 +159,20 @@ public class ControlsHandlerFactory<Model> extends
 		}
 		final Collection<String> selected = new HashSet<String>();
 		for (final Integer integer : selections) {
-			selected.add(vals.get(integer.intValue() - 1));
+			selected.add(vals.get(integer.intValue()));
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				model.getName(), vals, selected);
 		final VariableControl<SettingsModel, Model, NamedSelector<Model>> control = createControl(
 				model, controlType, settingsModelListSelection, selectionType,
 				split);
+		model.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				control.getModelChangeListener().stateChanged(
+						new ChangeEvent(e.getSource()));
+			}
+		});
 		return control;
 	}
 

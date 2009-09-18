@@ -24,7 +24,7 @@ public class LociViewerNodeFactory extends NodeFactory<LociViewerNodeModel> {
 	 */
 	@Override
 	public int getNrNodeViews() {
-		return 2;
+		return 3;
 	}
 
 	/**
@@ -35,8 +35,10 @@ public class LociViewerNodeFactory extends NodeFactory<LociViewerNodeModel> {
 			final LociViewerNodeModel nodeModel) {
 		switch (viewIndex) {
 		case 0:
-			return new LociViewerNodeView(nodeModel);
+			return new LociViewerNodeFastView(nodeModel);
 		case 1:
+			return new LociViewerNodeView(nodeModel);
+		case 2:
 			return new LociViewerNodeSimpleView(nodeModel);
 		default:
 			throw new IndexOutOfBoundsException("Wrong index: " + viewIndex);

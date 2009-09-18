@@ -60,7 +60,7 @@ public interface ControlsHandler<ModelType, Model, Sel extends Selectable<Model>
 	 * <p>
 	 * Registering a {@code model} again will <b>automatically
 	 * {@link #deregister(Selectable)} it</b> and register with the new
-	 * parameters.!
+	 * parameters!
 	 * 
 	 * @param model
 	 *            The model of the control to register.
