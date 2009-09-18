@@ -92,8 +92,8 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ (selections == null ? 0 : selections.hashCode());
+		// result = prime * result
+		// + (selections == null ? 0 : selections.hashCode());
 		result = prime * result
 				+ (valueMapping == null ? 0 : valueMapping.hashCode());
 		return result;
