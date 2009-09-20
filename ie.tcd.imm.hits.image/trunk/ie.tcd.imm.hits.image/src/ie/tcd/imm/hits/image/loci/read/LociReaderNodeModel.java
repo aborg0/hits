@@ -123,7 +123,7 @@ public class LociReaderNodeModel extends NodeModel {
 							"Row_" + i), new StringCell(file.getPath()),
 							new StringCell(Misc.toUpperLetter(Integer
 									.toString(i / 8 / 12 + 1))), new IntCell(
-									i / 8 % 12 + 1), new IntCell(i % 8),
+									i / 8 % 12 + 1), new IntCell(i % 8 + 1),
 							new StringCell(file.getPath()), new IntCell(i)));
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 
 /**
  * TODO Javadoc!
@@ -133,4 +134,20 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		for (final Entry<Integer, MappedValues> entry : valueMapping.entrySet()) {
+			if (selections.contains(entry.getKey())) {
+				sb.append('[').append(entry.getValue()).append(']');
+			} else {
+				sb.append(entry.getValue());
+			}
+			sb.append(", ");
+		}
+		if (sb.length() > 0) {
+			sb.setLength(sb.length() - 2);
+		}
+		return sb.toString();
+	}
 }

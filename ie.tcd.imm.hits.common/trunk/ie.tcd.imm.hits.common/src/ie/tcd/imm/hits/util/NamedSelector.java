@@ -61,7 +61,7 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 	public static <V> LinkedHashMap<Integer, V> createValues(
 			final Iterable<V> set) {
 		final LinkedHashMap<Integer, V> ret = new LinkedHashMap<Integer, V>();
-		int i = 0;
+		int i = 1;
 		for (final V v : set) {
 			ret.put(Integer.valueOf(i++), v);
 		}

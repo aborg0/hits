@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -81,7 +83,7 @@ public class LociViewerNodeModel extends NodeModel {
 				PublicConstants.LOCI_IMAGE_CONTENT);
 		final int id1Index = inData[1].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_ID);
-		final Map<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>> xmls = new HashMap<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>>();
+		final Map<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>> xmls = new LinkedHashMap<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>>();
 		for (final DataRow row : inData[1]) {
 			final DataCell plateCell = row.getCell(plate1Index);
 			final String plate;
@@ -94,7 +96,7 @@ public class LociViewerNodeModel extends NodeModel {
 				xmls
 						.put(
 								plate,
-								new HashMap<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>());
+								new LinkedHashMap<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>());
 			}
 			final Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>> inner0 = xmls
 					.get(plate);
@@ -109,7 +111,7 @@ public class LociViewerNodeModel extends NodeModel {
 				inner0
 						.put(
 								rowValue,
-								new HashMap<Integer, Map<Integer, Pair<FormatReader, String>>>());
+								new LinkedHashMap<Integer, Map<Integer, Pair<FormatReader, String>>>());
 			}
 			final Map<Integer, Map<Integer, Pair<FormatReader, String>>> inner1 = inner0
 					.get(rowValue);
@@ -152,7 +154,7 @@ public class LociViewerNodeModel extends NodeModel {
 				joinTable
 						.put(
 								plate,
-								new HashMap<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>());
+								new TreeMap<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>());
 			}
 			final Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>> inner0 = xmls
 					.get(xmls.containsKey(plate) ? plate : null);
@@ -169,7 +171,7 @@ public class LociViewerNodeModel extends NodeModel {
 				other0
 						.put(
 								rowValue,
-								new HashMap<Integer, Map<Integer, Map<Integer, FormatReader>>>());
+								new LinkedHashMap<Integer, Map<Integer, Map<Integer, FormatReader>>>());
 			}
 			final Map<Integer, Map<Integer, Pair<FormatReader, String>>> inner1 = inner0
 					.get(inner0.containsKey(rowValue) ? rowValue : null);
@@ -183,8 +185,10 @@ public class LociViewerNodeModel extends NodeModel {
 				throw new IllegalStateException("wrong value: " + columnCell);
 			}
 			if (!other1.containsKey(column)) {
-				other1.put(column,
-						new HashMap<Integer, Map<Integer, FormatReader>>());
+				other1
+						.put(
+								column,
+								new LinkedHashMap<Integer, Map<Integer, FormatReader>>());
 			}
 			final Map<Integer, Pair<FormatReader, String>> inner2 = inner1
 					.get(inner1.containsKey(column) ? column : null);

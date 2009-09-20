@@ -91,7 +91,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				javax.swing.BoxLayout.Y_AXIS));
 		panel.setAlignmentY(Component.TOP_ALIGNMENT);
 		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		panel.add(new JScrollPane(imagePanel));
+		final JScrollPane imageScrollPane = new JScrollPane(imagePanel);
+		imageScrollPane.setSize(800, 600);
+		panel.add(imageScrollPane);
 		imagePanel.setPreferredSize(new Dimension(800, 600));
 		panel.add(new JScrollPane(controls));
 		joinTable = Collections.emptyMap();
@@ -191,7 +193,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		fieldSelector = OptionalNamedSelector.createSingle(FIELD,
 				columnSelector.getSelections().isEmpty() ? Collections
 						.<String> emptySet() : asStringSet(increase(
-						getPlateRowColMap().keySet(), -1)));
+						getPlateRowColMap().keySet(), 0)));
 		recreateChannelSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
@@ -239,6 +241,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					final ImageProcessor[] openProcessors = imagePlusReader
 							.openProcessors(channel);
 					ip = /* reader */openProcessors[0];
+					if (imagePanel.getWidth() == 0
+							|| imagePanel.getHeight() == 0) {
+						imagePanel.setSize(imagePanel.getPreferredSize());
+					}
+					// System.out.println(imagePanel.getSize());
 					imagePanel.setImage(new ImagePlus("", ip)
 							.getBufferedImage());
 				} catch (final FormatException ex) {
@@ -254,6 +261,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(channelSelector,
 				SplitType.SingleSelect, GENERAL, ControlTypes.Buttons);
+		if (getPlateRowColFieldMap() != null) {
+			actionListener.actionPerformed(null);
+		}
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
@@ -343,7 +353,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 */
 	private Map<Integer, Map<Integer, FormatReader>> getPlateRowColMap() {
 		return getPlateRowMap().get(
-				Integer.parseInt(columnSelector.getSelected()));
+				Integer.valueOf(columnSelector.getSelected()));
 	}
 
 	/**
@@ -351,7 +361,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 */
 	private Map<Integer, FormatReader> getPlateRowColFieldMap() {
 		return getPlateRowColMap().get(
-				Integer.parseInt(fieldSelector.getSelected()));
+				Integer.valueOf(fieldSelector.getSelected()));
 	}
 
 }

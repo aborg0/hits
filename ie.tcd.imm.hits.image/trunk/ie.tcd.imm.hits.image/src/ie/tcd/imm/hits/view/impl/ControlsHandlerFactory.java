@@ -159,7 +159,7 @@ public class ControlsHandlerFactory<Model> extends
 		}
 		final Collection<String> selected = new HashSet<String>();
 		for (final Integer integer : selections) {
-			selected.add(vals.get(integer.intValue()));
+			selected.add(vals.get(integer.intValue() - 1));
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				model.getName(), vals, selected);
