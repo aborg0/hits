@@ -7,6 +7,8 @@ import ie.tcd.imm.hits.util.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
 import ij.ImagePlus;
+import ij.ImageStack;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.awt.Component;
@@ -86,13 +88,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		final JPanel controls = new JPanel();
 		controlsHandlerFactory.setContainer(controls, SplitType.SingleSelect,
 				GENERAL);
+		controlsHandlerFactory.setContainer(controls, SplitType.PrimarySplit,
+				GENERAL);
 		setComponent(new JScrollPane(panel));
 		panel.setLayout(new javax.swing.BoxLayout(panel,
 				javax.swing.BoxLayout.Y_AXIS));
 		panel.setAlignmentY(Component.TOP_ALIGNMENT);
 		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		final JScrollPane imageScrollPane = new JScrollPane(imagePanel);
-		imageScrollPane.setSize(800, 600);
+		imageScrollPane.setPreferredSize(new Dimension(800, 600));
 		panel.add(imageScrollPane);
 		imagePanel.setPreferredSize(new Dimension(800, 600));
 		panel.add(new JScrollPane(controls));
@@ -223,31 +227,94 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateChannelSelector() {
 		deregister(channelSelector);
-		channelSelector = OptionalNamedSelector.createSingle(CHANNEL, Arrays
-				.asList("Channel 1", "Channel 2"));
+		channelSelector = new OptionalNamedSelector<String>(CHANNEL,
+				NamedSelector.createValues(Arrays.asList("Channel 1",
+						"Channel 2")), Collections
+						.singleton(Integer.valueOf(1)));
 		final ActionListener actionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				ImageProcessor ip;
 				try {
-					final int channel = channelSelector.getSelections()
-							.iterator().next().intValue() - 1;
 					final Entry<Integer, FormatReader> entry = getPlateRowColFieldMap()
 							.entrySet().iterator().next();
 					final FormatReader formatReader = entry.getValue();
 					final ImagePlusReader imagePlusReader = ImagePlusReader
 							.makeImagePlusReader(formatReader);
 					imagePlusReader.setSeries(entry.getKey().intValue());
-					final ImageProcessor[] openProcessors = imagePlusReader
-							.openProcessors(channel);
-					ip = /* reader */openProcessors[0];
 					if (imagePanel.getWidth() == 0
 							|| imagePanel.getHeight() == 0) {
-						imagePanel.setSize(imagePanel.getPreferredSize());
+						imagePanel.setSize(imagePlusReader.getSizeX(),
+								imagePlusReader.getSizeY());
 					}
-					// System.out.println(imagePanel.getSize());
-					imagePanel.setImage(new ImagePlus("", ip)
-							.getBufferedImage());
+					final Set<Integer> channels = channelSelector
+							.getSelections();
+					if (channels.size() == 1) {
+						final int channel = channels.iterator().next()
+								.intValue() - 1;
+						final ImageProcessor[] openProcessors = imagePlusReader
+								.openProcessors(channel);
+						ip = /* reader */openProcessors[0];
+						final ImagePlus imagePlus = new ImagePlus("", ip);
+						imagePanel.setImage(imagePlus.getBufferedImage());
+						return;
+					}
+					// final byte[] green = new byte[256];
+					// Arrays.fill(green, (byte) -128);
+					// final byte[] red = new byte[256];
+					// final byte[] blue = new byte[256];
+					// for (int i = red.length; i-- > 0;) {
+					// blue[i] = (byte) (255 - i & 255);
+					// red[i] = (byte) (255 - i & 255);
+					// green[i] = (byte) (255 - i & 255);
+					// }
+					// Arrays.fill(red, (byte) 0);
+					// Arrays.fill(green, (byte) 0);
+					// Arrays.fill(blue, (byte) 0);
+					// final LUT lut = new LUT(red, green, blue);
+					// lut.min = 50;
+					// lut.max = 200;
+					// final ImagePlus ch1 = new ImagePlus("ch1",
+					// imagePlusReader
+					// .openProcessors(0)[0]);
+					// // final LUT lut1 = new LUT(red, new byte[256], new
+					// // byte[256]);
+					// // final LUT lut2 = new LUT(new byte[256], new byte[256],
+					// // green);
+					// // ch1.getProcessor().setColorModel(lut1);
+					// new ImageConverter(ch1).convertToGray8();
+					//					
+					// final ImagePlus ch2 = new ImagePlus("ch2",
+					// imagePlusReader
+					// .openProcessors(1)[0]);
+					// // ch2.getProcessor().setColorModel(lut2);
+					// new ImageConverter(ch2).convertToGray8();
+					// // imageStack.addSlice("channel 1", imagePlusReader
+					// // .openProcessors(0)[0]);
+					// // imageStack.addSlice("channel 2", imagePlusReader
+					// // .openProcessors(1)[0]);
+					// imageStack.addSlice("channel 1", ch1.getProcessor());
+					// imageStack.addSlice("channel 2", ch2.getProcessor());
+					// final LutApplier lutApplier = new LutApplier();
+					// // lutApplier.setup("", imagePlus0);
+					// // lutApplier.run(imagePlus0.getProcessor());
+					//					
+					// // imagePlus0.getProcessor().setColorModel(lut);
+					// final LutViewer lutViewer = new LutViewer();
+					// // lutViewer.setup("", imagePlus0);
+					// // lutViewer.run(imagePlus.getProcessor());
+					final ImageStack imageStack = new ImageStack(
+							imagePlusReader.getSizeX(), imagePlusReader
+									.getSizeY());
+					for (int i = 0; i < Math.min(3, imagePlusReader.getSizeC()); ++i) {
+						final ImagePlus image = new ImagePlus(null,
+								imagePlusReader.openProcessors(i)[0]);
+						new ImageConverter(image).convertToGray8();
+						imageStack.addSlice(null, image.getProcessor());
+					}
+					final ImagePlus imagePlus = new ImagePlus("", imageStack);
+					new ImageConverter(imagePlus).convertRGBStackToRGB();
+					imagePanel.setImage(imagePlus.getBufferedImage());
 				} catch (final FormatException ex) {
 					// TODO Auto-generated catch block
 					ex.printStackTrace();
@@ -260,10 +327,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		channelSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(channelSelector,
-				SplitType.SingleSelect, GENERAL, ControlTypes.Buttons);
+				SplitType.PrimarySplit, GENERAL, ControlTypes.Buttons);
 		if (getPlateRowColFieldMap() != null) {
 			actionListener.actionPerformed(null);
 		}
+
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
