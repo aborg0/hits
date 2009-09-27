@@ -6,12 +6,14 @@ import ie.tcd.imm.hits.util.Misc;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.plugins.util.ImagePlusReader;
 
@@ -50,8 +52,15 @@ public class LociReaderNodeModel extends NodeModel {
 	static final String DEFAULT_FOLDER = new File(System
 			.getProperty("user.home")).getAbsoluteFile().toURI().toString();
 
+	static final String CFGKEY_EXTENSION = "extension";
+	static final String DEFAULT_EXTENSION = "xdce";
+	static final ArrayList<String> ALLOWED_EXTENSIONS = LociReaderNodeDialog
+			.computeExtensions();
+
 	private static final SettingsModelString folder = new SettingsModelString(
 			CFGKEY_FOLDER, DEFAULT_FOLDER);
+	private static final SettingsModelString extensions = new SettingsModelString(
+			CFGKEY_EXTENSION, DEFAULT_EXTENSION);
 
 	/**
 	 * Constructor for the node model.
@@ -89,17 +98,31 @@ public class LociReaderNodeModel extends NodeModel {
 				folderFile = f;
 				extension = "";
 			} else {
-				folderFile = new File(rawFolder.substring(0, rawFolder
-						.indexOf("**")));
-				extension = rawFolder.substring(rawFolder.indexOf("**") + 2);
+				folderFile = new File(rawFolder);
+				extension = extensions.getStringValue();
 			}
 			for (final URI file : visit(folderFile, extension)) {
 				reader.setId(file.getPath());
 				logger.debug("loaded: " + file);
+				final IFormatReader formatReader = ((ImageReader) ((ChannelSeparator) reader
+						.getReader()).getReader()).getReader();
+				// if (formatReader.getClass().getField("channelNames") !=null)
+				// {
+				//					
+				// }
+				final int colCount = getPrivateField(formatReader, "wellCols",
+						1);
+				final int rowCount = getPrivateField(formatReader, "wellRows",
+						1);
+				final int fieldCount = getPrivateField(formatReader,
+						"fieldCount", formatReader.getSeriesCount() / rowCount
+								/ colCount);
+				final String relPos = new File(file).getAbsolutePath()
+						.substring(folderFile.getAbsolutePath().length());
 				xmlPlateContainer
 						.addRowToTable(new DefaultRow(
-								new RowKey(new File(file).getName()),
-								new StringCell(file.getPath()),
+								new RowKey(relPos),
+								new StringCell(relPos),
 								DataType.getMissingCell()/* Plate */,
 								DataType.getMissingCell()/* Row */,
 								DataType.getMissingCell()/* column */,
@@ -110,7 +133,7 @@ public class LociReaderNodeModel extends NodeModel {
 								// new
 								// StringCell(MetadataTools.getOMEXML(MetadataTools
 								// .asRetrieve(reader.getMetadataStore()))),
-								new StringCell(file.getPath())));
+								new StringCell(relPos)));
 				for (int i = 0; i < reader.getSeriesCount(); ++i) {
 					exec.checkCanceled();
 					reader.setSeries(i);
@@ -119,12 +142,17 @@ public class LociReaderNodeModel extends NodeModel {
 						logger.warn("stopped because of not enough memory");
 						break;
 					}
-					plateContainer.addRowToTable(new DefaultRow(new RowKey(
-							"Row_" + i), new StringCell(file.getPath()),
+					plateContainer.addRowToTable(new DefaultRow(
+							new RowKey("Row_" + i),
+							new StringCell(relPos),
+							// new StringCell(Misc.toUpperLetter(Integer
+							// .toString(i / 8 / 12 + 1))), new IntCell(
+							// i / 8 % 12 + 1), new IntCell(i % 8 + 1),
 							new StringCell(Misc.toUpperLetter(Integer
-									.toString(i / 8 / 12 + 1))), new IntCell(
-									i / 8 % 12 + 1), new IntCell(i % 8 + 1),
-							new StringCell(file.getPath()), new IntCell(i)));
+									.toString(i / fieldCount / colCount + 1))),
+							new IntCell(i / fieldCount % colCount + 1),
+							new IntCell(i % fieldCount + 1), new StringCell(
+									relPos), new IntCell(i)));
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);
 					}
@@ -145,12 +173,41 @@ public class LociReaderNodeModel extends NodeModel {
 				xmlPlateContainer.getTable(), experimentContainer.getTable() };
 	}
 
+	/**
+	 * @param formatReader
+	 * @param fieldName
+	 * @param defaultValue
+	 * @return
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 */
+	private static int getPrivateField(final IFormatReader formatReader,
+			final String fieldName, final int defaultValue)
+			throws NoSuchFieldException, IllegalAccessException {
+		int ret;
+
+		if (formatReader.getClass().getDeclaredField(fieldName) != null) {
+			final Field field = formatReader.getClass().getDeclaredField(
+					fieldName);
+			field.setAccessible(true);
+			ret = field.getInt(formatReader);
+		} else {
+			ret = defaultValue;
+		}
+		return ret;
+	}
+
 	private URI[] visit(final File file, final String extension) {
 		if (file.isFile()) {
 			return new URI[] { file.toURI() };
 		}
-		final ExtensionFileFilter fileFilter = new ExtensionFileFilter(
-				extension, "");
+		final String[] exts = extension.split("\\|");
+		for (int i = exts.length; i-- > 0;) {
+			while (exts[i].length() > 0 && exts[i].charAt(0) == '.') {
+				exts[i] = exts[i].substring(1);
+			}
+		}
+		final ExtensionFileFilter fileFilter = new ExtensionFileFilter(exts, "");
 		final ArrayList<String> contents = new ArrayList<String>();
 		visit(file, file, contents, fileFilter);
 		final URI[] uris = new URI[contents.size()];
@@ -249,6 +306,7 @@ public class LociReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		folder.saveSettingsTo(settings);
+		extensions.saveSettingsTo(settings);
 	}
 
 	/**
@@ -258,6 +316,7 @@ public class LociReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		folder.loadSettingsFrom(settings);
+		extensions.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -267,6 +326,7 @@ public class LociReaderNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		folder.validateSettings(settings);
+		extensions.validateSettings(settings);
 	}
 
 	/**

@@ -9,8 +9,6 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,7 +24,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -43,7 +40,6 @@ import loci.formats.gui.ExtensionFileFilter;
 import loci.plugins.util.ImagePlusReader;
 
 import org.hcdc.plate.ImagePanel;
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 
 /**
@@ -113,15 +109,15 @@ public class DialogComponentFileSelectionWithPreview extends
 				validExtensions);
 		metaInfo = new JPanel();
 		imagePanel = new ImagePanel(400, 400);
-		final JComboBox extensionsCombobox = new JComboBox(new String[] {
-				"xdce", "png", "tif" });
-		extensionsCombobox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				setExtension((String) extensionsCombobox.getSelectedItem());
-			}
-		});
-		getComponentPanel().add(extensionsCombobox);
+		// final JComboBox extensionsCombobox = new JComboBox(new String[] {
+		// "xdce", "png", "tif" });
+		// extensionsCombobox.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(final ActionEvent e) {
+		// setExtension((String) extensionsCombobox.getSelectedItem());
+		// }
+		// });
+		// getComponentPanel().add(extensionsCombobox);
 		getComponentPanel().add(new JScrollPane(imagePanel));
 		getComponentPanel().add(new JScrollPane(metaInfo));
 		getComponentPanel().add(new JScrollPane(fileNames));
@@ -151,11 +147,12 @@ public class DialogComponentFileSelectionWithPreview extends
 		super.updateComponent();
 		final SettingsModelString model = (SettingsModelString) getModel();
 		final String imageUrl = model.getStringValue();
-		if (imageUrl.contains("**")) {
-			model.setStringValue(model.getStringValue().substring(0,
-					imageUrl.indexOf("**")));
-			setExtension(imageUrl.substring(imageUrl.indexOf("**") + 2));
-		}
+		// if (imageUrl.contains("**")) {
+		// model.setStringValue(model.getStringValue().substring(0,
+		// imageUrl.indexOf("**")));
+		// setExtension(imageUrl.substring(imageUrl.indexOf("**") + 2));
+		// }
+		updateList(imageUrl, extension);
 		updatePreview(imageUrl);
 	}
 
@@ -178,10 +175,10 @@ public class DialogComponentFileSelectionWithPreview extends
 			if (metaInfo != null) {
 				metaInfo.removeAll();
 			}
-			updateList(imageUrl, extension);
+			// updateList(imageUrl, extension);
 			return;
 		}
-		updateList(imageUrl, extension);
+		// updateList(imageUrl, extension);
 		final StringBuilder fileInfo = new StringBuilder();
 		final ImagePlus[] pointer = new ImagePlus[1];
 
@@ -341,8 +338,14 @@ public class DialogComponentFileSelectionWithPreview extends
 					.getName());
 		}
 		final List<String> contents = new ArrayList<String>();
+		final String[] extensions = extension.split("\\|");
+		for (int i = extensions.length; i-- > 0;) {
+			while (extensions[i].length() > 0 && extensions[i].charAt(0) == '.') {
+				extensions[i] = extensions[i].substring(1);
+			}
+		}
 		final java.io.FileFilter fileFilter = new ExtensionFileFilter(
-				extension, "");
+				extensions, "");
 		visit(parent, parent, contents, fileFilter);
 		for (final String string : contents) {
 			((DefaultListModel) fileNames.getModel()).addElement(string);
@@ -381,13 +384,14 @@ public class DialogComponentFileSelectionWithPreview extends
 			contents.add(absolutePath.substring(origPath.length()));
 		}
 	}
-
-	@Override
-	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		super.validateSettingsBeforeSave();
-		final SettingsModelString model = (SettingsModelString) getModel();
-		if (new File(model.getStringValue()).isDirectory()) {
-			model.setStringValue(model.getStringValue() + "**" + extension);
-		}
-	}
+	//
+	// @Override
+	// protected void validateSettingsBeforeSave() throws
+	// InvalidSettingsException {
+	// super.validateSettingsBeforeSave();
+	// final SettingsModelString model = (SettingsModelString) getModel();
+	// if (new File(model.getStringValue()).isDirectory()) {
+	// model.setStringValue(model.getStringValue() + "**" + extension);
+	// }
+	// }
 }

@@ -3,6 +3,8 @@ package ie.tcd.imm.hits.image.loci.read;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import loci.formats.ChannelSeparator;
@@ -14,7 +16,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileSelectionWithPreview;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.UpdatableComponent;
 
 /**
  * <code>NodeDialog</code> for the "OMEReader" Node. This node reads image
@@ -35,6 +39,38 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 	 * New pane for configuring the OMEReader node.
 	 */
 	protected LociReaderNodeDialog() {
+		final ArrayList<String> validExtensions = computeExtensions();
+		fileChooser = new DialogComponentFileSelectionWithPreview(
+				new SettingsModelString(LociReaderNodeModel.CFGKEY_FOLDER,
+						LociReaderNodeModel.DEFAULT_FOLDER),
+				LociReaderNodeModel.CFGKEY_FOLDER, JFileChooser.OPEN_DIALOG,
+				true, validExtensions
+						.toArray(new String[validExtensions.size()]));
+		fileChooser.setExtension("xdce");
+		addDialogComponent(fileChooser);
+		final SettingsModelString extensionModel = new SettingsModelString(
+				LociReaderNodeModel.CFGKEY_EXTENSION,
+				LociReaderNodeModel.DEFAULT_EXTENSION);
+		addDialogComponent(new DialogComponentStringSelection(extensionModel,
+				"extensions: ", computeExtensions()));
+		extensionModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				fileChooser.setExtension(extensionModel.getStringValue());
+			}
+		});
+		addDialogComponent(new UpdatableComponent() {
+			@Override
+			protected void updateComponent() {
+				fileChooser.setExtension(extensionModel.getStringValue());
+			}
+		});
+	}
+
+	/**
+	 * @return
+	 */
+	static ArrayList<String> computeExtensions() {
 		final FileFilter[] fileFilters = GUITools
 				.buildFileFilters(new ChannelSeparator());
 		final ArrayList<String> validExtensions = new ArrayList<String>();
@@ -50,21 +86,14 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 		if (validExtensions.size() > 0) {
 			validExtensions.add(0, "");
 		}
-		fileChooser = new DialogComponentFileSelectionWithPreview(
-				new SettingsModelString(LociReaderNodeModel.CFGKEY_FOLDER,
-						LociReaderNodeModel.DEFAULT_FOLDER),
-				LociReaderNodeModel.CFGKEY_FOLDER, JFileChooser.OPEN_DIALOG,
-				true, validExtensions
-						.toArray(new String[validExtensions.size()]));
-		fileChooser.setExtension("xdce");
-		addDialogComponent(fileChooser);
+		return validExtensions;
 	}
 
 	/**
 	 * @param fileFilter
 	 * @param validExtensions
 	 */
-	private void addExtension(final FileFilter fileFilter,
+	private static void addExtension(final FileFilter fileFilter,
 			final ArrayList<String> validExtensions) {
 		if (fileFilter instanceof ExtensionFileFilter) {
 			final ExtensionFileFilter ff = (ExtensionFileFilter) fileFilter;
