@@ -9,7 +9,13 @@ Bundle-ClassPath: incellimagereader.jar,
  lib/bio-formats.jar,
  lib/loci_plugins.jar,
  lib/loci-common.jar,
- lib/forms-1.0.4.jar
+ lib/forms-1.3.0pre4.jar,
+ lib/visbio.jar,
+ lib/looks-1.2.2.jar,
+ lib/ome-xml.jar,
+ lib/visad.jar,
+ lib/jai_core.jar,
+ lib/jai_codec.jar
 Bundle-Activator: ie.tcd.imm.hits.image.INCellImageReaderNodePlugin
 Bundle-Vendor: <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
 Bundle-Localization: plugin
@@ -24,4 +30,5 @@ Require-Bundle: org.eclipse.core.runtime,
  ie.tcd.imm.hits.common;bundle-version="0.0.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: ie.tcd.imm.hits.view.util;x-friends:="ie.tcd.imm.knime.test"
 

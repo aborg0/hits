@@ -15,6 +15,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,19 +31,32 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
+import javax.media.jai.InterpolationNearest;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.swing.BoundedRangeModel;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.plugins.util.ImagePlusReader;
 
-import org.hcdc.imgview.ImagePanel;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+
+import com.sun.media.jai.widget.DisplayJAI;
 
 /**
  * <code>NodeView</code> for the "OMEViewer" Node. Shows images based on OME.
@@ -73,8 +88,52 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	@Nullable
 	private OptionalNamedSelector<String> channelSelector;
 	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
-	private ImagePanel imagePanel = new ImagePanel(800, 600);
+	// private ImagePanelHits imagePanel = new ImagePanelHits();
+	private DisplayJAI imagePanel = new DisplayJAI();
+	// private ImageCanvas imagePanel = new ImageCanvas(new ImagePlus());
 	private List<ActionListener> listenersToNotGCd = new ArrayList<ActionListener>();
+	private JScrollPane imageScrollPane;
+	private ImagePlus imagePlus;
+
+	private BoundedRangeModel zoomModel = new DefaultBoundedRangeModel(100, 0,
+			10, 400);
+	private JSlider zoomSlider = new JSlider(zoomModel);
+	private SpinnerModel secondZoomModel = new SpinnerNumberModel(100, 10, 400,
+			1);
+	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
+	private JPanel otherPanel;
+	{
+		zoomModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				if (!zoomModel.getValueIsAdjusting()
+						&& Math.abs(((Number) secondZoomModel.getValue())
+								.doubleValue()
+								- zoomModel.getValue()) > 1E-5) {
+					secondZoomModel.setValue(Integer.valueOf(zoomModel
+							.getValue()));
+				}
+			}
+		});
+		secondZoomModel.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				if (Math.abs(((Number) secondZoomModel.getValue())
+						.doubleValue()
+						- zoomModel.getValue()) > 1E-5) {
+					secondZoomModel.setValue(Integer.valueOf(zoomModel
+							.getValue()));
+				}
+			}
+		});
+		zoomSlider.setMajorTickSpacing(100);
+		// zoomSlider.setPaintTicks(true);
+		zoomSlider.setPaintLabels(true);
+		zoomSlider.setPaintTrack(true);
+		zoomSlider.setLabelTable(zoomSlider.createStandardLabels(50, 50));
+		((DefaultEditor) zoomSpinner.getEditor()).getTextField().setColumns(5);
+	}
 
 	/**
 	 * Creates a new view.
@@ -95,12 +154,31 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				javax.swing.BoxLayout.Y_AXIS));
 		panel.setAlignmentY(Component.TOP_ALIGNMENT);
 		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		final JScrollPane imageScrollPane = new JScrollPane(imagePanel);
+		imageScrollPane = new JScrollPane(imagePanel);
 		imageScrollPane.setPreferredSize(new Dimension(800, 600));
-		panel.add(imageScrollPane);
+		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		// panel.add(imageScrollPane);
 		imagePanel.setPreferredSize(new Dimension(800, 600));
-		panel.add(new JScrollPane(controls));
+		// panel.add(new JScrollPane(controls));
+		final JSplitPane horizontalSplitPane = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT);
+		otherPanel = new JPanel();
+		horizontalSplitPane.setRightComponent(otherPanel);
+		horizontalSplitPane.setLeftComponent(imageScrollPane);
+		horizontalSplitPane.setOneTouchExpandable(true);
+		splitPane.setLeftComponent(horizontalSplitPane);
+		splitPane.setRightComponent(new JScrollPane(controls));
+		splitPane.setOneTouchExpandable(true);
+		panel.add(splitPane);
 		joinTable = Collections.emptyMap();
+		otherPanel.add(zoomSlider);
+		otherPanel.add(zoomSpinner);
+		zoomModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				repaintImage();
+			}
+		});
 	}
 
 	/**
@@ -232,9 +310,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						"Channel 2")), Collections
 						.singleton(Integer.valueOf(1)));
 		final ActionListener actionListener = new ActionListener() {
+
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				ImageProcessor ip;
 				try {
 					final Entry<Integer, FormatReader> entry = getPlateRowColFieldMap()
 							.entrySet().iterator().next();
@@ -247,6 +325,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						imagePanel.setSize(imagePlusReader.getSizeX(),
 								imagePlusReader.getSizeY());
 					}
+					imageScrollPane.getViewport().setSize(
+							imagePlusReader.getSizeX(),
+							imagePlusReader.getSizeY());
 					final Set<Integer> channels = channelSelector
 							.getSelections();
 					if (channels.size() == 1) {
@@ -254,9 +335,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 								.intValue() - 1;
 						final ImageProcessor[] openProcessors = imagePlusReader
 								.openProcessors(channel);
-						ip = /* reader */openProcessors[0];
-						final ImagePlus imagePlus = new ImagePlus("", ip);
-						imagePanel.setImage(imagePlus.getBufferedImage());
+						final ImageProcessor ip = /* reader */openProcessors[0];
+						imagePlus = new ImagePlus("", ip);
+						// imagePanel.prepareImage(imagePlus.getBufferedImage(),
+						// null);
+						repaintImage();
+						// imagePanel.set(imagePlus.getBufferedImage());
+						// imagePanel.setImage(imagePlus.getBufferedImage());
 						return;
 					}
 					// final byte[] green = new byte[256];
@@ -312,9 +397,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						new ImageConverter(image).convertToGray8();
 						imageStack.addSlice(null, image.getProcessor());
 					}
-					final ImagePlus imagePlus = new ImagePlus("", imageStack);
+					imagePlus = new ImagePlus("", imageStack);
 					new ImageConverter(imagePlus).convertRGBStackToRGB();
-					imagePanel.setImage(imagePlus.getBufferedImage());
+					repaintImage();
+					// imagePanel.prepareImage(imagePlus.getBufferedImage(),
+					// null);
+					// imagePanel.set(imagePlus.getBufferedImage());
+					// imagePanel.setImage(imagePlus.getBufferedImage());
 				} catch (final FormatException ex) {
 					// TODO Auto-generated catch block
 					ex.printStackTrace();
@@ -332,6 +421,23 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			actionListener.actionPerformed(null);
 		}
 
+	}
+
+	/**
+	 * 
+	 */
+	protected void repaintImage() {
+		final BufferedImage origImage = imagePlus.getBufferedImage();
+		final float scale = zoomModel.getValue() / 100.0f;
+		final ParameterBlock pb = new ParameterBlock();
+		pb.addSource(origImage);
+		pb.add(scale);
+		pb.add(scale);
+		pb.add(0.0f);
+		pb.add(0.0f);
+		pb.add(new InterpolationNearest());
+		final RenderedOp planarImage = JAI.create("scale", pb);
+		imagePanel.set(planarImage);
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
