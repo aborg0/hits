@@ -1,11 +1,14 @@
 package ie.tcd.imm.hits.image.loci.view;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.NamedSelector;
 import ie.tcd.imm.hits.util.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
+import ie.tcd.imm.hits.view.util.SimpleWellSelection;
+import ie.tcd.imm.hits.view.util.WellSelectionWidget;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageConverter;
@@ -34,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.util.ImagingListener;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
@@ -44,6 +48,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -79,10 +84,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private ControlsHandler<SettingsModel, String, NamedSelector<String>> controlsHandlerFactory;
 	@Nullable
 	private OptionalNamedSelector<String> plateSelector;
-	@Nullable
-	private OptionalNamedSelector<String> rowSelector;
-	@Nullable
-	private OptionalNamedSelector<String> columnSelector;
+	// @Nullable
+	// private OptionalNamedSelector<String> rowSelector;
+	// @Nullable
+	// private OptionalNamedSelector<String> columnSelector;
 	@Nullable
 	private OptionalNamedSelector<String> fieldSelector;
 	@Nullable
@@ -95,6 +100,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private JScrollPane imageScrollPane;
 	private ImagePlus imagePlus;
 
+	private WellSelectionWidget<String, NamedSelector<String>> wellSelection;
+
 	private BoundedRangeModel zoomModel = new DefaultBoundedRangeModel(100, 0,
 			10, 400);
 	private JSlider zoomSlider = new JSlider(zoomModel);
@@ -102,6 +109,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			1);
 	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
 	private JPanel otherPanel;
+	private SimpleWellSelection wellSel;
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -122,17 +130,32 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				if (Math.abs(((Number) secondZoomModel.getValue())
 						.doubleValue()
 						- zoomModel.getValue()) > 1E-5) {
-					secondZoomModel.setValue(Integer.valueOf(zoomModel
-							.getValue()));
+					zoomModel.setValue(Integer
+							.valueOf(((Number) secondZoomModel.getValue())
+									.intValue()));
 				}
 			}
 		});
+		zoomSlider.setOrientation(SwingConstants.VERTICAL);
 		zoomSlider.setMajorTickSpacing(100);
 		// zoomSlider.setPaintTicks(true);
 		zoomSlider.setPaintLabels(true);
 		zoomSlider.setPaintTrack(true);
 		zoomSlider.setLabelTable(zoomSlider.createStandardLabels(50, 50));
 		((DefaultEditor) zoomSpinner.getEditor()).getTextField().setColumns(5);
+	}
+
+	static {
+		JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
+
+			@Override
+			public boolean errorOccurred(final String message,
+					final Throwable thrown, final Object where,
+					final boolean isRetryable) throws RuntimeException {
+				// suppress error messages
+				return false;
+			}
+		});
 	}
 
 	/**
@@ -163,11 +186,16 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		final JSplitPane horizontalSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT);
 		otherPanel = new JPanel();
-		horizontalSplitPane.setRightComponent(otherPanel);
-		horizontalSplitPane.setLeftComponent(imageScrollPane);
+		// horizontalSplitPane.setRightComponent(otherPanel);
+		// horizontalSplitPane.setLeftComponent(imageScrollPane);
 		horizontalSplitPane.setOneTouchExpandable(true);
-		splitPane.setLeftComponent(horizontalSplitPane);
-		splitPane.setRightComponent(new JScrollPane(controls));
+		final JPanel jPanel = new JPanel();
+		// splitPane.setLeftComponent(horizontalSplitPane);
+		splitPane.setLeftComponent(imageScrollPane);
+		jPanel.add(controls);
+		jPanel.add(otherPanel);
+		// splitPane.setRightComponent(new JScrollPane(controls));
+		splitPane.setRightComponent(new JScrollPane(jPanel));
 		splitPane.setOneTouchExpandable(true);
 		panel.add(splitPane);
 		joinTable = Collections.emptyMap();
@@ -179,6 +207,32 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				repaintImage();
 			}
 		});
+		final Format format = Format._96;
+		final List<String> vals = createPlateVals(format);
+		// wellSelection = new WellSelectionWidget<String,
+		// NamedSelector<String>>(
+		// format, new SettingsModelListSelection("", vals, "A1"),
+		// SelectionType.Single, controlsHandlerFactory, null,
+		// OptionalNamedSelector.createSingle("", NamedSelector
+		// .createValues(vals)));
+		// otherPanel.add(wellSelection.getComponentPanel());
+
+		wellSel = new SimpleWellSelection(Format._96);
+		otherPanel.add(wellSel);
+	}
+
+	/**
+	 * @param format
+	 * @return
+	 */
+	private List<String> createPlateVals(final Format format) {
+		final List<String> ret = new ArrayList<String>(format.getWellCount());
+		for (int i = 0; i < format.getRow(); ++i) {
+			for (int j = 0; j < format.getCol(); ++j) {
+				ret.add(Character.toString((char) ('A' + i)) + i);
+			}
+		}
+		return ret;
 	}
 
 	/**
@@ -201,20 +255,36 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		deregister(plateSelector);
 		plateSelector = OptionalNamedSelector.createSingle(PLATE, joinTable
 				.keySet());
-		recreateRowSelector();
+		// recreateRowSelector();
+		updateWellSelection();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				// rowSelector.setActiveValues(findValues(joinTable.get(
 				// plateSelector.getSelected()).keySet(), plateSelector
 				// .getValueMapping()));
-				rowSelector.notifyListeners();
+				// rowSelector.notifyListeners();
+				wellSel.notifyListeners();
 			}
 		};
 		plateSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(plateSelector, SplitType.SingleSelect,
 				GENERAL, ControlTypes.List);
+	}
+
+	/**
+	 * 
+	 */
+	private void updateWellSelection() {
+		recreateFieldSelector();
+		wellSel.removeAllActionListeners();
+		wellSel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				fieldSelector.notifyListeners();
+			}
+		});
 	}
 
 	protected static <T> Collection<Integer> findValues(final Set<T> set,
@@ -229,11 +299,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	protected void recreateRowSelector() {
-		deregister(rowSelector);
-		rowSelector = OptionalNamedSelector.createSingle(ROW, plateSelector
-				.getSelections().isEmpty() ? Collections.<String> emptySet()
-				: getPlateMap().keySet());
-		recreateColumnSelector();
+		// deregister(rowSelector);
+		// rowSelector = OptionalNamedSelector.createSingle(ROW, plateSelector
+		// .getSelections().isEmpty() ? Collections.<String> emptySet()
+		// : getPlateMap().keySet());
+		// recreateColumnSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -243,17 +313,18 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				channelSelector.notifyListeners();
 			}
 		};
-		rowSelector.addActionListener(actionListener);
+		// rowSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
-		controlsHandlerFactory.register(rowSelector, SplitType.SingleSelect,
-				GENERAL, ControlTypes.Buttons);
+		// controlsHandlerFactory.register(rowSelector, SplitType.SingleSelect,
+		// GENERAL, ControlTypes.Buttons);
 	}
 
 	private void recreateColumnSelector() {
-		deregister(columnSelector);
-		columnSelector = OptionalNamedSelector.createSingle(COLUMN, rowSelector
-				.getSelections().isEmpty() ? Collections.<String> emptySet()
-				: asStringSet(getPlateRowMap().keySet()));
+		// deregister(columnSelector);
+		// columnSelector = OptionalNamedSelector.createSingle(COLUMN,
+		// rowSelector
+		// .getSelections().isEmpty() ? Collections.<String> emptySet()
+		// : asStringSet(getPlateRowMap().keySet()));
 		recreateFieldSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
@@ -264,18 +335,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				channelSelector.notifyListeners();
 			}
 		};
-		columnSelector.addActionListener(actionListener);
+		// columnSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
-		controlsHandlerFactory.register(columnSelector, SplitType.SingleSelect,
-				GENERAL, ControlTypes.Buttons);
+		// controlsHandlerFactory.register(columnSelector,
+		// SplitType.SingleSelect,
+		// GENERAL, ControlTypes.Buttons);
 	}
 
 	private void recreateFieldSelector() {
 		deregister(fieldSelector);
 		fieldSelector = OptionalNamedSelector.createSingle(FIELD,
-				columnSelector.getSelections().isEmpty() ? Collections
-						.<String> emptySet() : asStringSet(increase(
-						getPlateRowColMap().keySet(), 0)));
+		/*
+		 * columnSelector.getSelections().isEmpty() ? Collections .<String>
+		 * emptySet() :
+		 */asStringSet(increase(getPlateRowColMap().keySet(), 0)));
 		recreateChannelSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
@@ -451,10 +524,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private void deregisterPreviousSelectors() {
 		deregister(plateSelector);
 		plateSelector = null;
-		deregister(rowSelector);
-		rowSelector = null;
-		deregister(columnSelector);
-		columnSelector = null;
+		// deregister(rowSelector);
+		// rowSelector = null;
+		// deregister(columnSelector);
+		// columnSelector = null;
 		deregister(fieldSelector);
 		fieldSelector = null;
 		deregister(channelSelector);
@@ -519,15 +592,19 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 * @return
 	 */
 	private Map<Integer, Map<Integer, Map<Integer, FormatReader>>> getPlateRowMap() {
-		return getPlateMap().get(rowSelector.getSelected());
+		// return getPlateMap().get(rowSelector.getSelected());
+		return getPlateMap().get(wellSel.getSelection().substring(0, 1));
 	}
 
 	/**
 	 * @return
 	 */
 	private Map<Integer, Map<Integer, FormatReader>> getPlateRowColMap() {
+		// return getPlateRowMap().get(
+		// Integer.valueOf(columnSelector.getSelected()));
 		return getPlateRowMap().get(
-				Integer.valueOf(columnSelector.getSelected()));
+				Integer.valueOf(Integer.parseInt(wellSel.getSelection()
+						.substring(1))));
 	}
 
 	/**
