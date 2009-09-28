@@ -3,6 +3,7 @@ package ie.tcd.imm.hits.image.loci.view;
 import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Pair;
+import ie.tcd.imm.hits.util.SerializableTriple;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,10 +11,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -23,6 +26,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.IntValue;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -40,9 +44,12 @@ import org.knime.core.node.NodeSettingsWO;
  */
 public class LociViewerNodeModel extends NodeModel {
 	private static final String JOIN_TABLE_FILE = "join.zip";
+	private static final String ROW_TABLE_FILE = "rows.zip";
 
 	/** Plate, row, column, field, image id (series), LOCI data */
 	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
+
+	private Map<RowKey, SerializableTriple<String, String, Integer>> rowsToWells = new HashMap<RowKey, SerializableTriple<String, String, Integer>>();
 
 	/**
 	 * Constructor for the node model.
@@ -194,6 +201,8 @@ public class LociViewerNodeModel extends NodeModel {
 					.get(inner1.containsKey(column) ? column : null);
 			final Map<Integer, Map<Integer, FormatReader>> other2 = other1
 					.get(column);
+			rowsToWells.put(row.getKey(), SerializableTriple.apply(plate,
+					rowValue, column));
 			final Integer field;
 			final DataCell fieldCell = row.getCell(field0Index);
 			if (fieldCell instanceof IntValue) {
@@ -271,28 +280,61 @@ public class LociViewerNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
-		final FileInputStream fis = new FileInputStream(joinTableFile);
-		try {
-			final GZIPInputStream zis = new GZIPInputStream(fis);
+		{
+			final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
+			final FileInputStream fis = new FileInputStream(joinTableFile);
 			try {
-				final ObjectInputStream oos = new ObjectInputStream(zis);
+				final GZIPInputStream zis = new GZIPInputStream(fis);
 				try {
-					final Object readObject = oos.readObject();
-					if (readObject instanceof Map<?, ?>) {
-						final Map<?, ?> newMap = (Map<?, ?>) readObject;
-						joinTable = (Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>) newMap;
+					final ObjectInputStream oos = new ObjectInputStream(zis);
+					try {
+						final Object readObject = oos.readObject();
+						if (readObject instanceof Map<?, ?>) {
+							final Map<?, ?> newMap = (Map<?, ?>) readObject;
+							joinTable = (Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>) newMap;
+						}
+					} catch (final ClassNotFoundException e) {
+						throw new IOException(e);
+					} finally {
+						oos.close();
 					}
-				} catch (final ClassNotFoundException e) {
-					throw new IOException(e);
 				} finally {
-					oos.close();
+					zis.close();
 				}
 			} finally {
-				zis.close();
+				fis.close();
 			}
-		} finally {
-			fis.close();
+		}
+		{
+			final File rowTableFile = new File(internDir, ROW_TABLE_FILE);
+			final FileInputStream fis = new FileInputStream(rowTableFile);
+			try {
+				final GZIPInputStream zis = new GZIPInputStream(fis);
+				try {
+					final ObjectInputStream oos = new ObjectInputStream(zis);
+					try {
+						final Object readObject = oos.readObject();
+						if (readObject instanceof Map<?, ?>) {
+							final Map<?, ?> newMap = (Map<?, ?>) readObject;
+							final Map<String, SerializableTriple<String, String, Integer>> loaded = (Map<String, SerializableTriple<String, String, Integer>>) newMap;
+							rowsToWells.clear();
+							for (final Entry<String, SerializableTriple<String, String, Integer>> entry : loaded
+									.entrySet()) {
+								rowsToWells.put(new RowKey(entry.getKey()),
+										entry.getValue());
+							}
+						}
+					} catch (final ClassNotFoundException e) {
+						throw new IOException(e);
+					} finally {
+						oos.close();
+					}
+				} finally {
+					zis.close();
+				}
+			} finally {
+				fis.close();
+			}
 		}
 	}
 
@@ -304,13 +346,39 @@ public class LociViewerNodeModel extends NodeModel {
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
 		final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
-		final FileOutputStream fos = new FileOutputStream(joinTableFile);
+		{
+			final FileOutputStream fos = new FileOutputStream(joinTableFile);
+			try {
+				final GZIPOutputStream zos = new GZIPOutputStream(fos);
+				try {
+					final ObjectOutputStream oos = new ObjectOutputStream(zos);
+					try {
+						oos.writeObject(this.joinTable);
+					} finally {
+						oos.close();
+					}
+				} finally {
+					zos.close();
+				}
+			} finally {
+				fos.close();
+			}
+		}
+		final File rowTableFile = new File(internDir, ROW_TABLE_FILE);
+		final FileOutputStream fos = new FileOutputStream(rowTableFile);
 		try {
 			final GZIPOutputStream zos = new GZIPOutputStream(fos);
 			try {
 				final ObjectOutputStream oos = new ObjectOutputStream(zos);
 				try {
-					oos.writeObject(this.joinTable);
+					final HashMap<String, Serializable> toSave = new HashMap<String, Serializable>();
+					for (final Entry<RowKey, ? extends Serializable> entry : rowsToWells
+							.entrySet()) {
+						toSave
+								.put(entry.getKey().getString(), entry
+										.getValue());
+					}
+					oos.writeObject(toSave);
 				} finally {
 					oos.close();
 				}
@@ -327,4 +395,10 @@ public class LociViewerNodeModel extends NodeModel {
 		return joinTable;
 	}
 
+	/**
+	 * @return The rowsToWells.
+	 */
+	public Map<RowKey, SerializableTriple<String, String, Integer>> getRowsToWells() {
+		return rowsToWells;
+	}
 }

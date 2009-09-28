@@ -3,8 +3,10 @@ package ie.tcd.imm.hits.image.loci.view;
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.util.ITriple;
 import ie.tcd.imm.hits.util.NamedSelector;
 import ie.tcd.imm.hits.util.OptionalNamedSelector;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
 import ie.tcd.imm.hits.view.util.SimpleWellSelection;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -57,9 +60,12 @@ import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.plugins.util.ImagePlusReader;
 
+import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.property.hilite.HiLiteListener;
+import org.knime.core.node.property.hilite.KeyEvent;
 
 import com.sun.media.jai.widget.DisplayJAI;
 
@@ -69,6 +75,57 @@ import com.sun.media.jai.widget.DisplayJAI;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
+	/**
+	 * TODO Javadoc!
+	 * 
+	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 */
+	private final class HiLiteListenerWells implements HiLiteListener {
+		private Set<ITriple<String, String, Integer>> hilites = new HashSet<ITriple<String, String, Integer>>();
+
+		@Override
+		public void unHiLiteAll(final KeyEvent event) {
+			hilites.clear();
+			updateHilites();
+		}
+
+		@Override
+		public void unHiLite(final KeyEvent event) {
+			final Set<ITriple<?, ?, ?>> toRemove = new HashSet<ITriple<?, ?, ?>>();
+			final Set<RowKey> keysToRemove = event.keys();
+			for (final ITriple<?, ?, ?> triple : hilites) {
+				if (keysToRemove.contains(triple.getO1())) {
+					toRemove.add(triple);
+				}
+			}
+			for (final ITriple<?, ?, ?> iTriple : toRemove) {
+				hilites.remove(iTriple);
+			}
+			updateHilites();
+		}
+
+		@Override
+		public void hiLite(final KeyEvent event) {
+			for (final RowKey row : event.keys()) {
+				final ITriple<String, String, Integer> triple = getNodeModel()
+						.getRowsToWells().get(row);
+				hilites.add(triple);
+			}
+			updateHilites();
+		}
+
+		/**
+		 * 
+		 */
+		protected void updateHilites() {
+			wellSel.updateHiLites(select(hilites, plateSelector.getSelected()));
+		}
+
+		protected void clear() {
+			hilites.clear();
+		}
+	}
+
 	private static final String GENERAL = "general";
 	private static final String PLATE = "plate";
 	private static final String ROW = "row";
@@ -110,6 +167,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
 	private JPanel otherPanel;
 	private SimpleWellSelection wellSel;
+	private HiLiteListenerWells hiLiteListener;
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -218,6 +276,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		// otherPanel.add(wellSelection.getComponentPanel());
 
 		wellSel = new SimpleWellSelection(Format._96);
+		hiLiteListener = new HiLiteListenerWells();
 		otherPanel.add(wellSel);
 	}
 
@@ -243,8 +302,26 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		deregisterPreviousSelectors();
 		joinTable = getNodeModel().getJoinTable();
 		recreatePlateSelector();
+		getNodeModel().getInHiLiteHandler(0).addHiLiteListener(hiLiteListener);
 		panel.revalidate();
 		panel.repaint();
+	}
+
+	/**
+	 * @param hilites
+	 * @param plate
+	 * @return
+	 */
+	protected Set<Pair<String, Integer>> select(
+			final Set<ITriple<String, String, Integer>> hilites,
+			final String plate) {
+		final Set<Pair<String, Integer>> ret = new HashSet<Pair<String, Integer>>();
+		for (final ITriple<String, String, Integer> iTriple : hilites) {
+			if (iTriple.getO1().equals(plate)) {
+				ret.add(Pair.apply(iTriple.getO2(), iTriple.getO3()));
+			}
+		}
+		return ret;
 	}
 
 	/**
@@ -265,6 +342,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				// .getValueMapping()));
 				// rowSelector.notifyListeners();
 				wellSel.notifyListeners();
+				hiLiteListener.updateHilites();
 			}
 		};
 		plateSelector.addActionListener(actionListener);
@@ -614,5 +692,4 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		return getPlateRowColMap().get(
 				Integer.valueOf(fieldSelector.getSelected()));
 	}
-
 }

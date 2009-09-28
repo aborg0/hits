@@ -4,8 +4,10 @@
 package ie.tcd.imm.hits.view.util;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,12 +17,17 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
+
+import org.knime.core.data.property.ColorAttr;
 
 /**
  * A {@link VariableControl} that allows to select well(s) on a plate.
@@ -33,6 +40,8 @@ public class SimpleWellSelection extends JPanel {
 	private final Map<String, Map<Integer, AbstractButton>> buttons = new LinkedHashMap<String, Map<Integer, AbstractButton>>();
 	private final Format format;
 	private String selection = "A1";
+
+	private Set<String> hilites = new HashSet<String>();
 
 	private final List<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -80,12 +89,21 @@ public class SimpleWellSelection extends JPanel {
 			final Map<Integer, AbstractButton> map = entry.getValue();
 			for (final Entry<Integer, AbstractButton> buttonEntry : map
 					.entrySet()) {
-				buttonEntry.getValue().setSelected(
-						INCLUDE_INDICATOR
-								^ selection
-										.equals(entry.getKey()
-												+ (buttonEntry.getKey()
-														.intValue() + 1)));
+				final String key = entry.getKey()
+						+ (buttonEntry.getKey().intValue() + 1);
+				final boolean selected = selection.equals(key);
+				buttonEntry.getValue()
+						.setSelected(INCLUDE_INDICATOR ^ selected);
+				final boolean hilited = hilites.contains(key);
+				final Color color = selected ? (hilited ? ColorAttr.SELECTED_HILITE
+						: ColorAttr.SELECTED)
+						: hilited ? ColorAttr.HILITE : ColorAttr.DEFAULT
+								.getColor();
+				buttonEntry.getValue().setForeground(color);
+				buttonEntry.getValue().setBackground(color);
+				buttonEntry.getValue().setBorder(
+						hilited ? new BevelBorder(BevelBorder.RAISED, color,
+								color) : new EmptyBorder(1, 1, 1, 1));
 			}
 		}
 	}
@@ -180,5 +198,16 @@ public class SimpleWellSelection extends JPanel {
 		for (final ActionListener listener : listeners) {
 			listener.actionPerformed(null);
 		}
+	}
+
+	/**
+	 * @param select
+	 */
+	public void updateHiLites(final Set<Pair<String, Integer>> select) {
+		hilites.clear();
+		for (final Pair<String, Integer> pair : select) {
+			hilites.add(pair.getLeft() + pair.getRight());
+		}
+		updateComponent();
 	}
 }
