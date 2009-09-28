@@ -41,9 +41,11 @@ import javax.media.jai.InterpolationNearest;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.util.ImagingListener;
+import javax.swing.AbstractAction;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -64,6 +66,7 @@ import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
@@ -278,6 +281,36 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		wellSel = new SimpleWellSelection(Format._96);
 		hiLiteListener = new HiLiteListenerWells();
 		otherPanel.add(wellSel);
+		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
+		getJMenuBar().add(hiliteMenu);
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.HILITE_SELECTED) {
+			private static final long serialVersionUID = -6054254350021725863L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Set<RowKey> selections = findSelectedRowKeys();
+				getNodeModel().getInHiLiteHandler(0)
+						.fireHiLiteEvent(selections);
+			}
+		});
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.UNHILITE_SELECTED) {
+			private static final long serialVersionUID = 8360935725278415300L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Set<RowKey> selections = findSelectedRowKeys();
+				getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
+						selections);
+			}
+		});
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.CLEAR_HILITE) {
+			private static final long serialVersionUID = 7449582397283093888L;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent();
+			}
+		});
 	}
 
 	/**
@@ -691,5 +724,25 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private Map<Integer, FormatReader> getPlateRowColFieldMap() {
 		return getPlateRowColMap().get(
 				Integer.valueOf(fieldSelector.getSelected()));
+	}
+
+	/**
+	 * @return
+	 */
+	private Set<RowKey> findSelectedRowKeys() {
+		final Set<RowKey> selections = new HashSet<RowKey>();
+		for (final Entry<RowKey, ? extends ITriple<String, String, Integer>> entry : getNodeModel()
+				.getRowsToWells().entrySet()) {
+			if (entry.getValue().getO1().equals(plateSelector.getSelected())
+					&& entry.getValue().getO2().equals(
+							wellSel.getSelection().substring(0, 1))
+					&& entry.getValue().getO3().equals(
+							Integer
+									.valueOf(wellSel.getSelection()
+											.substring(1)))) {
+				selections.add(entry.getKey());
+			}
+		}
+		return selections;
 	}
 }
