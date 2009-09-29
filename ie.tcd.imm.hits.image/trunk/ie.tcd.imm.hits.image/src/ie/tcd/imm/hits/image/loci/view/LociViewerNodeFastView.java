@@ -23,8 +23,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -239,10 +239,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		panel.setAlignmentY(Component.TOP_ALIGNMENT);
 		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		imageScrollPane = new JScrollPane(imagePanel);
+		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
 		imageScrollPane.setPreferredSize(new Dimension(800, 600));
+		// imageScrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// imageScrollPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		// panel.add(imageScrollPane);
 		imagePanel.setPreferredSize(new Dimension(800, 600));
+
 		// panel.add(new JScrollPane(controls));
 		final JSplitPane horizontalSplitPane = new JSplitPane(
 				JSplitPane.HORIZONTAL_SPLIT);
@@ -489,9 +494,42 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateChannelSelector() {
 		deregister(channelSelector);
+		final Collection<FormatReader> readers = getPlateRowColFieldMap()
+				.values();
+		List<String> channelNames;
+		if (readers.isEmpty()) {
+			channelNames = Collections.singletonList("Channel");
+		} else {
+			final FormatReader reader = readers.iterator().next();
+			channelNames = new ArrayList<String>(reader.getSizeC());
+			final Class<? extends FormatReader> readerClass = reader.getClass();
+			try {
+				final Field channelNamesField = readerClass
+						.getDeclaredField("channelNames");
+
+				if (channelNamesField != null) {
+					channelNamesField.setAccessible(true);
+					goThroughInterfaces(channelNames, reader,
+							channelNamesField, channelNamesField.getType(),
+							reader.getSizeC());
+				}
+				if (channelNames.isEmpty()) {
+					channelNames.addAll(createSampleChannelNames(reader
+							.getSizeC()));
+				}
+			} catch (final NoSuchFieldException e) {
+				channelNames
+						.addAll(createSampleChannelNames(reader.getSizeC()));
+			} catch (final IllegalArgumentException e) {
+				channelNames
+						.addAll(createSampleChannelNames(reader.getSizeC()));
+			} catch (final IllegalAccessException e) {
+				channelNames
+						.addAll(createSampleChannelNames(reader.getSizeC()));
+			}
+		}
 		channelSelector = new OptionalNamedSelector<String>(CHANNEL,
-				NamedSelector.createValues(Arrays.asList("Channel 1",
-						"Channel 2")), Collections
+				NamedSelector.createValues(channelNames), Collections
 						.singleton(Integer.valueOf(1)));
 		final ActionListener actionListener = new ActionListener() {
 
@@ -506,8 +544,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					imagePlusReader.setSeries(entry.getKey().intValue());
 					if (imagePanel.getWidth() == 0
 							|| imagePanel.getHeight() == 0) {
-						imagePanel.setSize(imagePlusReader.getSizeX(),
-								imagePlusReader.getSizeY());
+						// imagePanel.setSize(imagePlusReader.getSizeX(),
+						// imagePlusReader.getSizeY());
 					}
 					imageScrollPane.getViewport().setSize(
 							imagePlusReader.getSizeX(),
@@ -608,6 +646,49 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
+	 * @param channelNames
+	 * @param reader
+	 * @param channelNamesField
+	 * @param cls
+	 * @param numberOfChannels
+	 * @throws IllegalAccessException
+	 */
+	private void goThroughInterfaces(final List<String> channelNames,
+			final FormatReader reader, final Field channelNamesField,
+			final Class<?> cls, final int numberOfChannels)
+			throws IllegalAccessException {
+		for (final Class<?> class1 : cls.getInterfaces()) {
+			if (class1.equals(Iterable.class)) {
+				final Object object = channelNamesField.get(reader);
+				int i = 0;
+				for (final Object content : (Iterable<?>) object) {
+					channelNames.add(content.toString());
+
+					if (++i == numberOfChannels) {
+						return;
+					}
+				}
+				return;
+			}
+			goThroughInterfaces(channelNames, reader, channelNamesField,
+					class1, numberOfChannels);
+		}
+	}
+
+	/**
+	 * @param sizeC
+	 * @return
+	 */
+	private Collection<String> createSampleChannelNames(
+			final int numberOfChannels) {
+		final Collection<String> ret = new ArrayList<String>(numberOfChannels);
+		for (int i = 1; i <= numberOfChannels; ++i) {
+			ret.add("Channel " + i);
+		}
+		return ret;
+	}
+
+	/**
 	 * 
 	 */
 	protected void repaintImage() {
@@ -621,7 +702,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		pb.add(0.0f);
 		pb.add(new InterpolationNearest());
 		final RenderedOp planarImage = JAI.create("scale", pb);
-		imagePanel.set(planarImage);
+		final boolean fitWidth = planarImage.getWidth() < imageScrollPane
+				.getViewportBorderBounds().width;
+		final boolean fitHeight = planarImage.getHeight() < imageScrollPane
+				.getViewportBorderBounds().height;
+		imagePanel
+				.set(planarImage, fitWidth ? (imageScrollPane
+						.getViewportBorderBounds().width - planarImage
+						.getWidth()) / 2 : 0, fitHeight ? (imageScrollPane
+						.getViewportBorderBounds().height - planarImage
+						.getHeight()) / 2 : 0);
+		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+		imagePanel.revalidate();
+		imageScrollPane.revalidate();
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
