@@ -4,7 +4,7 @@
 package ie.tcd.imm.hits.util.swing;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
-import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.select.Selectable;
 
 import java.util.EnumSet;
 import java.util.Set;

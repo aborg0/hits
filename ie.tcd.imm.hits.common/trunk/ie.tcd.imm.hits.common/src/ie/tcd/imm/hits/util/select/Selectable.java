@@ -1,12 +1,12 @@
 /* All rights reserved. (C) Copyright 2009, Trinity College Dublin */
-package ie.tcd.imm.hits.util;
+package ie.tcd.imm.hits.util.select;
 
 import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO Javadoc!
+ * A simple interface for selecting from a set of possible values.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  * @param <MappedValues>

@@ -1,9 +1,8 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.util;
+package ie.tcd.imm.hits.util.select;
 
-import ie.tcd.imm.hits.util.select.OptionalValues;
 
 import java.util.Collection;
 import java.util.Collections;

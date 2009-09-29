@@ -8,8 +8,8 @@ import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl;
 import ie.tcd.imm.hits.knime.view.impl.SettingsModelListSelection;
-import ie.tcd.imm.hits.util.Selectable;
-import ie.tcd.imm.hits.util.Selector;
+import ie.tcd.imm.hits.util.select.Selectable;
+import ie.tcd.imm.hits.util.select.Selector;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 

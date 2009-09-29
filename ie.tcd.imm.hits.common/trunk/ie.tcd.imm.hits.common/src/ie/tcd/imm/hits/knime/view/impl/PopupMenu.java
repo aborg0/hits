@@ -6,7 +6,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 

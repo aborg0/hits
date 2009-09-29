@@ -1,7 +1,7 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.util;
+package ie.tcd.imm.hits.util.select;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -1,7 +1,9 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.util;
+package ie.tcd.imm.hits.util.select;
+
+import ie.tcd.imm.hits.util.HasName;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
