@@ -38,7 +38,7 @@ public class SimpleWellSelection extends JPanel {
 	private static final long serialVersionUID = 7969161552427878759L;
 	private static final boolean INCLUDE_INDICATOR = true;
 	private final Map<String, Map<Integer, AbstractButton>> buttons = new LinkedHashMap<String, Map<Integer, AbstractButton>>();
-	private final Format format;
+	// private final Format format;
 	private String selection = "A1";
 
 	private Set<String> hilites = new HashSet<String>();
@@ -47,15 +47,11 @@ public class SimpleWellSelection extends JPanel {
 
 	/**
 	 * @param format
-	 * @param model
-	 * @param selectionType
-	 * @param controlsHandler
-	 * @param changeListener
-	 * 
+	 *            The {@link Format} of plate.
 	 */
 	public SimpleWellSelection(final Format format) {
 		super();
-		this.format = format;
+		// this.format = format;
 		removeAll();
 		setLayout(new GridLayout(format.getRow() + 1, format.getCol() + 1));
 		add(new JLabel("\u00a0"));
@@ -108,14 +104,15 @@ public class SimpleWellSelection extends JPanel {
 		}
 	}
 
-	protected void setEnabledComponents(final boolean enabled) {
-		for (final Map<Integer, ? extends AbstractButton> outerEntry : buttons
-				.values()) {
-			for (final AbstractButton button : outerEntry.values()) {
-				button.setEnabled(enabled);
-			}
-		}
-	}
+	//
+	// protected void setEnabledComponents(final boolean enabled) {
+	// for (final Map<Integer, ? extends AbstractButton> outerEntry : buttons
+	// .values()) {
+	// for (final AbstractButton button : outerEntry.values()) {
+	// button.setEnabled(enabled);
+	// }
+	// }
+	// }
 
 	/**
 	 * @return The selection.
@@ -134,14 +131,30 @@ public class SimpleWellSelection extends JPanel {
 		notifyListeners();
 	}
 
+	/**
+	 * Add a new {@link ActionListener}.
+	 * 
+	 * @param listener
+	 *            An {@link ActionListener}.
+	 */
 	public void addActionListener(final ActionListener listener) {
 		listeners.add(listener);
 	}
 
+	/**
+	 * Removes the selected {@link ActionListener}.
+	 * 
+	 * @param listener
+	 *            An {@link ActionListener}.
+	 * @return {@code true}, if it was previously contained.
+	 */
 	public boolean removeActionListener(final ActionListener listener) {
 		return listeners.remove(listener);
 	}
 
+	/**
+	 * Removes all {@link ActionListener}s.
+	 */
 	public void removeAllActionListeners() {
 		listeners.clear();
 	}
@@ -155,20 +168,12 @@ public class SimpleWellSelection extends JPanel {
 
 		/**
 		 * @param value
-		 * @param listSelection
-		 * @param selectionType
+		 *            The associated well name.
 		 */
 		private ButtonActionListener(final String value) {
 			this.value = value;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
-		 * )
-		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final AbstractButton button = (AbstractButton) e.getSource();
@@ -180,10 +185,6 @@ public class SimpleWellSelection extends JPanel {
 				newSel.remove(value);
 			}
 			if (!newSel.isEmpty()) {
-				// buttons.get(String.valueOf(selection.charAt(0))).get(
-				// Integer.valueOf(selection.substring(1)) - 1)
-				// .setSelected(!INCLUDE_INDICATOR);
-				// button.setSelected(INCLUDE_INDICATOR);
 				setSelection(value);
 			} else if (newSel.isEmpty()) {
 				button.setSelected(INCLUDE_INDICATOR);
@@ -192,7 +193,7 @@ public class SimpleWellSelection extends JPanel {
 	}
 
 	/**
-	 * 
+	 * Notifies all {@link ActionListener}s.
 	 */
 	public void notifyListeners() {
 		for (final ActionListener listener : listeners) {
@@ -201,7 +202,10 @@ public class SimpleWellSelection extends JPanel {
 	}
 
 	/**
+	 * Updates the component reflecting the new selection of HiLites.
+	 * 
 	 * @param select
+	 *            The new selection of HiLites.
 	 */
 	public void updateHiLites(final Set<Pair<String, Integer>> select) {
 		hilites.clear();

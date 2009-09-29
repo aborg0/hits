@@ -22,13 +22,15 @@ import visad.TupleType;
 import visad.VisADException;
 
 /**
- * TODO Javadoc!
+ * A {@link Dataset} for {@link FormatReader}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ProxyDataSet extends Dataset {
 
 	/**
+	 * @param r
+	 *            The {@link FormatReader} to wrap.
 	 * 
 	 */
 	public ProxyDataSet(final FormatReader r) {
@@ -43,14 +45,14 @@ public class ProxyDataSet extends Dataset {
 			return;
 		}
 		// super.initState(dyn);
-		final Dataset data = (Dataset) dyn;
+		// final Dataset data = (Dataset) dyn;
 
 		// if (data != null) {
 		// pattern = data.pattern;
 		// }
 		pattern = "";
 
-		final int numTasks = 4;
+		// final int numTasks = 4;
 
 		// initialize data reader
 		// reader = new BufferedImageReader(new ChannelSeparator(new

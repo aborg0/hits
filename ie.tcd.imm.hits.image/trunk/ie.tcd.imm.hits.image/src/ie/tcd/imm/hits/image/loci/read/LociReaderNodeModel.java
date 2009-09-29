@@ -5,6 +5,7 @@ import ie.tcd.imm.hits.image.loci.LociReaderCell;
 import ie.tcd.imm.hits.util.Misc;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -47,13 +48,17 @@ import visad.util.ExtensionFileFilter;
 public class LociReaderNodeModel extends NodeModel {
 	private static NodeLogger logger = NodeLogger
 			.getLogger(LociReaderNodeModel.class);
-
+	/** The configuration key for folder model. */
 	static final String CFGKEY_FOLDER = "folder";
+	/** The default value for folder model. */
 	static final String DEFAULT_FOLDER = new File(System
 			.getProperty("user.home")).getAbsoluteFile().toURI().toString();
 
+	/** The configuration key for the extensions to use. */
 	static final String CFGKEY_EXTENSION = "extension";
+	/** The default value for the extensions to use. */
 	static final String DEFAULT_EXTENSION = "xdce";
+	/** The allowed extensions. */
 	static final ArrayList<String> ALLOWED_EXTENSIONS = LociReaderNodeDialog
 			.computeExtensions();
 
@@ -175,24 +180,34 @@ public class LociReaderNodeModel extends NodeModel {
 
 	/**
 	 * @param formatReader
+	 *            A {@link FormatReader}
 	 * @param fieldName
+	 *            the name of the field.
 	 * @param defaultValue
-	 * @return
-	 * @throws NoSuchFieldException
-	 * @throws IllegalAccessException
+	 *            The default value if not found.
+	 * @return The value of the field.
 	 */
 	private static int getPrivateField(final IFormatReader formatReader,
-			final String fieldName, final int defaultValue)
-			throws NoSuchFieldException, IllegalAccessException {
+			final String fieldName, final int defaultValue) {
 		int ret;
 
-		if (formatReader.getClass().getDeclaredField(fieldName) != null) {
-			final Field field = formatReader.getClass().getDeclaredField(
-					fieldName);
-			field.setAccessible(true);
-			ret = field.getInt(formatReader);
-		} else {
-			ret = defaultValue;
+		try {
+			if (formatReader.getClass().getDeclaredField(fieldName) != null) {
+				final Field field = formatReader.getClass().getDeclaredField(
+						fieldName);
+				field.setAccessible(true);
+				ret = field.getInt(formatReader);
+			} else {
+				ret = defaultValue;
+			}
+		} catch (final SecurityException e) {
+			return defaultValue;
+		} catch (final IllegalArgumentException e) {
+			return defaultValue;
+		} catch (final NoSuchFieldException e) {
+			return defaultValue;
+		} catch (final IllegalAccessException e) {
+			return defaultValue;
 		}
 		return ret;
 	}
@@ -217,7 +232,19 @@ public class LociReaderNodeModel extends NodeModel {
 		return uris;
 	}
 
-	private static void visit(final File origParent, final File parent,
+	/**
+	 * Adds the matching relative paths to {@code contents}.
+	 * 
+	 * @param origParent
+	 *            The original parent of files.
+	 * @param parent
+	 *            The current parent file.
+	 * @param contents
+	 *            The results collected here.
+	 * @param fileFilter
+	 *            The {@link FileFilter} used to filter files.
+	 */
+	public static void visit(final File origParent, final File parent,
 			final List<String> contents, final java.io.FileFilter fileFilter) {
 		final String origPath = origParent.getAbsolutePath();
 		if (parent.isFile() && fileFilter.accept(parent)) {
@@ -238,11 +265,16 @@ public class LociReaderNodeModel extends NodeModel {
 	}
 
 	/**
+	 * Adds the relative path of {@code file} to {@code contents}.
+	 * 
 	 * @param file
+	 *            The file to add to {@code contents}.
 	 * @param origPath
+	 *            The original path (from which it is relative to).
 	 * @param contents
+	 *            The list of relative paths.
 	 */
-	private static void addFile(final File file, final String origPath,
+	public static void addFile(final File file, final String origPath,
 			final List<String> contents) {
 		final String absolutePath = file.getAbsolutePath();
 		if (file.isFile() && absolutePath.startsWith(origPath)) {
@@ -287,7 +319,7 @@ public class LociReaderNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO: generated method stub
+		// Do nothing.
 	}
 
 	/**
@@ -348,5 +380,4 @@ public class LociReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 		// No internal state.
 	}
-
 }

@@ -234,7 +234,8 @@ public class LociViewerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO: generated method stub
+		joinTable.clear();
+		rowsToWells.clear();
 	}
 
 	/**
@@ -251,7 +252,7 @@ public class LociViewerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO: generated method stub
+		// no settings
 	}
 
 	/**
@@ -260,7 +261,7 @@ public class LociViewerNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		// no settings
 	}
 
 	/**
@@ -269,7 +270,7 @@ public class LociViewerNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		// no settings
 	}
 
 	/**

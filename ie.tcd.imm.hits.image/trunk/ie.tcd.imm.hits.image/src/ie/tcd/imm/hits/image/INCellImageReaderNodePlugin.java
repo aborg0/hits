@@ -24,6 +24,7 @@ public class INCellImageReaderNodePlugin extends Plugin {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("ST")
 	public INCellImageReaderNodePlugin() {
 		super();
 		plugin = this;

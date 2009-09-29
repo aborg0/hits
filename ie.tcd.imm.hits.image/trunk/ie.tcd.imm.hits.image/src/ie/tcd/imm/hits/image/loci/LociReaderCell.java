@@ -21,30 +21,23 @@ import org.knime.core.data.DataType;
 import org.knime.core.node.NodeLogger;
 
 /**
- * TODO Javadoc!
+ * {@link DataCell} implementation for LOCI Bio-Formats reader values.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociReaderCell extends DataCell implements LociReaderValue {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(LociReaderNodeModel.class);
+	/** The mandatory {@code TYPE} constant. */
 	public static final DataType TYPE = DataType.getType(LociReaderCell.class);
 
 	/**
-	 * TODO Javadoc!
-	 * 
-	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 * Cell serializer for this kind of cells.
 	 */
 	private static class LociReaderCellSerializer implements
 			DataCellSerializer<LociReaderCell> {
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.knime.core.data.DataCellSerializer#deserialize(org.knime.core
-		 * .data.DataCellDataInput)
-		 */
+		/** {@inheritDoc} */
 		@Override
 		public LociReaderCell deserialize(final DataCellDataInput input)
 				throws IOException {
@@ -73,13 +66,7 @@ public class LociReaderCell extends DataCell implements LociReaderValue {
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.knime.core.data.DataCellSerializer#serialize(org.knime.core.data
-		 * .DataCell, org.knime.core.data.DataCellDataOutput)
-		 */
+		/** {@inheritDoc} */
 		@Override
 		public void serialize(final LociReaderCell cell,
 				final DataCellDataOutput output) throws IOException {
@@ -113,19 +100,15 @@ public class LociReaderCell extends DataCell implements LociReaderValue {
 	}
 
 	/**
-	 * 
+	 * @param reader
+	 *            The {@link FormatReader} to wrap.
 	 */
 	public LociReaderCell(final FormatReader reader) {
 		super();
 		this.reader = reader;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.knime.core.data.DataCell#equalsDataCell(org.knime.core.data.DataCell)
-	 */
+	/** {@inheritDoc} */
 	@Override
 	protected boolean equalsDataCell(final DataCell dc) {
 		if (dc == this) {
@@ -134,26 +117,19 @@ public class LociReaderCell extends DataCell implements LociReaderValue {
 		return reader.equals(((LociReaderCell) dc).reader);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.knime.core.data.DataCell#hashCode()
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		return reader.hashCode();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.knime.core.data.DataCell#toString()
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return reader.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public FormatReader getReader() {
 		return reader;

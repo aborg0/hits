@@ -68,7 +68,8 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
-	 * @return
+	 * @return The available extensions. Each contained element is a group,
+	 *         where the elements are separated by {@code |}.
 	 */
 	static ArrayList<String> computeExtensions() {
 		final FileFilter[] fileFilters = GUITools
@@ -91,7 +92,9 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
 	 * @param fileFilter
+	 *            The {@link FileFilter} to find extensions.
 	 * @param validExtensions
+	 *            The result valid extensions.
 	 */
 	private static void addExtension(final FileFilter fileFilter,
 			final ArrayList<String> validExtensions) {
@@ -108,12 +111,14 @@ public class LociReaderNodeDialog extends DefaultNodeSettingsPane {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void onCancel() {
 		super.onCancel();
 		fileChooser.stopPreview();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
 			throws InvalidSettingsException {

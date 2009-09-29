@@ -21,7 +21,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class INCellImageReaderNodeModel extends NodeModel {
+	/** The configuration key for the folder model. */
 	static final String CFGKEY_FOLDER = "folder";
+	/** The default value for the folder model. */
 	static final String DEFAULT_FOLDER = new File(System
 			.getProperty("user.home")).getAbsoluteFile().toURI().toString();
 
@@ -41,8 +43,6 @@ public class INCellImageReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-
-		// TODO: Return a BufferedDataTable for each output port
 		return new BufferedDataTable[] {};
 	}
 
@@ -60,8 +60,6 @@ public class INCellImageReaderNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-
-		// TODO: generated method stub
 		return new DataTableSpec[] { null };
 	}
 

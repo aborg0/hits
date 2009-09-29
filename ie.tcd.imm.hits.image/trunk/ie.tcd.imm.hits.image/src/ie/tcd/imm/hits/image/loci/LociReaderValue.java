@@ -15,12 +15,13 @@ import org.knime.core.data.renderer.DefaultDataValueRenderer;
 import org.knime.core.data.renderer.DefaultDataValueRendererFamily;
 
 /**
- * TODO Javadoc!
+ * A specialized {@link DataValue} for LOCI Bio-Formats cell value types.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public interface LociReaderValue extends DataValue {
 
+	/** Mandatory constant for DataValue handling. */
 	public static final UtilityFactory UTILITY = new UtilityFactory() {
 		private final DataValueComparator comparator = new DataValueComparator() {
 			@Override
@@ -32,11 +33,13 @@ public interface LociReaderValue extends DataValue {
 		private final Icon icon = loadIcon(LociReaderValue.class,
 				"/read/default.png");
 
+		/** {@inheritDoc} */
 		@Override
 		protected DataValueComparator getComparator() {
 			return comparator;
 		}
 
+		/** {@inheritDoc} */
 		@Override
 		protected DataValueRendererFamily getRendererFamily(
 				final DataColumnSpec spec) {
@@ -60,11 +63,15 @@ public interface LociReaderValue extends DataValue {
 					});
 		}
 
+		/** {@inheritDoc} */
 		@Override
 		public Icon getIcon() {
 			return icon;
 		}
 	};
 
+	/**
+	 * @return The contained {@link FormatReader}.
+	 */
 	public FormatReader getReader();
 }

@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl;
 import ie.tcd.imm.hits.knime.view.impl.SettingsModelListSelection;
 import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.Selector;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
@@ -32,20 +33,31 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * A {@link VariableControl} that allows to select well(s) on a plate.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <Model>
+ *            The type of model used for values.
+ * @param <Sel>
+ *            The type of model of selections for those values.
  */
 public class WellSelectionWidget<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
 	private static final long serialVersionUID = 7969161552427878759L;
 	private final Map<String, Map<Integer, AbstractButton>> buttons = new LinkedHashMap<String, Map<Integer, AbstractButton>>();
-	private final Format format;
+
+	// private final Format format;
 
 	/**
 	 * @param format
+	 *            The {@link Format} to use.
 	 * @param model
+	 *            The inner {@link SettingsModelListSelection}.
 	 * @param selectionType
+	 *            The {@link SelectionType}.
 	 * @param controlsHandler
+	 *            The {@link ControlsHandler} where it will be registered.
 	 * @param changeListener
-	 * 
+	 *            The {@link ChangeListener} to add first.
+	 * @param domainModel
+	 *            The {@link Selector} model.
 	 */
 	public WellSelectionWidget(final Format format,
 			final SettingsModelListSelection model,
@@ -54,7 +66,7 @@ public class WellSelectionWidget<Model, Sel extends Selectable<Model>> extends
 			final ChangeListener changeListener, final Sel domainModel) {
 		super(model, selectionType, controlsHandler, changeListener,
 				domainModel);
-		this.format = format;
+		// this.format = format;
 		final JPanel view = getView();
 		view.removeAll();
 		view
@@ -114,8 +126,11 @@ public class WellSelectionWidget<Model, Sel extends Selectable<Model>> extends
 
 		/**
 		 * @param value
+		 *            The associated value.
 		 * @param listSelection
+		 *            The {@link ListSelection} model.
 		 * @param selectionType
+		 *            The {@link SelectionType}.
 		 */
 		private ButtonActionListener(final String value,
 				final ListSelection<String> listSelection,

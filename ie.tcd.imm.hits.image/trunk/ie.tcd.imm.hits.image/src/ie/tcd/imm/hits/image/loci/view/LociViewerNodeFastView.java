@@ -10,7 +10,6 @@ import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
 import ie.tcd.imm.hits.view.util.SimpleWellSelection;
-import ie.tcd.imm.hits.view.util.WellSelectionWidget;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageConverter;
@@ -28,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +41,6 @@ import javax.media.jai.util.ImagingListener;
 import javax.swing.AbstractAction;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -73,15 +69,14 @@ import org.knime.core.node.property.hilite.KeyEvent;
 import com.sun.media.jai.widget.DisplayJAI;
 
 /**
- * <code>NodeView</code> for the "OMEViewer" Node. Shows images based on OME.
+ * <code>NodeView</code> for the "Loci Viewer" Node. Shows images based on
+ * Bio-Formats.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	/**
-	 * TODO Javadoc!
-	 * 
-	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 * A {@link HiLiteListener} for the well control.
 	 */
 	private final class HiLiteListenerWells implements HiLiteListener {
 		private Set<ITriple<String, String, Integer>> hilites = new HashSet<ITriple<String, String, Integer>>();
@@ -124,15 +119,18 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			wellSel.updateHiLites(select(hilites, plateSelector.getSelected()));
 		}
 
-		protected void clear() {
-			hilites.clear();
-		}
+		// /**
+		// * Removes all HiLites.
+		// */
+		// protected void clear() {
+		// hilites.clear();
+		// }
 	}
 
 	private static final String GENERAL = "general";
 	private static final String PLATE = "plate";
-	private static final String ROW = "row";
-	private static final String COLUMN = "column";
+	// private static final String ROW = "row";
+	// private static final String COLUMN = "column";
 	private static final String FIELD = "field";
 	private static final String CHANNEL = "channel";
 
@@ -160,7 +158,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private JScrollPane imageScrollPane;
 	private ImagePlus imagePlus;
 
-	private WellSelectionWidget<String, NamedSelector<String>> wellSelection;
+	// private WellSelectionWidget<String, NamedSelector<String>> wellSelection;
 
 	private BoundedRangeModel zoomModel = new DefaultBoundedRangeModel(100, 0,
 			10, 400);
@@ -274,7 +272,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			}
 		});
 		final Format format = Format._96;
-		final List<String> vals = createPlateVals(format);
+		// final List<String> vals = createPlateVals(format);
 		// wellSelection = new WellSelectionWidget<String,
 		// NamedSelector<String>>(
 		// format, new SettingsModelListSelection("", vals, "A1"),
@@ -283,7 +281,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		// .createValues(vals)));
 		// otherPanel.add(wellSelection.getComponentPanel());
 
-		wellSel = new SimpleWellSelection(Format._96);
+		wellSel = new SimpleWellSelection(format);
 		hiLiteListener = new HiLiteListenerWells();
 		otherPanel.add(wellSel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
@@ -318,19 +316,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		});
 	}
 
-	/**
-	 * @param format
-	 * @return
-	 */
-	private List<String> createPlateVals(final Format format) {
-		final List<String> ret = new ArrayList<String>(format.getWellCount());
-		for (int i = 0; i < format.getRow(); ++i) {
-			for (int j = 0; j < format.getCol(); ++j) {
-				ret.add(Character.toString((char) ('A' + i)) + i);
-			}
-		}
-		return ret;
-	}
+	// /**
+	// * @param format
+	// * A {@link Format}
+	// * @return The wells on a plate with the specified {@link Format}.
+	// */
+	// private static List<String> createPlateVals(final Format format) {
+	// final List<String> ret = new ArrayList<String>(format.getWellCount());
+	// for (int i = 0; i < format.getRow(); ++i) {
+	// for (int j = 0; j < format.getCol(); ++j) {
+	// ret.add(Character.toString((char) ('A' + i)) + i);
+	// }
+	// }
+	// return ret;
+	// }
 
 	/**
 	 * {@inheritDoc}
@@ -347,10 +346,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	/**
 	 * @param hilites
+	 *            The actual set of hilited triples.
 	 * @param plate
-	 * @return
+	 *            The plate to select.
+	 * @return A {@link Set} of {@link Pair} of row, column information on the
+	 *         selected {@code plate}.
 	 */
-	protected Set<Pair<String, Integer>> select(
+	protected static Set<Pair<String, Integer>> select(
 			final Set<ITriple<String, String, Integer>> hilites,
 			final String plate) {
 		final Set<Pair<String, Integer>> ret = new HashSet<Pair<String, Integer>>();
@@ -403,60 +405,49 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		});
 	}
 
-	protected static <T> Collection<Integer> findValues(final Set<T> set,
-			final Map<Integer, T> valueMapping) {
-		final Collection<Integer> ret = new LinkedHashSet<Integer>();
-		for (final Entry<Integer, T> entry : valueMapping.entrySet()) {
-			if (set.contains(entry.getValue())) {
-				ret.add(entry.getKey());
-			}
-		}
-		return ret;
-	}
-
-	protected void recreateRowSelector() {
-		// deregister(rowSelector);
-		// rowSelector = OptionalNamedSelector.createSingle(ROW, plateSelector
-		// .getSelections().isEmpty() ? Collections.<String> emptySet()
-		// : getPlateMap().keySet());
-		// recreateColumnSelector();
-		final ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				// columnSelector.setActiveValues(findValues(
-				// asStringSet(getPlateRowMap().keySet()), columnSelector
-				// .getValueMapping()));
-				channelSelector.notifyListeners();
-			}
-		};
-		// rowSelector.addActionListener(actionListener);
-		listenersToNotGCd.add(actionListener);
-		// controlsHandlerFactory.register(rowSelector, SplitType.SingleSelect,
-		// GENERAL, ControlTypes.Buttons);
-	}
-
-	private void recreateColumnSelector() {
-		// deregister(columnSelector);
-		// columnSelector = OptionalNamedSelector.createSingle(COLUMN,
-		// rowSelector
-		// .getSelections().isEmpty() ? Collections.<String> emptySet()
-		// : asStringSet(getPlateRowMap().keySet()));
-		recreateFieldSelector();
-		final ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				// fieldSelector.setActiveValues(findValues(
-				// asStringSet(getPlateRowColMap().keySet()),
-				// fieldSelector.getValueMapping()));
-				channelSelector.notifyListeners();
-			}
-		};
-		// columnSelector.addActionListener(actionListener);
-		listenersToNotGCd.add(actionListener);
-		// controlsHandlerFactory.register(columnSelector,
-		// SplitType.SingleSelect,
-		// GENERAL, ControlTypes.Buttons);
-	}
+	// protected void recreateRowSelector() {
+	// // deregister(rowSelector);
+	// // rowSelector = OptionalNamedSelector.createSingle(ROW, plateSelector
+	// // .getSelections().isEmpty() ? Collections.<String> emptySet()
+	// // : getPlateMap().keySet());
+	// // recreateColumnSelector();
+	// final ActionListener actionListener = new ActionListener() {
+	// @Override
+	// public void actionPerformed(final ActionEvent e) {
+	// // columnSelector.setActiveValues(findValues(
+	// // asStringSet(getPlateRowMap().keySet()), columnSelector
+	// // .getValueMapping()));
+	// channelSelector.notifyListeners();
+	// }
+	// };
+	// // rowSelector.addActionListener(actionListener);
+	// listenersToNotGCd.add(actionListener);
+	// // controlsHandlerFactory.register(rowSelector, SplitType.SingleSelect,
+	// // GENERAL, ControlTypes.Buttons);
+	// }
+	//
+	// private void recreateColumnSelector() {
+	// // deregister(columnSelector);
+	// // columnSelector = OptionalNamedSelector.createSingle(COLUMN,
+	// // rowSelector
+	// // .getSelections().isEmpty() ? Collections.<String> emptySet()
+	// // : asStringSet(getPlateRowMap().keySet()));
+	// recreateFieldSelector();
+	// final ActionListener actionListener = new ActionListener() {
+	// @Override
+	// public void actionPerformed(final ActionEvent e) {
+	// // fieldSelector.setActiveValues(findValues(
+	// // asStringSet(getPlateRowColMap().keySet()),
+	// // fieldSelector.getValueMapping()));
+	// channelSelector.notifyListeners();
+	// }
+	// };
+	// // columnSelector.addActionListener(actionListener);
+	// listenersToNotGCd.add(actionListener);
+	// // controlsHandlerFactory.register(columnSelector,
+	// // SplitType.SingleSelect,
+	// // GENERAL, ControlTypes.Buttons);
+	// }
 
 	private void recreateFieldSelector() {
 		deregister(fieldSelector);
@@ -566,50 +557,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						// imagePanel.setImage(imagePlus.getBufferedImage());
 						return;
 					}
-					// final byte[] green = new byte[256];
-					// Arrays.fill(green, (byte) -128);
-					// final byte[] red = new byte[256];
-					// final byte[] blue = new byte[256];
-					// for (int i = red.length; i-- > 0;) {
-					// blue[i] = (byte) (255 - i & 255);
-					// red[i] = (byte) (255 - i & 255);
-					// green[i] = (byte) (255 - i & 255);
-					// }
-					// Arrays.fill(red, (byte) 0);
-					// Arrays.fill(green, (byte) 0);
-					// Arrays.fill(blue, (byte) 0);
-					// final LUT lut = new LUT(red, green, blue);
-					// lut.min = 50;
-					// lut.max = 200;
-					// final ImagePlus ch1 = new ImagePlus("ch1",
-					// imagePlusReader
-					// .openProcessors(0)[0]);
-					// // final LUT lut1 = new LUT(red, new byte[256], new
-					// // byte[256]);
-					// // final LUT lut2 = new LUT(new byte[256], new byte[256],
-					// // green);
-					// // ch1.getProcessor().setColorModel(lut1);
-					// new ImageConverter(ch1).convertToGray8();
-					//					
-					// final ImagePlus ch2 = new ImagePlus("ch2",
-					// imagePlusReader
-					// .openProcessors(1)[0]);
-					// // ch2.getProcessor().setColorModel(lut2);
-					// new ImageConverter(ch2).convertToGray8();
-					// // imageStack.addSlice("channel 1", imagePlusReader
-					// // .openProcessors(0)[0]);
-					// // imageStack.addSlice("channel 2", imagePlusReader
-					// // .openProcessors(1)[0]);
-					// imageStack.addSlice("channel 1", ch1.getProcessor());
-					// imageStack.addSlice("channel 2", ch2.getProcessor());
-					// final LutApplier lutApplier = new LutApplier();
-					// // lutApplier.setup("", imagePlus0);
-					// // lutApplier.run(imagePlus0.getProcessor());
-					//					
-					// // imagePlus0.getProcessor().setColorModel(lut);
-					// final LutViewer lutViewer = new LutViewer();
-					// // lutViewer.setup("", imagePlus0);
-					// // lutViewer.run(imagePlus.getProcessor());
 					final ImageStack imageStack = new ImageStack(
 							imagePlusReader.getSizeX(), imagePlusReader
 									.getSizeY());
@@ -622,16 +569,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					imagePlus = new ImagePlus("", imageStack);
 					new ImageConverter(imagePlus).convertRGBStackToRGB();
 					repaintImage();
-					// imagePanel.prepareImage(imagePlus.getBufferedImage(),
-					// null);
 					// imagePanel.set(imagePlus.getBufferedImage());
 					// imagePanel.setImage(imagePlus.getBufferedImage());
 				} catch (final FormatException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
+					imagePlus = new ImagePlus();
+					logger.error("", ex);
 				} catch (final IOException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
+					imagePlus = new ImagePlus();
+					logger.error("", ex);
 				}
 			}
 		};
@@ -646,12 +591,21 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
+	 * If finds an {@link Iterable} interface it will compute the channel names
+	 * to {@code channelNames}. If not found it does noting.
+	 * 
 	 * @param channelNames
+	 *            The result channel names list.
 	 * @param reader
+	 *            The {@link FormatReader} object.
 	 * @param channelNamesField
+	 *            The field of channel names.
 	 * @param cls
+	 *            The class/interface's {@link Class}.
 	 * @param numberOfChannels
+	 *            The number of channels.
 	 * @throws IllegalAccessException
+	 *             If the field is not accessible.
 	 */
 	private void goThroughInterfaces(final List<String> channelNames,
 			final FormatReader reader, final Field channelNamesField,
@@ -676,8 +630,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @param sizeC
-	 * @return
+	 * @param numberOfChannels
+	 *            Number of channels.
+	 * @return A list of {@code Channel n} values (starting from {@code Channel
+	 *         1}).
 	 */
 	private Collection<String> createSampleChannelNames(
 			final int numberOfChannels) {
@@ -689,7 +645,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * 
+	 * Repaint the computed image with the current scaling.
 	 */
 	protected void repaintImage() {
 		final BufferedImage origImage = imagePlus.getBufferedImage();
@@ -750,32 +706,12 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		}
 	}
 
-	private static <V> Map<Integer, V> setValues(final JSlider slider,
-			final Set<V> set, final Map<Integer, V> values) {
-		values.clear();
-		final LinkedHashMap<Integer, V> ret = new LinkedHashMap<Integer, V>();
-		final Hashtable<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
-		int i = 0;
-		for (final V o : set) {
-			final Integer key = Integer.valueOf(i);
-			ret.put(key, o);
-			labels.put(key, new JLabel(o.toString()));
-			++i;
-		}
-		values.putAll(ret);
-		slider.setLabelTable(labels);
-		slider.setMinimum(0);
-		slider.setMaximum(labels.size() - 1);
-		slider.setPaintLabels(true);
-		return ret;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void onClose() {
-		// TODO: generated method stub
+		// Do nothing
 	}
 
 	/**
@@ -783,18 +719,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 */
 	@Override
 	protected void onOpen() {
-		// TODO: generated method stub
+		// Do nothing
 	}
 
 	/**
-	 * @return
+	 * @return The {@link Map} for the current plate. (Row, Column, Field, id
+	 *         &rArr; reader).
 	 */
 	private Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>> getPlateMap() {
 		return joinTable.get(plateSelector.getSelected());
 	}
 
 	/**
-	 * @return
+	 * @return The {@link Map} for the current plate and row. (Column, Field, id
+	 *         &rArr; reader).
 	 */
 	private Map<Integer, Map<Integer, Map<Integer, FormatReader>>> getPlateRowMap() {
 		// return getPlateMap().get(rowSelector.getSelected());
@@ -802,7 +740,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @return
+	 * @return The {@link Map} for the current plate, row, column. (Field, id
+	 *         &rArr; reader).
 	 */
 	private Map<Integer, Map<Integer, FormatReader>> getPlateRowColMap() {
 		// return getPlateRowMap().get(
@@ -813,7 +752,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @return
+	 * @return The {@link Map} for the current plate, row, column, field. (id
+	 *         &rArr; reader).
 	 */
 	private Map<Integer, FormatReader> getPlateRowColFieldMap() {
 		return getPlateRowColMap().get(
@@ -821,7 +761,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @return
+	 * @return The {@link RowKey}s associated to the selected well.
 	 */
 	private Set<RowKey> findSelectedRowKeys() {
 		final Set<RowKey> selections = new HashSet<RowKey>();

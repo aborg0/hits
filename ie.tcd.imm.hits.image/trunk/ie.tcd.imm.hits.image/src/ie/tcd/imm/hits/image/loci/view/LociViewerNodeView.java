@@ -27,7 +27,6 @@ import loci.visbio.data.DataControls;
 import loci.visbio.data.DataManager;
 import loci.visbio.overlays.OverlayManager;
 import loci.visbio.state.OptionManager;
-import loci.visbio.state.StateManager;
 import loci.visbio.util.SwingUtil;
 import loci.visbio.view.DisplayManager;
 import loci.visbio.view.DisplayWindow;
@@ -52,7 +51,7 @@ public class LociViewerNodeView extends NodeView<LociViewerNodeModel> {
 	static {
 		visBioFrame.setVisible(false);
 		final OptionManager om = new OptionManager(visBioFrame);
-		final StateManager sm = new StateManager(visBioFrame);
+		// final StateManager sm = new StateManager(visBioFrame);
 		final WindowManager wm = new WindowManager(visBioFrame);
 		// visBioFrame.addManager(sm);
 		visBioFrame.addManager(om);
