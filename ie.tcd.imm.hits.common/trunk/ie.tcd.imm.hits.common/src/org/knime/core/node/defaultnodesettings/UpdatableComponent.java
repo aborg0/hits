@@ -54,7 +54,7 @@ public class UpdatableComponent extends DialogComponent {
 	 */
 	@Override
 	protected void updateComponent() {
-		// TODO Auto-generated method stub
+		// Please override
 	}
 
 	/**

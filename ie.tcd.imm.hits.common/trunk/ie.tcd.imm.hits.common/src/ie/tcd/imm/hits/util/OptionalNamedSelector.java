@@ -12,9 +12,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO Javadoc!
+ * A {@link NamedSelector} with option to have active values.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <T>
+ *            The type of the contained values.
  */
 public class OptionalNamedSelector<T> extends NamedSelector<T> implements
 		OptionalValues<Integer> {
@@ -22,8 +24,11 @@ public class OptionalNamedSelector<T> extends NamedSelector<T> implements
 
 	/**
 	 * @param name
+	 *            The name of the object.
 	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
 	 * @param selections
+	 *            The initial selection.
 	 */
 	public OptionalNamedSelector(final String name,
 			final Map<Integer, T> valueMapping, final Set<Integer> selections) {
@@ -31,17 +36,50 @@ public class OptionalNamedSelector<T> extends NamedSelector<T> implements
 		activeValues.addAll(valueMapping.keySet());
 	}
 
+	/**
+	 * Selects the first option.
+	 * 
+	 * @param name
+	 *            The name of the object.
+	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
+	 * @see #OptionalNamedSelector(String, Map, Set)
+	 */
 	protected OptionalNamedSelector(final String name,
 			final Map<Integer, T> valueMapping) {
 		super(name, valueMapping);
 		activeValues.addAll(valueMapping.keySet());
 	}
 
+	/**
+	 * Creates an {@link OptionalNamedSelector} with a single selection (the
+	 * first one). This is a factory method.
+	 * 
+	 * @param <T>
+	 *            Type of the contained values.
+	 * @param name
+	 *            The name of the selector.
+	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
+	 * @return A new {@link OptionalNamedSelector}.
+	 */
 	public static <T> OptionalNamedSelector<T> createSingle(final String name,
 			final Map<Integer, T> valueMapping) {
 		return new OptionalNamedSelector<T>(name, valueMapping);
 	}
 
+	/**
+	 * Creates a {@link OptionalNamedSelector} with a single selection (the
+	 * first one). This is a factory method.
+	 * 
+	 * @param <T>
+	 *            Type of the contained values.
+	 * @param name
+	 *            The name of the selector.
+	 * @param vals
+	 *            The values for {@link Selectable#getValueMapping()}.
+	 * @return A new {@link OptionalNamedSelector}.
+	 */
 	public static <T> OptionalNamedSelector<T> createSingle(final String name,
 			final Iterable<T> vals) {
 		return OptionalNamedSelector.createSingle(name, NamedSelector

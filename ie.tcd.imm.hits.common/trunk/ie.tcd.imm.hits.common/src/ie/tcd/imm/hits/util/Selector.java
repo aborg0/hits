@@ -14,9 +14,11 @@ import java.util.WeakHashMap;
 import java.util.Map.Entry;
 
 /**
- * TODO Javadoc!
+ * A simple implementation of {@link Selectable}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+ * @param <MappedValues>
+ *            The type of contained values.
  */
 public class Selector<MappedValues> implements Selectable<MappedValues> {
 
@@ -24,6 +26,12 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 	private final Set<Integer> selections = new HashSet<Integer>();
 	private final Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
 
+	/**
+	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
+	 * @param selections
+	 *            The actual selections.
+	 */
 	public Selector(final Map<Integer, MappedValues> valueMapping,
 			final Set<Integer> selections) {
 		super();
@@ -40,11 +48,13 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		return Collections.unmodifiableMap(valueMapping);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<Integer> getSelections() {
 		return Collections.unmodifiableSet(selections);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void select(final Integer val) {
 		final boolean add = selections.add(val);
@@ -53,6 +63,7 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void selectSingle(final Integer val) {
 		if (selections.size() == 1 && selections.contains(val)) {
@@ -64,6 +75,7 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void deselect(final Integer val) {
 		final boolean remove = selections.remove(val);
@@ -72,6 +84,9 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		}
 	}
 
+	/**
+	 * Notifies listeners about a change.
+	 */
 	protected void notifyListeners() {
 		for (final ActionListener listener : listeners.keySet()) {
 			listener.actionPerformed(new ActionEvent(this, (int) (System
@@ -79,16 +94,13 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void addActionListener(final ActionListener actionListener) {
 		listeners.put(actionListener, Boolean.TRUE);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -100,11 +112,7 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
@@ -134,6 +142,7 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

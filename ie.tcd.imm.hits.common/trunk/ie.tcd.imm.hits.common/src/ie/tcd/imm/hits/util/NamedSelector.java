@@ -35,6 +35,15 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 		this.name = name;
 	}
 
+	/**
+	 * Selects the first option.
+	 * 
+	 * @param name
+	 *            The name of the object.
+	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
+	 * @see #NamedSelector(String, Map, Set)
+	 */
 	protected NamedSelector(final String name,
 			final Map<Integer, T> valueMapping) {
 		this(name, valueMapping, valueMapping.isEmpty() ? Collections
@@ -42,11 +51,35 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 				.<Integer> singleton(valueMapping.keySet().iterator().next()));
 	}
 
+	/**
+	 * Creates a {@link NamedSelector} with a single selection (the first one).
+	 * This is a factory method.
+	 * 
+	 * @param <T>
+	 *            Type of the contained values.
+	 * @param name
+	 *            The name of the selector.
+	 * @param valueMapping
+	 *            The mapping for {@link Selectable#getValueMapping()}.
+	 * @return A new {@link NamedSelector}.
+	 */
 	public static <T> NamedSelector<T> createSingle(final String name,
 			final Map<Integer, T> valueMapping) {
 		return new NamedSelector<T>(name, valueMapping);
 	}
 
+	/**
+	 * Creates a {@link NamedSelector} with a single selection (the first one).
+	 * This is a factory method.
+	 * 
+	 * @param <T>
+	 *            Type of the contained values.
+	 * @param name
+	 *            The name of the selector.
+	 * @param values
+	 *            The values for {@link Selectable#getValueMapping()}.
+	 * @return A new {@link NamedSelector}.
+	 */
 	public static <T> NamedSelector<T> createSingle(final String name,
 			final Iterable<T> values) {
 		return createSingle(name, createValues(values));
@@ -58,18 +91,33 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 		return name;
 	}
 
+	/**
+	 * Constructs the {@link Selectable#getValueMapping() valueMapping} for
+	 * {@link Selector}s, based on {@code values}.
+	 * 
+	 * @param <V>
+	 *            Type of value objects.
+	 * @param values
+	 *            The values.
+	 * @return A mapping from {@code 1}..{@code n} to the {@code values}.
+	 */
 	public static <V> LinkedHashMap<Integer, V> createValues(
-			final Iterable<V> set) {
+			final Iterable<V> values) {
 		final LinkedHashMap<Integer, V> ret = new LinkedHashMap<Integer, V>();
 		int i = 1;
-		for (final V v : set) {
+		for (final V v : values) {
 			ret.put(Integer.valueOf(i++), v);
 		}
 		return ret;
 	}
 
+	/**
+	 * @return The only selected value, or {@code null} if none is selected.
+	 * @throws IllegalStateException
+	 *             If more than {@code 1} values are selected.
+	 */
 	@Nullable
-	public T getSelected() {
+	public T getSelected() throws IllegalStateException {
 		if (getSelections().size() > 1) {
 			throw new IllegalStateException("More than one thing is selected.");
 		}
@@ -77,11 +125,7 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 				getSelections().iterator().next());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -90,11 +134,7 @@ public class NamedSelector<T> extends Selector<T> implements HasName {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
