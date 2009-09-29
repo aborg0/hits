@@ -8,7 +8,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
 import ie.tcd.imm.hits.util.swing.colour.ColourLegend;
