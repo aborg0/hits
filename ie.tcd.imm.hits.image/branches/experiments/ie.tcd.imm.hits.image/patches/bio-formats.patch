@@ -1,0 +1,389 @@
+Index: src/loci/formats/gui/GUITools.java
+===================================================================
+--- src/loci/formats/gui/GUITools.java	(revision 5469)
++++ src/loci/formats/gui/GUITools.java	(working copy)
+@@ -79,8 +79,8 @@
+     if (handler instanceof ImageReader) {
+       ImageReader imageReader = (ImageReader) handler;
+       IFormatReader[] readers = imageReader.getReaders();
+-      Vector filterList = new Vector();
+-      Vector comboList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
++      Vector<FileFilter> comboList = new Vector<FileFilter>();
+       for (int i=0; i<readers.length; i++) {
+         filterList.add(new FormatFileFilter(readers[i]));
+         // NB: Some readers need to open a file to determine if it is the
+@@ -102,7 +102,7 @@
+     }
+     else if (handler instanceof ImageWriter) {
+       IFormatWriter[] writers = ((ImageWriter) handler).getWriters();
+-      Vector filterList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
+       for (int i=0; i<writers.length; i++) {
+         String[] suffixes = writers[i].getSuffixes();
+         String format = writers[i].getFormat();
+@@ -220,7 +220,7 @@
+    * Sorts the given list of file filters, keeping the "All supported
+    * file types" combo filter (if any) at the front of the list.
+    */
+-  private static FileFilter[] sortFilters(Vector filterList) {
++  private static FileFilter[] sortFilters(Vector<FileFilter> filterList) {
+     FileFilter[] filters = ComboFileFilter.sortFilters(filterList);
+     shuffleAllTypesToFront(filters);
+     return filters;
+Index: src/loci/formats/tiff/IFDList.java
+===================================================================
+--- src/loci/formats/tiff/IFDList.java	(revision 5469)
++++ src/loci/formats/tiff/IFDList.java	(working copy)
+@@ -34,4 +34,6 @@
+  *
+  * @author Curtis Rueden ctrueden at wisc.edu
+  */
+-public class IFDList extends ArrayList<IFD> { }
++public class IFDList extends ArrayList<IFD> {
++  private static final long serialVersionUID = -113738094423984626L;
++}
+Index: src/loci/formats/in/MinimalTiffReader.java
+===================================================================
+--- src/loci/formats/in/MinimalTiffReader.java	(revision 5469)
++++ src/loci/formats/in/MinimalTiffReader.java	(working copy)
+@@ -24,6 +24,8 @@
+ package loci.formats.in;
+ 
+ import java.io.IOException;
++import java.io.ObjectInputStream;
++import java.io.ObjectOutputStream;
+ 
+ import loci.common.RandomAccessInputStream;
+ import loci.formats.FormatException;
+@@ -45,6 +47,7 @@
+  * @author Melissa Linkert linkert at wisc.edu
+  */
+ public class MinimalTiffReader extends FormatReader {
++  private static final long serialVersionUID = 7785311378617298752L;
+ 
+   // -- Fields --
+ 
+@@ -54,7 +57,7 @@
+   /** List of thumbnail IFDs for the current TIFF. */
+   protected IFDList thumbnailIFDs;
+ 
+-  protected TiffParser tiffParser;
++  protected transient TiffParser tiffParser;
+ 
+   private int lastPlane;
+ 
+@@ -267,4 +270,18 @@
+     core[0].dimensionOrder = "XYCZT";
+   }
+ 
++  // -- Serialize related methods --
++  private void writeObject(ObjectOutputStream out) throws IOException {
++	out.defaultWriteObject();
++  }
++
++  private void readObject(ObjectInputStream input) throws IOException,
++		ClassNotFoundException {
++	// our "pseudo-constructor"
++	input.defaultReadObject();
++	if (in != null)
++	{
++      tiffParser = new TiffParser(in); 
++	}
++  }
+ }
+Index: src/loci/formats/in/InCellReader.java
+===================================================================
+--- src/loci/formats/in/InCellReader.java	(revision 5469)
++++ src/loci/formats/in/InCellReader.java	(working copy)
+@@ -24,7 +24,10 @@
+ package loci.formats.in;
+ 
+ import java.io.IOException;
++import java.io.Serializable;
++import java.util.Collections;
+ import java.util.Hashtable;
++import java.util.List;
+ import java.util.Vector;
+ 
+ import loci.common.DataTools;
+@@ -54,6 +57,7 @@
+ public class InCellReader extends FormatReader {
+ 
+   // -- Constants --
++  private static final long serialVersionUID = -5510519563910371982L;
+ 
+   public static final String INCELL_MAGIC_STRING = "IN Cell Analyzer 1000";
+ 
+@@ -539,9 +543,17 @@
+     setSeries(0);
+   }
+ 
+-  // -- Helper classes --
+ 
+-  class MinimalInCellHandler extends DefaultHandler {
++  /**
++   * @return The channelNames.
++   */
++  public List<String> getChannelNames() {
++	return channelNames == null ? null : Collections.unmodifiableList(channelNames);
++  }
++
++// -- Helper classes --
++
++class MinimalInCellHandler extends DefaultHandler {
+     private String currentImageFile;
+     private int wellRow, wellCol;
+     private int nChannels = 0;
+@@ -861,8 +873,10 @@
+     }
+   }
+ 
+-  class Image {
+-    public String filename;
++  class Image implements Serializable {
++    /**  */
++	private static final long serialVersionUID = -7572349061900818805L;
++	public String filename;
+     public boolean isTiff;
+     public Float deltaT, exposure;
+     public Float zPosition;
+Index: src/loci/formats/IFormatHandler.java
+===================================================================
+--- src/loci/formats/IFormatHandler.java	(revision 5469)
++++ src/loci/formats/IFormatHandler.java	(working copy)
+@@ -24,6 +24,7 @@
+ package loci.formats;
+ 
+ import java.io.IOException;
++import java.io.Serializable;
+ 
+ /**
+  * Interface for all biological file format readers and writers.
+@@ -32,7 +33,7 @@
+  * <dd><a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">Trac</a>,
+  * <a href="https://skyking.microscopy.wisc.edu/svn/java/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">SVN</a></dd></dl>
+  */
+-public interface IFormatHandler extends StatusReporter {
++public interface IFormatHandler extends StatusReporter, Serializable {
+ 
+   /** Checks if the given string is a valid filename for this file format. */
+   boolean isThisType(String name);
+Index: src/loci/formats/FormatReader.java
+===================================================================
+--- src/loci/formats/FormatReader.java	(revision 5469)
++++ src/loci/formats/FormatReader.java	(working copy)
+@@ -24,6 +24,8 @@
+ package loci.formats;
+ 
+ import java.io.IOException;
++import java.io.ObjectInputStream;
++import java.io.ObjectOutputStream;
+ import java.util.Hashtable;
+ import java.util.Vector;
+ 
+@@ -46,6 +48,7 @@
+ {
+ 
+   // -- Constants --
++  private static final long serialVersionUID = -140106157246147182L;
+ 
+   /** Default thumbnail width and height. */
+   protected static final int THUMBNAIL_DIMENSION = 128;
+@@ -53,10 +56,10 @@
+   // -- Fields --
+ 
+   /** Current file. */
+-  protected RandomAccessInputStream in;
++  protected transient RandomAccessInputStream in;
+ 
+   /** Hashtable containing metadata key/value pairs. */
+-  protected Hashtable metadata;
++  protected Hashtable<String, Object> metadata;
+ 
+   /** The number of the current series. */
+   protected int series = 0;
+@@ -98,7 +101,7 @@
+    * Current metadata store. Should never be accessed directly as the
+    * semantics of {@link #getMetadataStore()} prevent "null" access.
+    */
+-  protected MetadataStore metadataStore = new DummyMetadata();
++  protected transient MetadataStore metadataStore = new DummyMetadata();
+ 
+   // -- Constructors --
+ 
+@@ -128,7 +131,7 @@
+     series = 0;
+     close();
+     currentId = id;
+-    metadata = new Hashtable();
++    metadata = new Hashtable<String, Object>();
+ 
+     core = new CoreMetadata[1];
+     core[0] = new CoreMetadata();
+@@ -153,7 +156,7 @@
+   }
+ 
+   /** Adds an entry to the specified Hashtable. */
+-  protected void addMeta(String key, Object value, Hashtable meta) {
++  protected void addMeta(String key, Object value, Hashtable<String, Object> meta) {
+     if (key == null || value == null || !collectMetadata) return;
+ 
+     key = key.trim();
+@@ -606,7 +609,7 @@
+     int width, int heigeht) throws FormatException, IOException;
+ 
+   /* @see IFormatReader#getNativeDataType() */
+-  public Class getNativeDataType() {
++  public Class<byte[]> getNativeDataType() {
+     // NB: Readers use byte arrays by default as the native type.
+     return byte[].class;
+   }
+@@ -796,21 +799,21 @@
+   }
+ 
+   /* @see IFormatReader#getGlobalMetadata() */
+-  public Hashtable getGlobalMetadata() {
++  public Hashtable<String, Object> getGlobalMetadata() {
+     FormatTools.assertId(currentId, true, 1);
+     return metadata;
+   }
+ 
+   /* @see IFormatReader#getSeriesMetadata() */
+-  public Hashtable getSeriesMetadata() {
++  public Hashtable<String, ?> getSeriesMetadata() {
+     FormatTools.assertId(currentId, true, 1);
+     return core[series].seriesMetadata;
+   }
+ 
+   /** @deprecated */
+-  public Hashtable getMetadata() {
++  public Hashtable<String, ?> getMetadata() {
+     FormatTools.assertId(currentId, true, 1);
+-    Hashtable h = new Hashtable(getGlobalMetadata());
++    Hashtable<String, Object> h = new Hashtable<String, Object>(getGlobalMetadata());
+     int oldSeries = getSeries();
+ 
+     IMetadata meta = getMetadataStore() instanceof IMetadata ?
+@@ -825,7 +828,7 @@
+         }
+       }
+       setSeries(series);
+-      Hashtable seriesMetadata = getSeriesMetadata();
++      Hashtable<String, ?> seriesMetadata = getSeriesMetadata();
+       Object[] keys = seriesMetadata.keySet().toArray();
+       for (Object key : keys) {
+         h.put(name + " " + key, seriesMetadata.get(key));
+@@ -891,4 +894,16 @@
+     close(false);
+   }
+ 
++  // -- Serialize related methods --
++  private void writeObject(ObjectOutputStream out) throws IOException {
++	out.defaultWriteObject();
++  }
++
++  private void readObject(ObjectInputStream input) throws IOException,
++		ClassNotFoundException {
++	// our "pseudo-constructor"
++	input.defaultReadObject();
++	in = null;
++	metadataStore = new DummyMetadata();
++  }
+ }
+Index: src/loci/formats/CoreMetadata.java
+===================================================================
+--- src/loci/formats/CoreMetadata.java	(revision 5469)
++++ src/loci/formats/CoreMetadata.java	(working copy)
+@@ -23,6 +23,7 @@
+ 
+ package loci.formats;
+ 
++import java.io.Serializable;
+ import java.util.Hashtable;
+ 
+ /**
+@@ -32,8 +33,11 @@
+  * <dd><a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/CoreMetadata.java">Trac</a>,
+  * <a href="https://skyking.microscopy.wisc.edu/svn/java/trunk/components/bio-formats/src/loci/formats/CoreMetadata.java">SVN</a></dd></dl>
+  */
+-public class CoreMetadata {
+-  // TODO
++public class CoreMetadata implements Serializable {
++  /**  */
++  private static final long serialVersionUID = 7601920004118508775L;
++
++// TODO
+   //
+   // We may also want to consider refactoring the FormatReader getter methods
+   // that populate missing CoreMetadata fields on the fly
+@@ -123,7 +127,7 @@
+   public boolean metadataComplete;
+ 
+   /** Non-core metadata associated with this series. */
+-  public Hashtable seriesMetadata;
++  public Hashtable<String, Object> seriesMetadata;
+ 
+   /**
+    * Indicates whether or not this series is a lower-resolution copy of
+@@ -132,7 +136,7 @@
+   public boolean thumbnail;
+ 
+   public CoreMetadata() {
+-    seriesMetadata = new Hashtable();
++    seriesMetadata = new Hashtable<String, Object>();
+   }
+ 
+ }
+Index: src/loci/formats/FormatHandler.java
+===================================================================
+--- src/loci/formats/FormatHandler.java	(revision 5469)
++++ src/loci/formats/FormatHandler.java	(working copy)
+@@ -23,6 +23,9 @@
+ 
+ package loci.formats;
+ 
++import java.io.IOException;
++import java.io.ObjectInputStream;
++import java.io.ObjectOutputStream;
+ import java.util.Vector;
+ 
+ import loci.common.LogTools;
+@@ -37,6 +40,8 @@
+ public abstract class FormatHandler implements IFormatHandler {
+ 
+   // -- Constants --
++  private static final long serialVersionUID = -5896984781205568900L;
++
+ 
+   /** Suffixes for supported compression types. */
+   public static final String[] COMPRESSION_SUFFIXES = {"bz2", "gz"};
+@@ -50,7 +55,7 @@
+   protected String[] suffixes;
+ 
+   /** List of status listeners. */
+-  protected Vector statusListeners = new Vector();
++  protected transient Vector<StatusListener> statusListeners = new Vector<StatusListener>();
+ 
+   /** Name of current file. */
+   protected String currentId;
+@@ -148,6 +153,19 @@
+   /* @see IFormatHandler#getSuffixes() */
+   public String[] getSuffixes() { return suffixes; }
+ 
++  // -- Serializable related methods --
++  private void writeObject(ObjectOutputStream out) throws IOException {
++	out.defaultWriteObject();
++  }
++
++  private void readObject(ObjectInputStream in) throws IOException,
++		ClassNotFoundException {
++	// our "pseudo-constructor"
++	in.defaultReadObject();
++	// now we are a "live" object again
++	statusListeners = new Vector<StatusListener>();
++  }
++
+   // -- StatusReporter API methods --
+ 
+   /* @see StatusReporter#addStatusListener(StatusListener) */
