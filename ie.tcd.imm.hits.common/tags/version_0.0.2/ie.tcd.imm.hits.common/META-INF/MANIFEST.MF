@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Plug-in for KNIME development
+Bundle-SymbolicName: ie.tcd.imm.hits.common;singleton:=true
+Bundle-Version: 0.0.2.qualifier
+Bundle-Activator: ie.tcd.imm.hits.common.internal.KNIMECommonActivator
+Bundle-Vendor: TCD
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.knime.core;bundle-version="[2.0.0,3.0.0)",
+ org.knime.workbench.help;bundle-version="2.0.0",
+ org.eclipse.help
+Export-Package: ie.tcd.imm.hits.common;version="0.0.1",
+ ie.tcd.imm.hits.knime.util;version="0.0.1",
+ ie.tcd.imm.hits.knime.view;x-friends:="ie.tcd.imm.hits,ie.tcd.imm.hits.image,ie.tcd.imm.knime.test",
+ ie.tcd.imm.hits.knime.view.impl;x-friends:="ie.tcd.imm.hits,ie.tcd.imm.hits.image,ie.tcd.imm.knime.test",
+ ie.tcd.imm.hits.util;version="0.0.2",
+ ie.tcd.imm.hits.util.select;version="0.0.2";x-friends:="ie.tcd.imm.hits.image,ie.tcd.imm.hits.image,ie.tcd.imm.knime.test",
+ ie.tcd.imm.hits.util.swing;x-friends:="ie.tcd.imm.hits,ie.tcd.imm.hits.image,ie.tcd.imm.knime.test",
+ ie.tcd.imm.hits.util.template;version="0.0.1",
+ org.knime.core.node.defaultnodesettings;version="0.0.1"
+Import-Package: edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.concurrent,
+ javax.annotation.meta
