@@ -1,7 +1,7 @@
 /*
  * All rights reserved. (C) Copyright 2009, Trinity College Dublin
  */
-package ie.tcd.imm.hits.image;
+package ie.tcd.imm.hits.image.internal;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
@@ -13,19 +13,19 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class INCellImageReaderNodePlugin extends Plugin {
+public class ImagePlugin extends Plugin {
 
 	/** Make sure that this *always* matches the ID in plugin.xml. */
 	public static final String PLUGIN_ID = "ie.tcd.imm.hits.knime.xls";
 
 	// The shared instance.
-	private static INCellImageReaderNodePlugin plugin;
+	private static ImagePlugin plugin;
 
 	/**
 	 * 
 	 */
 	@SuppressWarnings("ST")
-	public INCellImageReaderNodePlugin() {
+	public ImagePlugin() {
 		super();
 		plugin = this;
 	}
@@ -64,7 +64,7 @@ public class INCellImageReaderNodePlugin extends Plugin {
 	 * 
 	 * @return Singleton instance of the Plugin
 	 */
-	public static INCellImageReaderNodePlugin getDefault() {
+	public static ImagePlugin getDefault() {
 		return plugin;
 	}
 }

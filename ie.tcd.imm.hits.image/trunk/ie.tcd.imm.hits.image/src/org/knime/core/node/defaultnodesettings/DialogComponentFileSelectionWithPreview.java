@@ -9,7 +9,6 @@ import ij.ImageStack;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,8 +40,9 @@ import loci.formats.CoreMetadata;
 import loci.formats.gui.ExtensionFileFilter;
 import loci.plugins.util.ImagePlusReader;
 
-import org.hcdc.plate.ImagePanel;
 import org.knime.core.node.NodeLogger;
+
+import com.sun.media.jai.widget.DisplayJAI;
 
 /**
  * This class allows to select a file and show preview of metadata, and images.
@@ -54,7 +54,7 @@ public class DialogComponentFileSelectionWithPreview extends
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(DialogComponentFileSelectionWithPreview.class);
 	private JPanel metaInfo;
-	private ImagePanel imagePanel;
+	private DisplayJAI imagePanel;
 	private String extension = "";
 	private JList fileNames = new JList(new DefaultListModel());
 	private ExecutorService threadPoolExecutor = new ThreadPoolExecutor(1, 1,
@@ -127,7 +127,7 @@ public class DialogComponentFileSelectionWithPreview extends
 		super(stringModel, historyID, dialogType, directoryOnly,
 				validExtensions);
 		metaInfo = new JPanel();
-		imagePanel = new ImagePanel(400, 400);
+		imagePanel = new DisplayJAI();
 		getComponentPanel().add(new JScrollPane(imagePanel));
 		getComponentPanel().add(new JScrollPane(metaInfo));
 		getComponentPanel().add(new JScrollPane(fileNames));
@@ -174,7 +174,7 @@ public class DialogComponentFileSelectionWithPreview extends
 			if (imagePanel != null) {
 				stopPreview();
 				try {
-					imagePanel.setImage(new BufferedImage(400, 400,
+					imagePanel.set(new BufferedImage(400, 400,
 							BufferedImage.TYPE_INT_RGB));
 				} catch (final RuntimeException e) {
 					logger.debug("Problem with handling exception: "
@@ -260,9 +260,10 @@ public class DialogComponentFileSelectionWithPreview extends
 							final ImageConverter imageConverter = new ImageConverter(
 									pointer[0]);
 							imageConverter.convertRGBStackToRGB();
-							final Image image = pointer[0].getImage();
+							final BufferedImage image = pointer[0]
+									.getBufferedImage();
 							assert image != null;
-							imagePanel.setImage(image);
+							imagePanel.set(image);
 							getComponentPanel().revalidate();
 							getComponentPanel().repaint();
 						}
@@ -297,7 +298,7 @@ public class DialogComponentFileSelectionWithPreview extends
 		}
 		if (imagePanel != null) {
 			try {
-				imagePanel.setImage(new BufferedImage(400, 400,
+				imagePanel.set(new BufferedImage(400, 400,
 						BufferedImage.TYPE_INT_RGB));
 			} catch (final RuntimeException e) {
 				logger.debug("Problem with handling exception: "

@@ -16,6 +16,7 @@ import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.gui.ExtensionFileFilter;
 import loci.plugins.util.ImagePlusReader;
 
 import org.knime.core.data.DataColumnSpecCreator;
@@ -36,8 +37,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-
-import visad.util.ExtensionFileFilter;
 
 /**
  * This is the model implementation of OMEReader. This node reads image

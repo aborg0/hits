@@ -14,12 +14,7 @@
    </extension>
    -->
    <extension point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/"
-            expert-flag="true"
-            factory-class="ie.tcd.imm.hits.image.INCellImageReaderNodeFactory"
-            id="ie.tcd.imm.hits.image.INCellImageReaderNodeFactory"/>
-      <node category-path="/" factory-class="ie.tcd.imm.hits.image.loci.read.LociReaderNodeFactory" id="ie.tcd.imm.hits.image.ome.read.OMEReaderNodeFactory"/>
-      <node category-path="/" factory-class="ie.tcd.imm.hits.image.loci.view.LociViewerNodeFactory" id="ie.tcd.imm.hits.image.ome.view.OMEViewerNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.read.LociReaderNodeFactory" id="ie.tcd.imm.hits.image.ome.read.OMEReaderNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.view.LociViewerNodeFactory" id="ie.tcd.imm.hits.image.ome.view.OMEViewerNodeFactory"/>
    </extension>
 </plugin>
