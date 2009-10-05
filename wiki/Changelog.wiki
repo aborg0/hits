@@ -113,3 +113,11 @@ Date: 20th August 2009
 2 nodes:
  * BioConverter - converts between different column formats
  * Plate Format - converts between different plate layouts.
+
+= Image handling =
+== Version 0.0.1 ==
+Date: 29th September 2009
+
+2 nodes:
+ * LOCI Plate Reader - reads images from plates using Bio-Formats.
+ * LOCI Plate Viewer - shows images from plates using Bio-Formats.
