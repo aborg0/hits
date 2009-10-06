@@ -159,7 +159,6 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		@Override
 		protected JComponent createAdditionalControls() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -479,7 +478,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				for (int j = 0; j < colCount; ++j) {
 					final Map<Integer, Heatmap> heatmapCol = heatmaps.get(iVal);
 					final Integer jVal = Integer.valueOf(j);
-					final Heatmap heatmap = new Heatmap(model, dataModel);
+					final Heatmap heatmap = new Heatmap(model, dataModel,
+							volatileModel);
 					if (dataModel != null) {
 						heatmap.setModel(dataModel, volatileModel, i, j);
 					}
@@ -695,6 +695,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 
 		/** The visibility of colour legend property. */
 		private boolean showColourLegend = true;
+		/** The format of the inner data representation. */
+		Format format = Format._384;
 
 		/**
 		 * Constructs a {@link VolatileModel}.
@@ -772,13 +774,15 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 				}
 			}
 			final int plateCount = count(StatTypes.plate);
-			hilites = new boolean[plateCount][384];
+			format = nodeModel.getModelBuilder().getSpecAnalyser()
+					.getPredictedFormat();
+			hilites = new boolean[plateCount][format.getWellCount()];
 			final Set<RowKey> hilitKeys = nodeModel.getInHiLiteHandler(0)
 					.getHiLitKeys();
 			keyToPlateAndPosition = nodeModel.getModelBuilder()
 					.getKeyToPlateAndPosition();
 			setHilites(hilitKeys);
-			selections = new boolean[plateCount][384];
+			selections = new boolean[plateCount][format.getWellCount()];
 		}
 
 		/**
@@ -790,7 +794,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param plate
 		 *            A ({@code 0}-based) plate number.
 		 * @param position
-		 *            A ({@code 0}-based) position number.
+		 *            A ({@code 0}-based) position number. (On a {@link #format}
+		 *            well plate.)
 		 * @param value
 		 *            The new HiLite value for that well.
 		 */
@@ -802,7 +807,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param plate
 		 *            A ({@code 0}-based) plate number.
 		 * @return The HiLite values for that plate. This is modifiable, but
-		 *         please <b>do not</b> modify it.
+		 *         please <b>do not</b> modify it. ({@link #format} well plate)
 		 */
 		boolean[] getHiliteValues(final int plate) {
 			return hilites[plate];
@@ -817,7 +822,8 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param plate
 		 *            A ({@code 0}-based) plate number.
 		 * @param position
-		 *            A ({@code 0}-based) position number.
+		 *            A ({@code 0}-based) position number. (On a {@link #format}
+		 *            well plate.)
 		 * @param value
 		 *            The new selection value for that well.
 		 */
@@ -831,7 +837,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 */
 		public void unHiliteAll() {
 			final int plateCount = count(StatTypes.plate);
-			hilites = new boolean[plateCount][384];
+			hilites = new boolean[plateCount][format.getWellCount()];
 			if (hiliteHandler != null) {
 				hiliteHandler.fireClearHiLiteEvent();
 			}
@@ -877,7 +883,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 						if (selections[i][j] && hilites[i][j] != hilite) {
 							hilitesChange.add(new Pair<Integer, Integer>(i + 1,
 									j));
-							hilites[i][j] = hilite;
+							// hilites[i][j] = hilite;
 						}
 					}
 				}

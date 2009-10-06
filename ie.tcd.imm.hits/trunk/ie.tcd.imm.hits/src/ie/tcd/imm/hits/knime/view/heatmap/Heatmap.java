@@ -63,10 +63,14 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	 * @param dataModel
 	 *            The {@link HeatmapNodeModel} to set the initial values of the
 	 *            wells.
+	 * @param volatileModel
+	 *            The {@link VolatileModel} to use.
 	 */
-	public Heatmap(final ViewModel viewModel, final HeatmapNodeModel dataModel) {
+	public Heatmap(final ViewModel viewModel, final HeatmapNodeModel dataModel,
+			final VolatileModel volatileModel) {
 		super();
 		this.viewModel = viewModel;
+		this.volatileModel = volatileModel;
 		internalUpdateViewModel();
 	}
 
@@ -104,18 +108,22 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				.getHiliteValues(currentPlate);
 		final boolean[] selections = volatileModel
 				.getSelectionValues(currentPlate);
-		for (int i = viewModel.getFormat().getCol()
-				* viewModel.getFormat().getRow(); i-- > 0;) {
-			wells[i].setHilited(hiliteValues[i]);
-			wells[i].setSelected(selections[i]);
+		assert hiliteValues.length == volatileModel.format.getWellCount();
+		assert selections.length == volatileModel.format.getWellCount();
+		for (int i = volatileModel.format.getWellCount(); i-- > 0;) {
+			final int convI = i % volatileModel.format.getCol()
+					% viewModel.getFormat().getCol() + i
+					/ volatileModel.format.getCol()
+					% viewModel.getFormat().getRow()
+					* viewModel.getFormat().getCol();
+			wells[convI].setHilited(hiliteValues[i]);
+			wells[convI].setSelected(selections[i]);
 		}
 	}
 
 	private void replicates(final HeatmapNodeModel nodeModel) {
 		final Format predictedFormat = nodeModel.getModelBuilder()
 				.getSpecAnalyser().getPredictedFormat();
-		final int cols = viewModel.getFormat().getCol();
-		final int rows = viewModel.getFormat().getRow();
 		/* 0-MAX_INDEPENDENT_FACTORS -> selected plate values. */
 		final Map<Integer, List<Integer>> platePos = new HashMap<Integer, List<Integer>>();
 		/* 0-MAX_INDEPENDENT_FACTORS -> selected experiment values. */
@@ -243,7 +251,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				final Color[] array = plateColours.get(Integer
 						.valueOf(plate + 1));
 				if (array != null) {
-					for (int i = rows * cols; i-- > 0;) {
+					for (int i = viewModel.getFormat().getWellCount(); i-- > 0;) {
 						final Color color = i / viewModel.getFormat().getCol() < predictedFormat
 								.getRow()
 								&& i % viewModel.getFormat().getCol() < predictedFormat
@@ -258,7 +266,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				}
 			}
 		}
-		for (int i = rows * cols; i-- > 0;) {
+		for (int i = viewModel.getFormat().getWellCount(); i-- > 0;) {
 			wells[i]
 					.setColors(i / viewModel.getFormat().getCol() < predictedFormat
 							.getRow()
@@ -268,7 +276,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 							* predictedFormat.getCol() + i
 							% viewModel.getFormat().getCol()] : null);
 		}
-		for (int i = rows * cols; i-- > 0;) {
+		for (int i = viewModel.getFormat().getWellCount(); i-- > 0;) {
 			final String l = i / viewModel.getFormat().getCol() < predictedFormat
 					.getRow()
 					&& i % viewModel.getFormat().getCol() < predictedFormat
@@ -498,10 +506,15 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final int rows = format.getRow();
 		final int cols = format.getCol();
 		setLayout(new GridLayout(rows, cols));
+		final Format vFormat = volatileModel == null ? Format._96
+				: volatileModel.format;
 		for (int j = 0; j < cols; ++j) {
 			for (int i = 0; i < rows; ++i) {
-				final WellViewPanel well = new WellViewPanel(true, viewModel, j
-						* rows + i);
+				final int pos = vFormat.unsafeConvertPos(j * rows + i, format);
+				final WellViewPanel well = new WellViewPanel(true, viewModel,
+				// j
+						// % vFormat.getRow() * rows + i % vFormat.getRow()
+						pos);
 				well.setPreferredSize(new Dimension(getBounds().width / cols,
 						getBounds().height / rows));
 				well.addMouseListener(new MouseAdapter() {

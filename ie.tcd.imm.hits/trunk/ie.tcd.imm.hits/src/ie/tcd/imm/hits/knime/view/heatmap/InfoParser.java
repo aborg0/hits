@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
+import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.util.ModelBuilder;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 
@@ -52,6 +53,8 @@ public class InfoParser {
 		if (model == null || model.getTable() == null) {
 			return "";
 		}
+		final Format predictedFormat = model.getModelBuilder()
+				.getSpecAnalyser().getPredictedFormat();
 		final Matcher matcher = pattern.matcher(format);
 		int lastEnd = 0;
 		while (matcher.find()) {
@@ -108,7 +111,9 @@ public class InfoParser {
 													.get(statTypes);
 											if (additionalParams == null) {
 												sb.append("<td>").append(
-														ds[row * 12 + col])
+														ds[predictedFormat
+																.getPos(row,
+																		col)])
 														.append("</td>");
 											}
 											// TODO else handle additionalParams
@@ -151,7 +156,8 @@ public class InfoParser {
 											.get(statTypes);
 									if (additionalParams == null) {
 										sb.append("<td>").append(
-												values[row * 12 + col]).append(
+												values[predictedFormat.getPos(
+														row, col)]).append(
 												"</td>");
 									}
 								} else {
@@ -175,7 +181,8 @@ public class InfoParser {
 			if (map != null) {
 				final String[] values = map.get(code);
 				if (values != null) {
-					final String value = values[row * 12 + col];
+					final String value = values[predictedFormat
+							.getPos(row, col)];
 					if (value != null) {
 						sb.append(value.replaceAll("\n", "<p>"));
 					}
@@ -217,6 +224,8 @@ public class InfoParser {
 		if (model == null || model.getTable() == null) {
 			return "";
 		}
+		final Format predictedFormat = model.getModelBuilder()
+				.getSpecAnalyser().getPredictedFormat();
 		final Matcher matcher = pattern.matcher(format);
 		int lastEnd = 0;
 		while (matcher.find()) {
@@ -315,9 +324,11 @@ public class InfoParser {
 																	.append(
 																			"<td>")
 																	.append(
-																			ds[row
-																					* 12
-																					+ col])
+																			ds == null ? ""
+																					: ds[predictedFormat
+																							.getPos(
+																									row,
+																									col)])
 																	.append(
 																			"</td>");
 														}
@@ -397,9 +408,13 @@ public class InfoParser {
 												final double[] values = stats
 														.get(statTypes);
 												if (additionalParams == null) {
-													sb.append("<td>").append(
-															values[row * 12
-																	+ col])
+													sb
+															.append("<td>")
+															.append(
+																	values[predictedFormat
+																			.getPos(
+																					row,
+																					col)])
 															.append("</td>");
 												}
 											} else {
@@ -441,7 +456,8 @@ public class InfoParser {
 			if (map != null) {
 				final String[] values = map.get(code);
 				if (values != null) {
-					final String value = values[row * 12 + col];
+					final String value = values[predictedFormat
+							.getPos(row, col)];
 					if (value != null) {
 						sb.append(value.replaceAll("\n", "<p>"));
 					}

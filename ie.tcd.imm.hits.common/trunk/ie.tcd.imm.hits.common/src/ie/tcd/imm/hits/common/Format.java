@@ -90,4 +90,78 @@ public enum Format implements Displayable {
 	public String getDisplayText() {
 		return String.valueOf(wellCount);
 	}
+
+	/**
+	 * @param row_
+	 *            The row ({@code 0}-based) information of position. (Asserts
+	 *            present.)
+	 * @param col_
+	 *            The column ({@code 0}-based) information of position. (Asserts
+	 *            present.)
+	 * @return The {@code 0}-based position on plate.
+	 */
+	public int getPos(final int row_, final int col_) {
+		assert row_ >= 0;
+		assert row_ < row;
+		assert col_ >= 0;
+		assert col_ < col;
+		return row_ * this.col + col_;
+	}
+
+	/**
+	 * Converts a position to {@code other} plate format.
+	 * 
+	 * @param pos
+	 *            A position in <em>this</em> plate {@link Format}. ({@code 0}
+	 *            -based)
+	 * @param other
+	 *            The other plate {@link Format}. (The plate {@link Format} to
+	 *            convert to.)
+	 * @return The position on {@code other} plate {@link Format}.
+	 */
+	public int convertPos(final int pos, final Format other) {
+		final int newRow = other.getRow(pos);
+		final int newCol = other.getCol(pos);
+		return getPos(newRow, newCol);
+	}
+
+	/**
+	 * Converts a position to {@code other} plate format without any checks on
+	 * the input or output values.
+	 * 
+	 * @param pos
+	 *            A position in <em>this</em> plate {@link Format}. ({@code 0}
+	 *            -based)
+	 * @param other
+	 *            The other plate {@link Format}. (The plate {@link Format} to
+	 *            convert to.)
+	 * @return The position on {@code other} plate {@link Format}.
+	 */
+	public int unsafeConvertPos(final int pos, final Format other) {
+		final int newRow = pos / other.col;
+		final int newCol = pos % other.col;
+		return newRow * col + newCol;
+	}
+
+	/**
+	 * @param pos
+	 *            A position on plate. ({@code 0}-based)
+	 * @return The {@code 0}-based row value of {@code pos}.
+	 */
+	public int getRow(final int pos) {
+		assert pos >= 0;
+		assert pos < wellCount;
+		return pos / col;
+	}
+
+	/**
+	 * @param pos
+	 *            A position on plate. ({@code 0}-based)
+	 * @return The {@code 0}-based column value of {@code pos}.
+	 */
+	public int getCol(final int pos) {
+		assert pos >= 0;
+		assert pos < wellCount;
+		return pos % col;
+	}
 }
