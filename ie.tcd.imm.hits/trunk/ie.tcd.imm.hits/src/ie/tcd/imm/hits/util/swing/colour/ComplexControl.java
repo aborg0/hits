@@ -409,7 +409,10 @@ public class ComplexControl extends JButton implements
 		}
 
 		/**
+		 * Updates this {@link ComplexControl} with the new model.
+		 * 
 		 * @param model
+		 *            The new {@link ComplexModel}.
 		 */
 		private void setModel(final ComplexModel model) {
 			mod = model;

@@ -93,7 +93,9 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 
 	/**
 	 * @param <EnumType>
+	 *            The type of the enum.
 	 * @param values
+	 *            Some values of the selected enum.
 	 * @return The {@link #STRING_SEPARATOR} separated names of {@code values}.
 	 */
 	public static <EnumType extends Enum<EnumType>> String createList(
@@ -163,8 +165,12 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 	/**
 	 * 
 	 * @param <EnumType>
+	 *            The type of the enum.
 	 * @param cls
+	 *            The class of the enum.
 	 * @param stringList
+	 *            A {@link #STRING_SEPARATOR_PATTERN} separated list of enum
+	 *            identifiers.
 	 * @return The {@link List} of parsed enum values.
 	 */
 	public static <EnumType extends Enum<EnumType>> List<EnumType> parseString(

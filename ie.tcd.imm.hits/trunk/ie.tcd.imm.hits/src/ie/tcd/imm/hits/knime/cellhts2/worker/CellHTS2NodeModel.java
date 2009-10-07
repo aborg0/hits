@@ -101,7 +101,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * <li><code>{p}</code> - adds the parameters separated by the next character if
  * it is not a digit or <code>}</code>. If it is followed by digits it will try
  * to create a reasonable abbreviation from it.</li>
- * <li><code>{*}</code> - puts {@code +} or {@code * } sign depending on the
+ * <li><code>{*}</code> - puts {@code +} or {@code *} sign depending on the
  * additive or multiplicative nature of normalisation method.</li>
  * </ul>
  * 
@@ -398,7 +398,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			}
 			final String cellHTS2Version = versionExpr.asString();
 			CellHTS2Version version;
-			if (cellHTS2Version.matches("2\\.[67]\\.\\d*")) {
+			if (cellHTS2Version.matches("2\\.[46]\\.\\d*")) {
 				version = CellHTS2Version.originalPre28;
 			} else if (cellHTS2Version.matches("2\\.[8]\\.\\d*")) {
 				version = CellHTS2Version.original28OrCompat;
@@ -1433,7 +1433,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				for (; i < pattern.length(); ++i) {
 					switch (pattern.charAt(i)) {
 					case 'e':
-						append(normMethods, experiment, sb, news, outDirs);
+						append(normMethods, experiment, news);
 						break;
 					case 'n':
 						if (news.isEmpty() || normMethods.length == 1) {
@@ -1445,16 +1445,16 @@ public class CellHTS2NodeModel extends NodeModel {
 						}
 						break;
 					case 'v':
-						append(normMethods, adjustment, sb, news, outDirs);
+						append(normMethods, adjustment, news);
 						break;
 					case 's':
-						append(normMethods, score, sb, news, outDirs);
+						append(normMethods, score, news);
 						break;
 					case 'a':
-						append(normMethods, aggregate, sb, news, outDirs);
+						append(normMethods, aggregate, news);
 						break;
 					case 'l':
-						append(normMethods, log, sb, news, outDirs);
+						append(normMethods, log, news);
 						break;
 					case 'p':
 						final Character sep = i + 1 < pattern.length()
@@ -1482,8 +1482,7 @@ public class CellHTS2NodeModel extends NodeModel {
 						}
 						break;
 					case '*':
-						append(normMethods, isMultiplicative ? "" : "+", sb,
-								news, outDirs);
+						append(normMethods, isMultiplicative ? "" : "+", news);
 						// sb.append(isMultiplicative ? "" : "+");
 						// if (!news.isEmpty()) {
 						// for (final String string : normMethods) {
@@ -1581,14 +1580,14 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/**
 	 * @param normMethods
+	 *            The normalisation methods to use.
 	 * @param adjustment
-	 * @param sb
+	 *            The suffix to append after the {@code normMethods}.
 	 * @param news
-	 * @param outDirs
+	 *            The map of actual news.
 	 */
 	private static void append(final String[] normMethods,
-			final String adjustment, final StringBuilder sb,
-			final Map<String, String> news, final Map<String, String> outDirs) {
+			final String adjustment, final Map<String, String> news) {
 		if (news.isEmpty()) {
 			// sb.append(adjustment);
 			for (final String string : normMethods) {
@@ -1776,9 +1775,13 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Normalise the plates and creates the {@code xn} object from {@code x}.
 	 * 
 	 * @param conn
+	 *            An {@link RConnection}.
 	 * @param normalise
+	 *            The normalisation method to use.
 	 * @throws RserveException
+	 *             Problem on server side.
 	 * @throws REXPMismatchException
+	 *             Problem getting the error message.
 	 */
 	private void normalisePlates(final RConnection conn, final String normalise)
 			throws RserveException, REXPMismatchException {
@@ -1801,16 +1804,27 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Creates {@code x} from the raw input values.
 	 * 
 	 * @param experimentName
+	 *            The experiment name.
 	 * @param conn
+	 *            An {@link RConnection}.
 	 * @param replicateCount
+	 *            Number of replicates.
 	 * @param plateCount
+	 *            Number of plates.
 	 * @param wellRowCount
+	 *            Number of rows on a plate.
 	 * @param wellColCount
+	 *            Number of columns on a plate.
 	 * @param wellCount
+	 *            Number of wells on a plate.
 	 * @param parameters
+	 *            The selected parameters.
 	 * @param version
+	 *            The {@link CellHTS2Version}.
 	 * @throws RserveException
+	 *             Problem on server side.
 	 * @throws REXPMismatchException
+	 *             Problem getting the error message.
 	 */
 	private void convertRawInputToCellHTS2(final String experimentName,
 			final RConnection conn, final int replicateCount,
@@ -2001,10 +2015,15 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Checks {@code objectName} in the R session.
 	 * 
 	 * @param conn
+	 *            An {@link RConnection}.
 	 * @param objectName
+	 *            The name of the variable in the R session.
 	 * @param errorMessage
+	 *            The error message if the observed object is not valid.
 	 * @throws RserveException
+	 *             Problem on server side.
 	 * @throws REXPMismatchException
+	 *             Problem getting the error message.
 	 */
 	private void checkObject(final RConnection conn, final String objectName,
 			final String errorMessage) throws RserveException,
@@ -2020,6 +2039,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Creates the channel list from {@code parameters} to pass to R.
 	 * 
 	 * @param parameters
+	 *            The list of selected parameters.
 	 * @return The {@link StringBuilder} containing the proper parameters in R
 	 *         syntax.
 	 */
@@ -2038,14 +2058,23 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * configured}.
 	 * 
 	 * @param table
+	 *            The second input table.
 	 * @param descTable
+	 *            The third input table.
 	 * @param screenLogTable
+	 *            The fourth input table.
 	 * @param conn
+	 *            An {@link RConnection}.
 	 * @param wellCount
+	 *            The number of wells.
 	 * @param plateCount
+	 *            The number of plates.
 	 * @param normMethod
+	 *            The used normalisation method.
 	 * @throws RserveException
+	 *             Problem on server side.
 	 * @throws REXPMismatchException
+	 *             Problem getting the error message.
 	 */
 	private void plateConfiguration(final BufferedDataTable table,
 			final BufferedDataTable descTable,
@@ -2292,9 +2321,13 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * Adds the MIAME information to the {@code miameInfo} R variable.
 	 * 
 	 * @param inData
+	 *            Input data tables.
 	 * @param conn
+	 *            An {@link RConnection}.
 	 * @throws RserveException
+	 *             Problem on server side.
 	 * @throws REXPMismatchException
+	 *             Problem getting the error message.
 	 */
 	private void addMiame(final BufferedDataTable[] inData,
 			final RConnection conn) throws RserveException,
@@ -2328,7 +2361,9 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * TODO review
 	 * 
 	 * @param table
+	 *            The third input table
 	 * @param strings
+	 *            The headers looking for.
 	 * @return A {@link Map} keys of {@code strings}. The values are
 	 *         representing the ({@link StringCell}) last values of the
 	 *         3<sup>rd</sup> column if in the second there is the key.
@@ -2470,7 +2505,9 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/**
 	 * @param inputSpecs
+	 *            The input table specification.
 	 * @param replicateTable
+	 *            Column spec of replicates, or scores table.
 	 * @return The {@link DataColumnSpec}s for the first and the second
 	 *         outports.
 	 */
@@ -2508,6 +2545,7 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/**
 	 * @param inputSpecs
+	 *            The input table specification.
 	 * @return The additional columns that may have interest ({@code well},
 	 *         {@code GeneID}, {@code GeneSymbol}).
 	 */
@@ -2530,15 +2568,26 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * object based on the parameters. The result is added to {@code rets}.
 	 * 
 	 * @param topTable
+	 *            The R table of results.
 	 * @param row
+	 *            The actual row number.
 	 * @param numReplicates
+	 *            number of replicates
 	 * @param rets
+	 *            The result cells.
 	 * @param replicateTable
+	 *            Create for replicate table, or for scores.
 	 * @param turnReplicates
+	 *            If {@code true} it will create a Replicate column with the
+	 *            values. (Should be deprecated, Pivot node made it obsolote.)
 	 * @param stats
+	 *            The statistics to compute.
 	 * @param ch
+	 *            The channel name (might be {@code null}).
 	 * @param selectedParameters
+	 *            The selected parameters.
 	 * @param columnSpecs
+	 *            Additional columns from the original table.
 	 */
 	private static void computeTableValue(final RList topTable, final int row,
 			final int numReplicates, final List<List<DataCell>> rets,
@@ -2719,8 +2768,10 @@ public class CellHTS2NodeModel extends NodeModel {
 				case GENE_SYMBOL: {
 					final REXPFactor geneSymbol = (REXPFactor) topTable
 							.get("GeneSymbol");
-					ret.add(geneSymbol == null ? DataType.getMissingCell()
-							: new StringCell(geneSymbol.asStrings()[row]));
+					ret.add(geneSymbol == null
+							|| geneSymbol.asStrings()[row] == null ? DataType
+							.getMissingCell() : new StringCell(geneSymbol
+							.asStrings()[row]));
 					break;
 				}
 				case PLATE:
@@ -2770,11 +2821,17 @@ public class CellHTS2NodeModel extends NodeModel {
 	 * {@link #computeTopTableSpec(DataTableSpec, boolean)}.
 	 * 
 	 * @param ret
+	 *            The result {@link DataColumnSpec}s.
 	 * @param replicateTable
+	 *            Create for replicate table, or for scores.
 	 * @param stats
+	 *            The statistics to compute.
 	 * @param ch
+	 *            The channel name (might be {@code null}).
 	 * @param selectedParameters
+	 *            The selected parameters.
 	 * @param columnSpecs
+	 *            Additional columns from the original table.
 	 */
 	private static void computeTableSpec(final List<DataColumnSpec> ret,
 			final boolean replicateTable, final List<PossibleStatistics> stats,
@@ -2884,6 +2941,7 @@ public class CellHTS2NodeModel extends NodeModel {
 
 	/**
 	 * @param possibleStatistics
+	 *            A {@link PossibleStatistics}.
 	 * @return The {@link DataType} representing the {@code possibleStatistics}.
 	 */
 	private static DataType getType(final PossibleStatistics possibleStatistics) {

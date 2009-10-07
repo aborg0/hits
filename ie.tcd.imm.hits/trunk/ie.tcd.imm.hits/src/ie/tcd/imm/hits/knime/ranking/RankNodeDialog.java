@@ -83,7 +83,6 @@ public class RankNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(new UpdatableComponent() {
 			@Override
 			protected void updateComponent() {
-				super.updateComponent();
 				final SpecAnalyser specAnalyser = new SpecAnalyser(
 						(DataTableSpec) getLastTableSpec(0));
 				final List<String> params = specAnalyser.getParameters();

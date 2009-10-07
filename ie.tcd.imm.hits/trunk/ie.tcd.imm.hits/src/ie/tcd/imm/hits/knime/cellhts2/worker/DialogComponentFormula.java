@@ -287,7 +287,6 @@ class DialogComponentFormula extends UpdatableComponent implements
 
 	@Override
 	protected void updateComponent() {
-		super.updateComponent();
 		final String key = settingsWrapper.actualKey();
 
 		final String generatedDesc = getOrDefault(tooltips, key);

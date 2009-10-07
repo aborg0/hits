@@ -145,8 +145,10 @@ public class SimpleModelBuilder implements Serializable {
 	}
 
 	/**
-	 * @param specAnalyser
 	 * @param table
+	 *            A {@link DataTable}.
+	 * @param specAnalyser
+	 *            A {@link SpecAnalyser} belonging to {@code table}.
 	 * 
 	 */
 	public SimpleModelBuilder(final DataTable table,
