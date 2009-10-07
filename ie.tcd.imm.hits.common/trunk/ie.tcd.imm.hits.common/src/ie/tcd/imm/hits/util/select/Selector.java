@@ -27,6 +27,13 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 	private final Map<ActionListener, Boolean> listeners = new WeakHashMap<ActionListener, Boolean>();
 
 	/**
+	 * A no-arg constructor for serialisation.
+	 */
+	protected Selector() {
+		super();
+	}
+
+	/**
 	 * @param valueMapping
 	 *            The mapping for {@link Selectable#getValueMapping()}.
 	 * @param selections
