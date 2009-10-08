@@ -188,21 +188,21 @@ getTopTable <- function(cellHTSlist, file="topTable.txt", verbose=interactive(),
 				res
 			},
 			median={
-				res[sprintf("median_%s", channels[[ch]])] <- apply(xraw[,,ch], 1, median, na.rm=TRUE)
+				res[sprintf("median_%s", channels[[ch]])] <- apply(xraw[,,ch, drop=FALSE], 1, median, na.rm=TRUE)
 				res
 			},
 			diffOrMean={
 				if(nrReplicate==2) { 
 		          ## Difference between replicates (raw data)
-		          res[sprintf("diff_%s", channels[[ch]])] = apply(xraw[,,ch], 1, diff)
+		          res[sprintf("diff_%s", channels[[ch]])] = apply(xraw[,,ch, drop=FALSE], 1, diff)
 		        } else {
 		          ## average between replicates (raw data)
-		          res[sprintf("average_%s", channels[[ch]])] = apply(xraw[,,ch], 1, mean, na.rm=TRUE)
+		          res[sprintf("average_%s", channels[[ch]])] = apply(xraw[,,ch, drop=FALSE], 1, mean, na.rm=TRUE)
 		        } 
 				res
 			},
 			raw={
-				res[sprintf("raw_r%d_%s", r, channels[[ch]])] = xraw[,r,ch]
+				res[sprintf("raw_r%d_%s", r, channels[[ch]])] = xraw[,r,ch, drop=FALSE]
 				res
 			},
 			rawPerMedian={
