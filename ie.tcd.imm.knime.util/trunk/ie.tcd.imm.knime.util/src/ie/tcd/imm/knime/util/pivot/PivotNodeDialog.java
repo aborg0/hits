@@ -73,7 +73,7 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelString(PivotNodeModel.CFGKEY_BEHAVIOUR,
 						PivotNodeModel.DEFAULT_BEHAVIOUR), "Behaviour",
 				Behaviour.fillEmpty.name(), Behaviour.signalError.name()));
-		final UpdatableComponent updatableComponent = new org.knime.core.node.defaultnodesettings.UpdatableComponent();
+		final UpdatableComponent updatableComponent = new UpdatableComponent();
 		addDialogComponent(updatableComponent);
 		addDialogComponent(new DialogComponentStringSelection(
 				new SettingsModelString(TransformingNodeModel.CFGKEY_HILITE,

@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.image.feature"
       label="HiTS imaging feature"
-      version="0.0.1.qualifier"
+      version="0.0.3.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.image.feature">
 
