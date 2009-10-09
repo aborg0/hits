@@ -721,6 +721,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		/**
 		 * @return An unmodifiable {@link Map} of {@link SliderModel} positions.
 		 */
+		@Deprecated
 		public Map<SliderModel, Integer> getSliderPositions() {
 			return Collections.unmodifiableMap(sliderPositions);
 		}
@@ -733,6 +734,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 		 * @param value
 		 *            The new value of it.
 		 */
+		@Deprecated
 		public void setSliderPosition(final SliderModel slider,
 				final Integer value) {
 			sliderPositions.put(slider, value);
@@ -878,11 +880,27 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 			}
 			if (hiliteRelated) {
 				final Set<Pair<Integer, Integer>> hilitesChange = new HashSet<Pair<Integer, Integer>>();
+				SliderModel plateSlider = null;
+				for (final SliderModel possPlate : arrangementModel
+						.getSliderModels()) {
+					for (final ParameterModel paramModel : possPlate
+							.getParameters()) {
+						if (paramModel.getShortName().equals(
+								plateParamModel.getShortName())
+								&& paramModel.getAggregateType() == null) {
+							plateSlider = possPlate;
+						}
+					}
+				}
+				assert plateSlider != null;
 				for (int i = 0; i < selections.length; i++) {
 					for (int j = 0; j < selections[i].length; j++) {
 						if (selections[i][j] && hilites[i][j] != hilite) {
-							hilitesChange.add(new Pair<Integer, Integer>(i + 1,
-									j));
+							final Pair<ParameterModel, Object> pair = plateSlider
+									.getValueMapping().get(
+											Integer.valueOf(i + 1));
+							hilitesChange.add(new Pair<Integer, Integer>(
+									(Integer) pair.getRight(), j));
 							// hilites[i][j] = hilite;
 						}
 					}

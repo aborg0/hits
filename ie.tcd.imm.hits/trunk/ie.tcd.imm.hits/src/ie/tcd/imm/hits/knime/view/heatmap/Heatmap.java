@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 import javax.swing.JComponent;
@@ -556,7 +557,20 @@ public class Heatmap extends JComponent implements HiLiteListener {
 										.isSelected());
 							}
 						} else {
-							volatileModel.setSelection(plate, source
+							final Map<Integer, Pair<ParameterModel, Object>> valueMapping = viewModel
+									.getMain().getArrangementModel()
+									.getSliders().get(Type.Selector).iterator()
+									.next().getValueMapping();
+							int plateFrom0 = -1;
+							for (final Entry<Integer, ? extends Pair<?, ?>> entry : valueMapping
+									.entrySet()) {
+								if (entry.getValue().getRight().equals(
+										Integer.valueOf(plate + 1))) {
+									plateFrom0 = entry.getKey() - 1;
+								}
+							}
+							assert plateFrom0 != -1;
+							volatileModel.setSelection(plateFrom0, source
 									.getPositionOnPlate(), source.isSelected());
 						}
 						repaint();
@@ -578,12 +592,29 @@ public class Heatmap extends JComponent implements HiLiteListener {
 	}
 
 	private void hilite(final KeyEvent event, final boolean hilite) {
+		final Collection<SliderModel> sliders = viewModel.getMain()
+				.getArrangementModel().getSliders().get(Type.Selector);
+		// Should be only plate here.
+		final Map<Integer, Pair<ParameterModel, Object>> mapping = sliders
+				.size() == 1 ? sliders.iterator().next().getValueMapping()
+				: null;
+		final Map<Integer, Integer> inverseMap = new HashMap<Integer, Integer>();
+		for (final Entry<Integer, ? extends Pair<?, ?>> entry : mapping
+				.entrySet()) {
+			final Pair<?, ?> pair = entry.getValue();
+			if (pair.getRight() instanceof Number) {
+				final Number valNum = (Number) pair.getRight();
+				inverseMap.put(Integer.valueOf(valNum.intValue()), entry
+						.getKey());
+			}
+		}
 		for (final RowKey key : event.keys()) {
 			final Pair<Integer, Integer> pair = keyToPlateAndPosition.get(key
 					.getString());
 			if (pair != null) {
 				assert pair != null;
-				final int plate = pair.getLeft().intValue() - 1;
+				final int plate = (mapping == null ? pair.getLeft().intValue()
+						: ((Number) inverseMap.get(pair.getLeft())).intValue()) - 1;
 				final int pos = pair.getRight().intValue();
 				volatileModel.setHilite(plate, pos, hilite);
 			}

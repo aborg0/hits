@@ -257,8 +257,8 @@ public class ControlsHandlerKNIMEFactory
 		final Map<Integer, Pair<ParameterModel, Object>> valueMapping = slider
 				.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
-		for (final Pair<ParameterModel, Object> pair : valueMapping.values()) {
-			vals.add(pair.getRight().toString());
+		for (final Integer key : new TreeSet<Integer>(valueMapping.keySet())) {
+			vals.add(valueMapping.get(key).getRight().toString());
 		}
 		final Set<Integer> selections = new TreeSet<Integer>(slider
 				.getSelections());
@@ -283,7 +283,7 @@ public class ControlsHandlerKNIMEFactory
 		}
 		final Collection<String> selected = new HashSet<String>();
 		for (final Integer integer : selections) {
-			selected.add(vals.get(integer.intValue() - 1));
+			selected.add(valueMapping.get(integer).getRight().toString());
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				name, vals, selected);

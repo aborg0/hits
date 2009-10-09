@@ -12,7 +12,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.select.Selectable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -26,12 +25,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -227,14 +228,7 @@ public class ControlPanel extends JPanel {
 			}
 			final SliderModel plateSlider;
 			{
-				final Map<Integer, Pair<ParameterModel, Object>> plateMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
-				for (final Object o : plateModel.getColorLegend().keySet()) {
-					if (o instanceof Integer) {
-						final Integer i = (Integer) o;
-						plateMapping.put(i, new Pair<ParameterModel, Object>(
-								plateModel, i));
-					}
-				}
+				final Map<Integer, Pair<ParameterModel, Object>> plateMapping = createMapping(plateModel);
 				final Set<SliderModel> plateSet = factory.get(Type.Selector,
 						Collections.singletonList(plateModel), plateMapping);
 				assert !plateSet.isEmpty();
@@ -244,15 +238,7 @@ public class ControlPanel extends JPanel {
 			}
 			final SliderModel replicateSlider;
 			{
-				final Map<Integer, Pair<ParameterModel, Object>> replicateMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
-				for (final Object o : replicateModel.getColorLegend().keySet()) {
-					if (o instanceof Integer) {
-						final Integer i = (Integer) o;
-						replicateMapping.put(i,
-								new Pair<ParameterModel, Object>(
-										replicateModel, i));
-					}
-				}
+				final Map<Integer, Pair<ParameterModel, Object>> replicateMapping = createMapping(replicateModel);
 				if (replicateMapping.isEmpty()) {
 				}
 				final Set<SliderModel> replicateSet = factory.get(
@@ -268,8 +254,9 @@ public class ControlPanel extends JPanel {
 				int i = 1;
 				final Map<Integer, Pair<ParameterModel, Object>> statMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
 				for (final String statName : stats.getColumnValues()) {
-					statMapping.put(i++, new Pair<ParameterModel, Object>(
-							stats, StatTypes.valueOf(statName)));
+					statMapping.put(Integer.valueOf(i++),
+							new Pair<ParameterModel, Object>(stats, StatTypes
+									.valueOf(statName)));
 				}
 				final Set<SliderModel> statSet = factory.get(Type.Hidden,
 						Collections.singletonList(stats), statMapping);
@@ -324,6 +311,61 @@ public class ControlPanel extends JPanel {
 		}
 
 		/**
+		 * Creates the value mapping based on the {@code model}'s
+		 * {@link ParameterModel#getColorLegend() colour legend}.
+		 * 
+		 * @param model
+		 *            A {@link ParameterModel} with proper colour legend.
+		 * @return The mapping starting from {@code 1}.
+		 */
+		private static Map<Integer, Pair<ParameterModel, Object>> createMapping(
+				final ParameterModel model) {
+			final Map<Integer, Pair<ParameterModel, Object>> plateMapping = new TreeMap<Integer, Pair<ParameterModel, Object>>();
+			final SortedSet<Object> orderedSet = createOrderedSet(model
+					.getColorLegend().keySet());
+			int i = 1;
+			for (final Object o : orderedSet) {
+				plateMapping.put(Integer.valueOf(i++),
+						new Pair<ParameterModel, Object>(model, o));
+			}
+			return plateMapping;
+		}
+
+		/**
+		 * Creates an ordered set with a {@link Comparator} based on the
+		 * {@link Comparable} values, or the {@link Object#toString()} value of
+		 * non-{@link Comparable} values.
+		 * 
+		 * @param collection
+		 *            A {@link Collection} of objects.
+		 * @return The values from {@code collection} in an ordered fashion.
+		 */
+		private static SortedSet<Object> createOrderedSet(
+				final Collection<?> collection) {
+			final TreeSet<Object> orderedSet = new TreeSet<Object>(
+					new Comparator<Object>() {
+						@SuppressWarnings("unchecked")
+						@Override
+						public int compare(final Object o1, final Object o2) {
+							if (o1 instanceof Comparable<?>) {
+								final Comparable c1 = (Comparable<?>) o1;
+								if (o2 instanceof Comparable<?>) {
+									final Comparable<?> c2 = (Comparable<?>) o2;
+									try {
+										return c1.compareTo(c2);
+									} catch (final RuntimeException e) {
+										// Go to String-based comparison.
+									}
+								}
+							}
+							return o1.toString().compareTo(o2.toString());
+						}
+					});
+			orderedSet.addAll(collection);
+			return orderedSet;
+		}
+
+		/**
 		 * The mutated {@link StatTypes} &Rarr; labels {@link Map} are returned.
 		 * 
 		 * @return For each {@link StatTypes} which has meaningful values the
@@ -372,17 +414,16 @@ public class ControlPanel extends JPanel {
 			return mainArrangement.toString();
 		}
 
-		public void addValue(final Selectable<?> slider, final Integer origKey,
-				final Pair<ParameterModel, Object> map) {
-			// TODO Auto-generated method stub
-
-		}
-
-		public void removeValue(final Selectable<?> slider,
-				final Integer origKey) {
-			// TODO Auto-generated method stub
-
-		}
+		// public void addValue(final Selectable<?> slider, final Integer
+		// origKey,
+		// final Pair<ParameterModel, Object> map) {
+		//
+		// }
+		//
+		// public void removeValue(final Selectable<?> slider,
+		// final Integer origKey) {
+		//
+		// }
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
