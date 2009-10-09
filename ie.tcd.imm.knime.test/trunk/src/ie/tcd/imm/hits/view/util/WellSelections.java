@@ -5,7 +5,7 @@ package ie.tcd.imm.hits.view.util;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.impl.SettingsModelListSelection;
-import ie.tcd.imm.hits.util.Selector;
+import ie.tcd.imm.hits.util.select.Selector;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 
 import java.util.Collections;
