@@ -568,7 +568,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
                                    htmlFun=writeHtml.plateList, title="Plate List",
                                    funArgs=list(center=TRUE, glossary=createGlossary(),
                                    links=url[expOrder,,drop=FALSE],
-                                   exptab=exptab[expOrder,],
+                                   exptab=exptab[expOrder,,drop=FALSE],
                                    outdir=outdir, htmldir=htmldir,
                                    configured=overallState["configured"],
                                    expOrder=expOrder))

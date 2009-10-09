@@ -40,8 +40,8 @@ writeHtml.screenSummary <- function(cellHTSList, module, imageScreenArgs, overal
                     fun=function(x=xsc)
                         {
                             par(mai=c(0.8,0.8,0.2,0.2))
-                            qqnorm(Data(x)[,,ch], main=NULL, cex.lab=1.3)
-                            qqline(Data(x)[,,ch], col="darkgray", lty=3)
+                            qqnorm(Data(x)[,,ch, drop=FALSE], main=NULL, cex.lab=1.3)
+                            qqline(Data(x)[,,ch, drop=FALSE], col="darkgray", lty=3)
                         },
                         print=FALSE)
             imgList[["Q-Q Plot"]] <- chtsImage(data.frame(title="Normal Q-Q Plot",

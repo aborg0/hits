@@ -264,7 +264,7 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
             score <- matrix(nrow=dim(xnorm)[1], ncol=channelCount, dimnames=list(featureNames(object), 1:channelCount))
             for (i in 1:channelCount)
             {
-                xnorm <- Data(object)[,,i]
+                xnorm <- Data(object)[,,i, drop=FALSE]
                 score[, i] <- switch(summary,
                                      mean = rowMeans(xnorm, na.rm=TRUE),
                                      median = rowMedians(xnorm, na.rm=TRUE),
@@ -285,7 +285,7 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
         }
         else
         {
-	        z <- object[, 1] # construct a cellHTS object just with the first sample
+	        z <- object[, 1, drop=FALSE] # construct a cellHTS object just with the first sample
             assayData(z) <- assayDataNew("score"=matrix(score, dimnames=list(featureNames(object), 1)))
         }
 
