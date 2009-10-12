@@ -55,5 +55,7 @@
     <module>findbugs-annotations</module>
     <module>net.rforge.REngine</module>
     <module>net.rforge.Rserve</module>
+    <module>javax.media.jai_core</module>
+    <module>com.sun.media.jai_codec</module>
   </modules>
 </project>
