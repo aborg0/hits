@@ -16,7 +16,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ie.tcd.imm.hits</groupId>
   <artifactId>com.google.code.findbugs.jsr305</artifactId>
-  <version>1.3.9</version>
+  <version>${wrapped.version}</version>
 
   <name>${bundle.symbolicName} ${wrapped.version} [osgi]</name>
 
