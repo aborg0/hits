@@ -16,8 +16,8 @@
   <packaging>bundle</packaging><!--
   <name>${bundle.symbolicName} [${bundle.namespace}]</name>
   --><name>${bundle.symbolicName} [osgi]</name>
-  <version>0.6.0</version>
-  <description>Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it's 2009 august 7 state)</description>
+  <version>0.6.0.2</version>
+  <description>Based on the jar from here: http://www.rforge.net/Rserve/files/RserveEngine.jar (on it's 2009 october 12 state)</description>
   <url>http://www.rforge.net/Rserve/files/RserveEngine.jar</url>
   <scm>
   	<url>svn://svn.rforge.net/Rserve/trunk</url>
@@ -73,7 +73,7 @@
   	<dependency>
   		<groupId>ie.tcd.imm.hits</groupId>
   		<artifactId>net.rforge.REngine</artifactId>
-  		<version>0.6.0</version>
+  		<version>0.6.0.2</version>
   		<type>bundle</type>
   	</dependency>
   </dependencies>
