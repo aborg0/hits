@@ -17,4 +17,7 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.read.LociReaderNodeFactory" id="ie.tcd.imm.hits.image.ome.read.OMEReaderNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.view.LociViewerNodeFactory" id="ie.tcd.imm.hits.image.ome.view.OMEViewerNodeFactory"/>
    </extension>
+<extension point="org.eclipse.help.toc">
+<toc extradir="html" file="tocs/HiTS_nodes.xml"/>
+</extension>
 </plugin>
