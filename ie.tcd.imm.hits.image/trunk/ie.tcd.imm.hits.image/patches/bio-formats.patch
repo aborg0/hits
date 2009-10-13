@@ -1,6 +1,6 @@
 Index: src/loci/formats/gui/GUITools.java
 ===================================================================
---- src/loci/formats/gui/GUITools.java	(revision 5528)
+--- src/loci/formats/gui/GUITools.java	(revision 5585)
 +++ src/loci/formats/gui/GUITools.java	(working copy)
 @@ -79,8 +79,8 @@
      if (handler instanceof ImageReader) {
@@ -33,7 +33,7 @@ Index: src/loci/formats/gui/GUITools.java
      return filters;
 Index: src/loci/formats/tiff/IFDList.java
 ===================================================================
---- src/loci/formats/tiff/IFDList.java	(revision 5528)
+--- src/loci/formats/tiff/IFDList.java	(revision 5585)
 +++ src/loci/formats/tiff/IFDList.java	(working copy)
 @@ -34,4 +34,6 @@
   *
@@ -45,7 +45,7 @@ Index: src/loci/formats/tiff/IFDList.java
 +}
 Index: src/loci/formats/in/MinimalTiffReader.java
 ===================================================================
---- src/loci/formats/in/MinimalTiffReader.java	(revision 5528)
+--- src/loci/formats/in/MinimalTiffReader.java	(revision 5585)
 +++ src/loci/formats/in/MinimalTiffReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats.in;
@@ -94,7 +94,7 @@ Index: src/loci/formats/in/MinimalTiffReader.java
  }
 Index: src/loci/formats/in/InCellReader.java
 ===================================================================
---- src/loci/formats/in/InCellReader.java	(revision 5528)
+--- src/loci/formats/in/InCellReader.java	(revision 5585)
 +++ src/loci/formats/in/InCellReader.java	(working copy)
 @@ -24,7 +24,10 @@
  package loci.formats.in;
@@ -115,11 +115,9 @@ Index: src/loci/formats/in/InCellReader.java
  
    public static final String INCELL_MAGIC_STRING = "IN Cell Analyzer 1000";
  
-@@ -545,9 +549,17 @@
-     setSeries(0);
-   }
+@@ -548,7 +552,16 @@
  
--  // -- Helper classes --
+   // -- Helper classes --
  
 -  class MinimalInCellHandler extends DefaultHandler {
 +  /**
@@ -133,9 +131,9 @@ Index: src/loci/formats/in/InCellReader.java
 +
 +class MinimalInCellHandler extends DefaultHandler {
      private String currentImageFile;
+     private String currentThumbnail;
      private int wellRow, wellCol;
-     private int nChannels = 0;
-@@ -867,8 +879,10 @@
+@@ -872,8 +885,10 @@
      }
    }
  
@@ -145,12 +143,12 @@ Index: src/loci/formats/in/InCellReader.java
 +    /**  */
 +	private static final long serialVersionUID = -7572349061900818805L;
 +	public String filename;
+     public String thumbnailFile;
      public boolean isTiff;
      public Float deltaT, exposure;
-     public Float zPosition;
 Index: src/loci/formats/IFormatHandler.java
 ===================================================================
---- src/loci/formats/IFormatHandler.java	(revision 5528)
+--- src/loci/formats/IFormatHandler.java	(revision 5585)
 +++ src/loci/formats/IFormatHandler.java	(working copy)
 @@ -24,6 +24,7 @@
  package loci.formats;
@@ -171,7 +169,7 @@ Index: src/loci/formats/IFormatHandler.java
    boolean isThisType(String name);
 Index: src/loci/formats/FormatReader.java
 ===================================================================
---- src/loci/formats/FormatReader.java	(revision 5528)
+--- src/loci/formats/FormatReader.java	(revision 5585)
 +++ src/loci/formats/FormatReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats;
@@ -274,7 +272,7 @@ Index: src/loci/formats/FormatReader.java
        Object[] keys = seriesMetadata.keySet().toArray();
        for (Object key : keys) {
          h.put(name + " " + key, seriesMetadata.get(key));
-@@ -904,4 +907,16 @@
+@@ -912,4 +915,16 @@
      close(false);
    }
  
@@ -293,7 +291,7 @@ Index: src/loci/formats/FormatReader.java
  }
 Index: src/loci/formats/CoreMetadata.java
 ===================================================================
---- src/loci/formats/CoreMetadata.java	(revision 5528)
+--- src/loci/formats/CoreMetadata.java	(revision 5585)
 +++ src/loci/formats/CoreMetadata.java	(working copy)
 @@ -23,6 +23,7 @@
  
@@ -337,7 +335,7 @@ Index: src/loci/formats/CoreMetadata.java
  }
 Index: src/loci/formats/FormatHandler.java
 ===================================================================
---- src/loci/formats/FormatHandler.java	(revision 5528)
+--- src/loci/formats/FormatHandler.java	(revision 5585)
 +++ src/loci/formats/FormatHandler.java	(working copy)
 @@ -23,6 +23,9 @@
  
