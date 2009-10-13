@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.3rdparty.feature"
       label="HiTS 3rd party features"
-      version="0.4.0.qualifier"
+      version="0.4.1.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.3rdparty.feature">
 
