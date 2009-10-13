@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="HTS/HCS Library handling" link_to="..\org.hcdc.libhandl\tocs\libhandl.xml#libhandl">
+<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.knime.interop\html\nodes\BioConverter.html" label="BioConverter"/>
+<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.knime.interop\html\nodes\Plate_Format.html" label="Plate Format"/>
+</toc>
