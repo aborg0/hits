@@ -2,8 +2,20 @@
 
 = HiTS =
 
+== Changes from 0.4.0 to 0.4.1 ==
+Date: 13th October 2009
+
+Bug fixes:
+ * Plate Heatmap
+   * HiLite was working wrong on 96 well plates
+   * Data preview on tooltips was not working on 96 well plates
+   * non-continuous (also not starting from 1) plate/replicate values are now supported
+ * CellHTS2
+   * fix analysing single plates
+   * allow usage of cellHTS2 2.4.x too
+
 == Changes from 0.3.0 to 0.4.0 ==
-Date 20th August 2009
+Date: 20th August 2009
 
 One new node:
  - *Scores to p-values* allows to compute P(Z<=x) (the Erf function) with an estamated frequency from a population.
@@ -82,8 +94,13 @@ Date: 4th March 2009
 Some bugfixes, little improvements, an incompatible update (using normalise instead of normalize in [RankNode Rank] node), added user documentation and some help to interpret the settings ([CellHTS2Node CellHTS2] and [HeatmapNode Heatmap] nodes).
 
 = KNIME utilities =
+== Changes from 0.2.0 to 0.2.1 ==
+Date: 13th October 2009
+
+Fix for the annoying behaviour when the result column name would be empty.
+
 == Changes from 0.1.0 to 0.2.0 ==
-Date 20th August 2009
+Date: 20th August 2009
 
 Created icons for those that did not have.
 
@@ -107,6 +124,11 @@ Available since: 15th April 2009 (as version 0.0.1)
  * Unpivot
 
 = Interoperability =
+== Changes from 0.0.1 to 0.0.3 ==
+Date: 13th October 2009
+
+Not too much, just following the internal refactors and added a help button the the configuration dialog.
+
 == Version 0.0.1 ==
 Date: 20th August 2009
 
@@ -115,6 +137,13 @@ Date: 20th August 2009
  * Plate Format - converts between different plate layouts.
 
 = Image handling =
+== Changes from 0.0.1 to 0.0.3 ==
+Date: 13th October 2009
+
+Added (generated) help, the dependencies are now not embedded.
+Bug fix:
+ * Issue 29 fixed (Now every feature should be available from eclipse 3.5 based KNIME installations.)
+
 == Version 0.0.1 ==
 Date: 29th September 2009
 
