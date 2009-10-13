@@ -60,21 +60,46 @@
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image.feature_0.0.1.200909291756.jar" id="ie.tcd.imm.hits.image.feature" version="0.0.1.200909291756">
       <category name="HiTS experimental"/>
    </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty.feature_0.4.1.200910131532.jar" id="ie.tcd.imm.hits.3rdparty.feature" version="0.4.1.200910131532">
+      <category name="HiTS"/>
+   </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp.feature_0.4.1.200910131532.jar" id="ie.tcd.imm.hits.exp.feature" version="0.4.1.200910131532">
+      <category name="HiTS"/>
+   </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.4.1.200910131532.jar" id="ie.tcd.imm.hits.feature" version="0.4.1.200910131532">
+      <category name="HiTS"/>
+   </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image.feature_0.0.3.200910131532.jar" id="ie.tcd.imm.hits.image.feature" version="0.0.3.200910131532">
+      <category name="HiTS"/>
+   </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.knime.interop.feature_0.0.3.200910131532.jar" id="ie.tcd.imm.hits.knime.interop.feature" version="0.0.3.200910131532">
+      <category name="HiTS"/>
+   </feature>
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.2.1.200910131532.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.1.200910131532">
+      <category name="KNIME utilities"/>
+   </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.3.0.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.1.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.2.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.2.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.3.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.4.0.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.4.0.200908202037.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.4.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.4.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.exp_0.4.0.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp_0.4.0.200908202037.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.exp_0.4.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp_0.4.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.common_0.0.1.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.1.200908202037.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.common_0.0.2.200909291756.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.2.200909291756.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.common_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.3.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.image_0.0.1.200909291756.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image_0.0.1.200909291756.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.image_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image_0.0.3.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.knime.util_0.0.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.0.1.jar"/>
    <archive path="plugins/ie.tcd.imm.knime.util_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.knime.util_0.2.0.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.2.0.200908202037.jar"/>
+   <archive path="plugins/ie.tcd.imm.knime.util_0.2.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util_0.2.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.knime.interop_0.0.1.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.knime.interop_0.0.1.200908202037.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.knime.interop_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.knime.interop_0.0.3.200910131532.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.0.1.0020189.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.1.0020189.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.3.0022208.jar"/>
    <archive path="plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar"/>
@@ -87,8 +112,23 @@
    <archive path="plugins/com.springsource.org.apache.poi_3.0.2.FINAL.jar" url="http://repository.springsource.com/ivy/bundles/external/org.apache.poi/com.springsource.org.apache.poi/3.0.2.FINAL/com.springsource.org.apache.poi-3.0.2.FINAL.jar"/>
    <archive path="plugins/net.rforge.REngine_0.6.0.jar" url="http://hits.googlecode.com/files/net.rforge.REngine-0.6.0.jar"/>
    <archive path="plugins/net.rforge.Rserve_0.6.0.jar" url="http://hits.googlecode.com/files/net.rforge.Rserve-0.6.0.jar"/>
+   <archive path="plugins/net.rforge.REngine_0.6.0.2.jar" url="http://hits.googlecode.com/files/net.rforge.REngine_0.6.0.2.jar"/>
+   <archive path="plugins/net.rforge.Rserve_0.6.0.2.jar" url="http://hits.googlecode.com/files/net.rforge.Rserve_0.6.0.2.jar"/>
    <archive path="plugins/com.google.code.findbugs.annotations_1.3.9.rc1.jar" url="http://hits.googlecode.com/files/com.google.code.findbugs.annotations-1.3.9-rc1.jar"/>
    <archive path="plugins/com.google.code.findbugs.jsr305_1.3.9.rc1.jar" url="http://hits.googlecode.com/files/com.google.code.findbugs.jsr305-1.3.9-rc1.jar"/>
+   <archive path="plugins/com.google.code.findbugs.annotations_1.3.9.jar" url="http://hits.googlecode.com/files/com.google.code.findbugs.annotations_1.3.9.jar"/>
+   <archive path="plugins/com.google.code.findbugs.jsr305_1.3.9.jar" url="http://hits.googlecode.com/files/com.google.code.findbugs.jsr305_1.3.9.jar"/>
+   <archive path="plugins/com.apple.java.extensions_1.3.0.jar" url="http://hits.googlecode.com/files/com.apple.java.extensions_1.3.0.jar"/>
+   <archive path="plugins/com.jgoodies.forms_1.0.4.jar" url="http://hits.googlecode.com/files/com.jgoodies.forms_1.0.4.jar"/>
+   <archive path="plugins/com.sun.media.jai_codec_1.1.3.jar" url="http://hits.googlecode.com/files/com.sun.media.jai_codec_1.1.3.jar"/>
+   <archive path="plugins/edu.wisc.loci.bio-formats_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.bio-formats_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.loci_plugins_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci_plugins_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.loci-common_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci-common_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.ome-xml_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.ome-xml_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.poi-loci_1.0.0.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.poi-loci_1.0.0.5585.jar"/>
+   <archive path="plugins/ij.imagej_1.42.0.n.jar" url="http://hits.googlecode.com/files/ij.imagej_1.42.0.n.jar"/>
+   <archive path="plugins/javax.media.jai_core_1.1.3.jar" url="http://hits.googlecode.com/files/javax.media.jai_core_1.1.3.jar"/>
    <category-def name="HiTS" label="HiTS main">
       <description>
          Contains the nodes, and the non-standard dependencies.
