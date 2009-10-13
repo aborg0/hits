@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.exp.feature"
       label="HiTS experimental features"
-      version="0.4.0.qualifier"
+      version="0.4.1.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.exp.feature">
 
@@ -28,10 +28,13 @@
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base"/>
       <import plugin="org.knime.distmatrix" version="2.0.3.0022208" match="compatible"/>
-      <import plugin="ie.tcd.imm.hits.common" version="0.0.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help"/>
       <import plugin="org.eclipse.help.ui"/>
-      <import plugin="ie.tcd.imm.hits" version="0.4.0" match="greaterOrEqual"/>
+      <import plugin="ie.tcd.imm.hits" version="0.4.1" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.3" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.help.base"/>
+      <import plugin="com.google.code.findbugs.annotations"/>
+      <import plugin="com.google.code.findbugs.jsr305"/>
    </requires>
 
    <plugin
