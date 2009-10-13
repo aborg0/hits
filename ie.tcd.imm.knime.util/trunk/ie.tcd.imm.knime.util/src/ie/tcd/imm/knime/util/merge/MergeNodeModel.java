@@ -129,7 +129,9 @@ public class MergeNodeModel extends NodeModel {
 
 	/**
 	 * @param patternToKeys
+	 *            The mapping from row content to row indices.
 	 * @param rowCount
+	 *            The actual row number.
 	 * @return Ordered list of row indices (starting from {@code 0}).
 	 */
 	private Iterable<List<Integer>> generateBlocks(

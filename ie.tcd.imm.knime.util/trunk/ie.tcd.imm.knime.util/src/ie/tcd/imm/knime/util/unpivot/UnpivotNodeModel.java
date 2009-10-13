@@ -259,7 +259,8 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 
 	/**
 	 * @param dataTableSpec
-	 * @return
+	 *            The original {@link DataTableSpec}.
+	 * @return New name for the table column.
 	 */
 	private static String newName(final DataTableSpec dataTableSpec) {
 		int i = 0;

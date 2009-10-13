@@ -196,10 +196,16 @@ public class PivotNodeModel extends TransformingNodeModel {
 	}
 
 	/**
+	 * Adds the content from {@code row} to {@code connectByPivotValues}.
+	 * 
 	 * @param pivotIndices
+	 *            The indices of pivot columns.
 	 * @param cols
+	 *            Description of selected columns.
 	 * @param connectByPivotValues
+	 *            Mapping from values to rows.
 	 * @param row
+	 *            A row to process.
 	 */
 	private static void processRow(final int[] pivotIndices,
 			final Column[] cols,
@@ -336,6 +342,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 * @param spec
 	 *            A {@link DataTableSpec}.
 	 * @param includeList
+	 *            The list of selected column names.
 	 * @return An array of ({@code 0} based) indices of {@code includeList} in
 	 *         the {@code spec}.
 	 */
@@ -415,6 +422,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 	 *            A {@link DataTableSpec}.
 	 * @return The new {@link DataTableSpec}.
 	 * @throws InvalidSettingsException
+	 *             If unrecognised variable, or column found.
 	 */
 	private DataTableSpec createTableSpec(final DataTableSpec dataTableSpec)
 			throws InvalidSettingsException {
