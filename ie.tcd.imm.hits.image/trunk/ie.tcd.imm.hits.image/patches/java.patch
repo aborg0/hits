@@ -1,12 +1,12 @@
 Index: build.xml
 ===================================================================
---- build.xml	(revision 5585)
+--- build.xml	(revision 5590)
 +++ build.xml	(working copy)
 @@ -408,6 +408,7 @@
    <property name="root.dir" location="${basedir}"/>
    <import file="global.xml"/>
    <property file="build.properties"/>
-+  <property name="selections.dir" location="selections"/>
++  <!--property name="selections.dir" location="selections"/-->
  
    <!-- Global build targets -->
  
@@ -31,7 +31,7 @@ Index: build.xml
 +    Optional:      OME I/O, OME Notes, Apache Jakarta POI,
 +                   MDB Tools (Java port), JAI Image I/O Tools, NetCDF
 +    	 -->
-+  	<mkdir dir="${selections.dir}"/>
++  	<!--mkdir dir="${selections.dir}"/-->
 +    <bundle outputDir="${artifact.dir}"
 +      bundleName="NetCDF-java"
 +      bundleSymbolicName="edu.ucar.unidata.netcdf.java"
@@ -65,7 +65,7 @@ Index: build.xml
 +      exportPackage="*;version=&quot;1.3.0&quot;"
 +      filename="AppleJavaExtensions"
 +    />
-+  	<copyfile dest="${selections.dir}/AppleJavaExtensions-1.3.0.jar" src="${artifact.dir}/AppleJavaExtensions.jar"/>
++  	<!--copyfile dest="${selections.dir}/AppleJavaExtensions-1.3.0.jar" src="${artifact.dir}/AppleJavaExtensions.jar"/-->
 +    <bundle outputDir="${artifact.dir}"
 +      bundleName="ImageJ"
 +      bundleSymbolicName="ij.imagej"
@@ -75,8 +75,8 @@ Index: build.xml
 +      dynamicImportPackage="com.apple.eawt,com.apple.cocoa.application,com.sun.image.codec.jpeg,com.sun.tools.javac,javax.imageio"
 +      filename="ij"
 +    />
-+  	<copyfile dest="${selections.dir}/ij-1.42.0.n.jar" src="${artifact.dir}/ij.jar"/>
 +      <!--dynamicImportPackage="com.apple.eawt,com.sun.image.codec.jpeg,com.sun.tools.javac,javax.imageio,javax.script,javax.swing,javax.swing.event,javax.swing.tree"-->
++  	<!--copyfile dest="${selections.dir}/ij-1.42.0.n.jar" src="${artifact.dir}/ij.jar"/-->
 +    <!--includeResource="./macros/*,./about.jpg,./IJ_Props.txt,./microscope.gif"-->
 +    <!-- OME client, OME common, OME java, OME-IO
 +    bundle outputDir="${artifact.dir}"
@@ -90,9 +90,25 @@ Index: build.xml
    </target>
  
    <!-- LOCI common library -->
+Index: .project
+===================================================================
+--- .project	(revision 0)
++++ .project	(revision 0)
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>java</name>
++	<comment></comment>
++	<projects>
++	</projects>
++	<buildSpec>
++	</buildSpec>
++	<natures>
++	</natures>
++</projectDescription>
 Index: components/common.xml
 ===================================================================
---- components/common.xml	(revision 5585)
+--- components/common.xml	(revision 5590)
 +++ components/common.xml	(working copy)
 @@ -62,10 +62,10 @@
      <propertyregex property="svn.root" input="${release.version}" select="\1">
@@ -109,7 +125,7 @@ Index: components/common.xml
        defaultValue="trunk"/>
 Index: components/legacy/jvmlink/build.properties
 ===================================================================
---- components/legacy/jvmlink/build.properties	(revision 5585)
+--- components/legacy/jvmlink/build.properties	(revision 5590)
 +++ components/legacy/jvmlink/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -120,7 +136,7 @@ Index: components/legacy/jvmlink/build.properties
 \ No newline at end of file
 Index: components/legacy/ome-notes/build.properties
 ===================================================================
---- components/legacy/ome-notes/build.properties	(revision 5585)
+--- components/legacy/ome-notes/build.properties	(revision 5590)
 +++ components/legacy/ome-notes/build.properties	(working copy)
 @@ -20,3 +20,7 @@
  
@@ -133,7 +149,7 @@ Index: components/legacy/ome-notes/build.properties
 \ No newline at end of file
 Index: components/ome-xml/build.properties
 ===================================================================
---- components/ome-xml/build.properties	(revision 5585)
+--- components/ome-xml/build.properties	(revision 5590)
 +++ components/ome-xml/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -143,7 +159,7 @@ Index: components/ome-xml/build.properties
 +bundle.classpath         = 
 Index: components/java.xml
 ===================================================================
---- components/java.xml	(revision 5585)
+--- components/java.xml	(revision 5590)
 +++ components/java.xml	(working copy)
 @@ -71,19 +71,21 @@
  -->
@@ -164,13 +180,13 @@ Index: components/java.xml
          <attribute name="Class-Path" value="${component.manifest-cp}"/>
        </manifest>
      </bundle>
-+  	<copyfile dest="${selections.dir}/${component.name}-${component.version}.${svn.revision}.jar" src="${artifact.dir}/${component.jar}"/>
++  	<!--copyfile dest="${selections.dir}/${component.name}-${component.version}.${svn.revision}.jar" src="${artifact.dir}/${component.jar}"/-->
    </target>
  
    <target name="docs" depends="compile"
 Index: components/ome-io/build.properties
 ===================================================================
---- components/ome-io/build.properties	(revision 5585)
+--- components/ome-io/build.properties	(revision 5590)
 +++ components/ome-io/build.properties	(working copy)
 @@ -22,3 +22,9 @@
  component.main-class     = loci.ome.io.OMEWriter
@@ -184,7 +200,7 @@ Index: components/ome-io/build.properties
 +	                           edu.wisc.loci.ome-java;resolution:=optional
 Index: components/bio-formats/build.properties
 ===================================================================
---- components/bio-formats/build.properties	(revision 5585)
+--- components/bio-formats/build.properties	(revision 5590)
 +++ components/bio-formats/build.properties	(working copy)
 @@ -30,3 +30,16 @@
                             ${lib.dir}/bufr-1.1.00.jar:\
@@ -206,7 +222,7 @@ Index: components/bio-formats/build.properties
 \ No newline at end of file
 Index: components/loci-plugins/build.properties
 ===================================================================
---- components/loci-plugins/build.properties	(revision 5585)
+--- components/loci-plugins/build.properties	(revision 5590)
 +++ components/loci-plugins/build.properties	(working copy)
 @@ -25,3 +25,8 @@
  component.runtime-cp     = ${component.classpath}:\
@@ -220,7 +236,7 @@ Index: components/loci-plugins/build.properties
 \ No newline at end of file
 Index: components/forks/jai/build.properties
 ===================================================================
---- components/forks/jai/build.properties	(revision 5585)
+--- components/forks/jai/build.properties	(revision 5590)
 +++ components/forks/jai/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -230,7 +246,7 @@ Index: components/forks/jai/build.properties
 +bundle.classpath         = 
 Index: components/forks/mdbtools/build.properties
 ===================================================================
---- components/forks/mdbtools/build.properties	(revision 5585)
+--- components/forks/mdbtools/build.properties	(revision 5590)
 +++ components/forks/mdbtools/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -240,7 +256,7 @@ Index: components/forks/mdbtools/build.properties
 +bundle.classpath         = 
 Index: components/forks/poi/build.properties
 ===================================================================
---- components/forks/poi/build.properties	(revision 5585)
+--- components/forks/poi/build.properties	(revision 5590)
 +++ components/forks/poi/build.properties	(working copy)
 @@ -19,3 +19,5 @@
  
@@ -250,7 +266,7 @@ Index: components/forks/poi/build.properties
 +bundle.classpath         = 
 Index: components/common/build.properties
 ===================================================================
---- components/common/build.properties	(revision 5585)
+--- components/common/build.properties	(revision 5590)
 +++ components/common/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  

@@ -2,7 +2,7 @@ Index: src/loci/tests/testng/osgi/InstallBundles.java
 ===================================================================
 --- src/loci/tests/testng/osgi/InstallBundles.java	(revision 0)
 +++ src/loci/tests/testng/osgi/InstallBundles.java	(revision 0)
-@@ -0,0 +1,332 @@
+@@ -0,0 +1,333 @@
 +/*
 + * All rights reserved. (C) Copyright 2009, Trinity College Dublin
 + */
@@ -291,6 +291,7 @@ Index: src/loci/tests/testng/osgi/InstallBundles.java
 +	 *            dependency paths.
 +	 * @param framework
 +	 *            A {@link Framework} to install the bundle.
++	 * @return The installed (but not started) dependencies.
 +	 * @throws BundleException
 +	 *             Problem installing the enumerated bundles.
 +	 */
@@ -349,7 +350,7 @@ Index: src/loci/tests/testng/osgi/package-info.java
 +import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 Index: .classpath
 ===================================================================
---- .classpath	(revision 5576)
+--- .classpath	(revision 5590)
 +++ .classpath	(working copy)
 @@ -2,9 +2,12 @@
  <classpath>
@@ -366,7 +367,7 @@ Index: .classpath
  </classpath>
 Index: .settings/org.eclipse.jdt.core.prefs
 ===================================================================
---- .settings/org.eclipse.jdt.core.prefs	(revision 5576)
+--- .settings/org.eclipse.jdt.core.prefs	(revision 5590)
 +++ .settings/org.eclipse.jdt.core.prefs	(working copy)
 @@ -1,4 +1,4 @@
 -#Wed Oct 01 16:21:38 CDT 2008
