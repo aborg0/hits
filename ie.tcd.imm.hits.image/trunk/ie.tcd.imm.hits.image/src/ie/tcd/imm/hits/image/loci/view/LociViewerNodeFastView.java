@@ -16,9 +16,15 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
@@ -231,20 +237,111 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				GENERAL);
 		controlsHandlerFactory.setContainer(controls, SplitType.PrimarySplit,
 				GENERAL);
-		setComponent(new JScrollPane(panel));
-		panel.setLayout(new javax.swing.BoxLayout(panel,
-				javax.swing.BoxLayout.Y_AXIS));
-		panel.setAlignmentY(Component.TOP_ALIGNMENT);
-		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		// panel.setLayout(new javax.swing.BoxLayout(panel,
+		// javax.swing.BoxLayout.Y_AXIS));
+		// panel.setAlignmentY(Component.TOP_ALIGNMENT);
+		// panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		imageScrollPane = new JScrollPane(imagePanel);
 		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
-		imageScrollPane.setPreferredSize(new Dimension(800, 600));
+		final MouseAdapter mouseAdapter = new MouseAdapter() {
+			private boolean dragStarted = true;
+			private int startX, startY;
+			int origViewX;
+			int origViewY;
+			private Cursor origCursor;
+
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					dragStarted = true;
+					startX = e.getX();
+					startY = e.getY();
+					origViewX = imageScrollPane.getViewport().getViewPosition().x;
+					origViewY = imageScrollPane.getViewport().getViewPosition().y;
+					origCursor = imagePanel.getCursor();
+					imagePanel.setCursor(Cursor
+							.getPredefinedCursor(Cursor.MOVE_CURSOR));
+				}
+			}
+
+			@Override
+			public void mouseDragged(final MouseEvent e) {
+				if (!e.isAltDown() && !e.isControlDown() && !e.isShiftDown()
+						&& !e.isMetaDown() && dragStarted) {
+					final int maxX = Math.max(0, imagePanel.getWidth()
+							- imageScrollPane.getViewport().getWidth());
+
+					final int maxY = Math.max(0, imagePanel.getHeight()
+							- imageScrollPane.getViewport().getHeight());
+					final int deltaX = e.getX() - startX;
+					final int deltaY = e.getY() - startY;
+					// startX = e.getX();
+					// startY = e.getY();
+					// imageScrollPane.getViewport()
+					// .setLocation(
+					// imageScrollPane.getLocation().x + deltaX,
+					// imageScrollPane.getLocation().y + deltaY);
+					imageScrollPane.getViewport().setViewPosition(
+							new Point(Math.min(Math.max(0, origViewX - deltaX),
+									maxX), Math.min(Math.max(0, origViewY
+									- deltaY), maxY)));
+					// move(deltaX, deltaY);
+				}
+			}
+
+			/**
+			 * @param deltaX
+			 * @param deltaY
+			 */
+			private void move(final int deltaX, final int deltaY) {
+				// final Rectangle newRect = new Rectangle(imageScrollPane
+				// .getVisibleRect());
+				// newRect.x += deltaX;
+				// newRect.y += deltaY;
+				// imagePanel.setLocation(imagePanel.getLocation().x + deltaX,
+				// imagePanel.getLocation().y + deltaY);
+			}
+
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				dragStarted = e.getButton() == MouseEvent.BUTTON1 ? false
+						: dragStarted;
+				if (origCursor != null) {
+					imagePanel.setCursor(origCursor);
+				}
+			}
+		};
+		imagePanel.addMouseMotionListener(mouseAdapter);
+		imagePanel.addMouseListener(mouseAdapter);
+		imagePanel.addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(final MouseWheelEvent e) {
+				if (e.isControlDown()) {
+					zoomModel.setValue(zoomModel.getValue()
+							+ e.getWheelRotation());
+				} else {
+					final int maxY = Math.max(0, imagePanel.getHeight()
+							- imageScrollPane.getViewport().getHeight());
+					final int origY = imageScrollPane.getViewport()
+							.getViewPosition().y;
+					final int y = Math.min(Math.max(0, origY
+							+ e.getUnitsToScroll() * 3), maxY);
+					imageScrollPane.getViewport().setViewPosition(
+							new Point(imageScrollPane.getViewport()
+									.getViewPosition().x, y));
+				}
+			}
+		});
+		imageScrollPane.setPreferredSize(new Dimension(imageScrollPane
+				.getPreferredSize().width, 600));
+		// imageScrollPane.getViewport().setPreferredSize(new Dimension(800,
+		// 600));
 		// imageScrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 		// imageScrollPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		// panel.add(imageScrollPane);
-		imagePanel.setPreferredSize(new Dimension(800, 600));
+		// imagePanel.setPreferredSize(new Dimension(800, 600));
 
 		// panel.add(new JScrollPane(controls));
 		final JSplitPane horizontalSplitPane = new JSplitPane(
@@ -261,6 +358,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		// splitPane.setRightComponent(new JScrollPane(controls));
 		splitPane.setRightComponent(new JScrollPane(jPanel));
 		splitPane.setOneTouchExpandable(true);
+		// splitPane.setPreferredSize(new Dimension(800, 600));
+		splitPane.setDividerLocation(600);
 		panel.add(splitPane);
 		joinTable = Collections.emptyMap();
 		otherPanel.add(zoomSlider);
@@ -314,6 +413,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent();
 			}
 		});
+		setComponent(panel);
 	}
 
 	// /**
