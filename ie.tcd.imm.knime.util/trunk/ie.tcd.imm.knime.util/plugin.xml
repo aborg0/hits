@@ -12,5 +12,7 @@
    <extension point="org.eclipse.help.toc">
       <toc extradir="html" file="tocs/row_nodes.xml"/>
       <toc extradir="html" file="tocs/manipulation_nodes.xml"/>
+      <toc extradir="html" file="tocs/column_nodes.xml"/>
+      <toc extradir="html" file="tocs/matrix_nodes.xml"/>
    </extension>
 </plugin>

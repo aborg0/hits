@@ -84,11 +84,45 @@ a:visited{
 <p>Converts a table -based on its column's names- to another table. The parts of the names will become values.
         <br/>
         The column names can be changed by clicking on the preview table (only for the new ones).
+        <br/>
+        Example usage:<br/>
+        <i>Input columns</i>:
+        <ul>
+        <li>apple-A</li>
+        <li>apple-B</li>
+        <li>pear-A</li>
+        <li>pear-B</li>
+        <li>other1</li>
+        <li>other2</li>
+        </ul>
+        <br/>
+        Here are sample <tt>Pattern</tt>s:
+        <ol>
+        <li>apple-([AB])</li>
+        <li>(apple-[AB])</li>
+        <li>pear(-[AB])</li>
+        <li>(apple|pear)-([AB])</li>
+        <li>(apple|pear)-(?:[AB])</li>
+        <li>other([12])</li>
+        <li>(.*)e(.*)</li>
+        </ol>
+        <br/>
+        These will result in a table with the following columns (check in the preview):
+        <ol>
+        <li>pear-A, pear-B, other1, other2, Col_0 (you can change the name), apple-</li>
+        <li>pear-A, pear-B, other1, other2, Col_0 (you can change the name), &lt;empty0&gt;</li>
+        <li>apple-A, apple-B, other1, other2, Col_0 (you can change the name), pear</li>
+        <li>other1, other2, Col_1 (you can change the name), Col_0 (you can change the name), -</li>
+        <li>other1, other2, Col_0 (you can change the name), -A, -B</li>
+        <li>apple-A, apple-B, pear-A, pear-B, Col_0 (you can change the name), other</li>
+        <li>Col_1 (you can change the name), Col_0 (you can change the name), e</li>
+        </ol>
+        See also: <a href="http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/pivot/">sample workflow</a>.
         </p>
 <h2>Dialog Options</h2>
 <dl>
 <dt>Pattern</dt>
-<dd>A regular expression on column names. The non-grouping part is denoted by <tt>(?:</tt>something<tt>)</tt>, the grouping parts will create the new columns. It shows the result structure.</dd>
+<dd>A <a href="http://java.sun.com/docs/books/tutorial/essential/regex/index.html">regular expression</a> on column names. The non-capturing group part is denoted by <tt>(?:</tt>something<tt>)</tt>, the capturing group parts will create the new columns. It shows the result structure.</dd>
 <dt>HiLite Strategy</dt>
 <dd>Support HiLite or not.</dd>
 </dl>

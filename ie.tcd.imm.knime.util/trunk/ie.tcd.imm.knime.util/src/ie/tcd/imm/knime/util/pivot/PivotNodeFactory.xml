@@ -53,7 +53,7 @@
 </pre>
         </intro>
         
-        <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present).</option>
+        <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present). The domain of these columns should be available. Please use <b>Domain Calculator</b> node to achieve this.</option>
         <option name="Pattern">The format of the new columns (<tt>${}</tt> - values, <tt>${pivot column name}</tt> values of that nominal column).</option>
         <option name="Behaviour">What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error.</li></ul></option>
         <option name="HiLite Strategy">Support HiLite or not.</option>
