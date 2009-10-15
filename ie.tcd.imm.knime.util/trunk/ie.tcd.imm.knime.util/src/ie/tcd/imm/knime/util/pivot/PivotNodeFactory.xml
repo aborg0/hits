@@ -9,11 +9,53 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Converts information present in rows to columns</intro>
+        <intro>Converts information present in rows to columns
+        For example if the input table is like this:
+<pre>
+|Plate|Parameter|Value|
++-----+---------+-----+
+|    1|height   |  245|
+|    1|width    |  480|
+|    2|height   |  490|
+|    2|width    |  960|
+</pre>
+        And the selected <tt>Pattern</tt> is <tt>${Parameter}</tt>, the <tt>Keys</tt> is <b>Plate</b>, the <tt>Values</tt> is <b>Value</b>, then the result will look like this:
+<pre>
+|Plate|height   |width    |
++-----+---------+---------+
+|    1|      245|      480|
+|    2|      490|      960|
+</pre>
+        If you change the <tt>Keys</tt> and <tt>Values</tt> the result table:
+<pre>
+|Value|height   |width    |
++-----+---------+---------+
+|  245|        1|        ?|
+|  280|        ?|        1|
+|  490|        2|        ?|
+|  960|        ?|        2|
+</pre>
+		If you change the position of <b>Parameter</b> and <b>Plate</b> (assuming the domain of <b>Plate</b> was computed before, <tt>Pattern</tt> changed to <tt>${Plate}</tt> ):
+<pre>
+|Parameter|1   |2   |
++---------+----+----+
+|height   | 245|   ?|
+|width    | 490|   ?|
+|height   |   ?| 280|
+|width    |   ?| 960|
+</pre>
+        You might want to order in this case by <b>Parameter</b>, not <b>Plate</b>. After that (and changing the <tt>Pattern</tt> to <tt>${} on plate ${Plate}</tt>) the result table:
+<pre>
+|Parameter|Value on plate 1|Value on plate 2|
++---------+----------------+----------------+
+|height   |             245|             280|
+|width    |             490|             960|
+</pre>
+        </intro>
         
         <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present).</option>
         <option name="Pattern">The format of the new columns (<tt>${}</tt> - values, <tt>${pivot column name}</tt> values of that nominal column).</option>
-        <option name="Behaviour">What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error</li></ul>.</option>
+        <option name="Behaviour">What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error.</li></ul></option>
         <option name="HiLite Strategy">Support HiLite or not.</option>
         <option name="Values">The values of these columns will add a part to the new columns to the place of <tt>${}</tt>.</option>
         <option name="Keys">These will remain in the results.</option>
