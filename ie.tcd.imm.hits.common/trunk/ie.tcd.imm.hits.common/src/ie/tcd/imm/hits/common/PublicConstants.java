@@ -53,8 +53,16 @@ public interface PublicConstants {
 	public static final String LOCI_ROW = "LOCI-Row";
 	/** The 'column' column name in LOCI nodes. */
 	public static final String LOCI_COLUMN = "LOCI-Column";
+	/** The Z position column name in LOCI nodes. */
+	public static final String LOCI_Z = "LOCI-Z";
+	/** The time column name in LOCI nodes. */
+	public static final String LOCI_TIME = "LOCI-T";
+	/** The channel column name in LOCI nodes. */
+	public static final String LOCI_CHANNELS = "LOCI-C";
 	/** The field column name in LOCI nodes. */
 	public static final String LOCI_FIELD = "LOCI-Field";
+	/** The OME-XML content of a reader. */
+	public static final String LOCI_XML = "OME-XML";
 	/** The LOCI join identifier column name in LOCI nodes. */
 	public static final String LOCI_ID = "LOCI-Id";
 	/** The LOCI serialised image content column in LOCI nodes. */

@@ -14,6 +14,7 @@ import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.swing.BoundedRangeModel;
 import javax.swing.JScrollPane;
 
@@ -77,7 +78,7 @@ public class ZoomScrollPane extends JScrollPane implements Zoomable {
 	 *            A {@link BoundedRangeModel} to get the actual zoom factor in
 	 *            percentages.
 	 */
-	public ZoomScrollPane(final Component view, final int vsbPolicy,
+	public ZoomScrollPane(@Nullable final Component view, final int vsbPolicy,
 			final int hsbPolicy, final BoundedRangeModel zoomModel) {
 		super(view, vsbPolicy, hsbPolicy);
 		this.zoomModel = zoomModel;

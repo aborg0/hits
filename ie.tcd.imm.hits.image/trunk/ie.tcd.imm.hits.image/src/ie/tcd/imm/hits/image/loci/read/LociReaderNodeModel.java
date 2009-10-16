@@ -10,20 +10,30 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.MetadataTools;
 import loci.formats.gui.ExtensionFileFilter;
+import loci.formats.meta.IMetadata;
+import loci.formats.meta.MetadataRetrieve;
+import loci.formats.ome.OMEXML200809Metadata;
+import loci.formats.ome.OMEXMLMetadata;
 import loci.plugins.util.ImagePlusReader;
 
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.collection.CollectionCellFactory;
+import org.knime.core.data.collection.ListCell;
 import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -84,16 +94,17 @@ public class LociReaderNodeModel extends NodeModel {
 		final BufferedDataContainer plateContainer = exec
 				.createDataContainer(createPlateSpec());
 		try {
-			// new ImageInfo().testRead(new String[] {
-			// folder.getStringValue(),
-			// "-omexml", "-nopix", "-nometa", "-nocore" });
 			final ImagePlusReader reader = ImagePlusReader
 					.makeImagePlusReader(new ChannelSeparator(ImagePlusReader
 							.makeImageReader()));
+			final IMetadata omeXml = new OMEXML200809Metadata();
+			// OMEXMLFactory.newOMENode();
+			// MetadataTools.createOMEXMLMetadata("");
+			omeXml.createRoot();
+			reader.setMetadataStore(omeXml);
 			reader.setMetadataFiltered(true);
-			reader.setOriginalMetadataPopulated(false);
-			// final IMetadata omeXml = MetadataTools.createOMEXMLMetadata();
-			// reader.setMetadataStore(new DummyMetadata());
+			reader.setOriginalMetadataPopulated(true);
+
 			final String rawFolder = folder.getStringValue();
 			final File f = new File(rawFolder);
 			String extension;
@@ -110,10 +121,6 @@ public class LociReaderNodeModel extends NodeModel {
 				logger.debug("loaded: " + file);
 				final IFormatReader formatReader = ((ImageReader) ((ChannelSeparator) reader
 						.getReader()).getReader()).getReader();
-				// if (formatReader.getClass().getField("channelNames") !=null)
-				// {
-				//					
-				// }
 				final int colCount = getPrivateField(formatReader, "wellCols",
 						1);
 				final int rowCount = getPrivateField(formatReader, "wellRows",
@@ -123,21 +130,22 @@ public class LociReaderNodeModel extends NodeModel {
 								/ colCount);
 				final String relPos = new File(file).getAbsolutePath()
 						.substring(folderFile.getAbsolutePath().length());
-				xmlPlateContainer
-						.addRowToTable(new DefaultRow(
-								new RowKey(relPos),
-								new StringCell(relPos),
-								DataType.getMissingCell()/* Plate */,
-								DataType.getMissingCell()/* Row */,
-								DataType.getMissingCell()/* column */,
-								new LociReaderCell(
-										(FormatReader) ((ImageReader) ((ChannelSeparator) reader
-												.getReader()).getReader())
-												.getReader()),
-								// new
-								// StringCell(MetadataTools.getOMEXML(MetadataTools
-								// .asRetrieve(reader.getMetadataStore()))),
-								new StringCell(relPos)));
+				final String xml = ((OMEXMLMetadata) MetadataTools
+						.asRetrieve(formatReader.getMetadataStore())).dumpXML();
+				xmlPlateContainer.addRowToTable(new DefaultRow(new RowKey(
+						relPos), new StringCell(relPos), DataType
+						.getMissingCell()/* Plate */,
+						DataType.getMissingCell()/* Row */, DataType
+								.getMissingCell()/* column */, DataType
+								.getMissingCell()/* Z */, DataType
+								.getMissingCell()/* C */, DataType
+								.getMissingCell()/* T */, new LociReaderCell(
+								(FormatReader) formatReader),// 
+						new StringCell(xml), new StringCell(relPos)));
+				final Collection<DataCell> channelNames = asDataCells(getChannelNames(
+						MetadataTools.asRetrieve(formatReader
+								.getMetadataStore()), formatReader
+								.getEffectiveSizeC()));
 				for (int i = 0; i < reader.getSeriesCount(); ++i) {
 					exec.checkCanceled();
 					reader.setSeries(i);
@@ -146,17 +154,23 @@ public class LociReaderNodeModel extends NodeModel {
 						logger.warn("stopped because of not enough memory");
 						break;
 					}
-					plateContainer.addRowToTable(new DefaultRow(
-							new RowKey("Row_" + i),
-							new StringCell(relPos),
-							// new StringCell(Misc.toUpperLetter(Integer
-							// .toString(i / 8 / 12 + 1))), new IntCell(
-							// i / 8 % 12 + 1), new IntCell(i % 8 + 1),
+					final Integer timepoint = omeXml.getWellSampleTimepoint(
+							0/* plate */, 0 /* well */, 0/* field */);
+					final Integer z = omeXml.getTiffDataFirstZ(0/* imageIdx */,
+							0/* pixelsIndex */, 0/* tiffDataIndex */);
+					plateContainer.addRowToTable(new DefaultRow(new RowKey(
+							"Row_" + relPos + "_" + i), new StringCell(relPos),
 							new StringCell(Misc.toUpperLetter(Integer
 									.toString(i / fieldCount / colCount + 1))),
 							new IntCell(i / fieldCount % colCount + 1),
-							new IntCell(i % fieldCount + 1), new StringCell(
-									relPos), new IntCell(i)));
+							new IntCell(i % fieldCount + 1),
+							// Z
+							new DoubleCell(0.0),
+							// T
+							new DoubleCell(0.0),
+							// C
+							CollectionCellFactory.createListCell(channelNames),
+							new StringCell(relPos), new IntCell(i)));
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);
 					}
@@ -175,6 +189,38 @@ public class LociReaderNodeModel extends NodeModel {
 		}
 		return new BufferedDataTable[] { plateContainer.getTable(),
 				xmlPlateContainer.getTable(), experimentContainer.getTable() };
+	}
+
+	/**
+	 * Converts {@code strings} to {@link DataCell} ({@link StringCell}s).
+	 * 
+	 * @param strings
+	 *            Some {@link String}s.
+	 * @return A list of {@link StringCell}s.
+	 */
+	private static Collection<DataCell> asDataCells(
+			final Collection<String> strings) {
+		final Collection<DataCell> ret = new ArrayList<DataCell>(strings.size());
+		for (final String channelName : strings) {
+			ret.add(new StringCell(channelName));
+		}
+		return ret;
+	}
+
+	/**
+	 * @param metadata
+	 *            A {@link MetadataRetrieve}.
+	 * @param sizeC
+	 *            The effective channel count.
+	 * @return The logical channel names.
+	 */
+	private Collection<String> getChannelNames(final MetadataRetrieve metadata,
+			final int sizeC) {
+		final List<String> ret = new ArrayList<String>(sizeC);
+		for (int i = 0; i < sizeC; ++i) {
+			ret.add(metadata.getLogicalChannelName(0, i));
+		}
+		return ret;
 	}
 
 	/**
@@ -293,8 +339,17 @@ public class LociReaderNodeModel extends NodeModel {
 				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
 						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
 						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_IMAGE_CONTENT,
-						DataType.getType(LociReaderCell.class)).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_Z,
+						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_TIME,
+						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_CHANNELS,
+						ListCell.getCollectionType(StringCell.TYPE))
+						.createSpec(), new DataColumnSpecCreator(
+						PublicConstants.LOCI_IMAGE_CONTENT, DataType
+								.getType(LociReaderCell.class)).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_XML,
+						StringCell.TYPE).createSpec(),
 				new DataColumnSpecCreator(PublicConstants.LOCI_ID,
 						StringCell.TYPE).createSpec());
 	}
@@ -307,8 +362,14 @@ public class LociReaderNodeModel extends NodeModel {
 				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
 						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
 						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_ID,
-						StringCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_Z,
+						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_TIME,
+						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_CHANNELS,
+						ListCell.getCollectionType(StringCell.TYPE))
+						.createSpec(), new DataColumnSpecCreator(
+						PublicConstants.LOCI_ID, StringCell.TYPE).createSpec(),
 				new DataColumnSpecCreator(PublicConstants.IMAGE_ID,
 						IntCell.TYPE).createSpec());
 	}
