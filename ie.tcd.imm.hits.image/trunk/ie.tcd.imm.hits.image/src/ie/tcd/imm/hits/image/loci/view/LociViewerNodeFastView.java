@@ -134,6 +134,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private static final String GENERAL = "general";
 	private static final String PLATE = "plate";
 	private static final String FIELD = "field";
+	private static final String TIME = "time";
+	private static final String Z = "Z";
 	private static final String CHANNEL = "channel";
 
 	private static final NodeLogger logger = NodeLogger
@@ -147,8 +149,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	@Nullable
 	private OptionalNamedSelector<String> fieldSelector;
 	@Nullable
+	private OptionalNamedSelector<String> timeSelector;
+	@Nullable
+	private OptionalNamedSelector<String> zSelector;
+	@Nullable
 	private OptionalNamedSelector<String> channelSelector;
-	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
+	/** Plate, row, column, field, time, z, image id (series), LOCI data */
+	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>> joinTable;
 	private DisplayJAI imagePanel = new DisplayJAI();
 	private List<ActionListener> listenersToNotGCd = new ArrayList<ActionListener>();
 	private ZoomScrollPane imageScrollPane;
@@ -166,7 +173,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e) {
+			public void stateChanged(final ChangeEvent e) /* => */{
 				if (!zoomModel.getValueIsAdjusting()
 						&& Math.abs(((Number) secondZoomModel.getValue())
 								.doubleValue()
@@ -179,7 +186,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		secondZoomModel.addChangeListener(new ChangeListener() {
 
 			@Override
-			public void stateChanged(final ChangeEvent e) {
+			public void stateChanged(final ChangeEvent e) /* => */{
 				if (Math.abs(((Number) secondZoomModel.getValue())
 						.doubleValue()
 						- zoomModel.getValue()) > 1E-5) {
@@ -204,7 +211,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			@Override
 			public boolean errorOccurred(final String message,
 					final Throwable thrown, final Object where,
-					final boolean isRetryable) throws RuntimeException {
+					final boolean isRetryable) throws RuntimeException/* => */{
 				// suppress error messages
 				return false;
 			}
@@ -231,7 +238,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		imageScrollPane.addZoomListener(new ZoomListener() {
 
 			@Override
-			public void zoom(final ZoomEvent event) {
+			public void zoom(final ZoomEvent event)/* => */{
 				zoomModel.setValue(event.zoomFactor());
 			}
 		});
@@ -255,7 +262,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		otherPanel.add(zoomSpinner);
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e) {
+			public void stateChanged(final ChangeEvent e)/* => */{
 				repaintImage();
 			}
 		});
@@ -266,27 +273,29 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		otherPanel.add(wellSel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
 		getJMenuBar().add(hiliteMenu);
-		hiliteMenu.add(new AbstractAction(HiLiteHandler.HILITE_SELECTED) {
-			private static final long serialVersionUID = -6054254350021725863L;
+		hiliteMenu
+				.add(new AbstractAction(HiLiteHandler.HILITE_SELECTED)/* => */{
+					private static final long serialVersionUID = -6054254350021725863L;
 
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Set<RowKey> selections = findSelectedRowKeys();
-				getNodeModel().getInHiLiteHandler(0)
-						.fireHiLiteEvent(selections);
-			}
-		});
-		hiliteMenu.add(new AbstractAction(HiLiteHandler.UNHILITE_SELECTED) {
-			private static final long serialVersionUID = 8360935725278415300L;
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						final Set<RowKey> selections = findSelectedRowKeys();
+						getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(
+								selections);
+					}
+				});
+		hiliteMenu
+				.add(new AbstractAction(HiLiteHandler.UNHILITE_SELECTED)/* => */{
+					private static final long serialVersionUID = 8360935725278415300L;
 
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Set<RowKey> selections = findSelectedRowKeys();
-				getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
-						selections);
-			}
-		});
-		hiliteMenu.add(new AbstractAction(HiLiteHandler.CLEAR_HILITE) {
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						final Set<RowKey> selections = findSelectedRowKeys();
+						getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
+								selections);
+					}
+				});
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.CLEAR_HILITE)/* => */{
 			private static final long serialVersionUID = 7449582397283093888L;
 
 			@Override
@@ -341,7 +350,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		updateWellSelection();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				wellSel.notifyListeners();
 				hiLiteListener.updateHilites();
 			}
@@ -360,7 +369,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		wellSel.removeAllActionListeners();
 		wellSel.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				fieldSelector.notifyListeners();
 			}
 		});
@@ -370,16 +379,50 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		deregister(fieldSelector);
 		fieldSelector = OptionalNamedSelector.createSingle(FIELD,
 				asStringSet(increase(getPlateRowColMap().keySet(), 0)));
-		recreateChannelSelector();
+		recreateTimeSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				channelSelector.notifyListeners();
+			public void actionPerformed(final ActionEvent e)/* => */{
+				timeSelector.notifyListeners();
 			}
 		};
 		fieldSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(fieldSelector, SplitType.SingleSelect,
+				GENERAL, ControlTypes.Buttons);
+	}
+
+	private void recreateTimeSelector() {
+		deregister(timeSelector);
+		timeSelector = OptionalNamedSelector.createSingle(TIME,
+				asStringSet(getPlateRowColFieldMap().keySet()));
+		recreateZSelector();
+		final ActionListener actionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e)/* => */{
+				zSelector.notifyListeners();
+			}
+		};
+		timeSelector.addActionListener(actionListener);
+		listenersToNotGCd.add(actionListener);
+		controlsHandlerFactory.register(timeSelector, SplitType.SingleSelect,
+				GENERAL, ControlTypes.Buttons);
+	}
+
+	private void recreateZSelector() {
+		deregister(zSelector);
+		zSelector = OptionalNamedSelector.createSingle(Z,
+				asStringSet(getPlateRowColFieldTimeMap().keySet()));
+		recreateChannelSelector();
+		final ActionListener actionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e)/* => */{
+				channelSelector.notifyListeners();
+			}
+		};
+		zSelector.addActionListener(actionListener);
+		listenersToNotGCd.add(actionListener);
+		controlsHandlerFactory.register(zSelector, SplitType.SingleSelect,
 				GENERAL, ControlTypes.Buttons);
 	}
 
@@ -394,7 +437,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateChannelSelector() {
 		deregister(channelSelector);
-		final Collection<FormatReader> readers = getPlateRowColFieldMap()
+		final Collection<FormatReader> readers = getPlateRowColFieldTimeZMap()
 				.values();
 		List<String> channelNames;
 		if (readers.isEmpty()) {
@@ -434,9 +477,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		final ActionListener actionListener = new ActionListener() {
 
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				try {
-					final Entry<Integer, FormatReader> entry = getPlateRowColFieldMap()
+					final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
 							.entrySet().iterator().next();
 					final FormatReader formatReader = entry.getValue();
 					final ImagePlusReader imagePlusReader = ImagePlusReader
@@ -585,6 +628,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		plateSelector = null;
 		deregister(fieldSelector);
 		fieldSelector = null;
+		deregister(timeSelector);
+		timeSelector = null;
+		deregister(zSelector);
+		zSelector = null;
 		deregister(channelSelector);
 		channelSelector = null;
 	}
@@ -617,39 +664,57 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate. (Row, Column, Field, id
-	 *         &rArr; reader).
+	 * @return The {@link Map} for the current plate. (Row, Column, Field, time,
+	 *         z, id &rArr; reader).
 	 */
-	private Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>> getPlateMap() {
+	private Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>> getPlateMap() {
 		return joinTable.get(plateSelector.getSelected());
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate and row. (Column, Field, id
-	 *         &rArr; reader).
+	 * @return The {@link Map} for the current plate and row. (Column, Field,
+	 *         time, z, id &rArr; reader).
 	 */
-	private Map<Integer, Map<Integer, Map<Integer, FormatReader>>> getPlateRowMap() {
+	private Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>> getPlateRowMap() {
 		// return getPlateMap().get(rowSelector.getSelected());
 		return getPlateMap().get(wellSel.getSelection().substring(0, 1));
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate, row, column. (Field, id
-	 *         &rArr; reader).
+	 * @return The {@link Map} for the current plate, row, column. (Field, time,
+	 *         z, id &rArr; reader).
 	 */
-	private Map<Integer, Map<Integer, FormatReader>> getPlateRowColMap() {
+	private Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>> getPlateRowColMap() {
 		return getPlateRowMap().get(
 				Integer.valueOf(Integer.parseInt(wellSel.getSelection()
 						.substring(1))));
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate, row, column, field. (id
-	 *         &rArr; reader).
+	 * @return The {@link Map} for the current plate, row, column, field. (time,
+	 *         z, id &rArr; reader).
 	 */
-	private Map<Integer, FormatReader> getPlateRowColFieldMap() {
+	private Map<Double, Map<Double, Map<Integer, FormatReader>>> getPlateRowColFieldMap() {
 		return getPlateRowColMap().get(
 				Integer.valueOf(fieldSelector.getSelected()));
+	}
+
+	/**
+	 * @return The {@link Map} for the current plate, row, column, field. ( z,
+	 *         id &rArr; reader).
+	 */
+	private Map<Double, Map<Integer, FormatReader>> getPlateRowColFieldTimeMap() {
+		return getPlateRowColFieldMap().get(
+				Double.valueOf(timeSelector.getSelected()));
+	}
+
+	/**
+	 * @return The {@link Map} for the current plate, row, column, field. ( id
+	 *         &rArr; reader).
+	 */
+	private Map<Integer, FormatReader> getPlateRowColFieldTimeZMap() {
+		return getPlateRowColFieldTimeMap().get(
+				Double.valueOf(zSelector.getSelected()));
 	}
 
 	/**
