@@ -5,6 +5,10 @@ package org.knime.core.node.defaultnodesettings;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +32,32 @@ import org.knime.core.node.port.PortObjectSpec;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class DialogComponentTwoColumnStrings extends DialogComponent {
+
+	/**
+	 * A double-click detector {@link MouseListener} with a specified action.
+	 */
+	static final class DoubleClickListener extends MouseAdapter {
+
+		private final ActionListener action;
+
+		/**
+		 * @param action
+		 *            The {@link ActionListener} to perform when double-click
+		 *            happens.
+		 */
+		public DoubleClickListener(final ActionListener action) {
+			super();
+			this.action = action;
+		}
+
+		@Override
+		public void mouseClicked(final MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+				this.action.actionPerformed(new ActionEvent(e.getSource(),
+						((int) System.currentTimeMillis() & 0xffffffff), ""));
+			}
+		}
+	}
 
 	private final JList includeList = new JList(new DefaultListModel());
 	private final JList excludeList = new JList(new DefaultListModel());
@@ -104,6 +134,12 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		includeScroll.setBorder(new TitledBorder(includeTitle));
 		getComponentPanel().add(includeScroll);
 		excludeScroll.setBorder(new TitledBorder(excludeTitle));
+		includeList
+				.addMouseListener(new DoubleClickListener(rightToLeftAction));
+		assert rightToLeftAction.fromList == includeList;
+		excludeList
+				.addMouseListener(new DoubleClickListener(leftToRightAction));
+		assert leftToRightAction.fromList == excludeList;
 		updateComponent();
 	}
 
