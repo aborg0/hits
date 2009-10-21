@@ -11,7 +11,7 @@
     <fullDescription>
         <intro>Converts a table -based on its column's names- to another table. The parts of the names will become values.
         <br/>
-        The column names can be changed by clicking on the preview table (only for the new ones).
+        The column names can be changed by clicking on the preview table (only for the new (<tt>Col_n</tt>) ones).
         <br/>
         Example usage:<br/>
         <i>Input columns</i>:
