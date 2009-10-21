@@ -93,8 +93,6 @@ a:visited{
 </pre>
         If you select <b>Pattern</b> as <u>Pivot columns</u> and use <tt>${Parameter}</tt> for <tt>Pattern</tt> and
 		set in the <i>Other Columns</i> tab <b>Plate</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u>, you will obtain the following result:
-
-        And the selected <tt>Pattern</tt> is <tt>${Parameter}</tt>, the <tt>Keys</tt> is <b>Plate</b>, the <tt>Values</tt> is <b>Dimension</b>, then the result will look like this:
 <pre>
 |Plate|height   |width    |
 +-----+---------+---------+
@@ -102,9 +100,6 @@ a:visited{
 |    2|      490|      960|
 </pre>
         If you change in the <i>Other Columns</i> tab, the <u>Keys</u> to <b>Dimension</b> and the <u>Values</u> to <b>Plate</b>, you will obtain the following table:
-
-
-        If you change the <tt>Keys</tt> and <tt>Values</tt> the result table:
 <pre>
 |Dimension|height   |width    |
 +---------+---------+---------+
@@ -115,8 +110,6 @@ a:visited{
 </pre>
 		If you elect <b>Plate</b> as <u>Pivot columns</u> and choose in the <i>Other Columns</i> tab <b>Parameter</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u> (assuming the domain of <b>Plate</b> 
 		was computed before, using the <a href="PLUGINS_ROOT/org.knime.base/html/nodes/Domain_Calculator.html">Domain Calculator</a> KNIME node) setting the <tt>Pattern</tt> to <tt>${Plate}</tt> will yield the following result:
-
-		If you change the position of <b>Parameter</b> and <b>Plate</b> (assuming the domain of <b>Plate</b> was computed before, <tt>Pattern</tt> changed to <tt>${Plate}</tt> ):
 <pre>
 |Parameter|1   |2   |
 +---------+----+----+
@@ -128,8 +121,6 @@ a:visited{
         Finally, you might want to pivot using the data in <b>Parameter</b>, rather than <b>Plate</b>. To do this, select <b>Plate</b> as <u>Pivot columns</u>, 
 		and choose in the <i>Other Columns</i> tab <b>Parameter</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u>
 		after what you should change the <tt>Pattern</tt> to: "<tt>${}_on_plate_${Plate}</tt>". Doing this will result in the following table:
-
-        You might want to order in this case by <b>Parameter</b>, not <b>Plate</b>. After that (and changing the <tt>Pattern</tt> to <tt>${} on plate ${Plate}</tt>) the result table:
 <pre>
 |Parameter|Dimension_on_plate_1|Dimension_on_plate_2|
 +---------+--------------------+--------------------+
@@ -160,15 +151,9 @@ a:visited{
 <dt>HiLite Strategy</dt>
 <dd>Support HiLite or not.</dd>
 <dt>Other Columns/Values</dt>
-<dd>
-        The values of these columns will be added as part of the newly created columns names in place of <tt>${}</tt>.
-        
-        The values of these columns will add a part to the new columns to the place of <tt>${}</tt>.</dd>
+<dd>The values of these columns will be added as part of the newly created columns names in place of <tt>${}</tt>.</dd>
 <dt>Other Columns/Keys</dt>
-<dd>
-        Data used for in the resulting cells.
-        
-        These will remain in the results.</dd>
+<dd>Data used for in the resulting cells.</dd>
 </dl>
 <h2>Ports</h2>
 <dl>
