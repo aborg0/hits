@@ -1,5 +1,5 @@
 #summary Describes the installation/update steps & troubleshooting
-#labels Featured
+#labels Featured,Phase-Deploy
 = Installation instructions =
 
 This page describes how to install/update the plugin to an existing KNIME installation.
@@ -12,7 +12,7 @@ This video shows the installation of KNIME, HCDC and HiTS (without the R, Rserve
 
 == Prerequisites ==
 
-You need an installed KNIME 2.0.x installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
+You need an installed KNIME 2.0.x (or above) installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
 If you are using an internet connection with proxy, you may want to set the appropriate preferences at File/Preferences.../_General_/_Network Connections_ tab. Please note you have to check *Enable proxy authentication* if you have to give user name and password for your proxy connection.
 
 You may want to look at this presentation if you are in trouble: [http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5 HiTS Start and Setup KNIME]
@@ -32,7 +32,7 @@ You should consider to increase the memory available to KNIME: edit knime.ini an
 You have to add a new update site to your KNIME installation. This should be: {{{http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/}}}
 You can set it in the Help/Software Updates.../Find and Install.../_Search for new features to install_ *Next*, *New Remote Site...* and you can set any name you remember for the _Name:_ field, and the {{{http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/}}} URL for the _URL:_ field.
 
-After you have set the update site, you can select it and click on *Finish*. (Here you may be promted to your proxy user and password.) After this you have to select every plugins from the found list. Accept the license. After every plugins are installed you selected, you will be asked to restart your KNIME. Please do that.
+After you have set the update site, you can select it and click on *Finish*. (Here you may be prompted to your proxy user and password.) After this you have to select every plugins from the found list. Accept the license. After every plugins are installed you selected, you will be asked to restart your KNIME. Please do that.
 
 Installation is complete. You can check if you see a HiTS group in your Node Repository, and some preferences in File/Preferences.../KNIME/HiTS Preferences
 
@@ -42,9 +42,9 @@ The possible options are:
  # update all nodes with compatible updates
  # update just the HiTS nodes
 
-For the first option go to Help/Software Updates.../Find and Install.../_Search for updates of the currently_ installed features, than click *Finish*. (Here you may be promted to your proxy user and password.) If you have selected service updates, you might have to select Help/Software Updates.../Find and Install.../_Search for new features to install_.
+For the first option go to Help/Software Updates.../Find and Install.../_Search for updates of the currently_ installed features, than click *Finish*. (Here you may be prompted to your proxy user and password.) If you have selected service updates, you might have to select Help/Software Updates.../Find and Install.../_Search for new features to install_.
 
-For the second option go to Help/Software Updates.../Find and Install.../_Search for new features to install_ *Next* and select the _HiTS_ site. Click on *Finish*. (Here you may be promted to your proxy user and password.) If there are updates you will have an option to select them. (If there are no updates you will get a message: _No updates to the currently installed feature(s) found, try again later._ And you do not have to do anything.) You have to accept the licenses. And install the features. When you are asked to restart your KNIME, please do that, by answering *Yes*.
+For the second option go to Help/Software Updates.../Find and Install.../_Search for new features to install_ *Next* and select the _HiTS_ site. Click on *Finish*. (Here you may be prompted to your proxy user and password.) If there are updates you will have an option to select them. (If there are no updates you will get a message: _No updates to the currently installed feature(s) found, try again later._ And you do not have to do anything.) You have to accept the licenses. And install the features. When you are asked to restart your KNIME, please do that, by answering *Yes*.
 
 = Troubleshooting =
 
