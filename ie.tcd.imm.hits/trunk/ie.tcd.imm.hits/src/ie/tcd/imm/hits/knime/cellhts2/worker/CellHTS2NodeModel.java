@@ -329,13 +329,27 @@ public class CellHTS2NodeModel extends NodeModel {
 		 */
 		original28OrCompat(false, false),
 		/** HiTS modified cellHTS2 after version {@code 2.8.0} */
-		modified28OrCompat(true, false);
+		modified28OrCompat(true, false),
+		/**
+		 * Original cellHTS2 without modifications, at least version {@code
+		 * 2.10.0}
+		 */
+		original210OrCompat(false, false, false),
+		/** HiTS modified cellHTS2 after version {@code 2.10.0} */
+		modified210OrCompat(true, false, false);
 
 		private final boolean modified, pre28;
+		private final boolean pre210;
 
 		private CellHTS2Version(final boolean modified, final boolean pre28) {
+			this(modified, pre28, true);
+		}
+
+		private CellHTS2Version(final boolean modified, final boolean pre28,
+				final boolean pre210) {
 			this.modified = modified;
 			this.pre28 = pre28;
+			this.pre210 = pre210;
 		}
 
 		public boolean isModified() {
@@ -346,6 +360,12 @@ public class CellHTS2NodeModel extends NodeModel {
 			return pre28;
 		}
 
+		/**
+		 * @return The pre210.
+		 */
+		public boolean isPre210() {
+			return pre210;
+		}
 	}
 
 	/**
@@ -400,8 +420,10 @@ public class CellHTS2NodeModel extends NodeModel {
 			CellHTS2Version version;
 			if (cellHTS2Version.matches("2\\.[46]\\.\\d*")) {
 				version = CellHTS2Version.originalPre28;
-			} else if (cellHTS2Version.matches("2\\.[8]\\.\\d*")) {
+			} else if (cellHTS2Version.matches("2\\.8\\.\\d*")) {
 				version = CellHTS2Version.original28OrCompat;
+			} else if (cellHTS2Version.matches("2\\.10\\.\\d*")) {
+				version = CellHTS2Version.original210OrCompat;
 			} else {
 				throw new IllegalStateException(
 						"This R installation has no supported cellHTS2 installed.");
@@ -479,6 +501,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			final String additionalParams;
 			switch (version) {
 			case modified28OrCompat:
+			case modified210OrCompat:
 				additionalParams = ", colOrder=c(" + createColOrderString()
 						+ ")";
 				break;
@@ -489,6 +512,7 @@ public class CellHTS2NodeModel extends NodeModel {
 				break;
 			case original28OrCompat:
 			case originalPre28:
+			case original210OrCompat:
 				additionalParams = "";
 				break;
 			default:
@@ -755,7 +779,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ (version.isPre28() ? "\""
 							+ tempFile.getAbsolutePath().replace('\\', '/')
 							+ "\"" : "NULL")
-					+ (version == CellHTS2Version.modified28OrCompat ? ", channels="
+					+ (version.isModified() && !version.isPre28() ? ", channels="
 							+ createChannelList(selectParameters(
 									parametersModel.getIncludeList(), version))
 							+ ", orderBy=\""
@@ -904,7 +928,8 @@ public class CellHTS2NodeModel extends NodeModel {
 								.getDefault().getBundle()).getBundleData())
 								.getBundleFile().getBaseFile(), "bin/r/");
 				final File rSpecDir = new File(rSourcesDir,
-						(version.isPre28() ? "2.7" : "2.8"));
+						(version.isPre28() ? "2.7" : version.isPre210() ? "2.8"
+								: "2.10"));
 				if (Boolean.parseBoolean(System.getProperty(PROPERTY_EXPERT))) {
 					RUtil.voidEval(conn, "setwd(\""
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
@@ -934,6 +959,8 @@ public class CellHTS2NodeModel extends NodeModel {
 					RUtil.voidEval(conn, "source(\"writeReport.R\")");
 					version = CellHTS2Version.modifiedPre28;
 					break;
+				case original210OrCompat:
+					RUtil.voidEval(conn, "source(\"settings.R\")");
 				case original28OrCompat:
 					RUtil.voidEval(conn, "library(\"prada\")");
 					RUtil.voidEval(conn, "source(\"summarizeReplicates.R\")\n");
@@ -957,7 +984,8 @@ public class CellHTS2NodeModel extends NodeModel {
 					RUtil.voidEval(conn, "source(\"screenScriptModule.R\")\n");
 					RUtil.voidEval(conn, "source(\"screenSummaryModule.R\")\n");
 					RUtil.voidEval(conn, "source(\"writeReport.R\")\n");
-					version = CellHTS2Version.modified28OrCompat;
+					version = version == CellHTS2Version.original210OrCompat ? CellHTS2Version.modified210OrCompat
+							: CellHTS2Version.modified28OrCompat;
 					break;
 				default:
 					throw new IllegalStateException("Not supported state.");
@@ -1134,12 +1162,14 @@ public class CellHTS2NodeModel extends NodeModel {
 			final CellHTS2Version version) {
 		switch (version) {
 		case modified28OrCompat:
+		case modified210OrCompat:
 			final List<String> ret = new ArrayList<String>(includeList);
 			Collections.sort(ret, String.CASE_INSENSITIVE_ORDER);
 			return ret;
 		case modifiedPre28:
 		case original28OrCompat:
 		case originalPre28:
+		case original210OrCompat:
 			return includeList;
 
 		default:
@@ -1341,6 +1371,8 @@ public class CellHTS2NodeModel extends NodeModel {
 							switch (version) {
 							case modified28OrCompat:
 							case original28OrCompat:
+							case original210OrCompat:
+							case modified210OrCompat:
 								writer
 										.write(String
 												.format(
@@ -1360,6 +1392,9 @@ public class CellHTS2NodeModel extends NodeModel {
 														Integer.valueOf(r),
 														Integer.valueOf(ch)));
 								break;
+							default:
+								throw new UnsupportedOperationException(
+										"Not supported cellHTS2 version");
 							}
 						}
 					}
@@ -1858,6 +1893,8 @@ public class CellHTS2NodeModel extends NodeModel {
 				switch (version) {
 				case modified28OrCompat:
 				case original28OrCompat:
+				case modified210OrCompat:
+				case original210OrCompat:
 					channels.append("\"").append(parameters.get(i - 1));
 					break;
 				case modifiedPre28:
@@ -1999,7 +2036,10 @@ public class CellHTS2NodeModel extends NodeModel {
 					+ "   assayData = adata,\n"
 					+ "   phenoData = pdata,\n"
 					+ "   featureData = fdata,\n"
-					+ "   plateList = cbind(Filename, status=I(status), data.frame(Plate=pd[,1], Replicate=pd[,2], Channel=pd[,3])),\n"
+					+ "   plateList = cbind(Filename, "
+					+ (version.isPre210() ? "status=I(status)"
+							: "Status=I(status)")
+					+ ", data.frame(Plate=pd[,1], Replicate=pd[,2], Channel=pd[,3])),\n"
 					+ "   intensityFiles=intensityFiles)\n";
 			CellHTS2NodeModel.logger.debug(createXCommand);
 			RUtil.voidEval(conn, createXCommand);

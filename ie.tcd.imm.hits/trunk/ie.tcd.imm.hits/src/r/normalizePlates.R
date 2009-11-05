@@ -69,7 +69,15 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
     oldRawData <- Data(object)
     if(log)
     {
-        Data(object) <- log2(oldRawData)
+        Data(object) <- suppressWarnings(log2(oldRawData))
+        if(any(oldRawData[!is.na(oldRawData)]==0))
+            warning("Data contains 0 values.\n",
+                    "Log transformation for those values resulted in -Inf",
+                    call.=FALSE)
+        if(min(oldRawData, na.rm=TRUE)<0)
+            warning("Data contains negative values.\n",
+                    "Log transformation for those values resulted in NA",
+                    call.=FALSE) 
         scale <- "additive"
     }
     
