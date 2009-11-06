@@ -350,7 +350,7 @@ Index: src/loci/tests/testng/osgi/package-info.java
 +import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 Index: .classpath
 ===================================================================
---- .classpath	(revision 5590)
+--- .classpath	(revision 5650)
 +++ .classpath	(working copy)
 @@ -2,9 +2,12 @@
  <classpath>
@@ -367,7 +367,7 @@ Index: .classpath
  </classpath>
 Index: .settings/org.eclipse.jdt.core.prefs
 ===================================================================
---- .settings/org.eclipse.jdt.core.prefs	(revision 5590)
+--- .settings/org.eclipse.jdt.core.prefs	(revision 5650)
 +++ .settings/org.eclipse.jdt.core.prefs	(working copy)
 @@ -1,4 +1,4 @@
 -#Wed Oct 01 16:21:38 CDT 2008

@@ -1,51 +1,6 @@
-Index: src/loci/formats/gui/GUITools.java
-===================================================================
---- src/loci/formats/gui/GUITools.java	(revision 5585)
-+++ src/loci/formats/gui/GUITools.java	(working copy)
-@@ -79,8 +79,8 @@
-     if (handler instanceof ImageReader) {
-       ImageReader imageReader = (ImageReader) handler;
-       IFormatReader[] readers = imageReader.getReaders();
--      Vector filterList = new Vector();
--      Vector comboList = new Vector();
-+      Vector<FileFilter> filterList = new Vector<FileFilter>();
-+      Vector<FileFilter> comboList = new Vector<FileFilter>();
-       for (int i=0; i<readers.length; i++) {
-         filterList.add(new FormatFileFilter(readers[i]));
-         // NB: Some readers need to open a file to determine if it is the
-@@ -102,7 +102,7 @@
-     }
-     else if (handler instanceof ImageWriter) {
-       IFormatWriter[] writers = ((ImageWriter) handler).getWriters();
--      Vector filterList = new Vector();
-+      Vector<FileFilter> filterList = new Vector<FileFilter>();
-       for (int i=0; i<writers.length; i++) {
-         String[] suffixes = writers[i].getSuffixes();
-         String format = writers[i].getFormat();
-@@ -220,7 +220,7 @@
-    * Sorts the given list of file filters, keeping the "All supported
-    * file types" combo filter (if any) at the front of the list.
-    */
--  private static FileFilter[] sortFilters(Vector filterList) {
-+  private static FileFilter[] sortFilters(Vector<FileFilter> filterList) {
-     FileFilter[] filters = ComboFileFilter.sortFilters(filterList);
-     shuffleAllTypesToFront(filters);
-     return filters;
-Index: src/loci/formats/tiff/IFDList.java
-===================================================================
---- src/loci/formats/tiff/IFDList.java	(revision 5585)
-+++ src/loci/formats/tiff/IFDList.java	(working copy)
-@@ -34,4 +34,6 @@
-  *
-  * @author Curtis Rueden ctrueden at wisc.edu
-  */
--public class IFDList extends ArrayList<IFD> { }
-+public class IFDList extends ArrayList<IFD> {
-+  private static final long serialVersionUID = -113738094423984626L;
-+}
 Index: src/loci/formats/in/MinimalTiffReader.java
 ===================================================================
---- src/loci/formats/in/MinimalTiffReader.java	(revision 5585)
+--- src/loci/formats/in/MinimalTiffReader.java	(revision 5674)
 +++ src/loci/formats/in/MinimalTiffReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats.in;
@@ -73,7 +28,7 @@ Index: src/loci/formats/in/MinimalTiffReader.java
  
    private int lastPlane;
  
-@@ -268,4 +271,18 @@
+@@ -280,4 +283,18 @@
      core[0].dimensionOrder = "XYCZT";
    }
  
@@ -94,7 +49,7 @@ Index: src/loci/formats/in/MinimalTiffReader.java
  }
 Index: src/loci/formats/in/InCellReader.java
 ===================================================================
---- src/loci/formats/in/InCellReader.java	(revision 5585)
+--- src/loci/formats/in/InCellReader.java	(revision 5674)
 +++ src/loci/formats/in/InCellReader.java	(working copy)
 @@ -24,7 +24,10 @@
  package loci.formats.in;
@@ -115,7 +70,7 @@ Index: src/loci/formats/in/InCellReader.java
  
    public static final String INCELL_MAGIC_STRING = "IN Cell Analyzer 1000";
  
-@@ -548,7 +552,16 @@
+@@ -565,7 +569,16 @@
  
    // -- Helper classes --
  
@@ -133,7 +88,7 @@ Index: src/loci/formats/in/InCellReader.java
      private String currentImageFile;
      private String currentThumbnail;
      private int wellRow, wellCol;
-@@ -872,8 +885,10 @@
+@@ -889,8 +902,10 @@
      }
    }
  
@@ -145,31 +100,10 @@ Index: src/loci/formats/in/InCellReader.java
 +	public String filename;
      public String thumbnailFile;
      public boolean isTiff;
-     public Float deltaT, exposure;
-Index: src/loci/formats/IFormatHandler.java
-===================================================================
---- src/loci/formats/IFormatHandler.java	(revision 5585)
-+++ src/loci/formats/IFormatHandler.java	(working copy)
-@@ -24,6 +24,7 @@
- package loci.formats;
- 
- import java.io.IOException;
-+import java.io.Serializable;
- 
- /**
-  * Interface for all biological file format readers and writers.
-@@ -32,7 +33,7 @@
-  * <dd><a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">Trac</a>,
-  * <a href="https://skyking.microscopy.wisc.edu/svn/java/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">SVN</a></dd></dl>
-  */
--public interface IFormatHandler extends StatusReporter {
-+public interface IFormatHandler extends StatusReporter, Serializable {
- 
-   /** Checks if the given string is a valid filename for this file format. */
-   boolean isThisType(String name);
+     public Double deltaT, exposure;
 Index: src/loci/formats/FormatReader.java
 ===================================================================
---- src/loci/formats/FormatReader.java	(revision 5585)
+--- src/loci/formats/FormatReader.java	(revision 5674)
 +++ src/loci/formats/FormatReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats;
@@ -228,16 +162,7 @@ Index: src/loci/formats/FormatReader.java
      if (key == null || value == null || !collectMetadata) return;
  
      key = key.trim();
-@@ -609,7 +612,7 @@
-     int width, int heigeht) throws FormatException, IOException;
- 
-   /* @see IFormatReader#getNativeDataType() */
--  public Class getNativeDataType() {
-+  public Class<byte[]> getNativeDataType() {
-     // NB: Readers use byte arrays by default as the native type.
-     return byte[].class;
-   }
-@@ -799,21 +802,21 @@
+@@ -788,21 +791,21 @@
    }
  
    /* @see IFormatReader#getGlobalMetadata() */
@@ -263,7 +188,7 @@ Index: src/loci/formats/FormatReader.java
      int oldSeries = getSeries();
  
      IMetadata meta = getMetadataStore() instanceof IMetadata ?
-@@ -828,7 +831,7 @@
+@@ -817,7 +820,7 @@
          }
        }
        setSeries(series);
@@ -272,7 +197,7 @@ Index: src/loci/formats/FormatReader.java
        Object[] keys = seriesMetadata.keySet().toArray();
        for (Object key : keys) {
          h.put(name + " " + key, seriesMetadata.get(key));
-@@ -912,4 +915,16 @@
+@@ -906,4 +909,16 @@
      close(false);
    }
  
@@ -289,9 +214,75 @@ Index: src/loci/formats/FormatReader.java
 +	metadataStore = new DummyMetadata();
 +  }
  }
+Index: src/loci/formats/gui/GUITools.java
+===================================================================
+--- src/loci/formats/gui/GUITools.java	(revision 5674)
++++ src/loci/formats/gui/GUITools.java	(working copy)
+@@ -79,8 +79,8 @@
+     if (handler instanceof ImageReader) {
+       ImageReader imageReader = (ImageReader) handler;
+       IFormatReader[] readers = imageReader.getReaders();
+-      Vector filterList = new Vector();
+-      Vector comboList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
++      Vector<FileFilter> comboList = new Vector<FileFilter>();
+       for (int i=0; i<readers.length; i++) {
+         filterList.add(new FormatFileFilter(readers[i]));
+         // NB: Some readers need to open a file to determine if it is the
+@@ -102,7 +102,7 @@
+     }
+     else if (handler instanceof ImageWriter) {
+       IFormatWriter[] writers = ((ImageWriter) handler).getWriters();
+-      Vector filterList = new Vector();
++      Vector<FileFilter> filterList = new Vector<FileFilter>();
+       for (int i=0; i<writers.length; i++) {
+         String[] suffixes = writers[i].getSuffixes();
+         String format = writers[i].getFormat();
+@@ -220,7 +220,7 @@
+    * Sorts the given list of file filters, keeping the "All supported
+    * file types" combo filter (if any) at the front of the list.
+    */
+-  private static FileFilter[] sortFilters(Vector filterList) {
++  private static FileFilter[] sortFilters(Vector<FileFilter> filterList) {
+     FileFilter[] filters = ComboFileFilter.sortFilters(filterList);
+     shuffleAllTypesToFront(filters);
+     return filters;
+Index: src/loci/formats/tiff/IFDList.java
+===================================================================
+--- src/loci/formats/tiff/IFDList.java	(revision 5674)
++++ src/loci/formats/tiff/IFDList.java	(working copy)
+@@ -34,4 +34,6 @@
+  *
+  * @author Curtis Rueden ctrueden at wisc.edu
+  */
+-public class IFDList extends ArrayList<IFD> { }
++public class IFDList extends ArrayList<IFD> {
++  private static final long serialVersionUID = -113738094423984626L;
++}
+Index: src/loci/formats/IFormatHandler.java
+===================================================================
+--- src/loci/formats/IFormatHandler.java	(revision 5674)
++++ src/loci/formats/IFormatHandler.java	(working copy)
+@@ -24,6 +24,7 @@
+ package loci.formats;
+ 
+ import java.io.IOException;
++import java.io.Serializable;
+ 
+ /**
+  * Interface for all biological file format readers and writers.
+@@ -32,7 +33,7 @@
+  * <dd><a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">Trac</a>,
+  * <a href="https://skyking.microscopy.wisc.edu/svn/java/trunk/components/bio-formats/src/loci/formats/IFormatHandler.java">SVN</a></dd></dl>
+  */
+-public interface IFormatHandler extends StatusReporter {
++public interface IFormatHandler extends StatusReporter, Serializable {
+ 
+   /** Checks if the given string is a valid filename for this file format. */
+   boolean isThisType(String name);
 Index: src/loci/formats/CoreMetadata.java
 ===================================================================
---- src/loci/formats/CoreMetadata.java	(revision 5585)
+--- src/loci/formats/CoreMetadata.java	(revision 5674)
 +++ src/loci/formats/CoreMetadata.java	(working copy)
 @@ -23,6 +23,7 @@
  
@@ -335,7 +326,7 @@ Index: src/loci/formats/CoreMetadata.java
  }
 Index: src/loci/formats/FormatHandler.java
 ===================================================================
---- src/loci/formats/FormatHandler.java	(revision 5585)
+--- src/loci/formats/FormatHandler.java	(revision 5674)
 +++ src/loci/formats/FormatHandler.java	(working copy)
 @@ -23,6 +23,9 @@
  
@@ -382,6 +373,6 @@ Index: src/loci/formats/FormatHandler.java
 +	statusListeners = new Vector<StatusListener>();
 +  }
 +
-   // -- StatusReporter API methods --
- 
-   /* @see StatusReporter#addStatusListener(StatusListener) */
+   /* @see IFormatHandler#getNativeDataType() */
+   public Class getNativeDataType() {
+     // NB: Handlers use byte arrays by default as the native type.
