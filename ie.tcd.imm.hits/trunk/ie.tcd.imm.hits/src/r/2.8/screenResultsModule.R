@@ -7,8 +7,9 @@ writeHtml.screenResults <- function(cellHTSList, file="topTable.txt", verbose=in
          out <- getTopTable(cellHTSList, file=file, verbose=verbose, channels=channels, colOrder=colOrder)
          keep <- grep("^plate$|^well$|^score$|^wellAnno$|^finalWellAnno$|raw_|normalized_|GeneID|GeneSymbol",
                       colnames(out))
-         sel <- !(is.na(out$score))
-         out <- out[sel,keep]
+#         sel <- !(is.na(out$score))
+#         out <- out[sel,keep]
+         out <- out[,keep]
          rownames(out) <- NULL
          writeHtml.header(con)
          writeLines(sprintf(paste("<div class=\"download\"%s><a href=\"%s\" target=\"_new\"><img",

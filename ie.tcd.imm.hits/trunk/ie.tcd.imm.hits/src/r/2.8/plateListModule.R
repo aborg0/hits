@@ -407,7 +407,7 @@ QMbyPlate <- function(platedat, pdim, name, channelNames, basePath, subPath, gen
                 { ## if length pos
                     ## replace possible wells annotated as "pos" by NA, because they shouldn't
                     ## be considered as a positive control for this channel:
-                    if (any(mtt[[ch]] %in% iwells[["pos"]])) {
+                    if (any(mtt[[ch]] %in% iwells[["pos"]]) && nrChannel>1) {
                         mtrep[mtt[[ch]] %in% iwells[["pos"]],] <- NA
                         mtt[[ch]][mtt[[ch]] %in% iwells[["pos"]]] <- NA 
                     } ## if any
@@ -425,7 +425,7 @@ QMbyPlate <- function(platedat, pdim, name, channelNames, basePath, subPath, gen
                 }
                 else
                 {## if length act
-                    if (any(mtt[[ch]] %in% iwells[["act"]]))
+                    if (any(mtt[[ch]] %in% iwells[["act"]]) && nrChannel>1)
                     {
                         mtrep[mtt[[ch]] %in% iwells[["act"]],] <- NA
                         mtt[[ch]][mtt[[ch]] %in% iwells[["act"]]] <- NA 
@@ -437,7 +437,7 @@ QMbyPlate <- function(platedat, pdim, name, channelNames, basePath, subPath, gen
                 }
                 else
                 {## if length inh
-                    if (any(mtt[[ch]] %in% iwells[["inh"]]))
+                    if (any(mtt[[ch]] %in% iwells[["inh"]]) && nrChannel>1)
                     {
                         mtrep[mtt[[ch]] %in% iwells[["inh"]],] <- NA
                         mtt[[ch]][mtt[[ch]] %in% iwells[["inh"]]] <- NA 
