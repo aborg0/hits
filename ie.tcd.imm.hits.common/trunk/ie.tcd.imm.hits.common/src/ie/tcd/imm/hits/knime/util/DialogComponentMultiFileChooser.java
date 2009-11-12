@@ -4,6 +4,8 @@
 package ie.tcd.imm.hits.knime.util;
 
 import ie.tcd.imm.hits.util.FilenameFilterWrapper;
+import ie.tcd.imm.hits.util.file.ListContents;
+import ie.tcd.imm.hits.util.file.OpenStream;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -13,10 +15,17 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Arrays;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -29,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -67,6 +77,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 
 	private final TitledBorder border = new TitledBorder("");
 
+	private ListContents contentsLister = new ListContents();
+
 	/**
 	 * @param model
 	 *            The {@link SettingsModelStringArray model} holding the full
@@ -86,6 +98,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			final String historyId, @Nonnegative final int visibleRowCount,
 			final String... validExtensions) {
 		super(model);
+		dirNameComboBox.setEditable(true);
 		stringHistory = StringHistory.getInstance(historyId);
 		final HashSet<String> extensions = new HashSet<String>(
 				validExtensions == null ? 1 : validExtensions.length * 2);
@@ -201,16 +214,48 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	void updateList(final String newDir) {
 		fileNameModel.clear();
 		if (newDir != null) {
-			final File dir = new File(newDir);
-			final File[] files = dir.listFiles(possibleExtensions);
-			if (files != null) {
-				Arrays.sort(files);
-				for (final File file : files) {
-					fileNameModel.addElement(file.getName());
-				}
+			try {
+				final Future<Map<String, URI>> contents = contentsLister
+						.asyncFindContents(OpenStream.convertURI(newDir), 2);
+				final List<String> newContents = new ArrayList<String>();
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run()/* => */{
+						try {
+							for (final Entry<String, URI> entry : contents
+									.get().entrySet()) {
+								if (possibleExtensions.accept(null, entry
+										.getValue().toString())) {
+									newContents.add(entry.getKey());
+								}
+							}
+						} catch (final InterruptedException e) {
+							getComponentPanel().revalidate();
+							return;
+						} catch (final ExecutionException e) {
+							logger.debug(e.getMessage(), e);
+							getComponentPanel().revalidate();
+							return;
+						}
+						Collections.sort(newContents);
+						for (final String string : newContents) {
+							fileNameModel.addElement(string);
+						}
+						getComponentPanel().revalidate();
+					}
+				});
+			} catch (final Exception e) {
+				// do nothing.
 			}
+			// final File dir = new File(newDir);
+			// final File[] files = dir.listFiles(possibleExtensions);
+			// if (files != null) {
+			// Arrays.sort(files);
+			// for (final File file : files) {
+			// fileNameModel.addElement(file.getName());
+			// }
+			// }
 		}
-		getComponentPanel().revalidate();
 	}
 
 	/*

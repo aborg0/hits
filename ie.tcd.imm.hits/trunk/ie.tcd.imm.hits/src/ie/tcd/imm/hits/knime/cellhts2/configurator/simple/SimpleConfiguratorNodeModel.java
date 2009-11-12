@@ -4,12 +4,17 @@
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
 import ie.tcd.imm.hits.common.PublicConstants;
+import ie.tcd.imm.hits.util.file.OpenStream;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -132,98 +137,131 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 	@SuppressWarnings("NP")
 	private void readPlateConf(final BufferedDataContainer plateConfContainer)
 			throws FileNotFoundException, IOException {
-		final File plateConfFile = new File(plateConfModel.getStringValue());
-		final FileReader reader = new FileReader(plateConfFile);
+		final InputStream stream;
 		try {
-			final BufferedReader br = new BufferedReader(reader);
+			stream = OpenStream.open(new URI(plateConfModel.getStringValue()));
+		} catch (final URISyntaxException e1) {
+			throw new IOException("Wrong plate configuration file: "
+					+ plateConfModel.getStringValue());
+		}
+		try {
+			// final File plateConfFile = new
+			// File(plateConfModel.getStringValue());
+			final Reader reader = new InputStreamReader(stream);
 			try {
-				int i = 0;
-				String line;
-				final int plateCount;
+				final BufferedReader br = new BufferedReader(reader);
 				try {
-					final int wellCount = Integer.parseInt(br.readLine()
-							.replace("Wells:", "").trim());
-					assert wellCount == 96 || wellCount == 384;
-					plateCount = Integer.parseInt(br.readLine().replace(
-							"Plates:", "").trim());
-				} catch (final RuntimeException e) {
-					throw new IllegalStateException(
-							"Missing, or wrong prolog (like:\nWells: 96\nPlates: 1\n)");
-				}
-				try {
-					if (!br.readLine().trim().equalsIgnoreCase(
-							"Plate\tWell\tContent")) {
+					int i = 0;
+					String line;
+					final int plateCount;
+					try {
+						final int wellCount = Integer.parseInt(br.readLine()
+								.replace("Wells:", "").trim());
+						assert wellCount == 96 || wellCount == 384;
+						plateCount = Integer.parseInt(br.readLine().replace(
+								"Plates:", "").trim());
+					} catch (final RuntimeException e) {
 						throw new IllegalStateException(
-								"Missing header!\nPlate\tWell\tContent");
+								"Missing, or wrong prolog (like:\nWells: 96\nPlates: 1\n)");
 					}
-				} catch (final NullPointerException e) {
-					throw new IllegalStateException(
-							"Missing header, unexpected end of file:\nPlate\tWell\tContent");
-				}
-				while ((line = br.readLine()) != null) {
-					final String[] parts = line.split("\t");
-					if (!parts[0].trim().equals("*")) {
-						final int plate = Integer.parseInt(parts[0]);
-						if (plate > plateCount) {
-							throw new IllegalArgumentException(
-									"Wrong plate count in line:\n" + line
-											+ "\n" + ++i);
+					try {
+						if (!br.readLine().trim().equalsIgnoreCase(
+								"Plate\tWell\tContent")) {
+							throw new IllegalStateException(
+									"Missing header!\nPlate\tWell\tContent");
 						}
+					} catch (final NullPointerException e) {
+						throw new IllegalStateException(
+								"Missing header, unexpected end of file:\nPlate\tWell\tContent");
 					}
-					final String well = parts[1];
-					plateConfContainer.addRowToTable(new DefaultRow(new RowKey(
-							String.valueOf(++i)), new StringCell(parts[0]),
-							new StringCell(well), new StringCell(parts[2])));
+					while ((line = br.readLine()) != null) {
+						final String[] parts = line.split("\t");
+						if (!parts[0].trim().equals("*")) {
+							final int plate = Integer.parseInt(parts[0]);
+							if (plate > plateCount) {
+								throw new IllegalArgumentException(
+										"Wrong plate count in line:\n" + line
+												+ "\n" + ++i);
+							}
+						}
+						final String well = parts[1];
+						plateConfContainer.addRowToTable(new DefaultRow(
+								new RowKey(String.valueOf(++i)),
+								new StringCell(parts[0]), new StringCell(well),
+								new StringCell(parts[2])));
+					}
+				} finally {
+					br.close();
 				}
 			} finally {
-				br.close();
+				reader.close();
 			}
 		} finally {
-			reader.close();
+			stream.close();
 		}
 	}
 
 	private void readDescription(final BufferedDataContainer descConfContainer)
 			throws FileNotFoundException, IOException {
-		final File descConfFile = new File(descriptionFileModel
-				.getStringValue());
-		final FileReader reader = new FileReader(descConfFile);
+		final InputStream stream;
 		try {
-			final BufferedReader br = new BufferedReader(reader);
+			stream = OpenStream.open(new URI(descriptionFileModel
+					.getStringValue()));
+		} catch (final URISyntaxException e1) {
+			throw new IOException("Wrong plate configuration file: "
+					+ descriptionFileModel.getStringValue());
+		}
+		try {
+			// final File descConfFile = new File(descriptionFileModel
+			// .getStringValue());
+			final Reader reader = new InputStreamReader(stream);
 			try {
-				int i = 0;
-				String currentGroup = null;
-				String line;
-				while ((line = br.readLine()) != null) {
-					++i;
-					if (line.trim().length() == 0) {
-						continue;
-					}
-					if (line.charAt(0) == '['
-							&& line.charAt(line.length() - 1) == ']') {
-						currentGroup = line.substring(1, line.length() - 1);
-					} else {
-						final int splitPoint = line.indexOf(':');
-						if (splitPoint == -1) {
-							throw new IllegalStateException("Wrong line:\n"
-									+ line + "\n   in line: " + i + " of "
-									+ descConfFile.getAbsolutePath());
+				final BufferedReader br = new BufferedReader(reader);
+				try {
+					int i = 0;
+					String currentGroup = null;
+					String line;
+					while ((line = br.readLine()) != null) {
+						++i;
+						if (line.trim().length() == 0) {
+							continue;
 						}
-						descConfContainer
-								.addRowToTable(new DefaultRow(new RowKey(String
-										.valueOf(i)), new StringCell(
-										currentGroup == null ? ""
-												: currentGroup),
-										new StringCell(line.substring(0,
-												splitPoint)), new StringCell(
-												line.substring(splitPoint + 1))));
+						if (line.charAt(0) == '['
+								&& line.charAt(line.length() - 1) == ']') {
+							currentGroup = line.substring(1, line.length() - 1);
+						} else {
+							final int splitPoint = line.indexOf(':');
+							if (splitPoint == -1) {
+								URI uri = null;
+								try {
+									uri = OpenStream
+											.convertURI(descriptionFileModel
+													.getStringValue());
+								} catch (final URISyntaxException e) {
+									// Do not care, just error message.
+								}
+								throw new IllegalStateException("Wrong line:\n"
+										+ line + "\n   in line: " + i + " of "
+										+ descriptionFileModel.getStringValue()
+										+ "(" + uri + ")");
+							}
+							descConfContainer.addRowToTable(new DefaultRow(
+									new RowKey(String.valueOf(i)),
+									new StringCell(currentGroup == null ? ""
+											: currentGroup), new StringCell(
+											line.substring(0, splitPoint)),
+									new StringCell(line
+											.substring(splitPoint + 1))));
+						}
 					}
+				} finally {
+					br.close();
 				}
 			} finally {
-				br.close();
+				reader.close();
 			}
 		} finally {
-			reader.close();
+			stream.close();
 		}
 	}
 

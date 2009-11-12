@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.util.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -37,6 +38,16 @@ public class OpenStream {
 	/**  */
 	static final NodeLogger logger = NodeLogger.getLogger(OpenStream.class);
 	static final String CORE_NET_BUNDLE = "org.eclipse.core.net";
+	static final Set<String> supportedArchiveContentTypes = new TreeSet<String>(
+			String.CASE_INSENSITIVE_ORDER);
+	static {
+		supportedArchiveContentTypes.add("application/java-archive");
+		supportedArchiveContentTypes.add("application/x-jar");
+		supportedArchiveContentTypes.add("application/x-java-jar");
+		supportedArchiveContentTypes.add("application/zip");
+		supportedArchiveContentTypes.add("application/gzip");
+		supportedArchiveContentTypes.add("application/x-gzip");
+	}
 
 	/**
 	 * Opens a stream uncompressed if the content inside a zip, and the URI
@@ -134,7 +145,7 @@ public class OpenStream {
 	static URLConnection openConnection(final URI root,
 			final IProxyData proxyDataForHost, final Proxy proxy)
 			throws IOException {
-		final URL url = root.toURL();
+		final URL url = convertURI(root).toURL();
 		return openConnection(url, proxyDataForHost, proxy);
 	}
 
@@ -165,7 +176,26 @@ public class OpenStream {
 		return connection;
 	}
 
-	static final Set<String> supportedArchiveContentTypes = new TreeSet<String>(
-			String.CASE_INSENSITIVE_ORDER);
+	/**
+	 * @param uri
+	 * @return
+	 * @throws URISyntaxException
+	 */
+	public static URI convertURI(final String uri) throws URISyntaxException {
+		final URI root = new URI(uri.replace('\\', '/'));
+		return convertURI(root);
+	}
+
+	/**
+	 * @param root
+	 * @return
+	 */
+	public static URI convertURI(URI root) {
+		if (root.getScheme() == null || // Windows drive letter
+				root.getScheme().length() == 1) {
+			root = new File(root.toString()).toURI();
+		}
+		return root;
+	}
 
 }

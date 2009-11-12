@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.net.Proxy.Type;
 import java.util.ArrayList;
@@ -23,6 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -44,23 +50,17 @@ public class ListContents {
 			.compile("href\\s*=\\s*[\"']([^\"']+)[\"']");
 	private static final Set<String> supportedContentTypes = new TreeSet<String>(
 			String.CASE_INSENSITIVE_ORDER);
+	private ExecutorService executorService;
 	static {
 		supportedContentTypes.add("text/html");
 		supportedContentTypes.add("application/xhtml+xml");
-	}
-	static {
-		supportedContentTypes.add("application/java-archive");
-		supportedContentTypes.add("application/x-jar");
-		supportedContentTypes.add("application/x-java-jar");
-		supportedContentTypes.add("application/zip");
-		supportedContentTypes.add("application/gzip");
-		supportedContentTypes.add("application/x-gzip");
 	}
 
 	public static Map<String, URI> findContents(final URI root,
 			final int maxDepth) throws IOException {
 		final Map<String, URI> ret = new HashMap<String, URI>();
-		findContents(root, root, new HashSet<URI>(), ret, maxDepth);
+		final URI orig = OpenStream.convertURI(root);
+		findContents(orig, orig, new HashSet<URI>(), ret, maxDepth);
 		return ret;
 	}
 
@@ -74,7 +74,7 @@ public class ListContents {
 			final File[] listFiles = new File(root).listFiles();
 			if (listFiles != null) {
 				for (final File file : listFiles) {
-					results.put(file.toURI().relativize(origRoot).toString(),
+					results.put(origRoot.relativize(file.toURI()).toString(),
 							file.toURI());
 					visited.add(file.toURI());
 					findContents(origRoot, file.toURI(), visited, results,
@@ -89,8 +89,15 @@ public class ListContents {
 					try {
 						final ZipInputStream stream = new ZipInputStream(fis);
 						try {
-							findContentsZip(origRoot, root, stream, visited,
-									results, maxDepth - 1);
+							URI rootWithSlash;
+							try {
+								rootWithSlash = new URI(root.toString() + "/");
+								findContentsZip(origRoot, rootWithSlash,
+										stream, visited, results, maxDepth - 1);
+							} catch (final URISyntaxException e) {
+								findContentsZip(origRoot, root, stream,
+										visited, results, maxDepth - 1);
+							}
 						} finally {
 							stream.close();
 						}
@@ -129,15 +136,21 @@ public class ListContents {
 			final IProxyData proxyDataForHost, final Proxy proxy,
 			final Set<URI> visited, final Map<String, URI> results,
 			final int maxDepth) {
+		visited.add(root);
 		URLConnection connection;
 		try {
-			connection = OpenStream.openConnection(root, proxyDataForHost, proxy);
+			connection = OpenStream.openConnection(root, proxyDataForHost,
+					proxy);
 		} catch (final IOException e1) {
 			logger.debug("Unable to open connection: " + root, e1);
 			return;
 		}
-		if (connection.getContentType() != null
-				&& !supportedContentTypes.contains(connection.getContentType())) {
+		String contentType = connection.getContentType() == null ? ""
+				: connection.getContentType();
+		if (contentType.contains(";")) {
+			contentType = contentType.substring(0, contentType.indexOf(';'));
+		}
+		if (supportedContentTypes.contains(contentType)) {
 			final String streamToString;
 			try {
 				final InputStream inputStream = connection.getInputStream();
@@ -165,8 +178,8 @@ public class ListContents {
 						continue;
 					}
 					if (resolve.toString().startsWith(origRoot.toString())) {
-						// results.put(origRoot.relativize(resolve).toString(),
-						// resolve);
+						results.put(origRoot.relativize(resolve).toString(),
+								resolve);
 						findContentsHttp(origRoot, resolve, proxyDataForHost,
 								proxy, visited, results, maxDepth - 1);
 					}
@@ -175,14 +188,12 @@ public class ListContents {
 					logger.debug("root: " + root + "URI: " + possURI, e);
 				}
 			}
-		} else if (connection.getContentType() != null
-				&& OpenStream.supportedArchiveContentTypes.contains(connection
-						.getContentType())) {
+		} else if (OpenStream.supportedArchiveContentTypes
+				.contains(contentType)) {
 			try {
 				final InputStream inputStream = connection.getInputStream();
 				try {
-					if (connection.getContentType().toLowerCase().contains(
-							"gzip")) {
+					if (contentType.toLowerCase().contains("gzip")) {
 						// findContentsGzip(root.relativize(origRoot),
 						// inputStream, visited, results, maxDepth);
 					} else {
@@ -190,7 +201,7 @@ public class ListContents {
 								inputStream);
 						try {
 							findContentsZip(origRoot,
-									root.relativize(origRoot), stream, visited,
+									origRoot.relativize(root), stream, visited,
 									results, maxDepth);
 						} finally {
 							stream.close();
@@ -210,11 +221,16 @@ public class ListContents {
 				results.put(rel.toString(), root);
 			}
 		} else {
-			if (connection.getContentType() == null) {
+			if (contentType.isEmpty()) {
 				logger.debug("Unknown content, skipped: " + root);
+			} else {
+				if (root.resolve(origRoot).toString().startsWith(
+						origRoot.toString())) {
+					final URI rel = origRoot.relativize(root);
+					results.put(rel.toString(), root);
+				}
 			}
 		}
-		visited.add(root);
 	}
 
 	/**
@@ -233,8 +249,16 @@ public class ListContents {
 			throws IOException {
 		ZipEntry nextEntry;
 		while ((nextEntry = inputStream.getNextEntry()) != null) {
-			final URI resolved = root.resolve("/" + nextEntry.getName());
-			results.put(resolved.relativize(origRoot).toString(), resolved);
+			try {
+				final URI resolved = root.resolve("./" + nextEntry.getName());
+				final String key = // root + nextEntry.getName();//
+				// resolved.relativize(origRoot).toString();
+				origRoot.relativize(resolved).toString();
+				results.put(key, resolved);
+			} catch (final IllegalArgumentException e) {
+				// skipping
+				logger.debug("wrong path: " + nextEntry.getName(), e);
+			}
 		}
 	}
 
@@ -262,5 +286,36 @@ public class ListContents {
 		} finally {
 			in.close();
 		}
+	}
+
+	public ListContents() {
+		super();
+		createNewExecutor();
+	}
+
+	/**
+	 * 
+	 */
+	private void createNewExecutor() {
+		executorService = Executors.newSingleThreadExecutor();
+	}
+
+	public Future<Map<String, URI>> asyncFindContents(final URI root,
+			final int maxDepth) {
+		try {
+			if (!executorService.awaitTermination(20, TimeUnit.MILLISECONDS)) {
+				executorService.shutdownNow();
+				createNewExecutor();
+			}
+		} catch (final InterruptedException e) {
+			createNewExecutor();
+		}
+		final Callable<Map<String, URI>> task = new Callable<Map<String, URI>>() {
+			@Override
+			public Map<String, URI> call() throws IOException {
+				return findContents(root, maxDepth);
+			}
+		};
+		return executorService.submit(task);
 	}
 }
