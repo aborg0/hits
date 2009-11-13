@@ -3,6 +3,9 @@
  */
 package ie.tcd.imm.hits.knime.biomart;
 
+import ie.tcd.imm.hits.util.RUtil;
+import ie.tcd.imm.hits.util.file.OpenStream;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,16 +14,28 @@ import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponent;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentMultiLineString;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
+import org.knime.core.node.defaultnodesettings.DialogComponentPasswordField;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+import org.knime.core.node.defaultnodesettings.UpdatableComponent;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPFactor;
 import org.rosuda.REngine.REXPGenericVector;
+import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
@@ -38,8 +53,10 @@ import org.rosuda.REngine.Rserve.RserveException;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
+	/**  */
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(BiomartAnnotatorNodeDialog.class);
+	private static final String PROXY_TAB_NAME = "Proxy";
 
 	private final Map<String, String> attributes = new HashMap<String, String>();
 
@@ -66,6 +83,31 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		final DialogComponentMultiLineString selectedBiomartAttributesDialog = new DialogComponentMultiLineString(
 				new SettingsModelString("selected_attributes_not_used", ""),
 				"Selected: ", false, 70, 8);
+		final DialogComponentBoolean proxyFromEclipse = new DialogComponentBoolean(
+				new SettingsModelBoolean(
+						BiomartAnnotatorNodeModel.CFGKEY_PROXY_FROM_ECLIPSE,
+						BiomartAnnotatorNodeModel.DEFAULT_PROXY_FROM_ECLIPSE),
+				"Use eclipse settings?");
+		final DialogComponentString proxyHost = new DialogComponentString(
+				new SettingsModelString(
+						BiomartAnnotatorNodeModel.CFGKEY_PROXY_HOST,
+						BiomartAnnotatorNodeModel.DEFAULT_PROXY_HOST),
+				"Proxy server", false, 80);
+		final DialogComponentNumberEdit proxyPort = new DialogComponentNumberEdit(
+				new SettingsModelIntegerBounded(
+						BiomartAnnotatorNodeModel.CFGKEY_PROXY_PORT,
+						BiomartAnnotatorNodeModel.DEFAULT_PROXY_PORT, -1, 65535),
+				"Port number", 8);
+		final DialogComponentString proxyUser = new DialogComponentString(
+				new SettingsModelString(
+						BiomartAnnotatorNodeModel.CFGKEY_PROXY_USER,
+						BiomartAnnotatorNodeModel.DEFAULT_PROXY_USER),
+				"Proxy username", false, 40);
+		final DialogComponentPasswordField proxyPassword = new DialogComponentPasswordField(
+				new SettingsModelString(
+						BiomartAnnotatorNodeModel.CFGKEY_PROXY_PASSWORD,
+						BiomartAnnotatorNodeModel.DEFAULT_PROXY_PASSWORD),
+				"Proxy password", 25);
 		biomartDatabaseDialog.getModel().addChangeListener(
 				new ChangeListener() {
 					@Override
@@ -78,6 +120,8 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 								final RConnection conn = new RConnection();
 								try {
 									conn.voidEval("library(\"biomaRt\")");
+									setProxy(conn, proxyHost, proxyPort,
+											proxyUser, proxyPassword);
 									conn.voidEval("biomartDb = useMart(\""
 											+ dbName + "\")");
 									final REXP datasetsResult = conn
@@ -93,6 +137,11 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 									conn.close();
 								}
 							} catch (final RserveException e1) {
+								logger.error(
+										"Unable to select the datasets for "
+												+ dbName, e1);
+								selectTab(PROXY_TAB_NAME);
+							} catch (final REXPMismatchException e1) {
 								logger.error(
 										"Unable to select the datasets for "
 												+ dbName, e1);
@@ -116,6 +165,8 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 							final RConnection conn = new RConnection();
 							try {
 								conn.voidEval("library(\"biomaRt\")");
+								setProxy(conn, proxyHost, proxyPort, proxyUser,
+										proxyPassword);
 								conn.voidEval("biomartDb = useMart(\"" + dbName
 										+ "\")");
 
@@ -142,6 +193,9 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 								conn.close();
 							}
 						} catch (final RserveException e1) {
+							logger.error("Unable to select the attributes for "
+									+ dbName + "/" + dataset, e1);
+						} catch (final REXPMismatchException e1) {
 							logger.error("Unable to select the attributes for "
 									+ dbName + "/" + dataset, e1);
 						}
@@ -193,7 +247,49 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				});
 		addDialogComponent(selectedBiomartAttributesDialog);
 		setHorizontalPlacement(false);
-
+		createNewTab(PROXY_TAB_NAME);
+		addDialogComponent(proxyFromEclipse);
+		final ChangeListener proxyFromEclipseChangeListener = new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				final boolean settingsFromEclipse = ((SettingsModelBoolean) proxyFromEclipse
+						.getModel()).getBooleanValue();
+				for (final DialogComponent component : new DialogComponent[] {
+						proxyHost, proxyPort, proxyUser, proxyPassword }) {
+					component.getModel().setEnabled(!settingsFromEclipse);
+				}
+				if (settingsFromEclipse) {
+					final IProxyService proxyService = OpenStream
+							.getProxyService();
+					final IProxyData proxyDataForHost = proxyService
+							.getProxyDataForHost("biomart.org",
+									IProxyData.HTTP_PROXY_TYPE);
+					((SettingsModelString) proxyHost.getModel())
+							.setStringValue(proxyDataForHost.getHost() == null ? ""
+									: proxyDataForHost.getHost());
+					((SettingsModelInteger) proxyPort.getModel())
+							.setIntValue(proxyDataForHost.getPort());
+					((SettingsModelString) proxyUser.getModel())
+							.setStringValue(proxyDataForHost.getUserId() == null ? ""
+									: proxyDataForHost.getUserId());
+					((SettingsModelString) proxyPassword.getModel())
+							.setStringValue(proxyDataForHost.getPassword() == null ? ""
+									: proxyDataForHost.getPassword());
+				}
+			}
+		};
+		proxyFromEclipse.getModel().addChangeListener(
+				proxyFromEclipseChangeListener);
+		addDialogComponent(proxyHost);
+		addDialogComponent(proxyPort);
+		addDialogComponent(proxyUser);
+		addDialogComponent(proxyPassword);
+		addDialogComponent(new UpdatableComponent() {
+			@Override
+			protected void updateComponent() {
+				proxyFromEclipseChangeListener.stateChanged(null);
+			}
+		});
 	}
 
 	// private static void addActionListenerTo(
@@ -203,5 +299,34 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 	// .getComponent(1));
 	// combobox.addActionListener(actionListener);
 	// }
-
+	private void setProxy(final RConnection conn,
+			final DialogComponentString proxyHost,
+			final DialogComponentNumberEdit proxyPort,
+			final DialogComponentString proxyUser,
+			final DialogComponentPasswordField proxyPassword)
+			throws RserveException, REXPMismatchException {
+		final String host = ((SettingsModelString) proxyHost.getModel())
+				.getStringValue();
+		if (!host.isEmpty()) {
+			// http://username:password@proxy.server:8080
+			final StringBuilder proxyString = new StringBuilder("http://");
+			final String user = ((SettingsModelString) proxyUser.getModel())
+					.getStringValue();
+			if (!user.isEmpty()) {
+				proxyString.append(user);
+				final String password = ((SettingsModelString) proxyPassword
+						.getModel()).getStringValue();
+				if (!password.isEmpty()) {
+					proxyString.append(':').append(password);
+				}
+				proxyString.append("@");
+			}
+			proxyString.append(host).append(':')
+					.append(
+							((SettingsModelInteger) proxyPort.getModel())
+									.getIntValue());
+			RUtil.voidEval(conn, "Sys.setenv(\"http_proxy\" = \"" + proxyString
+					+ "\")");
+		}
+	}
 }

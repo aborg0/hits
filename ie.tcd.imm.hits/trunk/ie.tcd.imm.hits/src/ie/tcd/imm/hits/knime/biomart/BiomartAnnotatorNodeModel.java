@@ -33,6 +33,8 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.rosuda.REngine.REXP;
@@ -50,6 +52,26 @@ import org.rosuda.REngine.Rserve.RserveException;
 public class BiomartAnnotatorNodeModel extends NodeModel {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(BiomartAnnotatorNodeModel.class);
+	/** Configuration key for defaults from eclipse. */
+	static final String CFGKEY_PROXY_FROM_ECLIPSE = "ie.tcd.imm.hits.knime.proxy.eclipse";
+	/** Default value for defaults from eclipse. */
+	static final boolean DEFAULT_PROXY_FROM_ECLIPSE = true;
+	/** Configuration key for proxy host. */
+	static final String CFGKEY_PROXY_HOST = "ie.tcd.imm.hits.knime.proxy.host";
+	/** Configuration key for proxy host. */
+	static final String DEFAULT_PROXY_HOST = "";
+	/** Configuration key for proxy port. */
+	static final String CFGKEY_PROXY_PORT = "ie.tcd.imm.hits.knime.proxy.port";
+	/** Default value for proxy port. */
+	static final int DEFAULT_PROXY_PORT = -1;
+	/** Configuration key for proxy user. */
+	static final String CFGKEY_PROXY_USER = "ie.tcd.imm.hits.knime.proxy.user";
+	/** Default value for proxy user. */
+	static final String DEFAULT_PROXY_USER = "";
+	/** Configuration key for proxy password. */
+	static final String CFGKEY_PROXY_PASSWORD = "ie.tcd.imm.hits.knime.proxy.password";
+	/** Default value for proxy password. */
+	static final String DEFAULT_PROXY_PASSWORD = "";
 	/** Configuration key for biomaRt database */
 	static final String CFGKEY_BIOMART_DATABASE = "ie.tcd.imm.hits.knime.biomart.database";
 	/** Default value for biomaRt database */
@@ -68,6 +90,16 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 			CFGKEY_BIOMART_DATASET, DEFAULT_BIOMART_DATASET);
 	private final SettingsModelStringArray biomartAttributesModel = new SettingsModelStringArray(
 			CFGKEY_BIOMART_ATTRIBUTES, DEFAULT_BIOMART_ATTRIBUTES);
+	private final SettingsModelBoolean proxyFromEclipseModel = new SettingsModelBoolean(
+			CFGKEY_PROXY_FROM_ECLIPSE, DEFAULT_PROXY_FROM_ECLIPSE);
+	private final SettingsModelString proxyHost = new SettingsModelString(
+			CFGKEY_PROXY_HOST, DEFAULT_PROXY_HOST);
+	private final SettingsModelIntegerBounded proxyPort = new SettingsModelIntegerBounded(
+			CFGKEY_PROXY_PORT, DEFAULT_PROXY_PORT, -1, 65535);
+	private final SettingsModelString proxyUser = new SettingsModelString(
+			CFGKEY_PROXY_USER, DEFAULT_PROXY_USER);
+	private final SettingsModelString proxyPassword = new SettingsModelString(
+			CFGKEY_PROXY_PASSWORD, DEFAULT_PROXY_PASSWORD);
 
 	/**
 	 * Constructor for the node model.
@@ -98,6 +130,22 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		try {
 			table.setMaxPossibleValues(Format._1536.getWellCount() + 1);
 			RUtil.voidEval(conn, "library(\"biomaRt\")");
+			if (!proxyHost.getStringValue().isEmpty()) {
+				// http://username:password@proxy.server:8080
+				final StringBuilder proxyString = new StringBuilder("http://");
+				if (!proxyUser.getStringValue().isEmpty()) {
+					proxyString.append(proxyUser.getStringValue());
+					if (!proxyPassword.getStringValue().isEmpty()) {
+						proxyString.append(':').append(
+								proxyPassword.getStringValue());
+					}
+					proxyString.append("@");
+				}
+				proxyString.append(proxyHost.getStringValue()).append(':')
+						.append(proxyPort.getIntValue());
+				RUtil.voidEval(conn, "Sys.setenv(\"http_proxy\" = \""
+						+ proxyString + "\")");
+			}
 			RUtil.voidEval(conn, "mart <- useMart(\""
 					+ biomartDatabaseModel.getStringValue() + "\", dataset =\""
 					+ biomartDatasetModel.getStringValue() + "\")");
@@ -319,6 +367,11 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		biomartDatabaseModel.saveSettingsTo(settings);
 		biomartDatasetModel.saveSettingsTo(settings);
 		biomartAttributesModel.saveSettingsTo(settings);
+		proxyFromEclipseModel.saveSettingsTo(settings);
+		proxyHost.saveSettingsTo(settings);
+		proxyPort.saveSettingsTo(settings);
+		proxyUser.saveSettingsTo(settings);
+		proxyPassword.saveSettingsTo(settings);
 	}
 
 	/**
@@ -330,6 +383,11 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		biomartDatabaseModel.loadSettingsFrom(settings);
 		biomartDatasetModel.loadSettingsFrom(settings);
 		biomartAttributesModel.loadSettingsFrom(settings);
+		proxyFromEclipseModel.loadSettingsFrom(settings);
+		proxyHost.loadSettingsFrom(settings);
+		proxyPort.loadSettingsFrom(settings);
+		proxyUser.loadSettingsFrom(settings);
+		proxyPassword.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -341,6 +399,11 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		biomartDatabaseModel.validateSettings(settings);
 		biomartDatasetModel.validateSettings(settings);
 		biomartAttributesModel.validateSettings(settings);
+		proxyFromEclipseModel.validateSettings(settings);
+		proxyHost.validateSettings(settings);
+		proxyPort.validateSettings(settings);
+		proxyUser.validateSettings(settings);
+		proxyPassword.validateSettings(settings);
 	}
 
 	/**
