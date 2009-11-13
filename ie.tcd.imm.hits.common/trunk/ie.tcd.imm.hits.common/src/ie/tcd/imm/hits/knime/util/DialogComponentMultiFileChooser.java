@@ -16,6 +16,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -395,21 +396,29 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			((SettingsModelStringArray) getModel())
 					.setStringArrayValue(new String[0]);
 		} else {
-			final File dir = new File(getCurrentSelection());
-			if (!dir.isDirectory()) {
-				throw new InvalidSettingsException(
-						"The selected directory is not directory: "
-								+ dir.getAbsolutePath());
-			}
+			// final File dir = new File(getCurrentSelection());
+			// if (!dir.isDirectory()) {
+			// throw new InvalidSettingsException(
+			// "The selected directory is not directory: "
+			// + dir.getAbsolutePath());
+			// }
 			final String[] selectedValues = new String[values.length];
 			for (int i = 0, length = values.length; i < length; i++) {
-				final File file = new File(dir, values[i].toString());
-				if (!file.canRead()) {
+				// final File file = new File(dir, values[i].toString());
+				// if (!file.canRead()) {
+				// throw new InvalidSettingsException(
+				// "The selected file is not readable: "
+				// + file.getAbsolutePath());
+				// }
+				try {
+					selectedValues[i] = OpenStream.convertURI(
+							getCurrentSelection())
+							.resolve(values[i].toString()).toString();
+				} catch (final URISyntaxException e) {
 					throw new InvalidSettingsException(
-							"The selected file is not readable: "
-									+ file.getAbsolutePath());
+							"Wrong file name or folder: " + e.getMessage(), e);
 				}
-				selectedValues[i] = file.getAbsolutePath();
+				// file.getAbsolutePath();
 			}
 			// we transfer the value from the field into the model
 			((SettingsModelStringArray) getModel())

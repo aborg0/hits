@@ -8,13 +8,13 @@ import ie.tcd.imm.hits.util.file.OpenStream;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,7 +163,8 @@ public class ImporterNodeModel extends NodeModel {
 					final HSSFSheet perWellSheet = wb
 							.getSheet("Summary by wells");
 					final HSSFRow row = perWellSheet.getRow(1);
-					int columns = 3;
+					final int specColNum = 4;
+					int columns = specColNum;
 					for (short i = row.getLastCellNum(); i-- > Math.max(row
 							.getFirstCellNum(), 1)
 							&& row.getCell(i) != null;) {
@@ -199,19 +200,20 @@ public class ImporterNodeModel extends NodeModel {
 						throw new IllegalStateException(
 								"Wrong structure of the xls file: " + fileName);
 					}
-					for (int i = 3; i < perWellSheet.getLastRowNum() + 1; ++i) {
+					for (int i = specColNum; i < perWellSheet.getLastRowNum() + 1; ++i) {
 						final DataCell[] values = new DataCell[columns
 								+ (addAnnotations ? 2 : 0)];
-						values[0] = new IntCell(1 + j / replicateCount);// plate
-						values[1] = new IntCell(1 + j % replicateCount);// replicate
+						values[0] = new StringCell(fileName);// barcode
+						values[1] = new IntCell(1 + j / replicateCount);// plate
+						values[2] = new IntCell(1 + j % replicateCount);// replicate
 						final HSSFRow currentRow = perWellSheet.getRow(i);
 						final String wellName = currentRow.getCell((short) 0)
 								.getRichStringCellValue().getString().replace(
 										" - ", "");
-						values[2] = new StringCell(wellName);
-						for (int c = 3; c < columns; ++c) {
+						values[3] = new StringCell(wellName);
+						for (int c = specColNum; c < columns; ++c) {
 							final HSSFCell cell = currentRow
-									.getCell((short) (c - 1));
+									.getCell((short) (c - 2));
 							values[c] = new DoubleCell(cell
 									.getNumericCellValue());
 						}
@@ -238,10 +240,6 @@ public class ImporterNodeModel extends NodeModel {
 								new RowKey(keyString), values);
 						container.addRowToTable(defaultRow);
 					}
-					final DataType[] cellTypes = new DataType[columns];
-					for (int i = 0; i < cellTypes.length; i++) {
-						cellTypes[i] = DoubleCell.TYPE;
-					}
 				} finally {
 					fis.close();
 				}
@@ -267,28 +265,42 @@ public class ImporterNodeModel extends NodeModel {
 		if (annotationFileName.isEmpty()) {
 			return ret;
 		}
-		final File file = new File(annotationFileName);
-		final Reader fileReader = new FileReader(file);
+		// final File file = new File(annotationFileName);
+		InputStream stream;
 		try {
-			final BufferedReader br = new BufferedReader(fileReader);
+			stream = OpenStream.open(OpenStream.convertURI(annotationFileName));
+		} catch (final URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		try {
+			final Reader fileReader = new InputStreamReader(stream);
 			try {
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					final int[] indices = getIndices(line, rows, cols);
-					if (indices != null) {
-						final String[] parts = line.split("\t");
-						ret[indices[0]][indices[1]][0] = parts.length > 2 ? parts[2]
-								: null;
-						ret[indices[0]][indices[1]][1] = line.substring(line
-								.lastIndexOf('\t') + 1);
+				final BufferedReader br = new BufferedReader(fileReader);
+				try {
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						final int[] indices = getIndices(line, rows, cols);
+						if (indices != null) {
+							try {
+								final String[] parts = line.split("\t");
+								ret[indices[0]][indices[1]][0] = parts.length > 2 ? parts[2]
+										: null;
+								ret[indices[0]][indices[1]][1] = line
+										.substring(line.lastIndexOf('\t') + 1);
+							} catch (final RuntimeException e) {
+								// ignore, there might be more data there.
+							}
+						}
 					}
+					return ret;
+				} finally {
+					br.close();
 				}
-				return ret;
 			} finally {
-				br.close();
+				fileReader.close();
 			}
 		} finally {
-			fileReader.close();
+			stream.close();
 		}
 	}
 
@@ -343,15 +355,28 @@ public class ImporterNodeModel extends NodeModel {
 		}
 
 		final String annotFile = annotationFileNameModel.getStringValue();
-		if (!annotFile.isEmpty() && !new File(annotFile).canRead()) {
-			throw new InvalidSettingsException(
-					"The annotation file -if specified must be readable!");
+		try {
+			final InputStream stream = OpenStream.open(OpenStream
+					.convertURI(annotFile));
+			stream.close();
+		} catch (final IOException e) {
+			throw new InvalidSettingsException("Unable to read: " + annotFile);
+		}
+		// if (!annotFile.isEmpty() && !new File(annotFile).canRead()) {
+		// throw new InvalidSettingsException(
+		// "The annotation file -if specified must be readable!");
+		// }
+		catch (final URISyntaxException e) {
+			throw new InvalidSettingsException("Unable to convert file name ("
+					+ annotFile + ") to URI: " + e.getMessage(), e);
 		}
 
-		final File file = new File(filesModel.getStringArrayValue()[0]);
-		final FileInputStream fis;
+		// final File file = new File(filesModel.getStringArrayValue()[0]);
+		final InputStream fis;
 		try {
-			fis = new FileInputStream(file);
+			fis = OpenStream.open(OpenStream.convertURI(filesModel
+					.getStringArrayValue()[0]));
+			// new FileInputStream(file);
 			try {
 				final POIFSFileSystem fs = new POIFSFileSystem(fis);
 				final HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -363,10 +388,22 @@ public class ImporterNodeModel extends NodeModel {
 				fis.close();
 			}
 		} catch (final FileNotFoundException e) {
+			String uri;
+			try {
+				uri = OpenStream
+						.convertURI(filesModel.getStringArrayValue()[0])
+						.toString();
+			} catch (final URISyntaxException e1) {
+				uri = "";
+			}
 			throw new InvalidSettingsException("Not found: "
-					+ file.getAbsolutePath(), e);
+					+ filesModel.getStringArrayValue()[0] + "(" + uri + ")", e);
 		} catch (final IOException e) {
 			throw new InvalidSettingsException(e.getMessage(), e);
+		} catch (final URISyntaxException e) {
+			throw new InvalidSettingsException("Unable to convert file name ("
+					+ filesModel.getStringArrayValue()[0] + ") to URI: "
+					+ e.getMessage(), e);
 		}
 	}
 
@@ -381,16 +418,18 @@ public class ImporterNodeModel extends NodeModel {
 		final boolean addAnnotations = !annotationFileNameModel
 				.getStringValue().isEmpty();
 		final DataType[] cellTypes = new DataType[header.size()
-				+ (addAnnotations ? 5 : 3)];
+				+ (addAnnotations ? 6 : 4)];
 		for (int i = 0; i < header.size(); i++) {
-			cellTypes[i + 3] = DoubleCell.TYPE;
+			cellTypes[i + 4] = DoubleCell.TYPE;
 		}
-		cellTypes[0] = IntCell.TYPE;// plate
-		cellTypes[1] = IntCell.TYPE;// replicate
-		cellTypes[2] = StringCell.TYPE;// Well
+		cellTypes[0] = StringCell.TYPE;// barcode/path
+		cellTypes[1] = IntCell.TYPE;// plate
+		cellTypes[2] = IntCell.TYPE;// replicate
+		cellTypes[3] = StringCell.TYPE;// Well
 		header.add(0, PublicConstants.WELL_COL_NAME);
 		header.add(0, PublicConstants.REPLICATE_COL_NAME);
 		header.add(0, PublicConstants.PLATE_COL_NAME);
+		header.add(0, PublicConstants.BARCODE_COLUMN);
 		if (addAnnotations) {
 			header.add(PublicConstants.GENE_ID_COL_NAME);
 			header.add(PublicConstants.GENE_ANNOTATION_COL_NAME);

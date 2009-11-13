@@ -23,6 +23,8 @@ public interface PublicConstants {
 	public static final String REPLICATE_COLUMN = "Replicate";
 	/** The name of the plate column. */
 	public static final String PLATE_COLUMN = "Plate";
+	/** The name of the barcode/path column. */
+	public static final String BARCODE_COLUMN = "Barcode";
 	/** The name of the experiment column. */
 	public static final String EXPERIMENT_COLUMN = "Experiment";
 	/** The name of the normalisation method column. */

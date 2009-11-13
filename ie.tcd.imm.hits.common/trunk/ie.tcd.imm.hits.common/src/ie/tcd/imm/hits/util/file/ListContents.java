@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,7 +27,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -44,8 +42,9 @@ import org.knime.core.node.NodeLogger;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class ListContents {
-	/**  */
-	static final NodeLogger logger = NodeLogger.getLogger(ListContents.class);
+	/** The logger for debug and error messages. */
+	private static final NodeLogger logger = NodeLogger
+			.getLogger(ListContents.class);
 	private static final Pattern pattern = Pattern
 			.compile("href\\s*=\\s*[\"']([^\"']+)[\"']");
 	private static final Set<String> supportedContentTypes = new TreeSet<String>(
@@ -56,6 +55,24 @@ public class ListContents {
 		supportedContentTypes.add("application/xhtml+xml");
 	}
 
+	/**
+	 * Finds the sub resources within the {@code root} {@link URI}. The search
+	 * is limited by the {@code maxDepth} parameter, and possible to find
+	 * resources in archive files and files available through http(s) protocol.
+	 * <p>
+	 * This is a synchronous call.
+	 * 
+	 * @param root
+	 *            The {@link URI} where the search begins.
+	 * @param maxDepth
+	 *            The maximal depth to search for.
+	 * @return A {@link Map} from the relative path from {@code root} to the
+	 *         actual {@link URI}s. The contents in archives are referenced as:
+	 *         {@code .../archive.zip/content/x.txt}
+	 * @throws IOException
+	 *             Problem occurred.
+	 * @see #asyncFindContents(URI, int)
+	 */
 	public static Map<String, URI> findContents(final URI root,
 			final int maxDepth) throws IOException {
 		final Map<String, URI> ret = new HashMap<String, URI>();
@@ -121,17 +138,6 @@ public class ListContents {
 		}
 	}
 
-	/**
-	 * @param origRoot
-	 * @param root
-	 * @param proxyDataForHost
-	 * @param proxy
-	 * @param maxDepth
-	 * @param results
-	 * @param visited
-	 * @throws IOException
-	 * @throws MalformedURLException
-	 */
 	private static void findContentsHttp(final URI origRoot, final URI root,
 			final IProxyData proxyDataForHost, final Proxy proxy,
 			final Set<URI> visited, final Map<String, URI> results,
@@ -189,7 +195,8 @@ public class ListContents {
 				}
 			}
 		} else if (OpenStream.supportedArchiveContentTypes
-				.contains(contentType)) {
+				.contains(contentType)
+				|| contentType.equalsIgnoreCase("application/octet-stream")) {
 			try {
 				final InputStream inputStream = connection.getInputStream();
 				try {
@@ -233,16 +240,6 @@ public class ListContents {
 		}
 	}
 
-	/**
-	 * @param origRoot
-	 * @param root
-	 * @param root
-	 * @param inputStream
-	 * @param visited
-	 * @param results
-	 * @param maxDepth
-	 * @throws IOException
-	 */
 	private static void findContentsZip(final URI origRoot, final URI root,
 			final ZipInputStream inputStream, final Set<URI> visited,
 			final Map<String, URI> results, final int maxDepth)
@@ -288,28 +285,41 @@ public class ListContents {
 		}
 	}
 
+	/**
+	 * A constructor to be able to use asynchronous calls.
+	 */
 	public ListContents() {
 		super();
 		createNewExecutor();
 	}
 
 	/**
-	 * 
+	 * Creates a new {@link ExecutorService}.
 	 */
 	private void createNewExecutor() {
 		executorService = Executors.newSingleThreadExecutor();
 	}
 
+	/**
+	 * Finds the sub resources within the {@code root} {@link URI}. The search
+	 * is limited by the {@code maxDepth} parameter, and possible to find
+	 * resources in archive files and files available through http(s) protocol.
+	 * <p>
+	 * This is an asynchronous call.
+	 * 
+	 * @param root
+	 *            The {@link URI} where the search begins.
+	 * @param maxDepth
+	 *            The maximal depth to search for.
+	 * @return A {@link Map} from the relative path from {@code root} to the
+	 *         actual {@link URI}s. The contents in archives are referenced as:
+	 *         {@code .../archive.zip/content/x.txt}
+	 * @see #findContents(URI, int)
+	 */
 	public Future<Map<String, URI>> asyncFindContents(final URI root,
 			final int maxDepth) {
-		try {
-			if (!executorService.awaitTermination(20, TimeUnit.MILLISECONDS)) {
-				executorService.shutdownNow();
-				createNewExecutor();
-			}
-		} catch (final InterruptedException e) {
-			createNewExecutor();
-		}
+		executorService.shutdownNow();
+		createNewExecutor();
 		final Callable<Map<String, URI>> task = new Callable<Map<String, URI>>() {
 			@Override
 			public Map<String, URI> call() throws IOException {
