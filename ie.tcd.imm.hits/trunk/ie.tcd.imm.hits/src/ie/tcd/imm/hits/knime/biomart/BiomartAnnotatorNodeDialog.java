@@ -112,7 +112,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		biomartDatabaseDialog.getModel().addChangeListener(
 				new ChangeListener() {
 					@Override
-					public void stateChanged(final ChangeEvent e) {
+					public void stateChanged(final ChangeEvent e)/* => */{
 						// final JComboBox combobox = (JComboBox) e.getSource();
 						final Object selectedItem = e.getSource() instanceof JComboBox ? ((JComboBox) e
 								.getSource()).getSelectedItem()
@@ -156,8 +156,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				});
 		biomartDatasetDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e) {
-				// final JComboBox combobox = (JComboBox) e.getSource();
+			public void stateChanged(final ChangeEvent e) /* => */{
 				final Object object = ((JComboBox) biomartDatabaseDialog
 						.getComponentPanel().getComponent(1)).getSelectedItem();
 				final String dbName = object instanceof String ? (String) object
@@ -219,14 +218,8 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(biomartAttributesDialog);
 		biomartAttributesDialog.getModel().addChangeListener(
 				new ChangeListener() {
-					// ((JList) ((JScrollPane)
-					// biomartAttributesDialog.getComponentPanel()
-					// .getComponent(1)).getViewport().getComponent(0))
-					// .addListSelectionListener(new ListSelectionListener() {
-					// @Override
-					// public void valueChanged(final ListSelectionEvent e) {
 					@Override
-					public void stateChanged(final ChangeEvent e) {
+					public void stateChanged(final ChangeEvent e) /* => */{
 						final String[] selectedValues = ((SettingsModelStringArray) e
 								.getSource()).getStringArrayValue();
 						final StringBuilder sb = new StringBuilder();
@@ -244,7 +237,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(proxyFromEclipse);
 		final ChangeListener proxyFromEclipseChangeListener = new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e) {
+			public void stateChanged(final ChangeEvent e) /* => */{
 				final boolean settingsFromEclipse = ((SettingsModelBoolean) proxyFromEclipse
 						.getModel()).getBooleanValue();
 				for (final DialogComponent component : new DialogComponent[] {
@@ -299,19 +292,12 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(proxyPassword);
 		addDialogComponent(new UpdatableComponent() {
 			@Override
-			protected void updateComponent() {
+			protected void updateComponent() /* => */{
 				proxyFromEclipseChangeListener.stateChanged(null);
 			}
 		});
 	}
 
-	// private static void addActionListenerTo(
-	// final DialogComponentStringSelection dialog,
-	// final ActionListener actionListener) {
-	// final JComboBox combobox = ((JComboBox) dialog.getComponentPanel()
-	// .getComponent(1));
-	// combobox.addActionListener(actionListener);
-	// }
 	private void setProxy(final RConnection conn,
 			final DialogComponentString proxyHost,
 			final DialogComponentNumberEdit proxyPort,
