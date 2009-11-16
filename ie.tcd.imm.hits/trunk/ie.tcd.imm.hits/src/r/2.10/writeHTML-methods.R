@@ -161,7 +161,7 @@ writeHtml.mainpage <- function(title, tabs, con)
     writeLines(sprintf("
           <div class=\"main\">
 	    <iframe class=\"main\" src=\"%s\" name=\"main\" frameborder=\"0\" noresize id=\"main\"
-              scrolling=\"no\" marginwidth=\"0\" marginheight=\"0\"
+              scrolling=\"auto\" marginwidth=\"0\" marginheight=\"0\"
               onload=\"if (window.parent && window.parent.autoIframe) {window.parent.autoIframe('main');}\">
 	      <p>
 	        Your browser does not support iFrames. This page will not work for you.

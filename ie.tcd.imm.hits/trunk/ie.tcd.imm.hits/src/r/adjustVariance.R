@@ -39,44 +39,35 @@ adjustVariancebyBatch <- function(object)
     ## 'batch' slot should be an array with the same dimensions of Data(object)
     bb <- batch(object)
     if(is.null(bb))
-        stop("Please add the batch information to the slot 'batch'. This should be ",
-             "an array with the same dimension of 'Data(object)' with numeric values 1, ",
-             "2, etc. giving the batch number for each plate, sample and channel.")
-    if(any(dim(bb)!=d))
-        stop(sprintf("'batch' should have dimensions 'Features x Samples x Channels' (%s).",
-                     paste(d, collapse=" x ")))
-
-    bb <- batch(object)
-    ## we assume that measurements from the same plate cannot belong to different batches.
-    for(ch in 1:dim(bb)[3]) 
-        for(r in 1:dim(bb)[2])
-        {
-            sp <- split(bb[,r,ch], plate(object))
-            spp <- sapply(sp, function(j) length(unique(j)))
-            if(any(spp>1))
-                stop(paste("Measurements from plate", which(spp>1)[1] ,
-                           "occur in multiple batches:", 
-                           paste(unique(sp[[which(spp>1)[1]]]), collapse=", "),
-                           "\ncurrently this program does not know how to handle this."))
-        }
-    nrBatches <- nbatch(object)
-    for(r in 1:nrSamples)
-    {
-        for(ch in 1:nrChannels)
-        {
-            platesPerBatch <- split(plate(object), bb[,r,ch])
-            nrB <- length(platesPerBatch) # this number depends on the channel and replicate
-            for(b in 1:nrB)
-            {
-                pb <- platesPerBatch[[b]]
-                plateInd <- (1+nrWpP*(min(pb)-1)):(nrWpP*max(pb))
-                spp <- samps[plateInd]
-                xnorm[plateInd,r,ch] <-
-                    xnorm[plateInd,r,ch]/mad(xnorm[plateInd,r,ch][spp], na.rm=TRUE)
-            }#batch
-        }#channel
-    }#sample
-    return(xnorm)
+		stop("Please add the batch information using the 'batch' method. This should be ",
+				"an array with number of rows equal to number of plates and number of columns",
+				" equal to number of samples.")
+	if(nrow(bb) != nrPlates || ncol(bb) != nrSamples)
+		stop(sprintf("'batch' should have dimensions 'Plates x Samples' (%s).",
+						paste(c(nrPlates, nrSamples), collapse=" x ")))
+	nrBatches <- nbatch(object)
+	for(r in 1:nrSamples)
+	{
+		#wellsPerBatch <- split(plate(object), bb[,r,ch])
+		for(ch in 1:nrChannels)
+		{
+			#platesPerBatch <- split(plate(object), bb[,r,ch])
+			#nrB <- length(platesPerBatch) # this number depends on the channel and replicate
+			for(b in 1:nrBatches)
+			{
+				thisBatch <- which(bb[,r] == b)
+				if(length(thisBatch))
+				{
+					plateInd <- as.vector(mapply(function(from, to) from:to, to=thisBatch*nrWpP,
+									from=(thisBatch*nrWpP)-nrWpP+1))
+					spp <- samps[plateInd]
+					xnorm[plateInd,r,ch] <-
+							xnorm[plateInd,r,ch]/mad(xnorm[plateInd,r,ch][spp], na.rm=TRUE)
+				}
+			}#batch
+		}#channel
+	}#sample
+	return(xnorm)
 }
 
 
