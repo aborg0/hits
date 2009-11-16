@@ -32,6 +32,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.defaultnodesettings.UpdatableComponent;
+import org.knime.core.node.util.StringIconOption;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPFactor;
 import org.rosuda.REngine.REXPGenericVector;
@@ -112,9 +113,13 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				new ChangeListener() {
 					@Override
 					public void stateChanged(final ChangeEvent e) {
-						final JComboBox combobox = (JComboBox) e.getSource();
-						final Object selectedItem = combobox.getSelectedItem();
+						// final JComboBox combobox = (JComboBox) e.getSource();
+						final Object selectedItem = e.getSource() instanceof JComboBox ? ((JComboBox) e
+								.getSource()).getSelectedItem()
+								: ((SettingsModelString) e.getSource())
+										.getStringValue();
 						if (selectedItem instanceof String) {
+							final REXP datasetsResult;
 							final String dbName = (String) selectedItem;
 							try {
 								final RConnection conn = new RConnection();
@@ -124,18 +129,18 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 											proxyUser, proxyPassword);
 									conn.voidEval("biomartDb = useMart(\""
 											+ dbName + "\")");
-									final REXP datasetsResult = conn
-											.eval("listDatasets(biomartDb)");
-									final RList table = ((REXPGenericVector) datasetsResult)
-											.asList();
-
-									final String[] shortNames = ((REXPString) table
-											.get(0)).asStrings();
-									biomartDatasetDialog.replaceListItems(
-											Arrays.asList(shortNames), null);
+									datasetsResult = RUtil.eval(conn,
+											"listDatasets(biomartDb)");
 								} finally {
 									conn.close();
 								}
+								final RList table = ((REXPGenericVector) datasetsResult)
+										.asList();
+
+								final String[] shortNames = ((REXPString) table
+										.get(0)).asStrings();
+								biomartDatasetDialog.replaceListItems(Arrays
+										.asList(shortNames), null);
 							} catch (final RserveException e1) {
 								logger.error(
 										"Unable to select the datasets for "
@@ -152,72 +157,60 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		biomartDatasetDialog.getModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				final JComboBox combobox = (JComboBox) e.getSource();
+				// final JComboBox combobox = (JComboBox) e.getSource();
 				final Object object = ((JComboBox) biomartDatabaseDialog
 						.getComponentPanel().getComponent(1)).getSelectedItem();
-				if (object instanceof String) {
-					final String dbName = (String) object;
+				final String dbName = object instanceof String ? (String) object
+						: object instanceof StringIconOption ? ((StringIconOption) object)
+								.getText()
+								: object.toString();
 
-					final Object selectedItem = combobox.getSelectedItem();
-					if (selectedItem instanceof String) {
-						final String dataset = (String) selectedItem;
+				final Object selectedItem = e.getSource() instanceof JComboBox ? ((JComboBox) e
+						.getSource()).getSelectedItem()
+						: ((SettingsModelString) e.getSource())
+								.getStringValue();
+				if (selectedItem instanceof String) {
+					final REXP datasetsResult;
+					final String dataset = (String) selectedItem;
+					try {
+						final RConnection conn = new RConnection();
 						try {
-							final RConnection conn = new RConnection();
-							try {
-								conn.voidEval("library(\"biomaRt\")");
-								setProxy(conn, proxyHost, proxyPort, proxyUser,
-										proxyPassword);
-								conn.voidEval("biomartDb = useMart(\"" + dbName
-										+ "\")");
+							conn.voidEval("library(\"biomaRt\")");
+							setProxy(conn, proxyHost, proxyPort, proxyUser,
+									proxyPassword);
+							conn.voidEval("biomartDb = useMart(\"" + dbName
+									+ "\")");
 
-								final REXP datasetsResult = conn
-										.eval("listAttributes(useDataset(\""
-												+ dataset
-												+ "\",mart=biomartDb))");
-								final RList table = ((REXPGenericVector) datasetsResult)
-										.asList();
-
-								final String[] shortNames = ((REXPString) table
-										.get(0)).asStrings();
-								final String[] descriptions = ((REXPString) table
-										.get(1)).asStrings();
-								attributes.clear();
-								for (int i = 0; i < shortNames.length; i++) {
-									attributes.put(shortNames[i],
-											descriptions[i]);
-								}
-
-								biomartAttributesDialog.replaceListItems(Arrays
-										.asList(shortNames), new String[0]);
-							} finally {
-								conn.close();
-							}
-						} catch (final RserveException e1) {
-							logger.error("Unable to select the attributes for "
-									+ dbName + "/" + dataset, e1);
-						} catch (final REXPMismatchException e1) {
-							logger.error("Unable to select the attributes for "
-									+ dbName + "/" + dataset, e1);
+							datasetsResult = RUtil.eval(conn,
+									"listAttributes(useDataset(\"" + dataset
+											+ "\",mart=biomartDb))");
+						} finally {
+							conn.close();
 						}
+						final RList table = ((REXPGenericVector) datasetsResult)
+								.asList();
+
+						final String[] shortNames = ((REXPString) table.get(0))
+								.asStrings();
+						final String[] descriptions = ((REXPString) table
+								.get(1)).asStrings();
+						attributes.clear();
+						for (int i = 0; i < shortNames.length; i++) {
+							attributes.put(shortNames[i], descriptions[i]);
+						}
+
+						biomartAttributesDialog.replaceListItems(Arrays
+								.asList(shortNames), new String[0]);
+					} catch (final RserveException e1) {
+						logger.error("Unable to select the attributes for "
+								+ dbName + "/" + dataset, e1);
+					} catch (final REXPMismatchException e1) {
+						logger.error("Unable to select the attributes for "
+								+ dbName + "/" + dataset, e1);
 					}
 				}
 			}
 		});
-		try {
-			final RConnection conn = new RConnection();
-			try {
-				conn.voidEval("library(\"biomaRt\")");
-				final REXPGenericVector martsList = (REXPGenericVector) conn
-						.eval("listMarts()");
-				biomartDatabaseDialog.replaceListItems(Arrays
-						.asList(((REXPFactor) martsList.asList().get(0))
-								.asStrings()), null);
-			} finally {
-				conn.close();
-			}
-		} catch (final RserveException e1) {
-			logger.error("Problem loading the possible databases", e1);
-		}
 
 		addDialogComponent(biomartDatabaseDialog);
 		addDialogComponent(biomartDatasetDialog);
@@ -275,6 +268,26 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 					((SettingsModelString) proxyPassword.getModel())
 							.setStringValue(proxyDataForHost.getPassword() == null ? ""
 									: proxyDataForHost.getPassword());
+				}
+				try {
+					final REXPGenericVector martsList;
+					final RConnection conn = new RConnection();
+					try {
+						conn.voidEval("library(\"biomaRt\")");
+						setProxy(conn, proxyHost, proxyPort, proxyUser,
+								proxyPassword);
+						martsList = RUtil.<REXPGenericVector> eval(conn,
+								"listMarts()");
+					} finally {
+						conn.close();
+					}
+					biomartDatabaseDialog.replaceListItems(Arrays
+							.asList(((REXPFactor) martsList.asList().get(0))
+									.asStrings()), null);
+				} catch (final RserveException e1) {
+					logger.error("Problem loading the possible databases", e1);
+				} catch (final REXPMismatchException e1) {
+					logger.error("Unable to list the datasets ", e1);
 				}
 			}
 		};

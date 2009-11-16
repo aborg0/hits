@@ -3,7 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.biomart;
 
-import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.util.RUtil;
 
 import java.io.File;
@@ -20,10 +19,11 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.DataType;
+import org.knime.core.data.container.AbstractCellFactory;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -39,6 +39,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPInteger;
+import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
@@ -115,6 +116,8 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 
+		final int index = findColumn(inData[0], "gene id");
+		final StringBuilder ids = collectIds(inData[0], index);
 		final RConnection conn;
 		try {
 			conn = new RConnection(/*
@@ -124,157 +127,202 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 			logger.fatal("Failed to connect to Rserve, please start again.", e);
 			throw e;
 		}
-		final BufferedDataContainer table = exec
-				.createDataContainer(configure(new DataTableSpec[] { inData[0]
-						.getDataTableSpec() })[0]);
 		try {
-			table.setMaxPossibleValues(Format._1536.getWellCount() + 1);
-			RUtil.voidEval(conn, "library(\"biomaRt\")");
-			if (!proxyHost.getStringValue().isEmpty()) {
-				// http://username:password@proxy.server:8080
-				final StringBuilder proxyString = new StringBuilder("http://");
-				if (!proxyUser.getStringValue().isEmpty()) {
-					proxyString.append(proxyUser.getStringValue());
-					if (!proxyPassword.getStringValue().isEmpty()) {
-						proxyString.append(':').append(
-								proxyPassword.getStringValue());
-					}
-					proxyString.append("@");
+			final REXP vals;
+			try {
+				RUtil.voidEval(conn, "library(\"biomaRt\")");
+				exec.checkCanceled();
+				setProxy(conn);
+				exec.checkCanceled();
+				conn.voidEval("mart <- useMart(\""
+						+ biomartDatabaseModel.getStringValue()
+						+ "\", dataset =\""
+						+ biomartDatasetModel.getStringValue() + "\")");
+				exec.checkCanceled();
+				final StringBuilder attributes = new StringBuilder(
+						"'entrezgene', ");
+				for (final String attribute : biomartAttributesModel
+						.getStringArrayValue()) {
+					attributes.append('\'').append(attribute).append('\'')
+							.append(", ");
 				}
-				proxyString.append(proxyHost.getStringValue()).append(':')
-						.append(proxyPort.getIntValue());
-				RUtil.voidEval(conn, "Sys.setenv(\"http_proxy\" = \""
-						+ proxyString + "\")");
+				attributes.setLength(attributes.length() - 2);
+				conn
+						.voidEval(" myGetBM = function(att) getBM(attributes = c(att), filter = 'entrezgene', values = unique(c("
+								+ ids + ")),\n" + " mart = mart)");
+				exec.checkCanceled();
+				vals = RUtil.eval(conn, "myGetBM(c(" + attributes + "))");
+				exec.checkCanceled();
+			} finally {
+				conn.close();
 			}
-			RUtil.voidEval(conn, "mart <- useMart(\""
-					+ biomartDatabaseModel.getStringValue() + "\", dataset =\""
-					+ biomartDatasetModel.getStringValue() + "\")");
-			// conn.voidEval("attrs <- listAttributes(mart)");
-			// conn.voidEval("filts <- listFilters(mart)");
-			final StringBuilder attributes = new StringBuilder(
-					"\"entrezgene\", ");
-			for (final String attribute : biomartAttributesModel
-					.getStringArrayValue()) {
-				attributes.append('"').append(attribute).append('"').append(
-						", ");
-			}
-			attributes.setLength(attributes.length() - 2);
-			int index = -1;
-			for (int i = 0; i < inData[0].getDataTableSpec().getNumColumns(); ++i) {
-				if (inData[0].getDataTableSpec().getColumnSpec(i).getName()
-						.equalsIgnoreCase("gene id")) {
-					index = i;
-					break;
-				}
-			}
-			final StringBuilder ids = new StringBuilder();
-			// final int errorCount = 0;
-			for (final DataRow row : inData[0]) {
-				final DataCell dataCell = row.getCell(index);
-				final int value = getValue(dataCell);
-				if (value != -1) {
-					ids.append(value).append(", ");
-				}
-			}
-			// if (errorCount > 0) {
-			// logger.warn("There were " + errorCount
-			// + " wrong values in the "
-			// + inData[0].getDataTableSpec().getColumnSpec(index)
-			// + " column.");
-			// }
-			if (ids.length() > 1) {
-				ids.setLength(ids.length() - 2);
-			}
-			RUtil
-					.voidEval(
-							conn,
-							" myGetBM = function(att) getBM(attributes = c(att), filter = \"entrezgene\", values = unique(c("
-									+ ids + ")),\n" + " mart = mart)");
-			final REXP vals = RUtil
-					.eval(conn, "myGetBM(c(" + attributes + "))");
 			final Map<Integer, String[]> newValues = new HashMap<Integer, String[]>();
 			final int[] keys = ((REXPInteger) vals.asList().get("entrezgene"))
 					.asIntegers();
 			final String[] newAttributes = biomartAttributesModel
 					.getStringArrayValue();
-			final Map<String, String[]> rawAnnots = new HashMap<String, String[]>();
-			for (final String string : newAttributes) {
-				rawAnnots.put(string, ((REXPString) vals.asList().get(string))
-						.asStrings());
-			}
-			for (int i = 0; i < keys.length; ++i) {
-				final Integer key = Integer.valueOf(keys[i]);
-				if (!newValues.containsKey(key)) {
-					newValues.put(key, new String[newAttributes.length]);
-				}
-				final String[] origVal = newValues.get(key);
-				for (int j = 0; j < newAttributes.length; j++) {
-					final StringBuilder sb = new StringBuilder(
-							origVal[j] == null ? "" : origVal[j] + "|");
-					final String toAppend = rawAnnots.get(newAttributes[j])[i];
-					if (sb.length() > 0
-							&& (sb.substring(0, sb.length() - 1).equals(
-									toAppend) || sb.substring(
-									sb.substring(0, sb.length() - 1)
-											.lastIndexOf("|") + 1,
-									sb.length() - 1).equals(toAppend))) {
-						sb.setLength(sb.length() - 1);
+			collectNewValues(vals, newValues, keys, newAttributes);
+			final DataCell emptyCell = DataType.getMissingCell();
+			final ColumnRearranger rearranger = new ColumnRearranger(inData[0]
+					.getDataTableSpec());
+			final int geneIdIndex = index;
+			rearranger.append(new AbstractCellFactory(createNewColSpecs(
+					inData[0].getDataTableSpec(), newAttributes)) {
+				@Override
+				public DataCell[] getCells(final DataRow row) /* => */{
+					final List<DataCell> values = new ArrayList<DataCell>();
+					final int value = getValue(row.getCell(geneIdIndex));
+					if (value == -1
+							|| !newValues.containsKey(Integer.valueOf(value))) {
+						for (int i = newAttributes.length; i-- > 0;) {
+							values.add(emptyCell);
+						}
 					} else {
-						sb.append(toAppend);
+						final String[] strings = newValues.get(Integer
+								.valueOf(value));
+						for (int i = 0; i < newAttributes.length; ++i) {
+							values.add(new StringCell(strings[i] == null ? ""
+									: strings[i]));
+						}
 					}
-					origVal[j] = sb.toString();
+					return values.toArray(new DataCell[newAttributes.length]);
 				}
-			}
-			// conn.voidEval("bm2 <- myGetBM(c(\"flybasename_gene\"))");
-			// conn.voidEval("bm2 <- myGetBM(c(\"Validation
-			// status\"))");
-			// conn.voidEval("bm3 = myGetBM(c(\"go\",
-			// \"go_description\"))");
-			// conn.voidEval("id <- geneAnno(xn)");
-			// conn
-			// .voidEval("bmAll <- cbind(oneRowPerId(bm1, id),
-			// oneRowPerId(bm2,
-			// id), oneRowPerId(bm3,\n"
-			// + " id))");
-			// conn.voidEval("bmAll <- cbind(oneRowPerId(bm1, id))");
-			// conn.voidEval("bdgpbiomart <- cbind(fData(xn), bmAll)");
-			// conn.voidEval("fData(xn) <- bdgpbiomart");
-			// conn
-			// .voidEval("fvarMetadata(xn)[names(bmAll),\"labelDescription\"] <-
-			// sapply(names(bmAll),\n"
-			// + " function(i) sub(\"_\", \" \", i))");
-			final StringCell emptyCell = new StringCell("");
-			for (final DataRow origRow : inData[0]) {
-				final List<DataCell> values = new ArrayList<DataCell>(origRow
-						.getNumCells()
-						+ newAttributes.length);
-				for (final DataCell cell : origRow) {
-					values.add(cell);
-				}
-				final int value = getValue(origRow.getCell(index));
-				if (value == -1
-						|| !newValues.containsKey(Integer.valueOf(value))) {
-					for (int i = newAttributes.length; i-- > 0;) {
-						values.add(emptyCell);
-					}
-				} else {
-					final String[] strings = newValues.get(Integer
-							.valueOf(value));
-					for (int i = 0; i < newAttributes.length; ++i) {
-						values.add(new StringCell(strings[i] == null ? ""
-								: strings[i]));
-					}
-				}
-				table.addRowToTable(new DefaultRow(origRow.getKey(), values));
-			}
+			});
+			final BufferedDataTable rearrangeTable = exec
+					.createColumnRearrangeTable(inData[0], rearranger, exec);
+			return new BufferedDataTable[] { rearrangeTable };
 		} catch (final RuntimeException e) {
 			logger.warn("Unable to use biomaRt.");
 			logger.debug("Unable to use biomaRt.", e);
 			throw e;
 		}
+	}
 
-		table.close();
-		return new BufferedDataTable[] { table.getTable() };
+	/**
+	 * Fills {@code newValues} with the results from {@code vals}.
+	 * 
+	 * @param vals
+	 *            The Rserve expression of results.
+	 * @param newValues
+	 *            The {@link Map} of new values.
+	 * @param keys
+	 *            The geneIds.
+	 * @param newAttributes
+	 *            The new attributes column names.
+	 * @throws REXPMismatchException
+	 *             Error parsing the error message.
+	 */
+	private void collectNewValues(final REXP vals,
+			final Map<Integer, String[]> newValues, final int[] keys,
+			final String[] newAttributes) throws REXPMismatchException {
+		final Map<String, String[]> rawAnnots = new HashMap<String, String[]>();
+		for (final String string : newAttributes) {
+			rawAnnots.put(string, ((REXPString) vals.asList().get(string))
+					.asStrings());
+		}
+		for (int i = 0; i < keys.length; ++i) {
+			final Integer key = Integer.valueOf(keys[i]);
+			if (!newValues.containsKey(key)) {
+				newValues.put(key, new String[newAttributes.length]);
+			}
+			final String[] origVal = newValues.get(key);
+			for (int j = 0; j < newAttributes.length; j++) {
+				final StringBuilder sb = new StringBuilder(
+						origVal[j] == null ? "" : origVal[j] + "|");
+				final String toAppend = rawAnnots.get(newAttributes[j])[i];
+				if (sb.length() > 0
+						&& (sb.substring(0, sb.length() - 1).equals(toAppend) || sb
+								.substring(
+										sb.substring(0, sb.length() - 1)
+												.lastIndexOf("|") + 1,
+										sb.length() - 1).equals(toAppend))) {
+					sb.setLength(sb.length() - 1);
+				} else {
+					sb.append(toAppend);
+				}
+				origVal[j] = sb.toString();
+			}
+		}
+	}
+
+	/**
+	 * Sets the proxy based on the settings.
+	 * 
+	 * @param conn
+	 *            An {@link RConnection}.
+	 * @throws RserveException
+	 *             Problem setting the proxy.
+	 * @throws REXPMismatchException
+	 *             Problem parsing the error message.
+	 */
+	private void setProxy(final RConnection conn) throws RserveException,
+			REXPMismatchException {
+		if (!proxyHost.getStringValue().isEmpty()) {
+			// http://username:password@proxy.server:8080
+			final StringBuilder proxyString = new StringBuilder("http://");
+			if (!proxyUser.getStringValue().isEmpty()) {
+				proxyString.append(proxyUser.getStringValue());
+				if (!proxyPassword.getStringValue().isEmpty()) {
+					proxyString.append(':').append(
+							proxyPassword.getStringValue());
+				}
+				proxyString.append("@");
+			}
+			proxyString.append(proxyHost.getStringValue()).append(':').append(
+					proxyPort.getIntValue());
+			RUtil.voidEval(conn, "Sys.setenv(\"http_proxy\" = \"" + proxyString
+					+ "\")");
+		}
+	}
+
+	/**
+	 * Collects the gene ids from {@code inData}.
+	 * 
+	 * @param inData
+	 *            The {@link BufferedDataTable}.
+	 * @param index
+	 *            The index of the gene id column.
+	 * @return The collected (comma separated) ids in a {@link StringBuilder}.
+	 */
+	private StringBuilder collectIds(final BufferedDataTable inData,
+			final int index) {
+		final StringBuilder ids = new StringBuilder();
+		for (final DataRow row : inData) {
+			final DataCell dataCell = row.getCell(index);
+			final int value = getValue(dataCell);
+			if (value != -1) {
+				ids.append(value).append(", ");
+			}
+		}
+		if (ids.length() > 1) {
+			ids.setLength(ids.length() - 2);
+		} else {
+			throw new IllegalStateException(
+					"No (numeric) gene ids present. Execution aborted.");
+		}
+		return ids;
+	}
+
+	/**
+	 * Finds the {@code colName} (case insensitive) column in the data table.
+	 * 
+	 * @param inData
+	 *            A {@link BufferedDataTable}.
+	 * @param colName
+	 *            The name of the column.
+	 * @return The index of the column.
+	 */
+	private static int findColumn(final BufferedDataTable inData,
+			final String colName) {
+		int index = -1;
+		for (int i = 0; i < inData.getDataTableSpec().getNumColumns(); ++i) {
+			if (inData.getDataTableSpec().getColumnSpec(i).getName()
+					.equalsIgnoreCase(colName)) {
+				index = i;
+				break;
+			}
+		}
+		return index;
 	}
 
 	private int getValue(final DataCell dataCell) {
@@ -286,7 +334,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 					value = Integer.parseInt(strCell.getStringValue());
 				} catch (final RuntimeException e) {
 					// if (errorCount < 4) {
-					logger.warn("Wrong number: " + strCell.getStringValue(), e);
+					logger.debug("Wrong number: " + strCell.getStringValue());
 					// }
 					// ++errorCount;
 				}
@@ -294,7 +342,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		} else if (dataCell instanceof IntCell) {
 			final IntCell intCell = (IntCell) dataCell;
 			value = intCell.getIntValue();
-		} else {
+		} else if (!dataCell.isMissing()) {
 			throw new IllegalArgumentException("Wrong type of geneID: "
 					+ dataCell.getClass());
 		}
@@ -306,7 +354,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO: generated method stub
+		// Do nothing
 	}
 
 	/**
@@ -328,18 +376,35 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 		}
 		final String[] newAttributes = biomartAttributesModel
 				.getStringArrayValue();
+		final DataColumnSpec[] newColSpecs = createNewColSpecs(inSpecs[0],
+				newAttributes);
 		final DataColumnSpec[] newCols = new DataColumnSpec[inSpecs[0]
 				.getNumColumns()
 				+ newAttributes.length];
 		for (int i = inSpecs[0].getNumColumns(); i-- > 0;) {
 			newCols[i] = inSpecs[0].getColumnSpec(i);
 		}
-		for (int i = newAttributes.length; i-- > 0;) {
-			newCols[inSpecs[0].getNumColumns() + i] = new DataColumnSpecCreator(
-					findNewName(inSpecs[0], newAttributes[i], 0),
-					StringCell.TYPE).createSpec();
-		}
+		System.arraycopy(newColSpecs, 0, newCols, inSpecs[0].getNumColumns(),
+				newAttributes.length);
+		// newCols[inSpecs[0].getNumColumns() + i]
 		return new DataTableSpec[] { new DataTableSpec(newCols) };
+	}
+
+	/**
+	 * @param inSpec
+	 *            The original {@link DataTableSpec}.
+	 * @param newAttributes
+	 *            The name of the new columns.
+	 * @return The new {@link DataColumnSpec}s with {@link StringCell} types.
+	 */
+	private DataColumnSpec[] createNewColSpecs(final DataTableSpec inSpec,
+			final String[] newAttributes) {
+		final DataColumnSpec[] newColSpecs = new DataColumnSpec[newAttributes.length];
+		for (int i = newAttributes.length; i-- > 0;) {
+			newColSpecs[i] = new DataColumnSpecCreator(findNewName(inSpec,
+					newAttributes[i], 0), StringCell.TYPE).createSpec();
+		}
+		return newColSpecs;
 	}
 
 	private static final Pattern numberEnding = Pattern.compile("(.+?)[0-9]+$");
@@ -413,7 +478,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// Do nothing, no internal state
 	}
 
 	/**
@@ -423,7 +488,7 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// Do nothing, no internal state
 	}
 
 }
