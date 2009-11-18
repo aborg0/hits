@@ -174,8 +174,12 @@ public class DialogComponentFileSelectionWithPreview extends
 			if (imagePanel != null) {
 				stopPreview();
 				try {
-					imagePanel.set(new BufferedImage(400, 400,
-							BufferedImage.TYPE_INT_RGB));
+					final BufferedImage bi = new BufferedImage(400, 400,
+							BufferedImage.TYPE_INT_RGB);
+					bi.getGraphics().drawString(
+							"Error loading image, file does not exist", 100,
+							200);
+					imagePanel.set(bi);
 				} catch (final RuntimeException e) {
 					logger.debug("Problem with handling exception: "
 							+ e.getMessage());
