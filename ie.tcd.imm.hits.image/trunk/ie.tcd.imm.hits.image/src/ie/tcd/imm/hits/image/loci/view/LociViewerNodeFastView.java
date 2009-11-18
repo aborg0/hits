@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.select.NamedSelector;
 import ie.tcd.imm.hits.util.select.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
+import ie.tcd.imm.hits.view.util.ColourUtil;
 import ie.tcd.imm.hits.view.util.SimpleWellSelection;
 import ie.tcd.imm.hits.view.util.ZoomScrollPane;
 import ie.tcd.imm.hits.view.util.Zoomable.ZoomListener;
@@ -16,6 +17,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -29,6 +31,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,6 +49,7 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -62,6 +66,22 @@ import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.plugins.util.ImagePlusReader;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.Layer;
+import org.jfree.ui.RectangleEdge;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
@@ -204,6 +224,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		zoomSlider.setLabelTable(zoomSlider.createStandardLabels(50, 50));
 		((DefaultEditor) zoomSpinner.getEditor()).getTextField().setColumns(5);
 	}
+	private Map<String, LUT> luts = new HashMap<String, LUT>();
 
 	static {
 		JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
@@ -471,6 +492,16 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						.addAll(createSampleChannelNames(reader.getSizeC()));
 			}
 		}
+		int i = 0;
+		for (final String channel : channelNames) {
+			if (!luts.containsKey(channelNames)) {
+				final LUT lut = (LUT) ColourUtil.LUTS[i++
+						% ColourUtil.LUTS.length].clone();
+				lut.min = 0.0;
+				lut.max = 255;
+				luts.put(channel, lut);
+			}
+		}
 		channelSelector = new OptionalNamedSelector<String>(CHANNEL,
 				NamedSelector.createValues(channelNames), Collections
 						.singleton(Integer.valueOf(1)));
@@ -485,6 +516,99 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					final ImagePlusReader imagePlusReader = ImagePlusReader
 							.makeImagePlusReader(formatReader);
 					imagePlusReader.setSeries(entry.getKey().intValue());
+					final XYDataset histogram = createHistogram(imagePlusReader
+							.openProcessors(0)[0]);
+					final JFreeChart lineChart = ChartFactory
+							.createXYLineChart("Histogram", null, null,
+									histogram, PlotOrientation.VERTICAL, true,
+									true, false);
+
+					lineChart.getXYPlot().getDomainAxis().setRange(
+							histogram.getXValue(0, 0),
+							histogram.getXValue(0,
+									histogram.getItemCount(0) - 1));
+					final ChartPanel chartPanel = new ChartPanel(lineChart);
+					final double minX = lineChart.getXYPlot().getDomainAxis()
+							.getLowerBound();
+					final double maxX = lineChart.getXYPlot().getDomainAxis()
+							.getUpperBound();
+					// chartPanel.getChart().getXYPlot().addAnnotation(
+					// new XYLineAnnotation(minX, lineChart.getXYPlot()
+					// .getRangeAxis().getLowerBound(), minX,
+					// lineChart.getXYPlot().getRangeAxis()
+					// .getUpperBound()), false);
+					// final XYLineAnnotation maxAnnotation = new
+					// XYLineAnnotation(
+					// maxX, lineChart.getXYPlot().getRangeAxis()
+					// .getLowerBound(), maxX,
+					// lineChart.getXYPlot().getRangeAxis()
+					// .getUpperBound(), new BasicStroke(3),
+					// Color.BLACK);
+					chartPanel.getChart().getXYPlot().addDomainMarker(
+							new ValueMarker(minX), Layer.FOREGROUND);
+					chartPanel.getChart().getXYPlot().addDomainMarker(
+							new ValueMarker(maxX), Layer.FOREGROUND);
+					// chartPanel.getChart().getXYPlot().addAnnotation(
+					// maxAnnotation, false);
+					chartPanel.addChartMouseListener(new ChartMouseListener() {
+						private ValueMarker selectedMarker = null;
+
+						@Override
+						public void chartMouseMoved(final ChartMouseEvent event) {
+							// Do nothing
+						}
+
+						@Override
+						public void chartMouseClicked(
+								final ChartMouseEvent event) {
+							final ChartEntity entity = event.getEntity();
+							if (entity == null) {
+								return;
+							}
+							final XYPlot xyPlot = lineChart.getXYPlot();
+							final Collection<?> domainMarkers = xyPlot
+									.getDomainMarkers(Layer.FOREGROUND);
+							boolean clickedOnMarker = false;
+							final ValueAxis domainAxis = xyPlot.getDomainAxis();
+							final RectangleEdge domainAxisLocation = Plot
+									.resolveDomainAxisLocation(xyPlot
+											.getDomainAxisLocation(), xyPlot
+											.getOrientation());
+							for (final Object object : domainMarkers) {
+								if (object instanceof ValueMarker) {
+									final ValueMarker marker = (ValueMarker) object;
+									final double valueToJava2D = domainAxis
+											.valueToJava2D(
+													marker.getValue(),
+													chartPanel
+															.getScreenDataArea(),
+													domainAxisLocation);
+									if (Math.abs(event.getTrigger().getX()
+											- valueToJava2D) < 3) {
+										selectedMarker = marker;
+										clickedOnMarker = true;
+										break;
+									}
+								}
+								if (!clickedOnMarker) {
+									if (selectedMarker != null) {
+										final double value = domainAxis
+												.java2DToValue(
+														event.getTrigger()
+																.getX(),
+														chartPanel
+																.getScreenDataArea(),
+														domainAxisLocation);
+										selectedMarker.setValue(value);
+									}
+									selectedMarker = null;
+								}
+							}
+						}
+					});
+					JOptionPane.showMessageDialog(controlsHandlerFactory
+							.getContainer(SplitType.AdditionalInfo, CHANNEL),
+							chartPanel);
 					imageScrollPane.getViewport().setSize(
 							imagePlusReader.getSizeX(),
 							imagePlusReader.getSizeY());
@@ -506,6 +630,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					for (int i = 0; i < Math.min(3, imagePlusReader.getSizeC()); ++i) {
 						final ImagePlus image = new ImagePlus(null,
 								imagePlusReader.openProcessors(i)[0]);
+						image.getProcessor().setMinAndMax(minX, maxX);
 						new ImageConverter(image).convertToGray8();
 						imageStack.addSlice(null, image.getProcessor());
 					}
@@ -519,6 +644,44 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					imagePlus = new ImagePlus();
 					logger.error("", ex);
 				}
+			}
+
+			private XYDataset createHistogram(
+					final ImageProcessor imageProcessor) {
+				// final DefaultXYDataset ret = new DefaultXYDataset();// new
+				final XYSeries ret = new XYSeries("Histogram");
+				// HistogramDataset();
+				// ret.setType(HistogramType.FREQUENCY);
+				final int[] histogram = imageProcessor.getHistogram();
+				final double[] dh = new double[histogram.length];
+				for (int i = dh.length; i-- > 0;) {
+					dh[i] = histogram[i];
+				}
+				int min = -1;
+				for (int i = 0; i < histogram.length; ++i) {
+					if (histogram[i] == 0) {
+						min = i;
+					} else {
+						break;
+					}
+				}
+				int max = histogram.length;
+				for (int i = histogram.length; i-- > 0;) {
+					if (histogram[i] == 0) {
+						max = i;
+					} else {
+						break;
+					}
+				}
+				// final double[][] data = new double[2][max - min + 1];
+				for (int i = max - min; i-- > 0;) {
+					// data[0][i] = min + i;
+					// data[1][i] = histogram[i + min];
+					ret.add(min + i, histogram[i + min]);
+				}
+				// ret.addSeries("Histogram", data);
+				// ret.addSeries("Histogram", dh, histogram.length, min, max);
+				return new XYSeriesCollection(ret);
 			}
 		};
 		channelSelector.addActionListener(actionListener);
