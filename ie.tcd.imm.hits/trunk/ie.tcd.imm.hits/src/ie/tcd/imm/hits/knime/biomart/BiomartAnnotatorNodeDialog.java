@@ -88,7 +88,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				new SettingsModelBoolean(
 						BiomartAnnotatorNodeModel.CFGKEY_PROXY_FROM_ECLIPSE,
 						BiomartAnnotatorNodeModel.DEFAULT_PROXY_FROM_ECLIPSE),
-				"Use eclipse settings?");
+				"Use KNIME proxy settings?");
 		final DialogComponentString proxyHost = new DialogComponentString(
 				new SettingsModelString(
 						BiomartAnnotatorNodeModel.CFGKEY_PROXY_HOST,
@@ -235,6 +235,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		setHorizontalPlacement(false);
 		createNewTab(PROXY_TAB_NAME);
 		addDialogComponent(proxyFromEclipse);
+		createNewGroup("Custom proxy settings");
 		final ChangeListener proxyFromEclipseChangeListener = new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) /* => */{
@@ -247,6 +248,7 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 				if (settingsFromEclipse) {
 					final IProxyService proxyService = OpenStream
 							.getProxyService();
+					// TODO update when KNIME is based on eclipse 3.5
 					final IProxyData proxyDataForHost = proxyService
 							.getProxyDataForHost("biomart.org",
 									IProxyData.HTTP_PROXY_TYPE);
