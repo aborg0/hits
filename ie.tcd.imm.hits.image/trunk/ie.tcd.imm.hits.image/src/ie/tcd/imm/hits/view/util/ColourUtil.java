@@ -3,6 +3,8 @@
  */
 package ie.tcd.imm.hits.view.util;
 
+import ij.process.LUT;
+
 //import ij.process.LUT;
 
 /**
@@ -14,18 +16,18 @@ public class ColourUtil {
 	private static int RANGE = 256;
 	private static final byte[] ZERO = new byte[RANGE];
 
-//	public static LUT RED = new LUT(makeLinear(), ZERO, ZERO);
-//	public static LUT GREEN = new LUT(ZERO, makeLinear(), ZERO);
-//	public static LUT BLUE = new LUT(ZERO, ZERO, makeLinear());
-//	public static LUT INV_RED = new LUT(invert(makeLinear()), invert(ZERO),
-//			invert(ZERO));
-//	public static LUT INV_GREEN = new LUT(invert(ZERO), invert(makeLinear()),
-//			invert(ZERO));
-//	public static LUT INV_BLUE = new LUT(invert(ZERO), invert(ZERO),
-//			invert(makeLinear()));
-//
-//	public static LUT[] LUTS = new LUT[] { RED, BLUE, GREEN, INV_RED, INV_BLUE,
-//			INV_GREEN };
+	public static LUT RED = new LUT(makeLinear(), ZERO, ZERO);
+	public static LUT GREEN = new LUT(ZERO, makeLinear(), ZERO);
+	public static LUT BLUE = new LUT(ZERO, ZERO, makeLinear());
+	public static LUT INV_RED = new LUT(invert(makeLinear()), invert(ZERO),
+			invert(ZERO));
+	public static LUT INV_GREEN = new LUT(invert(ZERO), invert(makeLinear()),
+			invert(ZERO));
+	public static LUT INV_BLUE = new LUT(invert(ZERO), invert(ZERO),
+			invert(makeLinear()));
+
+	public static LUT[] LUTS = new LUT[] { RED, BLUE, GREEN, INV_RED, INV_BLUE,
+			INV_GREEN };
 
 	/**
 	 * @return

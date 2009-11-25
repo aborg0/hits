@@ -29,9 +29,13 @@ import org.openmicroscopy.shoola.env.init.SplashScreenInit;
  */
 public class OMEROReaderNodeModel extends NodeModel {
 	static {
-		final String pluginPath = ((org.eclipse.osgi.baseadaptor.BaseData) ((org.eclipse.osgi.framework.internal.core.BundleHost) ImagePlugin
-				.getDefault().getBundle()).getBundleData()).getBundleFile()
-				.getBaseFile().getAbsolutePath();
+		String pluginPath;
+		try {
+			pluginPath = ImagePlugin.getDefault().getPluginPath()
+					.getAbsolutePath();
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
 		FakeInitializer.replaceInitTask(LoginServiceInit.class,
 				BatchLoginServiceInit.class);
 		FakeInitializer.replaceInitTask(SplashScreenInit.class,

@@ -1,7 +1,7 @@
 package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.image.util.ConvertImage;
+import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.ITriple;
@@ -10,29 +10,31 @@ import ie.tcd.imm.hits.util.select.NamedSelector;
 import ie.tcd.imm.hits.util.select.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
+import ie.tcd.imm.hits.view.util.ColourUtil;
 import ie.tcd.imm.hits.view.util.SimpleWellSelection;
 import ie.tcd.imm.hits.view.util.ZoomScrollPane;
 import ie.tcd.imm.hits.view.util.Zoomable.ZoomListener;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -182,6 +184,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private List<ActionListener> listenersToNotGCd = new ArrayList<ActionListener>();
 	private ZoomScrollPane imageScrollPane;
 	private ImagePlus imagePlus;
+	private ImageProcessor[] imageProcessors;
 
 	private BoundedRangeModel zoomModel = new DefaultBoundedRangeModel(100, 0,
 			10, 400);
@@ -189,7 +192,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private SpinnerModel secondZoomModel = new SpinnerNumberModel(100, 10, 400,
 			1);
 	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
+	private Map<String, LUT> luts = new HashMap<String, LUT>();
 	private JPanel otherPanel;
+	protected int sizeX;
+	protected int sizeY;
 	private SimpleWellSelection wellSel;
 	private HiLiteListenerWells hiLiteListener;
 	{
@@ -226,7 +232,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		zoomSlider.setLabelTable(zoomSlider.createStandardLabels(50, 50));
 		((DefaultEditor) zoomSpinner.getEditor()).getTextField().setColumns(5);
 	}
-	// private Map<String, LUT> luts = new HashMap<String, LUT>();
 
 	static {
 		JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
@@ -296,33 +301,31 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		otherPanel.add(wellSel);
 		final JMenu hiliteMenu = new JMenu(HiLiteHandler.HILITE);
 		getJMenuBar().add(hiliteMenu);
-		hiliteMenu
-				.add(new AbstractAction(HiLiteHandler.HILITE_SELECTED)/* => */{
-					private static final long serialVersionUID = -6054254350021725863L;
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.HILITE_SELECTED) {
+			private static final long serialVersionUID = -6054254350021725863L;
 
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						final Set<RowKey> selections = findSelectedRowKeys();
-						getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(
-								selections);
-					}
-				});
-		hiliteMenu
-				.add(new AbstractAction(HiLiteHandler.UNHILITE_SELECTED)/* => */{
-					private static final long serialVersionUID = 8360935725278415300L;
+			@Override
+			public void actionPerformed(final ActionEvent e)/* => */{
+				final Set<RowKey> selections = findSelectedRowKeys();
+				getNodeModel().getInHiLiteHandler(0)
+						.fireHiLiteEvent(selections);
+			}
+		});
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.UNHILITE_SELECTED) {
+			private static final long serialVersionUID = 8360935725278415300L;
 
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						final Set<RowKey> selections = findSelectedRowKeys();
-						getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
-								selections);
-					}
-				});
-		hiliteMenu.add(new AbstractAction(HiLiteHandler.CLEAR_HILITE)/* => */{
+			@Override
+			public void actionPerformed(final ActionEvent e)/* => */{
+				final Set<RowKey> selections = findSelectedRowKeys();
+				getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
+						selections);
+			}
+		});
+		hiliteMenu.add(new AbstractAction(HiLiteHandler.CLEAR_HILITE) {
 			private static final long serialVersionUID = 7449582397283093888L;
 
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent();
 			}
 		});
@@ -494,16 +497,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						.addAll(createSampleChannelNames(reader.getSizeC()));
 			}
 		}
-		final int i = 0;
-		for (final String channel : channelNames) {
-			// if (!luts.containsKey(channelNames)) {
-			// final LUT lut = (LUT) ColourUtil.LUTS[i++
-			// % ColourUtil.LUTS.length].clone();
-			// lut.min = 0.0;
-			// lut.max = 255;
-			// luts.put(channel, lut);
-			// }
-		}
+		initLuts(channelNames);
 		channelSelector = new OptionalNamedSelector<String>(CHANNEL,
 				NamedSelector.createValues(channelNames), Collections
 						.singleton(Integer.valueOf(1)));
@@ -515,6 +509,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				}
 				final int channelIndex = findChannelIndex(e == null ? null : e
 						.getSource(), channelSelector);
+				final String channelName = channelSelector.getValueMapping()
+						.get(Integer.valueOf(channelIndex));
 				final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
 						.entrySet().iterator().next();
 				final FormatReader formatReader = entry.getValue();
@@ -523,10 +519,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				imagePlusReader.setSeries(entry.getKey().intValue());
 				XYDataset histogram;
 				try {
-					histogram = createHistogram(imagePlusReader
-							.openProcessors(channelIndex - 1)[0],
-							channelSelector.getValueMapping().get(
-									Integer.valueOf(channelIndex)));
+					histogram = createHistogram(
+							new ImageProcessor[] { imagePlusReader
+									.openProcessors(channelIndex - 1)[0] },
+							channelName);
 					final JFreeChart lineChart = ChartFactory
 							.createXYLineChart("Histogram", null, null,
 									histogram, PlotOrientation.VERTICAL, true,
@@ -536,88 +532,27 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							histogram.getXValue(0, 0),
 							histogram.getXValue(0,
 									histogram.getItemCount(0) - 1));
-					final ChartPanel chartPanel = new ChartPanel(lineChart);
-					final double minX = lineChart.getXYPlot().getDomainAxis()
-							.getLowerBound();
-					final double maxX = lineChart.getXYPlot().getDomainAxis()
-							.getUpperBound();
-					// chartPanel.getChart().getXYPlot().addAnnotation(
-					// new XYLineAnnotation(minX, lineChart.getXYPlot()
-					// .getRangeAxis().getLowerBound(), minX,
-					// lineChart.getXYPlot().getRangeAxis()
-					// .getUpperBound()), false);
-					// final XYLineAnnotation maxAnnotation = new
-					// XYLineAnnotation(
-					// maxX, lineChart.getXYPlot().getRangeAxis()
-					// .getLowerBound(), maxX,
-					// lineChart.getXYPlot().getRangeAxis()
-					// .getUpperBound(), new BasicStroke(3),
-					// Color.BLACK);
-					chartPanel.getChart().getXYPlot().addDomainMarker(
-							new ValueMarker(minX), Layer.FOREGROUND);
-					chartPanel.getChart().getXYPlot().addDomainMarker(
-							new ValueMarker(maxX), Layer.FOREGROUND);
-					// chartPanel.getChart().getXYPlot().addAnnotation(
-					// maxAnnotation, false);
-					chartPanel.addChartMouseListener(new ChartMouseListener() {
-						private ValueMarker selectedMarker = null;
-
-						@Override
-						public void chartMouseMoved(final ChartMouseEvent event) {
-							// Do nothing
-						}
-
-						@Override
-						public void chartMouseClicked(
-								final ChartMouseEvent event) {
-							final ChartEntity entity = event.getEntity();
-							if (entity == null) {
-								return;
-							}
-							final XYPlot xyPlot = lineChart.getXYPlot();
-							final Collection<?> domainMarkers = xyPlot
-									.getDomainMarkers(Layer.FOREGROUND);
-							boolean clickedOnMarker = false;
-							final ValueAxis domainAxis = xyPlot.getDomainAxis();
-							final RectangleEdge domainAxisLocation = Plot
-									.resolveDomainAxisLocation(xyPlot
-											.getDomainAxisLocation(), xyPlot
-											.getOrientation());
-							for (final Object object : domainMarkers) {
-								if (object instanceof ValueMarker) {
-									final ValueMarker marker = (ValueMarker) object;
-									final double valueToJava2D = domainAxis
-											.valueToJava2D(
-													marker.getValue(),
-													chartPanel
-															.getScreenDataArea(),
-													domainAxisLocation);
-									if (Math.abs(event.getTrigger().getX()
-											- valueToJava2D) < 3) {
-										selectedMarker = marker;
-										clickedOnMarker = true;
-										break;
-									}
-								}
-								if (!clickedOnMarker) {
-									if (selectedMarker != null) {
-										final double value = domainAxis
-												.java2DToValue(
-														event.getTrigger()
-																.getX(),
-														chartPanel
-																.getScreenDataArea(),
-														domainAxisLocation);
-										selectedMarker.setValue(value);
-									}
-									selectedMarker = null;
-								}
-							}
-						}
-					});
-					JOptionPane.showMessageDialog(controlsHandlerFactory
-							.getContainer(SplitType.AdditionalInfo, CHANNEL),
-							chartPanel);
+					final LUT lut = luts.get(channelName);
+					final double lutMin = lut.min, lutMax = lut.max;
+					final ChartPanel chartPanel = createChartPanel(lineChart,
+							lut);
+					final int selectedOption = JOptionPane.showOptionDialog(
+							controlsHandlerFactory.getContainer(
+									SplitType.AdditionalInfo, CHANNEL),
+							chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.PLAIN_MESSAGE, null, null, null);
+					switch (selectedOption) {
+					case JOptionPane.OK_OPTION:
+						// Do nothing, we have done the changes previously
+						break;
+					case JOptionPane.CANCEL_OPTION:
+						lut.min = lutMin;
+						lut.max = lutMax;
+						break;
+					default:
+						throw new IllegalStateException("Unexpected option: "
+								+ selectedOption);
+					}
 				} catch (final FormatException e1) {
 					JOptionPane.showMessageDialog(controlsHandlerFactory
 							.getContainer(SplitType.AdditionalInfo, CHANNEL),
@@ -628,67 +563,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							"Unable to handle image: " + e1.getMessage());
 				}
 			}
-
-			private int findChannelIndex(@Nullable final Object source,
-					final OptionalNamedSelector<String> channelSelector) {
-				if (source instanceof AbstractButton) {
-					final AbstractButton button = (AbstractButton) source;
-					final String channelName = button.getText();
-					for (final Entry<Integer, String> entry : channelSelector
-							.getValueMapping().entrySet()) {
-						if (channelName.equals(entry.getValue())) {
-							return entry.getKey().intValue();
-						}
-					}
-				}
-				final Set<Integer> selections = channelSelector.getSelections();
-				return selections.isEmpty() ? 0 : selections.iterator().next()
-						.intValue();
-			}
-
-			private XYDataset createHistogram(
-					final ImageProcessor imageProcessor,
-					final String channelName) {
-				// final DefaultXYDataset ret = new DefaultXYDataset();// new
-				final XYSeries ret = new XYSeries(channelName);
-				// HistogramDataset();
-				// ret.setType(HistogramType.FREQUENCY);
-				final int[] histogram = imageProcessor.getHistogram();
-				final double[] dh = new double[histogram.length];
-				for (int i = dh.length; i-- > 0;) {
-					dh[i] = histogram[i];
-				}
-				int min = -1;
-				for (int i = 0; i < histogram.length; ++i) {
-					if (histogram[i] == 0) {
-						min = i;
-					} else {
-						break;
-					}
-				}
-				int max = histogram.length;
-				for (int i = histogram.length; i-- > 0;) {
-					if (histogram[i] == 0) {
-						max = i;
-					} else {
-						break;
-					}
-				}
-				// final double[][] data = new double[2][max - min + 1];
-				for (int i = max - min; i-- > 0;) {
-					// data[0][i] = min + i;
-					// data[1][i] = histogram[i + min];
-					ret.add(min + i, histogram[i + min]);
-				}
-				// ret.addSeries("Histogram", data);
-				// ret.addSeries("Histogram", dh, histogram.length, min, max);
-				return new XYSeriesCollection(ret);
-			}
 		};
 		final ActionListener actionListener = new ActionListener() {
 
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				try {
 					final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
 							.entrySet().iterator().next();
@@ -697,32 +576,40 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							.makeImagePlusReader(formatReader);
 					imagePlusReader.setSeries(entry.getKey().intValue());
 					imageScrollPane.getViewport().setSize(
-							imagePlusReader.getSizeX(),
-							imagePlusReader.getSizeY());
+							sizeX = imagePlusReader.getSizeX(),
+							sizeY = imagePlusReader.getSizeY());
+					imageProcessors = new ImageProcessor[channelSelector
+							.getValueMapping().size()];
 					final Set<Integer> channels = channelSelector
 							.getSelections();
-					if (channels.size() == 1) {
-						final int channel = channels.iterator().next()
-								.intValue() - 1;
-						final ImageProcessor[] openProcessors = imagePlusReader
-								.openProcessors(channel);
-						final ImageProcessor ip = /* reader */openProcessors[0];
-						imagePlus = new ImagePlus("", ip);
-						repaintImage();
-						return;
+					for (final Integer channel : channelSelector
+							.getActiveValues()) {
+						imageProcessors[channel.intValue() - 1] = imagePlusReader
+								.openProcessors(channel.intValue() - 1)[0];
 					}
-					final ImageStack imageStack = new ImageStack(
-							imagePlusReader.getSizeX(), imagePlusReader
-									.getSizeY());
-					for (int i = 0; i < Math.min(3, imagePlusReader.getSizeC()); ++i) {
-						final ImagePlus image = new ImagePlus(null,
-								imagePlusReader.openProcessors(i)[0]);
-						// image.getProcessor().setMinAndMax(minX, maxX);
-						new ImageConverter(image).convertToGray8();
-						imageStack.addSlice(null, image.getProcessor());
-					}
-					imagePlus = new ImagePlus("", imageStack);
-					new ImageConverter(imagePlus).convertRGBStackToRGB();
+					// if (channels.size() == 1) {
+					// final int channel = channels.iterator().next()
+					// .intValue() - 1;
+					// final ImageProcessor[] openProcessors = imagePlusReader
+					// .openProcessors(channel);
+					// final ImageProcessor ip = /* reader */openProcessors[0];
+					// imagePlus = new ImagePlus("", ip);
+					// repaintImage();
+					// return;
+					// }
+					// final ImageStack imageStack = new ImageStack(
+					// imagePlusReader.getSizeX(), imagePlusReader
+					// .getSizeY());
+					// for (int i = 0; i < Math.min(3,
+					// imagePlusReader.getSizeC()); ++i) {
+					// final ImagePlus image = new ImagePlus(null,
+					// imagePlusReader.openProcessors(i)[0]);
+					// // image.getProcessor().setMinAndMax(minX, maxX);
+					// new ImageConverter(image).convertToGray8();
+					// imageStack.addSlice(null, image.getProcessor());
+					// }
+					// imagePlus = new ImagePlus("", imageStack);
+					// new ImageConverter(imagePlus).convertRGBStackToRGB();
 					repaintImage();
 				} catch (final FormatException ex) {
 					imagePlus = new ImagePlus();
@@ -741,6 +628,25 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				SplitType.PrimarySplit, GENERAL, ControlTypes.Buttons);
 		if (getPlateRowColFieldMap() != null) {
 			actionListener.actionPerformed(null);
+		}
+	}
+
+	/**
+	 * Initialise the {@link LUT}s for each channel.
+	 * 
+	 * @param channelNames
+	 *            The the name of the channels.
+	 */
+	private void initLuts(final List<String> channelNames) {
+		int i = 0;
+		for (final String channel : channelNames) {
+			if (!luts.containsKey(channelNames)) {
+				final LUT lut = (LUT) ColourUtil.LUTS[i++
+						% ColourUtil.LUTS.length].clone();
+				lut.min = 0.0;
+				lut.max = 255;
+				luts.put(channel, lut);
+			}
 		}
 	}
 
@@ -803,10 +709,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 */
 	protected void repaintImage() {
 		// TODO update when newer ImageJ is available
-		final Image origImage = imagePlus.getImage();// imagePlus.getBufferedImage();
+		final Set<Integer> selectedChannels = channelSelector.getSelections();
+		repaintImage(selectedChannels);
+	}
+
+	/**
+	 * @param selectedChannels
+	 */
+	private void repaintImage(final Set<Integer> selectedChannels) {
+		final RenderedImage origImage = generateImage(selectedChannels);
+		// ConvertImage.toBufferedImage(imagePlus.getImage());//
+		// imagePlus.getBufferedImage();
 		final float scale = zoomModel.getValue() / 100.0f;
 		final ParameterBlock pb = new ParameterBlock();
-		pb.addSource(ConvertImage.toBufferedImage(origImage));
+		pb.addSource(origImage);
 		pb.add(scale);
 		pb.add(scale);
 		pb.add(0.0f);
@@ -827,6 +743,50 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
 		// imagePanel.revalidate();
 		// imageScrollPane.revalidate();
+	}
+
+	/**
+	 * @param selectedChannels
+	 * @return
+	 */
+	private RenderedImage generateImage(final Set<Integer> selectedChannels) {
+		// if (channels.size() == 1) {
+		// final int channel = channels.iterator().next()
+		// .intValue() - 1;
+		// final ImageProcessor[] openProcessors = imagePlusReader
+		// .openProcessors(channel);
+		// final ImageProcessor ip = /* reader */openProcessors[0];
+		// imagePlus = new ImagePlus("", ip);
+		// repaintImage();
+		// return;
+		// }
+		// final ImageStack imageStack = new ImageStack(
+		// imagePlusReader.getSizeX(), imagePlusReader
+		// .getSizeY());
+		// for (int i = 0; i < Math.min(3,
+		// imagePlusReader.getSizeC()); ++i) {
+		// final ImagePlus image = new ImagePlus(null,
+		// imagePlusReader.openProcessors(i)[0]);
+		// // image.getProcessor().setMinAndMax(minX, maxX);
+		// new ImageConverter(image).convertToGray8();
+		// imageStack.addSlice(null, image.getProcessor());
+		// }
+		// imagePlus = new ImagePlus("", imageStack);
+		// new ImageConverter(imagePlus).convertRGBStackToRGB();
+		final ImageStack stack = new ImageStack(sizeX, sizeY);
+		for (final Integer channelInt : selectedChannels) {
+			final int channel = channelInt.intValue() - 1;
+			final String channelName = channelSelector.getValueMapping().get(
+					channelInt);
+			final LUT lut = luts.get(channelName);
+			final ImagePlus imp = new ImagePlus("", imageProcessors[channel]);
+			new ImageConverterEnh(imp).convertToRGB(lut);
+			stack.addSlice(null, imp.getProcessor());
+		}
+		final ImagePlus ret = new ImagePlus("", stack);
+		// new ImageConverter(ret).convertToRGB();
+		new ImageConverterEnh(ret).convertStackToRGB();
+		return ret.getBufferedImage();// ConvertImage.toBufferedImage(ret.getImage());
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
@@ -949,5 +909,165 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			}
 		}
 		return selections;
+	}
+
+	private static int findChannelIndex(@Nullable final Object source,
+			final OptionalNamedSelector<String> channelSelector) {
+		if (source instanceof AbstractButton) {
+			final AbstractButton button = (AbstractButton) source;
+			final String channelName = button.getText();
+			for (final Entry<Integer, String> entry : channelSelector
+					.getValueMapping().entrySet()) {
+				if (channelName.equals(entry.getValue())) {
+					return entry.getKey().intValue();
+				}
+			}
+		}
+		final Set<Integer> selections = channelSelector.getSelections();
+		return selections.isEmpty() ? 0 : selections.iterator().next()
+				.intValue();
+	}
+
+	private static XYDataset createHistogram(
+			final ImageProcessor[] imageProcessors,
+			final String... channelNames) {
+		final XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
+		assert imageProcessors.length == channelNames.length;
+		for (int p = 0; p < imageProcessors.length; ++p) {
+			final String channelName = channelNames[p];
+			final ImageProcessor imageProcessor = imageProcessors[p];
+			final XYSeries ret = createHistogram(imageProcessor, channelName);
+			xySeriesCollection.addSeries(ret);
+		}
+		// ret.addSeries("Histogram", data);
+		// ret.addSeries("Histogram", dh, histogram.length, min, max);
+		return xySeriesCollection;
+	}
+
+	/**
+	 * @param imageProcessor
+	 *            An {@link ImageProcessor} to compute the histogram.
+	 * @param channelName
+	 *            The name of the channel.
+	 * @return {@link XYSeries} of {@code imageProcessor}'s histogram.
+	 */
+	private static XYSeries createHistogram(
+			final ImageProcessor imageProcessor, final String channelName) {
+		final XYSeries ret = new XYSeries(channelName);
+		// final DefaultXYDataset ret = new DefaultXYDataset();// new
+		// HistogramDataset();
+		// ret.setType(HistogramType.FREQUENCY);
+		final int[] histogram = imageProcessor.getHistogram();
+		final double[] dh = new double[histogram.length];
+		for (int i = dh.length; i-- > 0;) {
+			dh[i] = histogram[i];
+		}
+		int min = -1;
+		for (int i = 0; i < histogram.length; ++i) {
+			if (histogram[i] == 0) {
+				min = i;
+			} else {
+				break;
+			}
+		}
+		int max = histogram.length;
+		for (int i = histogram.length; i-- > 0;) {
+			if (histogram[i] == 0) {
+				max = i;
+			} else {
+				break;
+			}
+		}
+		// final double[][] data = new double[2][max - min + 1];
+		for (int i = max - min; i-- > 0;) {
+			// data[0][i] = min + i;
+			// data[1][i] = histogram[i + min];
+			ret.add(min + i, histogram[i + min]);
+		}
+		return ret;
+	}
+
+	/**
+	 * @param lineChart
+	 *            A {@link JFreeChart} to wrap in a {@link ChartPanel}.
+	 * @param lut
+	 *            The {@link LUT} belonging to the {@code lineChart}.
+	 * @return The {@link ChartPanel} with listener to markers.
+	 */
+	private ChartPanel createChartPanel(final JFreeChart lineChart,
+			final LUT lut) {
+		final ChartPanel chartPanel = new ChartPanel(lineChart);
+		// final double minX = lut.min;
+		final double newMinX = lineChart.getXYPlot().getDomainAxis()
+				.getLowerBound();
+		lut.min = newMinX;
+		// final double maxX = lut.max;
+		final double newMaxX = lineChart.getXYPlot().getDomainAxis()
+				.getUpperBound();
+		lut.max = newMaxX;
+		chartPanel.getChart().getXYPlot().addDomainMarker(
+				new ValueMarker(newMinX), Layer.FOREGROUND);
+		chartPanel.getChart().getXYPlot().addDomainMarker(
+				new ValueMarker(newMaxX), Layer.FOREGROUND);
+		chartPanel.addChartMouseListener(new ChartMouseListener() {
+			private ValueMarker selectedMarker = null;
+
+			@Override
+			public void chartMouseMoved(final ChartMouseEvent event)/* => */{
+				// Do nothing
+			}
+
+			@Override
+			public void chartMouseClicked(final ChartMouseEvent event)/* => */{
+				final ChartEntity entity = event.getEntity();
+				if (entity == null) {
+					return;
+				}
+				final XYPlot xyPlot = lineChart.getXYPlot();
+				final Collection<?> domainMarkers = xyPlot
+						.getDomainMarkers(Layer.FOREGROUND);
+				boolean clickedOnMarker = false;
+				final ValueAxis domainAxis = xyPlot.getDomainAxis();
+				final RectangleEdge domainAxisLocation = Plot
+						.resolveDomainAxisLocation(xyPlot
+								.getDomainAxisLocation(), xyPlot
+								.getOrientation());
+				for (final Object object : domainMarkers) {
+					if (object instanceof ValueMarker) {
+						final ValueMarker marker = (ValueMarker) object;
+						final double valueToJava2D = domainAxis.valueToJava2D(
+								marker.getValue(), chartPanel
+										.getScreenDataArea(),
+								domainAxisLocation);
+						if (Math.abs(event.getTrigger().getX() - valueToJava2D) < 3) {
+							selectedMarker = marker;
+							clickedOnMarker = true;
+							break;
+						}
+					}
+				}
+				if (!clickedOnMarker) {
+					if (selectedMarker != null) {
+						final double value = domainAxis.java2DToValue(event
+								.getTrigger().getX(), chartPanel
+								.getScreenDataArea(), domainAxisLocation);
+						selectedMarker.setValue(value);
+					}
+					final List<Double> vals = new ArrayList<Double>();
+					for (final Object object : domainMarkers) {
+						if (object instanceof ValueMarker) {
+							final ValueMarker marker = (ValueMarker) object;
+							vals.add(Double.valueOf(marker.getValue()));
+						}
+					}
+					Collections.sort(vals);
+					lut.min = vals.get(0).doubleValue();
+					lut.max = vals.get(vals.size() - 1).doubleValue();
+					repaintImage();
+					selectedMarker = null;
+				}
+			}
+		});
+		return chartPanel;
 	}
 }
