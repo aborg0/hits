@@ -4,6 +4,7 @@
 package org.knime.core.node.defaultnodesettings;
 
 import ie.tcd.imm.hits.image.loci.read.LociReaderNodeModel;
+import ie.tcd.imm.hits.image.util.ConvertImage;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageConverter;
@@ -264,8 +265,10 @@ public class DialogComponentFileSelectionWithPreview extends
 							final ImageConverter imageConverter = new ImageConverter(
 									pointer[0]);
 							imageConverter.convertRGBStackToRGB();
-							final BufferedImage image = pointer[0]
-									.getBufferedImage();
+							// TODO update when newer ImageJ is available
+							final BufferedImage image = ConvertImage
+									.toBufferedImage(pointer[0].getImage());
+							// .getBufferedImage();
 							assert image != null;
 							imagePanel.set(image);
 							getComponentPanel().revalidate();
