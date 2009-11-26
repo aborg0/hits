@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.image.util.imagej;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
@@ -21,6 +22,7 @@ public class ImageConverterEnh {
 
 	/**
 	 * @param imp
+	 *            An {@link ImagePlus} object.
 	 */
 	public ImageConverterEnh(final ImagePlus imp) {
 		super();
@@ -28,6 +30,15 @@ public class ImageConverterEnh {
 		type = imp.getType();
 	}
 
+	/**
+	 * Converts to {@link ByteProcessor} with linear scaling between {@code min,
+	 * max}. Only single grey scale images are supported.
+	 * 
+	 * @param min
+	 *            The lower bound of the range. (Inclusive)
+	 * @param max
+	 *            The higher bound of the range. (Inclusive)
+	 */
 	public synchronized void convertToGray8(final double min, final double max) {
 		if (imp.getStackSize() > 1) {
 			throw new IllegalArgumentException("Unsupported conversion");
@@ -52,18 +63,51 @@ public class ImageConverterEnh {
 		imp.setCalibration(imp.getCalibration()); // update calibration
 	}
 
+	/**
+	 * Converts a single stacked image to the coloured image using {@code lut}.
+	 * First converts to 8 bit representation with the {@code lut} min/max
+	 * bounds.
+	 * 
+	 * @param lut
+	 *            A {@link LUT}.
+	 */
 	public synchronized void convertToRGB(final LUT lut) {
 		if (imp.getStackSize() > 1) {
 			throw new IllegalArgumentException("Unsupported conversion");
 		}
 		convertToGray8(lut.min, lut.max);
-		final ColorProcessor colorProcessor = new ColorProcessor(imp.getImage());
+		// final ColorProcessor colorProcessor = new
+		// ColorProcessor(imp.getImage());
 		final int[] rgb = new int[256];
 		lut.getRGBs(rgb);
-		colorProcessor.applyTable(rgb, 1);
-		imp.setProcessor(null, colorProcessor);
+		applyTable(rgb);
+		// colorProcessor.applyTable(rgb, 1);
+		// imp.setProcessor(null, colorProcessor);
 	}
 
+	/**
+	 * Applies a mapping from {@code 256} values to the specified rgb values
+	 * coded in the {@code rgb} array.
+	 * 
+	 * @param rgb
+	 *            A {@code 256} length in array.
+	 */
+	private void applyTable(final int[] rgb) {
+		final int[] pixels = new int[imp.getProcessor().getPixelCount()];
+		final byte[] p = (byte[]) imp.getProcessor().getPixels();
+		final ColorProcessor cp = new ColorProcessor(imp.getWidth(), imp
+				.getHeight(), pixels);
+		for (int i = pixels.length; i-- > 0;) {
+			final int idx = p[i] + 256 & 0xff;
+			pixels[i] = rgb[idx];
+		}
+		imp.setProcessor(null, cp);
+	}
+
+	/**
+	 * Converts a stack with {@link ColorProcessor}s to an RGB image, by adding
+	 * the values (unsigned, bounded).
+	 */
 	public synchronized void convertStackToRGB() {
 		final ImageStack stack = imp.getStack();
 		final ColorProcessor[] processors = new ColorProcessor[stack.getSize()];

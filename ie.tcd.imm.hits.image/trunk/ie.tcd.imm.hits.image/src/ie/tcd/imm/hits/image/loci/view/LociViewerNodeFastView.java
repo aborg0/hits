@@ -546,8 +546,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						// Do nothing, we have done the changes previously
 						break;
 					case JOptionPane.CANCEL_OPTION:
+					case JOptionPane.CLOSED_OPTION:
 						lut.min = lutMin;
 						lut.max = lutMax;
+						repaintImage();
 						break;
 					default:
 						throw new IllegalStateException("Unexpected option: "
@@ -580,8 +582,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							sizeY = imagePlusReader.getSizeY());
 					imageProcessors = new ImageProcessor[channelSelector
 							.getValueMapping().size()];
-					final Set<Integer> channels = channelSelector
-							.getSelections();
 					for (final Integer channel : channelSelector
 							.getActiveValues()) {
 						imageProcessors[channel.intValue() - 1] = imagePlusReader
@@ -643,8 +643,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			if (!luts.containsKey(channelNames)) {
 				final LUT lut = (LUT) ColourUtil.LUTS[i++
 						% ColourUtil.LUTS.length].clone();
-				lut.min = 0.0;
-				lut.max = 255;
+				lut.min = Double.NaN;
+				lut.max = Double.NaN;
 				luts.put(channel, lut);
 			}
 		}
@@ -705,19 +705,24 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * Repaint the computed image with the current scaling.
+	 * Repaint the computed image with the current scaling. (Uses the currently
+	 * selected channels.)
 	 */
 	protected void repaintImage() {
-		// TODO update when newer ImageJ is available
 		final Set<Integer> selectedChannels = channelSelector.getSelections();
 		repaintImage(selectedChannels);
 	}
 
 	/**
+	 * Repaints the image with the proper scaling. Only the selected channels
+	 * will be visible.
+	 * 
 	 * @param selectedChannels
+	 *            A {@code 1}-based {@link Set} of channels.
 	 */
 	private void repaintImage(final Set<Integer> selectedChannels) {
 		final RenderedImage origImage = generateImage(selectedChannels);
+		// TODO update when newer ImageJ is available
 		// ConvertImage.toBufferedImage(imagePlus.getImage());//
 		// imagePlus.getBufferedImage();
 		final float scale = zoomModel.getValue() / 100.0f;
@@ -746,8 +751,12 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
+	 * Generates a {@link RenderedImage} based on the current settings.
+	 * 
 	 * @param selectedChannels
-	 * @return
+	 *            The channel ids (starting from {@code 1}) used to generate the
+	 *            image.
+	 * @return The {@link RenderedImage} for the current settings.
 	 */
 	private RenderedImage generateImage(final Set<Integer> selectedChannels) {
 		// if (channels.size() == 1) {
@@ -780,6 +789,12 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					channelInt);
 			final LUT lut = luts.get(channelName);
 			final ImagePlus imp = new ImagePlus("", imageProcessors[channel]);
+			if (Double.isNaN(lut.min)) {
+				lut.min = findMin(imageProcessors[channel].getHistogram());
+			}
+			if (Double.isNaN(lut.max)) {
+				lut.max = findMax(imageProcessors[channel].getHistogram());
+			}
 			new ImageConverterEnh(imp).convertToRGB(lut);
 			stack.addSlice(null, imp.getProcessor());
 		}
@@ -787,6 +802,41 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		// new ImageConverter(ret).convertToRGB();
 		new ImageConverterEnh(ret).convertStackToRGB();
 		return ret.getBufferedImage();// ConvertImage.toBufferedImage(ret.getImage());
+	}
+
+	/**
+	 * Finds the maximal index of non-zero values in histogram.
+	 * 
+	 * @param histogram
+	 *            An array of positive int values.
+	 * @return The maximal index where the value is not {@code 0}, or the last
+	 *         index if there were no such index ({@code -1} if the array is
+	 *         empty).
+	 */
+	private double findMax(final int[] histogram) {
+		for (int i = histogram.length; i-- > 0;) {
+			if (histogram[i] > 0) {
+				return i;
+			}
+		}
+		return histogram.length - 1;
+	}
+
+	/**
+	 * Finds the minimal index of non-zero values in histogram.
+	 * 
+	 * @param histogram
+	 *            An array of positive int values.
+	 * @return The minimal index where the value is not {@code 0}, or the
+	 *         {@code 0} if there were no such index.
+	 */
+	private double findMin(final int[] histogram) {
+		for (int i = 0; i < histogram.length; ++i) {
+			if (histogram[i] > 0) {
+				return i;
+			}
+		}
+		return 0;
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
@@ -997,18 +1047,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private ChartPanel createChartPanel(final JFreeChart lineChart,
 			final LUT lut) {
 		final ChartPanel chartPanel = new ChartPanel(lineChart);
-		// final double minX = lut.min;
-		final double newMinX = lineChart.getXYPlot().getDomainAxis()
-				.getLowerBound();
-		lut.min = newMinX;
-		// final double maxX = lut.max;
-		final double newMaxX = lineChart.getXYPlot().getDomainAxis()
-				.getUpperBound();
-		lut.max = newMaxX;
 		chartPanel.getChart().getXYPlot().addDomainMarker(
-				new ValueMarker(newMinX), Layer.FOREGROUND);
+				new ValueMarker(lut.min), Layer.FOREGROUND);
 		chartPanel.getChart().getXYPlot().addDomainMarker(
-				new ValueMarker(newMaxX), Layer.FOREGROUND);
+				new ValueMarker(lut.max), Layer.FOREGROUND);
 		chartPanel.addChartMouseListener(new ChartMouseListener() {
 			private ValueMarker selectedMarker = null;
 
