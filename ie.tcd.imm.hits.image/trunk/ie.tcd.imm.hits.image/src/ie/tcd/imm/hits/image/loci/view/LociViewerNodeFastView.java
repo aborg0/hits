@@ -49,6 +49,7 @@ import javax.media.jai.RenderedOp;
 import javax.media.jai.util.ImagingListener;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JComponent;
@@ -56,6 +57,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -77,6 +79,7 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.plot.Plot;
@@ -511,67 +514,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				if (e != null && e.getButton() != MouseEvent.BUTTON3) {
 					return;
 				}
-				final int channelIndex = findChannelIndex(e, channelSelector);
-				final String channelName = channelSelector.getValueMapping()
-						.get(Integer.valueOf(channelIndex));
-				final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
-						.entrySet().iterator().next();
-				final FormatReader formatReader = entry.getValue();
-				final ImagePlusReader imagePlusReader = ImagePlusReader
-						.makeImagePlusReader(formatReader);
-				imagePlusReader.setSeries(entry.getKey().intValue());
-				XYDataset histogram;
-				try {
-					histogram = createHistogram(
-							new ImageProcessor[] { imagePlusReader
-									.openProcessors(channelIndex - 1)[0] },
-							channelName);
-					final JFreeChart lineChart = ChartFactory
-							.createXYLineChart("Histogram", null, null,
-									histogram, PlotOrientation.VERTICAL, true,
-									true, false);
-
-					lineChart.getXYPlot().getDomainAxis().setRange(
-							histogram.getXValue(0, 0),
-							histogram.getXValue(0,
-									histogram.getItemCount(0) - 1));
-					final LogarithmicAxis rangeAxis = new LogarithmicAxis(
-							"Frequency");
-					// rangeAxis.setAutoRangeIncludesZero(true);
-					rangeAxis.setAllowNegativesFlag(true);
-					lineChart.getXYPlot().setRangeAxis(rangeAxis);
-					final LUT lut = luts.get(channelName);
-					final double lutMin = lut.min, lutMax = lut.max;
-					final ChartPanel chartPanel = createChartPanel(lineChart,
-							lut);
-					final int selectedOption = JOptionPane.showOptionDialog(
-							controlsHandlerFactory.getContainer(
-									SplitType.AdditionalInfo, CHANNEL),
-							chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
-							JOptionPane.PLAIN_MESSAGE, null, null, null);
-					switch (selectedOption) {
-					case JOptionPane.OK_OPTION:
-						// Do nothing, we have done the changes previously
-						break;
-					case JOptionPane.CANCEL_OPTION:
-					case JOptionPane.CLOSED_OPTION:
-						lut.min = lutMin;
-						lut.max = lutMax;
-						regenerateImage();
-						break;
-					default:
-						throw new IllegalStateException("Unexpected option: "
-								+ selectedOption);
-					}
-				} catch (final FormatException e1) {
-					JOptionPane.showMessageDialog(controlsHandlerFactory
-							.getContainer(SplitType.AdditionalInfo, CHANNEL),
-							"Unable to handle image: " + e1.getMessage());
-				} catch (final IOException e1) {
-					JOptionPane.showMessageDialog(controlsHandlerFactory
-							.getContainer(SplitType.AdditionalInfo, CHANNEL),
-							"Unable to handle image: " + e1.getMessage());
-				}
+				final JPopupMenu popupMenu = createPopupMenu(e);
+				popupMenu.show(e.getComponent(), e.getX(), e.getY());
 			}
 		};
 		final ActionListener actionListener = new ActionListener() {
@@ -1044,6 +988,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				new ValueMarker(lut.min), Layer.FOREGROUND);
 		chartPanel.getChart().getXYPlot().addDomainMarker(
 				new ValueMarker(lut.max), Layer.FOREGROUND);
+		final ValueAxis origDomain = chartPanel.getChart().getXYPlot()
+				.getDomainAxis();
+		final ColouredAxis colouredAxis = new ColouredAxis(
+				(NumberAxis) origDomain, lut);
 		chartPanel.addChartMouseListener(new ChartMouseListener() {
 			private ValueMarker selectedMarker = null;
 
@@ -1103,6 +1051,147 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				}
 			}
 		});
+		chartPanel.getChart().getXYPlot().setDomainAxes(
+				new ValueAxis[] { origDomain, colouredAxis });
 		return chartPanel;
+	}
+
+	/**
+	 * Performs a change in the selected {@link LUT}.
+	 */
+	protected class LUTChangeAction extends AbstractAction {
+		private static final long serialVersionUID = 985037332491541636L;
+		private final LUT lut;
+		private final String channelName;
+
+		/**
+		 * Creates the proper action.
+		 * 
+		 * @param lut
+		 *            The new lut values.
+		 * @param text
+		 *            The text of the {@link Action}.
+		 * @param channelName
+		 *            The channel name it belongs to.
+		 */
+		public LUTChangeAction(final LUT lut, final String text,
+				final String channelName) {
+			super(text);
+			this.lut = lut;
+			this.channelName = channelName;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+		 * )
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final LUT orig = luts.get(channelName);
+			final LUT newLut = (LUT) lut.clone();
+			newLut.min = orig.min;
+			newLut.max = orig.max;
+			luts.put(channelName, newLut);
+			regenerateImage();
+		}
+	}
+
+	/**
+	 * Creates a popup menu to modify the ranges or change the colours.
+	 * 
+	 * @param e
+	 *            The {@link MouseEvent} for the action.
+	 * @return A new popup menu containing the previously mentioned actions.
+	 */
+	private JPopupMenu createPopupMenu(final MouseEvent e) {
+		final JPopupMenu popupMenu = new JPopupMenu("Colours");
+		popupMenu.add(new AbstractAction("modify ranges") {
+			private static final long serialVersionUID = 2203912915467547415L;
+
+			public void actionPerformed(final ActionEvent action)/* => */{
+				final int channelIndex = findChannelIndex(e, channelSelector);
+				final String channelName = channelSelector.getValueMapping()
+						.get(Integer.valueOf(channelIndex));
+				final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
+						.entrySet().iterator().next();
+				final FormatReader formatReader = entry.getValue();
+				final ImagePlusReader imagePlusReader = ImagePlusReader
+						.makeImagePlusReader(formatReader);
+				imagePlusReader.setSeries(entry.getKey().intValue());
+				XYDataset histogram;
+				try {
+					histogram = createHistogram(
+							new ImageProcessor[] { imagePlusReader
+									.openProcessors(channelIndex - 1)[0] },
+							channelName);
+					final JFreeChart lineChart = ChartFactory
+							.createXYLineChart("Histogram", null, null,
+									histogram, PlotOrientation.VERTICAL, true,
+									true, false);
+
+					lineChart.getXYPlot().getDomainAxis().setRange(
+							histogram.getXValue(0, 0),
+							histogram.getXValue(0,
+									histogram.getItemCount(0) - 1));
+					final LogarithmicAxis rangeAxis = new LogarithmicAxis(
+							"Frequency");
+					// rangeAxis.setAutoRangeIncludesZero(true);
+					rangeAxis.setAllowNegativesFlag(true);
+					lineChart.getXYPlot().setRangeAxis(rangeAxis);
+					final LUT lut = luts.get(channelName);
+					final double lutMin = lut.min, lutMax = lut.max;
+					final ChartPanel chartPanel = createChartPanel(lineChart,
+							lut);
+					final int selectedOption = JOptionPane.showOptionDialog(
+							controlsHandlerFactory.getContainer(
+									SplitType.AdditionalInfo, CHANNEL),
+							chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
+							JOptionPane.PLAIN_MESSAGE, null, null, null);
+					switch (selectedOption) {
+					case JOptionPane.OK_OPTION:
+						// Do nothing, we have done the changes previously
+						break;
+					case JOptionPane.CANCEL_OPTION:
+					case JOptionPane.CLOSED_OPTION:
+						lut.min = lutMin;
+						lut.max = lutMax;
+						regenerateImage();
+						break;
+					default:
+						throw new IllegalStateException("Unexpected option: "
+								+ selectedOption);
+					}
+				} catch (final FormatException e1) {
+					JOptionPane.showMessageDialog(controlsHandlerFactory
+							.getContainer(SplitType.AdditionalInfo, CHANNEL),
+							"Unable to handle image: " + e1.getMessage());
+				} catch (final IOException e1) {
+					JOptionPane.showMessageDialog(controlsHandlerFactory
+							.getContainer(SplitType.AdditionalInfo, CHANNEL),
+							"Unable to handle image: " + e1.getMessage());
+				}
+			}
+		});
+		final JMenu colours = new JMenu("change colours");
+		popupMenu.add(colours);
+		final int channelIndex = findChannelIndex(e, channelSelector);
+		final String channelName = channelSelector.getValueMapping().get(
+				Integer.valueOf(channelIndex));
+		colours.add(new LUTChangeAction(ColourUtil.RED,
+				"<html>Black &Rarr; Red</html>", channelName));
+		colours.add(new LUTChangeAction(ColourUtil.BLUE,
+				"<html>Black &Rarr; Blue</html>", channelName));
+		colours.add(new LUTChangeAction(ColourUtil.GREEN,
+				"<html>Black &Rarr; Green</html>", channelName));
+		colours.add(new LUTChangeAction(ColourUtil.INV_RED,
+				"<html>White &Rarr; Cyan</html>", channelName));
+		colours.add(new LUTChangeAction(ColourUtil.INV_BLUE,
+				"<html>White &Rarr; Yellow</html>", channelName));
+		colours.add(new LUTChangeAction(ColourUtil.INV_GREEN,
+				"<html>White &Rarr; Purple</html>", channelName));
+		return popupMenu;
 	}
 }

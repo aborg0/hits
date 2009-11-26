@@ -5,10 +5,8 @@ package ie.tcd.imm.hits.view.util;
 
 import ij.process.LUT;
 
-//import ij.process.LUT;
-
 /**
- * TODO Javadoc!
+ * Defines some constant {@link LUT}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
@@ -16,21 +14,32 @@ public class ColourUtil {
 	private static int RANGE = 256;
 	private static final byte[] ZERO = new byte[RANGE];
 
+	/** From black to red. */
 	public static LUT RED = new LUT(makeLinear(), ZERO, ZERO);
+	/** From black to green. */
 	public static LUT GREEN = new LUT(ZERO, makeLinear(), ZERO);
+	/** From black to blue. */
 	public static LUT BLUE = new LUT(ZERO, ZERO, makeLinear());
+	/** From non-red to white. */
 	public static LUT INV_RED = new LUT(invert(makeLinear()), invert(ZERO),
 			invert(ZERO));
+	/** From non-green to white. */
 	public static LUT INV_GREEN = new LUT(invert(ZERO), invert(makeLinear()),
 			invert(ZERO));
+	/** From non-blue to white. */
 	public static LUT INV_BLUE = new LUT(invert(ZERO), invert(ZERO),
 			invert(makeLinear()));
 
+	/**
+	 * The predefined {@link LUT}s in {@link #RED}, {@link #BLUE},
+	 * {@link #GREEN}, {@link #INV_RED}, {@link #INV_BLUE}, {@link #INV_GREEN}
+	 * order.
+	 */
 	public static LUT[] LUTS = new LUT[] { RED, BLUE, GREEN, INV_RED, INV_BLUE,
 			INV_GREEN };
 
 	/**
-	 * @return
+	 * @return A new byte array with linear changes.
 	 */
 	private static byte[] makeLinear() {
 		final byte[] ret = new byte[RANGE];
