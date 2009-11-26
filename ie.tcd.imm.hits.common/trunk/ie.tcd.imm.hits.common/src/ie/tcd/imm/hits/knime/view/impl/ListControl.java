@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -236,4 +237,20 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 		return true;
 	}
 
+	@Override
+	protected void notifyChange(final MouseListener listener,
+			final Change change) {
+		switch (change) {
+		case add:
+			list.addMouseListener(listener);
+			break;
+		case remove:
+			list.removeMouseListener(listener);
+			break;
+		default:
+			throw new IllegalArgumentException("Not supported change type: "
+					+ change);
+		}
+		super.notifyChange(listener, change);
+	}
 }

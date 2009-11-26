@@ -3,7 +3,8 @@
  */
 package ie.tcd.imm.hits.util.select;
 
-
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,6 +21,8 @@ import java.util.Set;
 public class OptionalNamedSelector<T> extends NamedSelector<T> implements
 		OptionalValues<Integer> {
 	private Set<Integer> activeValues = new HashSet<Integer>();
+
+	private Collection<MouseListener> listeners = new ArrayList<MouseListener>();
 
 	/**
 	 * @param name
@@ -106,6 +109,44 @@ public class OptionalNamedSelector<T> extends NamedSelector<T> implements
 	public void notifyListeners() {
 		super.notifyListeners();
 		// Just making this public.
+	}
+
+	/**
+	 * Adds {@code listener} to the controls.
+	 * 
+	 * @param listener
+	 *            A {@link MouseListener}.
+	 */
+	public void addControlListener(final MouseListener listener) {
+		if (!listeners.contains(listener)) {
+			listeners.add(listener);
+		}
+	}
+
+	/**
+	 * Removes all control listeners.
+	 */
+	public void removeControlListeners() {
+		listeners.clear();
+	}
+
+	/**
+	 * Removes a specified control listener.
+	 * 
+	 * @param listener
+	 *            A {@link MouseListener}.
+	 * @return <code>true</code> iff {@code listener} was previously contained.
+	 */
+	public boolean removeControlListener(final MouseListener listener) {
+		final boolean ret = listeners.remove(listener);
+		return ret;
+	}
+
+	/**
+	 * @return An unmodifiable {@link Collection} of control listeners.
+	 */
+	public Collection<MouseListener> getControlListeners() {
+		return Collections.unmodifiableCollection(listeners);
 	}
 
 	/*

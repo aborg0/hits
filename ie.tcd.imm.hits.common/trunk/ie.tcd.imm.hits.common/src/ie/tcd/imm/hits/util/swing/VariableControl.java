@@ -6,6 +6,7 @@ package ie.tcd.imm.hits.util.swing;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.util.select.Selectable;
 
+import java.awt.event.MouseListener;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -120,4 +121,28 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 	 * @return The actual domain model.
 	 */
 	public Sel getDomainModel();
+
+	/**
+	 * Adds the {@code listener} to the components.
+	 * 
+	 * @param listener
+	 *            A {@link MouseListener} to add.
+	 */
+	public void addControlListener(MouseListener listener);
+
+	/**
+	 * Removes all control listeners from the view (keeps the model related
+	 * listeners).
+	 */
+	public void removeControlListeners();
+
+	/**
+	 * Removes the selected control {@code listener}.
+	 * 
+	 * @param listener
+	 *            A {@link MouseListener} of the view.
+	 * @return <code>true</code> if the control listeners contained the
+	 *         specified listener.
+	 */
+	public boolean removeControlListener(MouseListener listener);
 }

@@ -95,9 +95,20 @@ public class Selector<MappedValues> implements Selectable<MappedValues> {
 	 * Notifies listeners about a change.
 	 */
 	protected void notifyListeners() {
+		final ActionEvent event = new ActionEvent(this, (int) (System
+				.currentTimeMillis() & 0xFFFFFFFF), "selectionChange");
+		notifyListeners(event);
+	}
+
+	/**
+	 * Notifies the listeners about a change.
+	 * 
+	 * @param event
+	 *            The {@link ActionEvent} to use.
+	 */
+	protected void notifyListeners(final ActionEvent event) {
 		for (final ActionListener listener : listeners.keySet()) {
-			listener.actionPerformed(new ActionEvent(this, (int) (System
-					.currentTimeMillis() & 0xFFFFFFFF), "selectionChange"));
+			listener.actionPerformed(event);
 		}
 	}
 

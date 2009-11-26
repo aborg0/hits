@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
+import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -211,4 +212,19 @@ public class SliderControl<Model, Sel extends Selectable<Model>> extends
 		return true;
 	}
 
+	@Override
+	protected void notifyChange(final MouseListener listener,
+			final AbstractVariableControl.Change change) {
+		switch (change) {
+		case add:
+			slider.addMouseListener(listener);
+			break;
+		case remove:
+			slider.removeMouseListener(listener);
+			break;
+		default:
+			break;
+		}
+		super.notifyChange(listener, change);
+	}
 }

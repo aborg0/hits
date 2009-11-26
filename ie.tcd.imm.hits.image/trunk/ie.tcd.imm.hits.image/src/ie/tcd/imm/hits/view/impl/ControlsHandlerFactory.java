@@ -27,6 +27,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -101,7 +102,21 @@ public class ControlsHandlerFactory<Model> extends
 						new ChangeEvent(e.getSource()));
 			}
 		});
-		for (final MouseListener l : model.getControlListeners()) {
+		return control;
+	}
+
+	@Override
+	protected VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> createControl(
+			final OptionalNamedSelector<Model> domainModel,
+			final ControlTypes controlType,
+			final SettingsModelListSelection settingsModelListSelection,
+			final ChangeListener changeListener, final SelectionType selection,
+			final SplitType split) {
+		final VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> control = super
+				.createControl(domainModel, controlType,
+						settingsModelListSelection, changeListener, selection,
+						split);
+		for (final MouseListener l : domainModel.getControlListeners()) {
 			control.addControlListener(l);
 		}
 		return control;

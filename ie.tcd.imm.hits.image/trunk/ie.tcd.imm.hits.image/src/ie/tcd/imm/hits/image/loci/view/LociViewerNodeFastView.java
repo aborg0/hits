@@ -52,6 +52,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -75,6 +76,7 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.plot.Plot;
@@ -194,7 +196,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
 	private Map<String, LUT> luts = new HashMap<String, LUT>();
 	private JPanel otherPanel;
+	/** The width of the current image */
 	protected int sizeX;
+	/** The height of the current image */
 	protected int sizeY;
 	private SimpleWellSelection wellSel;
 	private HiLiteListenerWells hiLiteListener;
@@ -507,8 +511,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				if (e != null && e.getButton() != MouseEvent.BUTTON3) {
 					return;
 				}
-				final int channelIndex = findChannelIndex(e == null ? null : e
-						.getSource(), channelSelector);
+				final int channelIndex = findChannelIndex(e, channelSelector);
 				final String channelName = channelSelector.getValueMapping()
 						.get(Integer.valueOf(channelIndex));
 				final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
@@ -532,6 +535,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							histogram.getXValue(0, 0),
 							histogram.getXValue(0,
 									histogram.getItemCount(0) - 1));
+					final LogarithmicAxis rangeAxis = new LogarithmicAxis(
+							"Frequency");
+					// rangeAxis.setAutoRangeIncludesZero(true);
+					rangeAxis.setAllowNegativesFlag(true);
+					lineChart.getXYPlot().setRangeAxis(rangeAxis);
 					final LUT lut = luts.get(channelName);
 					final double lutMin = lut.min, lutMax = lut.max;
 					final ChartPanel chartPanel = createChartPanel(lineChart,
@@ -549,7 +557,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					case JOptionPane.CLOSED_OPTION:
 						lut.min = lutMin;
 						lut.max = lutMax;
-						repaintImage();
+						regenerateImage();
 						break;
 					default:
 						throw new IllegalStateException("Unexpected option: "
@@ -587,30 +595,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						imageProcessors[channel.intValue() - 1] = imagePlusReader
 								.openProcessors(channel.intValue() - 1)[0];
 					}
-					// if (channels.size() == 1) {
-					// final int channel = channels.iterator().next()
-					// .intValue() - 1;
-					// final ImageProcessor[] openProcessors = imagePlusReader
-					// .openProcessors(channel);
-					// final ImageProcessor ip = /* reader */openProcessors[0];
-					// imagePlus = new ImagePlus("", ip);
-					// repaintImage();
-					// return;
-					// }
-					// final ImageStack imageStack = new ImageStack(
-					// imagePlusReader.getSizeX(), imagePlusReader
-					// .getSizeY());
-					// for (int i = 0; i < Math.min(3,
-					// imagePlusReader.getSizeC()); ++i) {
-					// final ImagePlus image = new ImagePlus(null,
-					// imagePlusReader.openProcessors(i)[0]);
-					// // image.getProcessor().setMinAndMax(minX, maxX);
-					// new ImageConverter(image).convertToGray8();
-					// imageStack.addSlice(null, image.getProcessor());
-					// }
-					// imagePlus = new ImagePlus("", imageStack);
-					// new ImageConverter(imagePlus).convertRGBStackToRGB();
-					repaintImage();
+					regenerateImage();
 				} catch (final FormatException ex) {
 					imagePlus = new ImagePlus();
 					logger.error("", ex);
@@ -629,6 +614,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		if (getPlateRowColFieldMap() != null) {
 			actionListener.actionPerformed(null);
 		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void regenerateImage() {
+		imagePlus = generateImagePlus(channelSelector.getSelections());
+		repaintImage();
 	}
 
 	/**
@@ -709,22 +702,21 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 * selected channels.)
 	 */
 	protected void repaintImage() {
-		final Set<Integer> selectedChannels = channelSelector.getSelections();
-		repaintImage(selectedChannels);
+		scaleAndSetImage(imagePlus.getBufferedImage());
+		// final Set<Integer> selectedChannels =
+		// channelSelector.getSelections();
+
+		// repaintImage(selectedChannels);
 	}
 
 	/**
-	 * Repaints the image with the proper scaling. Only the selected channels
-	 * will be visible.
+	 * Scales the previously generated image with {@link JAI}.
 	 * 
-	 * @param selectedChannels
-	 *            A {@code 1}-based {@link Set} of channels.
+	 * @param origImage
+	 *            A {@link RenderedImage}, tipically got from {@link #imagePlus}
+	 *            .
 	 */
-	private void repaintImage(final Set<Integer> selectedChannels) {
-		final RenderedImage origImage = generateImage(selectedChannels);
-		// TODO update when newer ImageJ is available
-		// ConvertImage.toBufferedImage(imagePlus.getImage());//
-		// imagePlus.getBufferedImage();
+	private void scaleAndSetImage(final RenderedImage origImage) {
 		final float scale = zoomModel.getValue() / 100.0f;
 		final ParameterBlock pb = new ParameterBlock();
 		pb.addSource(origImage);
@@ -746,42 +738,17 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						.getHeight()) / 2 : 0);
 		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
-		// imagePanel.revalidate();
-		// imageScrollPane.revalidate();
 	}
 
 	/**
-	 * Generates a {@link RenderedImage} based on the current settings.
+	 * Generates the {@link ImagePlus} image based on the current settings and
+	 * {@code selectedChannels}.
 	 * 
 	 * @param selectedChannels
-	 *            The channel ids (starting from {@code 1}) used to generate the
-	 *            image.
-	 * @return The {@link RenderedImage} for the current settings.
+	 *            The selected channels ({@code 1}-based).
+	 * @return The generated {@link ImagePlus} object.
 	 */
-	private RenderedImage generateImage(final Set<Integer> selectedChannels) {
-		// if (channels.size() == 1) {
-		// final int channel = channels.iterator().next()
-		// .intValue() - 1;
-		// final ImageProcessor[] openProcessors = imagePlusReader
-		// .openProcessors(channel);
-		// final ImageProcessor ip = /* reader */openProcessors[0];
-		// imagePlus = new ImagePlus("", ip);
-		// repaintImage();
-		// return;
-		// }
-		// final ImageStack imageStack = new ImageStack(
-		// imagePlusReader.getSizeX(), imagePlusReader
-		// .getSizeY());
-		// for (int i = 0; i < Math.min(3,
-		// imagePlusReader.getSizeC()); ++i) {
-		// final ImagePlus image = new ImagePlus(null,
-		// imagePlusReader.openProcessors(i)[0]);
-		// // image.getProcessor().setMinAndMax(minX, maxX);
-		// new ImageConverter(image).convertToGray8();
-		// imageStack.addSlice(null, image.getProcessor());
-		// }
-		// imagePlus = new ImagePlus("", imageStack);
-		// new ImageConverter(imagePlus).convertRGBStackToRGB();
+	private ImagePlus generateImagePlus(final Set<Integer> selectedChannels) {
 		final ImageStack stack = new ImageStack(sizeX, sizeY);
 		for (final Integer channelInt : selectedChannels) {
 			final int channel = channelInt.intValue() - 1;
@@ -799,9 +766,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			stack.addSlice(null, imp.getProcessor());
 		}
 		final ImagePlus ret = new ImagePlus("", stack);
-		// new ImageConverter(ret).convertToRGB();
 		new ImageConverterEnh(ret).convertStackToRGB();
-		return ret.getBufferedImage();// ConvertImage.toBufferedImage(ret.getImage());
+		return ret;
 	}
 
 	/**
@@ -961,21 +927,50 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		return selections;
 	}
 
-	private static int findChannelIndex(@Nullable final Object source,
+	private static int findChannelIndex(@Nullable final MouseEvent event,
 			final OptionalNamedSelector<String> channelSelector) {
+		final Object source = event == null ? null : event.getSource();
 		if (source instanceof AbstractButton) {
 			final AbstractButton button = (AbstractButton) source;
 			final String channelName = button.getText();
-			for (final Entry<Integer, String> entry : channelSelector
-					.getValueMapping().entrySet()) {
-				if (channelName.equals(entry.getValue())) {
-					return entry.getKey().intValue();
-				}
+			return findChannelIndexByName(channelSelector, channelName);
+		}
+		if (source instanceof JList) {
+			final JList list = (JList) source;
+			final int index = list.locationToIndex(event.getPoint());
+			if (index == -1) {
+				return 0;
 			}
+			final Object element = list.getModel().getElementAt(index);
+			final String channelName = element.toString();
+			return findChannelIndexByName(channelSelector, channelName);
 		}
 		final Set<Integer> selections = channelSelector.getSelections();
 		return selections.isEmpty() ? 0 : selections.iterator().next()
 				.intValue();
+	}
+
+	/**
+	 * Selects the {@code 0} based index from the {@code channelSelector,
+	 * channelName} parameters. {@code 0} if not found.
+	 * 
+	 * @param channelSelector
+	 *            An {@link OptionalNamedSelector}.
+	 * @param channelName
+	 *            A value from the mapping.
+	 * @return The index of the channel ({@code 0}-based), or {@code 0} if not
+	 *         found.
+	 */
+	private static int findChannelIndexByName(
+			final OptionalNamedSelector<String> channelSelector,
+			final String channelName) {
+		for (final Entry<Integer, String> entry : channelSelector
+				.getValueMapping().entrySet()) {
+			if (channelName.equals(entry.getValue())) {
+				return entry.getKey().intValue();
+			}
+		}
+		return 0;
 	}
 
 	private static XYDataset createHistogram(
@@ -989,8 +984,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			final XYSeries ret = createHistogram(imageProcessor, channelName);
 			xySeriesCollection.addSeries(ret);
 		}
-		// ret.addSeries("Histogram", data);
-		// ret.addSeries("Histogram", dh, histogram.length, min, max);
 		return xySeriesCollection;
 	}
 
@@ -1105,7 +1098,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					Collections.sort(vals);
 					lut.min = vals.get(0).doubleValue();
 					lut.max = vals.get(vals.size() - 1).doubleValue();
-					repaintImage();
+					regenerateImage();
 					selectedMarker = null;
 				}
 			}

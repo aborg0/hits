@@ -11,6 +11,7 @@ import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -190,4 +191,19 @@ public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		return true;
 	}
 
+	@Override
+	protected void notifyChange(final MouseListener listener,
+			final Change change) {
+		switch (change) {
+		case add:
+			combobox.addMouseListener(listener);
+			break;
+		case remove:
+			combobox.removeMouseListener(listener);
+			break;
+		default:
+			throw new IllegalStateException("Not supported change type.");
+		}
+		super.notifyChange(listener, change);
+	}
 }
