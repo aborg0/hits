@@ -203,9 +203,11 @@ public class DialogComponentFileSelectionWithPreview extends
 								ImagePlusReader.makeImageReader()));
 
 				try {
-
 					try {
 						imageReader.setId(imageUrl);
+						if (Thread.currentThread().isInterrupted()) {
+							return;
+						}
 						final int sizeX = imageReader.getSizeX();
 						final int sizeY = imageReader.getSizeY();
 						final ImageStack stack = new ImageStack(sizeX, sizeY);
@@ -255,6 +257,9 @@ public class DialogComponentFileSelectionWithPreview extends
 						pointer[0] = imagePlus;
 					} finally {
 						imageReader.close();
+					}
+					if (Thread.currentThread().isInterrupted()) {
+						return;
 					}
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {

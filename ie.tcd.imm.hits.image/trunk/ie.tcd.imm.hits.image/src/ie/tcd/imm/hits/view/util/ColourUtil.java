@@ -13,7 +13,8 @@ import ij.process.LUT;
 public class ColourUtil {
 	private static int RANGE = 256;
 	private static final byte[] ZERO = new byte[RANGE];
-
+	/** From black to white */
+	public static LUT WHITE = new LUT(makeLinear(), makeLinear(), makeLinear());
 	/** From black to red. */
 	public static LUT RED = new LUT(makeLinear(), ZERO, ZERO);
 	/** From black to green. */
@@ -23,11 +24,38 @@ public class ColourUtil {
 	/** From non-red to white. */
 	public static LUT INV_RED = new LUT(invert(makeLinear()), invert(ZERO),
 			invert(ZERO));
+	/** From red to black. */
+	public static LUT INV_ONLY_RED = new LUT(invert(makeLinear()), ZERO, ZERO);
+	/** From white to black. */
+	public static LUT INV_WHITE = new LUT(invert(makeLinear()),
+			invert(makeLinear()), invert(makeLinear()));
+	/** From non-red to white. */
+	public static LUT INV_RED_KEEP_GREEN = new LUT(invert(makeLinear()), ZERO,
+			invert(ZERO));
+	/** From non-red to white. */
+	public static LUT INV_RED_KEEP_BLUE = new LUT(invert(makeLinear()),
+			invert(ZERO), ZERO);
 	/** From non-green to white. */
 	public static LUT INV_GREEN = new LUT(invert(ZERO), invert(makeLinear()),
 			invert(ZERO));
+	/** From green to black. */
+	public static LUT INV_ONLY_GREEN = new LUT(ZERO, invert(makeLinear()), ZERO);
+	/** From non-green to white. */
+	public static LUT INV_GREEN_KEEP_RED = new LUT(ZERO, invert(makeLinear()),
+			invert(ZERO));
+	/** From non-green to white. */
+	public static LUT INV_GREEN_KEEP_BLUE = new LUT(invert(ZERO),
+			invert(makeLinear()), ZERO);
 	/** From non-blue to white. */
 	public static LUT INV_BLUE = new LUT(invert(ZERO), invert(ZERO),
+			invert(makeLinear()));
+	/** From blue to black. */
+	public static LUT INV_ONLY_BLUE = new LUT(ZERO, ZERO, invert(makeLinear()));
+	/** From non-blue to white. */
+	public static LUT INV_BLUE_KEEP_RED = new LUT(ZERO, invert(ZERO),
+			invert(makeLinear()));
+	/** From non-blue to white. */
+	public static LUT INV_BLUE_KEEP_GREEN = new LUT(invert(ZERO), ZERO,
 			invert(makeLinear()));
 
 	/**

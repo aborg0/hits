@@ -102,37 +102,121 @@ public class ImageConverterEnh {
 			pixels[i] = rgb[idx];
 		}
 		imp.setProcessor(null, cp);
+
+	}
+
+	private interface FunctionIntIntInt {
+		int convert(int i, int j);
+	}
+
+	/** The possible strategies to combine two rgba coloured values. */
+	public static enum ConversionStrategy implements FunctionIntIntInt {
+		/**
+		 * Simply adds the values for each channel with {@code 0}, {@code 255}
+		 * cutoffs.
+		 */
+		Additive {
+			public int convert(final int rgb1, final int rgb2) {
+				final int b = rgb1 & 0xff;
+				final int g = (rgb1 & 0xff00) >> 8;
+				final int r = (rgb1 & 0xff0000) >> 16;
+				final int a = (rgb1 & 0xff000000) >>> 24;
+				final int ob = rgb2 & 0xff;
+				final int og = (rgb2 & 0xff00) >> 8;
+				final int or = (rgb2 & 0xff0000) >> 16;
+				final int oa = (rgb2 & 0xff000000) >>> 24;
+				final int l0 = cut(b + ob);
+				final int l1 = cut(g + og);
+				final int l2 = cut(r + or);
+				final int l3 = cut(a + oa);
+				return (l3 << 24) + (l2 << 16) + (l1 << 8) + l0;
+			}
+
+		},
+		/** Selects the minimal values for each channel. */
+		Minimum {
+			public int convert(final int rgb1, final int rgb2) {
+				final int b = rgb1 & 0xff;
+				final int g = (rgb1 & 0xff00) >> 8;
+				final int r = (rgb1 & 0xff0000) >> 16;
+				final int a = (rgb1 & 0xff000000) >>> 24;
+				final int ob = rgb2 & 0xff;
+				final int og = (rgb2 & 0xff00) >> 8;
+				final int or = (rgb2 & 0xff0000) >> 16;
+				final int oa = (rgb2 & 0xff000000) >>> 24;
+				final int l0 = Math.min(b, ob);
+				final int l1 = Math.min(g, og);
+				final int l2 = Math.min(r, or);
+				final int l3 = Math.min(a, oa);
+				return (l3 << 24) + (l2 << 16) + (l1 << 8) + l0;
+			}
+
+		},
+		/** Selects the maximal values for each channel. */
+		Maximum {
+			public int convert(final int rgb1, final int rgb2) {
+				final int b = rgb1 & 0xff;
+				final int g = (rgb1 & 0xff00) >> 8;
+				final int r = (rgb1 & 0xff0000) >> 16;
+				final int a = (rgb1 & 0xff000000) >>> 24;
+				final int ob = rgb2 & 0xff;
+				final int og = (rgb2 & 0xff00) >> 8;
+				final int or = (rgb2 & 0xff0000) >> 16;
+				final int oa = (rgb2 & 0xff000000) >>> 24;
+				final int l0 = Math.max(b, ob);
+				final int l1 = Math.max(g, og);
+				final int l2 = Math.max(r, or);
+				final int l3 = Math.max(a, oa);
+				return (l3 << 24) + (l2 << 16) + (l1 << 8) + l0;
+			}
+
+		};
+
+		/**
+		 * @param i
+		 *            a pixel value
+		 * @param j
+		 *            a pixel value
+		 * @return combined pixel value
+		 */
+		@Override
+		public abstract int convert(final int i, int j);
+
+		/**
+		 * @param i
+		 *            converts to a byte value.
+		 * @return A value between {@code 0} (inclusive) and {@code 255}
+		 *         (inclusive).
+		 */
+		private static int cut(final int i) {
+			return i < 0 ? 0 : i > 255 ? 255 : i;
+		}
 	}
 
 	/**
 	 * Converts a stack with {@link ColorProcessor}s to an RGB image, by adding
 	 * the values (unsigned, bounded).
+	 * 
+	 * @param f
+	 *            The function describing how to combine the two pixel values.
 	 */
-	public synchronized void convertStackToRGB() {
+	public synchronized void convertStackToRGB(final FunctionIntIntInt f) {
 		final ImageStack stack = imp.getStack();
-		final ColorProcessor[] processors = new ColorProcessor[stack.getSize()];
+		final ColorProcessor[] processors = new ColorProcessor[stack.getSize() - 1];
 		final ColorProcessor colorProcessor = new ColorProcessor(
 				imp.getWidth(), imp.getHeight());
-		for (int i = stack.getSize(); i-- > 0;) {
-			processors[i] = (ColorProcessor) stack.getProcessor(i + 1);
+		for (int i = stack.getSize(); i-- > 1;) {
+			processors[i - 1] = (ColorProcessor) stack.getProcessor(i + 1);
 		}
-		final int[] pixels = new int[processors[0].getPixelCount()];
+		final int[] pixels = new int[stack.getProcessor(1).getPixelCount()];
+		System.arraycopy(stack.getProcessor(1).getPixelsCopy(), 0, pixels, 0,
+				pixels.length);
 		for (final ColorProcessor cp : processors) {
 			final int[] px = (int[]) cp.getPixels();
 			for (int i = px.length; i-- > 0;) {
-				final int b = pixels[i] & 0xff;
-				final int g = (pixels[i] & 0xff00) >> 8;
-				final int r = (pixels[i] & 0xff0000) >> 16;
-				final int a = (pixels[i] & 0xff000000) >>> 24;
-				final int ob = px[i] & 0xff;
-				final int og = (px[i] & 0xff00) >> 8;
-				final int or = (px[i] & 0xff0000) >> 16;
-				final int oa = (px[i] & 0xff000000) >>> 24;
-				final int l0 = cut(b + ob);
-				final int l1 = cut(g + og);
-				final int l2 = cut(r + or);
-				final int l3 = cut(a + oa);
-				pixels[i] = (l3 << 24) + (l2 << 16) + (l1 << 8) + l0;
+				final int rgb1 = pixels[i];
+				final int rgb2 = px[i];
+				pixels[i] = f.convert(rgb1, rgb2);
 			}
 		}
 		colorProcessor.setPixels(pixels);
@@ -140,12 +224,33 @@ public class ImageConverterEnh {
 	}
 
 	/**
-	 * @param i
-	 *            converts to a byte value.
-	 * @return A value between {@code 0} (inclusive) and {@code 255}
-	 *         (inclusive).
+	 * Inverts the values for each channel.
 	 */
-	private int cut(final int i) {
-		return i < 0 ? 0 : i > 255 ? 255 : i;
+	public synchronized void invert() {
+		final ColorProcessor colorProcessor = new ColorProcessor(
+				imp.getWidth(), imp.getHeight());
+		final int[] px = (int[]) imp.getProcessor().getPixelsCopy();
+		for (int i = px.length; i-- > 0;) {
+			px[i] = invert(px[i]);
+		}
+		colorProcessor.setPixels(px);
+		imp.setProcessor(null, colorProcessor);
+	}
+
+	/**
+	 * @param val
+	 *            Converts a pixel to the opposite value
+	 * @return The new pixel value.
+	 */
+	private int invert(final int val) {
+		final int b = val & 0xff;
+		final int g = (val & 0xff00) >> 8;
+		final int r = (val & 0xff0000) >> 16;
+		final int a = (val & 0xff000000) >>> 24;
+		final int l0 = 255 - b;
+		final int l1 = 255 - g;
+		final int l2 = 255 - r;
+		final int l3 = 255 - a;
+		return (l3 << 24) + (l2 << 16) + (l1 << 8) + l0;
 	}
 }

@@ -15,6 +15,7 @@ import java.util.List;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
@@ -154,23 +155,32 @@ public class LociReaderNodeModel extends NodeModel {
 						logger.warn("stopped because of not enough memory");
 						break;
 					}
-					final Integer timepoint = omeXml.getWellSampleTimepoint(
-							0/* plate */, 0 /* well */, 0/* field */);
-					final Integer z = omeXml.getTiffDataFirstZ(0/* imageIdx */,
-							0/* pixelsIndex */, 0/* tiffDataIndex */);
-					plateContainer.addRowToTable(new DefaultRow(new RowKey(
-							"Row_" + relPos + "_" + i), new StringCell(relPos),
-							new StringCell(Misc.toUpperLetter(Integer
-									.toString(i / fieldCount / colCount + 1))),
-							new IntCell(i / fieldCount % colCount + 1),
-							new IntCell(i % fieldCount + 1),
-							// Z
-							new DoubleCell(0.0),
-							// T
-							new DoubleCell(0.0),
-							// C
-							CollectionCellFactory.createListCell(channelNames),
-							new StringCell(relPos), new IntCell(i)));
+					// final Integer timepoint = omeXml.getWellSampleTimepoint(
+					// 0/* plate */, 0 /* well */, 0/* field */);
+					// final Integer z = omeXml.getTiffDataFirstZ(0/* imageIdx
+					// */,
+					// 0/* pixelsIndex */, 0/* tiffDataIndex */);
+					final int imageCount = reader.getSizeZ()
+							* reader.getSizeT();// * reader.getEffectiveSizeC();
+					for (int j = 0; j < imageCount; ++j) {
+						final int[] zctCoords = FormatTools.getZCTCoords(
+								reader, j);
+						plateContainer.addRowToTable(new DefaultRow(new RowKey(
+								"Row_" + relPos + "_" + i + "_" + j),
+								new StringCell(relPos), new StringCell(Misc
+										.toUpperLetter(Integer.toString(i
+												/ fieldCount / colCount + 1))),
+								new IntCell(i / fieldCount % colCount + 1),
+								new IntCell(i % fieldCount + 1),
+								// Z
+								new DoubleCell(zctCoords[0]),
+								// T
+								new DoubleCell(zctCoords[2]),
+								// C
+								CollectionCellFactory
+										.createListCell(channelNames),
+								new StringCell(relPos), new IntCell(i)));
+					}
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);
 					}

@@ -2,6 +2,7 @@ package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh;
+import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh.ConversionStrategy;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.ITriple;
@@ -32,8 +33,11 @@ import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -51,14 +55,19 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
@@ -71,6 +80,7 @@ import javax.swing.event.ChangeListener;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.plugins.util.ImagePlusReader;
 
 import org.jfree.chart.ChartFactory;
@@ -205,6 +215,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	protected int sizeY;
 	private SimpleWellSelection wellSel;
 	private HiLiteListenerWells hiLiteListener;
+	private ConversionStrategy strategy = ConversionStrategy.Maximum;
+	private boolean inverse = false;
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -337,6 +349,39 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			}
 		});
 		setComponent(splitPane);
+		final JMenu contrastMenu = new JMenu("Contrast");
+		final JCheckBoxMenuItem invert = new JCheckBoxMenuItem(
+				new AbstractAction("Invert") {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						inverse = !inverse;
+						regenerateImage();
+					}
+				});
+		invert.setState(inverse);
+		contrastMenu.add(invert);
+		contrastMenu.add(new JSeparator());
+		final EnumMap<ConversionStrategy, JRadioButtonMenuItem> strategies = new EnumMap<ConversionStrategy, JRadioButtonMenuItem>(
+				ConversionStrategy.class);
+		strategies.put(ConversionStrategy.Maximum, new JRadioButtonMenuItem(
+				new ColourCombinationAction("Maximum",
+						ConversionStrategy.Maximum)));
+		strategies.put(ConversionStrategy.Minimum, new JRadioButtonMenuItem(
+				new ColourCombinationAction("Minimum",
+						ConversionStrategy.Minimum)));
+		strategies.put(ConversionStrategy.Additive, new JRadioButtonMenuItem(
+				new ColourCombinationAction("Additive",
+						ConversionStrategy.Additive)));
+		final ButtonGroup buttonGroup = new ButtonGroup();
+		for (final JRadioButtonMenuItem menu : strategies.values()) {
+			contrastMenu.add(menu);
+			buttonGroup.add(menu);
+		}
+		buttonGroup.clearSelection();
+		buttonGroup.setSelected(strategies.get(strategy).getModel(), true);
+		getJMenuBar().add(contrastMenu);
 	}
 
 	/**
@@ -536,8 +581,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 							.getValueMapping().size()];
 					for (final Integer channel : channelSelector
 							.getActiveValues()) {
+						final int index = FormatTools.getIndex(imagePlusReader,
+								zSelector.getSelections().iterator().next()
+										.intValue() - 1,
+								channel.intValue() - 1, timeSelector
+										.getSelections().iterator().next()
+										.intValue() - 1);
 						imageProcessors[channel.intValue() - 1] = imagePlusReader
-								.openProcessors(channel.intValue() - 1)[0];
+								.openProcessors(index/* channel.intValue() - 1 */)[0];
 					}
 					regenerateImage();
 				} catch (final FormatException ex) {
@@ -710,7 +761,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			stack.addSlice(null, imp.getProcessor());
 		}
 		final ImagePlus ret = new ImagePlus("", stack);
-		new ImageConverterEnh(ret).convertStackToRGB();
+		final ImageConverterEnh conv = new ImageConverterEnh(ret);
+		conv.convertStackToRGB(strategy);
+		if (inverse) {
+			conv.invert();
+		}
 		return ret;
 	}
 
@@ -949,7 +1004,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		for (int i = dh.length; i-- > 0;) {
 			dh[i] = histogram[i];
 		}
-		int min = -1;
+		int min = 0;
 		for (int i = 0; i < histogram.length; ++i) {
 			if (histogram[i] == 0) {
 				min = i;
@@ -957,7 +1012,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				break;
 			}
 		}
-		int max = histogram.length;
+		int max = histogram.length - 1;
 		for (int i = histogram.length; i-- > 0;) {
 			if (histogram[i] == 0) {
 				max = i;
@@ -984,6 +1039,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private ChartPanel createChartPanel(final JFreeChart lineChart,
 			final LUT lut) {
 		final ChartPanel chartPanel = new ChartPanel(lineChart);
+		lut.min = Math.max(lut.min, lineChart.getXYPlot().getDomainAxis()
+				.getRange().getLowerBound());
+		lut.max = Math.min(lut.max, lineChart.getXYPlot().getDomainAxis()
+				.getRange().getUpperBound());
 		chartPanel.getChart().getXYPlot().addDomainMarker(
 				new ValueMarker(lut.min), Layer.FOREGROUND);
 		chartPanel.getChart().getXYPlot().addDomainMarker(
@@ -1081,15 +1140,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			this.channelName = channelName;
 		}
 
-		/*
-		 * (non-Javadoc)
+		/**
+		 * Changes the {@link LUT} bounds for the defined channel and regenerate
+		 * the the image.
 		 * 
-		 * @see
-		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
-		 * )
+		 * @param e
+		 *            Not used, may be {@code null}.
 		 */
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(final ActionEvent e)/* => */{
 			final LUT orig = luts.get(channelName);
 			final LUT newLut = (LUT) lut.clone();
 			newLut.min = orig.min;
@@ -1121,49 +1180,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				final ImagePlusReader imagePlusReader = ImagePlusReader
 						.makeImagePlusReader(formatReader);
 				imagePlusReader.setSeries(entry.getKey().intValue());
-				XYDataset histogram;
 				try {
-					histogram = createHistogram(
-							new ImageProcessor[] { imagePlusReader
-									.openProcessors(channelIndex - 1)[0] },
-							channelName);
-					final JFreeChart lineChart = ChartFactory
-							.createXYLineChart("Histogram", null, null,
-									histogram, PlotOrientation.VERTICAL, true,
-									true, false);
-
-					lineChart.getXYPlot().getDomainAxis().setRange(
-							histogram.getXValue(0, 0),
-							histogram.getXValue(0,
-									histogram.getItemCount(0) - 1));
-					final LogarithmicAxis rangeAxis = new LogarithmicAxis(
-							"Frequency");
-					// rangeAxis.setAutoRangeIncludesZero(true);
-					rangeAxis.setAllowNegativesFlag(true);
-					lineChart.getXYPlot().setRangeAxis(rangeAxis);
-					final LUT lut = luts.get(channelName);
-					final double lutMin = lut.min, lutMax = lut.max;
-					final ChartPanel chartPanel = createChartPanel(lineChart,
-							lut);
-					final int selectedOption = JOptionPane.showOptionDialog(
-							controlsHandlerFactory.getContainer(
-									SplitType.AdditionalInfo, CHANNEL),
-							chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
-							JOptionPane.PLAIN_MESSAGE, null, null, null);
-					switch (selectedOption) {
-					case JOptionPane.OK_OPTION:
-						// Do nothing, we have done the changes previously
-						break;
-					case JOptionPane.CANCEL_OPTION:
-					case JOptionPane.CLOSED_OPTION:
-						lut.min = lutMin;
-						lut.max = lutMax;
-						regenerateImage();
-						break;
-					default:
-						throw new IllegalStateException("Unexpected option: "
-								+ selectedOption);
-					}
+					showHistogram(channelIndex, channelName, imagePlusReader);
 				} catch (final FormatException e1) {
 					JOptionPane.showMessageDialog(controlsHandlerFactory
 							.getContainer(SplitType.AdditionalInfo, CHANNEL),
@@ -1180,18 +1198,190 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		final int channelIndex = findChannelIndex(e, channelSelector);
 		final String channelName = channelSelector.getValueMapping().get(
 				Integer.valueOf(channelIndex));
-		colours.add(new LUTChangeAction(ColourUtil.RED,
+		final ButtonGroup buttonGroup = new ButtonGroup();
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.WHITE,
+				"<html>Black &Rarr; White</html>", channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_WHITE, "<html>White &Rarr; Black</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.RED,
 				"<html>Black &Rarr; Red</html>", channelName));
-		colours.add(new LUTChangeAction(ColourUtil.BLUE,
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_ONLY_RED, "<html>Red &Rarr; Black</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_RED_KEEP_GREEN,
+				"<html>Purple &Rarr; Blue</html>", channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_RED_KEEP_BLUE,
+				"<html>Yellow &Rarr; Green</html>", channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.BLUE,
 				"<html>Black &Rarr; Blue</html>", channelName));
-		colours.add(new LUTChangeAction(ColourUtil.GREEN,
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_ONLY_BLUE, "<html>Blue &Rarr; Black</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.GREEN,
 				"<html>Black &Rarr; Green</html>", channelName));
-		colours.add(new LUTChangeAction(ColourUtil.INV_RED,
-				"<html>White &Rarr; Cyan</html>", channelName));
-		colours.add(new LUTChangeAction(ColourUtil.INV_BLUE,
-				"<html>White &Rarr; Yellow</html>", channelName));
-		colours.add(new LUTChangeAction(ColourUtil.INV_GREEN,
-				"<html>White &Rarr; Purple</html>", channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_ONLY_GREEN, "<html>Green &Rarr; Black</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_RED, "<html>White &Rarr; Cyan</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_BLUE, "<html>White &Rarr; Yellow</html>",
+				channelName));
+		addMenuItem(buttonGroup, colours, new LUTChangeAction(
+				ColourUtil.INV_GREEN, "<html>White &Rarr; Purple</html>",
+				channelName));
+		buttonGroup.clearSelection();
+		findSelected(buttonGroup, luts.get(channelName));
 		return popupMenu;
 	}
+
+	/**
+	 * Finds the matching (similar to {@code lut}) menu entry from {@code
+	 * buttonGroup}, and selects the first.
+	 * 
+	 * @param buttonGroup
+	 *            A {@link ButtonGroup} with the {@link JRadioButtonMenuItem}s.
+	 * @param lut
+	 *            A reference {@link LUT}.
+	 */
+	private void findSelected(final ButtonGroup buttonGroup, final LUT lut) {
+		final int[] refRGBs = new int[256], oRGBs = new int[256];
+		lut.getRGBs(refRGBs);
+		for (final Enumeration<AbstractButton> iterator = buttonGroup
+				.getElements(); iterator.hasMoreElements();) {
+			final AbstractButton b = iterator.nextElement();
+			final LUT lut2 = ((LUTChangeAction) b.getAction()).lut;
+			lut2.getRGBs(oRGBs);
+			if (Arrays.equals(refRGBs, oRGBs)) {
+				buttonGroup.setSelected(b.getModel(), true);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Adds {@code lutChangeAction} to the {@code buttonGroup} and {@code
+	 * colours} as a {@link JRadioButtonMenuItem}.
+	 * 
+	 * @param buttonGroup
+	 *            A {@link ButtonGroup}.
+	 * @param colours
+	 *            A {@link JMenu}.
+	 * @param lutChangeAction
+	 *            The action to add.
+	 */
+	private void addMenuItem(final ButtonGroup buttonGroup,
+			final JMenu colours, final LUTChangeAction lutChangeAction) {
+		final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
+				lutChangeAction);
+		colours.add(menuItem);
+		buttonGroup.add(menuItem);
+	}
+
+	/**
+	 * Shows a histogram dialog for the referenced image.
+	 * 
+	 * @param channelIndex
+	 *            The channel index for the histogram ({@code 1}-based).
+	 * @param channelName
+	 *            The name of the channel.
+	 * @param imagePlusReader
+	 *            An {@link ImagePlusReader} of the image.
+	 * @throws FormatException
+	 *             Problem opening the image.
+	 * @throws IOException
+	 *             Problem opening the image.
+	 */
+	private void showHistogram(final int channelIndex,
+			final String channelName, final ImagePlusReader imagePlusReader)
+			throws FormatException, IOException {
+		final XYDataset histogram = createHistogram(
+				new ImageProcessor[] { imagePlusReader
+						.openProcessors(channelIndex - 1)[0] }, channelName);
+		final JFreeChart lineChart = ChartFactory.createXYLineChart(
+				"Histogram", null, null, histogram, PlotOrientation.VERTICAL,
+				true, true, false);
+
+		lineChart.getXYPlot().getDomainAxis().setRange(
+				histogram.getXValue(0, 0),
+				histogram.getXValue(0, histogram.getItemCount(0) - 1));
+		final LogarithmicAxis rangeAxis = new LogarithmicAxis("Frequency");
+		// rangeAxis.setAutoRangeIncludesZero(true);
+		rangeAxis.setAllowNegativesFlag(true);
+		lineChart.getXYPlot().setRangeAxis(rangeAxis);
+		final LUT lut = luts.get(channelName);
+		final double lutMin = lut.min, lutMax = lut.max;
+		final ChartPanel chartPanel = createChartPanel(lineChart, lut);
+		final int selectedOption = JOptionPane.showOptionDialog(
+				controlsHandlerFactory.getContainer(SplitType.AdditionalInfo,
+						CHANNEL), chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE, null, null, null);
+		switch (selectedOption) {
+		case JOptionPane.OK_OPTION:
+			// Do nothing, we have done the changes previously
+			break;
+		case JOptionPane.CANCEL_OPTION:
+		case JOptionPane.CLOSED_OPTION:
+			lut.min = lutMin;
+			lut.max = lutMax;
+			regenerateImage();
+			break;
+		default:
+			throw new IllegalStateException("Unexpected option: "
+					+ selectedOption);
+		}
+	}
+
+	/**
+	 * Changes the combination strategy of the current image.
+	 */
+	private class ColourCombinationAction extends AbstractAction {
+		private static final long serialVersionUID = -6219194742481791076L;
+		private final ConversionStrategy strategy;
+
+		/**
+		 * @param name
+		 *            The name of the action.
+		 * @param strategy
+		 *            The {@link ConversionStrategy} to select in the action.
+		 */
+		public ColourCombinationAction(final String name,
+				final ConversionStrategy strategy)/* => */{
+			this(name, strategy, null);
+		}
+
+		/**
+		 * @param name
+		 *            The name of the action.
+		 * @param strategy
+		 *            The {@link ConversionStrategy} to select in the action.
+		 * @param icon
+		 *            The icon to use for the selection.
+		 */
+		public ColourCombinationAction(final String name,
+				final ConversionStrategy strategy, final Icon icon) {
+			super(name, icon);
+			this.strategy = strategy;
+		}
+
+		/**
+		 * Sets the strategy to the one declared in the constructor.
+		 * 
+		 * @param e
+		 *            Not used, can be {@code null}.
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			if (LociViewerNodeFastView.this.strategy != strategy) {
+				LociViewerNodeFastView.this.strategy = strategy;
+				regenerateImage();
+			}
+		}
+
+	}
+
 }
