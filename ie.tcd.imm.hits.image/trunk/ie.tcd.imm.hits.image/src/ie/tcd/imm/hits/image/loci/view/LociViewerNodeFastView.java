@@ -1,6 +1,7 @@
 package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.image.loci.view.AutoContrast.ContrastActionEvent;
 import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh;
 import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh.ConversionStrategy;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
@@ -62,6 +63,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -118,6 +120,49 @@ import com.sun.media.jai.widget.DisplayJAI;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
+	/**
+	 * TODO Javadoc!
+	 * 
+	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 */
+	private class SetAutoContrast extends AbstractAction {
+
+		private final String message;
+		private final AutoContrastStrategy strat;
+		private final double left;
+		private final double right;
+
+		/**
+		 * @param message
+		 * @param strat
+		 * @param left
+		 * @param right
+		 */
+		public SetAutoContrast(final String message,
+				final AutoContrastStrategy strat, final double left,
+				final double right) {
+			super(message);
+			this.message = message;
+			this.strat = strat;
+			this.left = left;
+			this.right = right;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+		 * )
+		 */
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			contrastStrategy = new AutoContrast(message, strat, left, right);
+			regenerateImage();
+		}
+
+	}
+
 	/**
 	 * A {@link HiLiteListener} for the well control.
 	 */
@@ -217,6 +262,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private HiLiteListenerWells hiLiteListener;
 	private ConversionStrategy strategy = ConversionStrategy.Maximum;
 	private boolean inverse = false;
+	private AutoContrast contrastStrategy = AutoContrast.keepLast;
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -258,7 +304,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			@Override
 			public boolean errorOccurred(final String message,
 					final Throwable thrown, final Object where,
-					final boolean isRetryable) throws RuntimeException/* => */{
+					final boolean isRetryable) /* => */throws RuntimeException {
 				// suppress error messages
 				return false;
 			}
@@ -349,20 +395,20 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			}
 		});
 		setComponent(splitPane);
-		final JMenu contrastMenu = new JMenu("Contrast");
+		final JMenu coloursMenu = new JMenu("Colours");
 		final JCheckBoxMenuItem invert = new JCheckBoxMenuItem(
 				new AbstractAction("Invert") {
-					private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = -3192154966624677909L;
 
 					@Override
-					public void actionPerformed(final ActionEvent e) {
+					public void actionPerformed(final ActionEvent e) /* => */{
 						inverse = !inverse;
-						regenerateImage();
+						regenerateImage(AutoContrast.keepLast);
 					}
 				});
 		invert.setState(inverse);
-		contrastMenu.add(invert);
-		contrastMenu.add(new JSeparator());
+		coloursMenu.add(invert);
+		coloursMenu.add(new JSeparator());
 		final EnumMap<ConversionStrategy, JRadioButtonMenuItem> strategies = new EnumMap<ConversionStrategy, JRadioButtonMenuItem>(
 				ConversionStrategy.class);
 		strategies.put(ConversionStrategy.Maximum, new JRadioButtonMenuItem(
@@ -376,12 +422,71 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						ConversionStrategy.Additive)));
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		for (final JRadioButtonMenuItem menu : strategies.values()) {
-			contrastMenu.add(menu);
+			coloursMenu.add(menu);
 			buttonGroup.add(menu);
 		}
 		buttonGroup.clearSelection();
 		buttonGroup.setSelected(strategies.get(strategy).getModel(), true);
+		getJMenuBar().add(coloursMenu);
+		final JMenu contrastMenu = new JMenu("Contrast");
+		final ButtonGroup contrastButtons = new ButtonGroup();
+		final EnumMap<AutoContrastStrategy, JMenuItem> autoContrastStrategies = new EnumMap<AutoContrastStrategy, JMenuItem>(
+				AutoContrastStrategy.class);
+		final JRadioButtonMenuItem keepLast = new JRadioButtonMenuItem(
+				new SetAutoContrast(AutoContrastStrategy.KeepLast
+						.getDisplayText(), AutoContrastStrategy.KeepLast, 1.0,
+						1.0));
+		contrastButtons.add(keepLast);
+		contrastMenu.add(keepLast);
+		final double[] options = new double[] { 1.0, .9, .75, .5, .25, .1 };
+		for (final AutoContrastStrategy strat : new AutoContrastStrategy[] {
+				AutoContrastStrategy.MinModeMax,
+				AutoContrastStrategy.FirstHighest,
+				AutoContrastStrategy.SecondHighest }) {
+			add(strat, contrastMenu, contrastButtons, options);
+		}
 		getJMenuBar().add(contrastMenu);
+	}
+
+	/**
+	 * @param strat
+	 * @param contrastMenu
+	 * @param contrastButtons
+	 * @param options
+	 */
+	private void add(final AutoContrastStrategy strat,
+			final JMenu contrastMenu, final ButtonGroup contrastButtons,
+			final double[] options) {
+		final double d = options[0];
+		final JMenu menu = new JMenu(new SetAutoContrast(strat.getDisplayText()
+				+ "+/-" + d, strat, d, d));
+		for (int i = 0; i < options.length; ++i) {
+			final double o = options[i];
+			final JMenu subMenu = new JMenu(new SetAutoContrast(strat
+					.getDisplayText()
+					+ "+/-" + o, strat, o, o));
+			menu.add(subMenu);
+			for (int j = i; j < options.length; ++j) {
+				final double o2 = options[j];
+				final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
+						new SetAutoContrast(strat.getDisplayText() + "+" + o
+								+ "/-" + o2, strat, o2, o));
+				subMenu.add(menuItem);
+				contrastButtons.add(menuItem);
+			}
+			for (int j = i; j < options.length; ++j) {
+				final double o2 = options[j];
+				if (o2 == o) {
+					continue;
+				}
+				final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
+						new AutoContrast(strat.getDisplayText() + "+" + o2
+								+ "/-" + o, strat, o, o2));
+				subMenu.add(menuItem);
+				contrastButtons.add(menuItem);
+			}
+		}
+		contrastMenu.add(menu);
 	}
 
 	/**
@@ -615,7 +720,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 * 
 	 */
 	protected void regenerateImage() {
-		imagePlus = generateImagePlus(channelSelector.getSelections());
+		imagePlus = generateImagePlus(channelSelector.getSelections(),
+				contrastStrategy);
+		repaintImage();
+	}
+
+	protected void regenerateImage(final AutoContrast autoContrast) {
+		imagePlus = generateImagePlus(channelSelector.getSelections(),
+				autoContrast);
 		repaintImage();
 	}
 
@@ -741,9 +853,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 * 
 	 * @param selectedChannels
 	 *            The selected channels ({@code 1}-based).
+	 * @param autoContrast
 	 * @return The generated {@link ImagePlus} object.
 	 */
-	private ImagePlus generateImagePlus(final Set<Integer> selectedChannels) {
+	private ImagePlus generateImagePlus(final Set<Integer> selectedChannels,
+			final AutoContrast autoContrast) {
 		final ImageStack stack = new ImageStack(sizeX, sizeY);
 		for (final Integer channelInt : selectedChannels) {
 			final int channel = channelInt.intValue() - 1;
@@ -751,12 +865,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					channelInt);
 			final LUT lut = luts.get(channelName);
 			final ImagePlus imp = new ImagePlus("", imageProcessors[channel]);
-			if (Double.isNaN(lut.min)) {
-				lut.min = findMin(imageProcessors[channel].getHistogram());
-			}
-			if (Double.isNaN(lut.max)) {
-				lut.max = findMax(imageProcessors[channel].getHistogram());
-			}
+			autoContrast.actionPerformed(new ContrastActionEvent(this, 1, null,
+					0L, 0, imageProcessors[channel].getHistogram(), lut));
+			// if (Double.isNaN(lut.min)) {
+			// lut.min = findMin(imageProcessors[channel].getHistogram());
+			// }
+			// if (Double.isNaN(lut.max)) {
+			// lut.max = findMax(imageProcessors[channel].getHistogram());
+			// }
 			new ImageConverterEnh(imp).convertToRGB(lut);
 			stack.addSlice(null, imp.getProcessor());
 		}
@@ -767,41 +883,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			conv.invert();
 		}
 		return ret;
-	}
-
-	/**
-	 * Finds the maximal index of non-zero values in histogram.
-	 * 
-	 * @param histogram
-	 *            An array of positive int values.
-	 * @return The maximal index where the value is not {@code 0}, or the last
-	 *         index if there were no such index ({@code -1} if the array is
-	 *         empty).
-	 */
-	private double findMax(final int[] histogram) {
-		for (int i = histogram.length; i-- > 0;) {
-			if (histogram[i] > 0) {
-				return i;
-			}
-		}
-		return histogram.length - 1;
-	}
-
-	/**
-	 * Finds the minimal index of non-zero values in histogram.
-	 * 
-	 * @param histogram
-	 *            An array of positive int values.
-	 * @return The minimal index where the value is not {@code 0}, or the
-	 *         {@code 0} if there were no such index.
-	 */
-	private double findMin(final int[] histogram) {
-		for (int i = 0; i < histogram.length; ++i) {
-			if (histogram[i] > 0) {
-				return i;
-			}
-		}
-		return 0;
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
@@ -1039,10 +1120,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private ChartPanel createChartPanel(final JFreeChart lineChart,
 			final LUT lut) {
 		final ChartPanel chartPanel = new ChartPanel(lineChart);
-		lut.min = Math.max(lut.min, lineChart.getXYPlot().getDomainAxis()
-				.getRange().getLowerBound());
-		lut.max = Math.min(lut.max, lineChart.getXYPlot().getDomainAxis()
-				.getRange().getUpperBound());
+		// lut.min = Math.max(lut.min, lineChart.getXYPlot().getDomainAxis()
+		// .getRange().getLowerBound());
+		// lut.max = Math.min(lut.max, lineChart.getXYPlot().getDomainAxis()
+		// .getRange().getUpperBound());
 		chartPanel.getChart().getXYPlot().addDomainMarker(
 				new ValueMarker(lut.min), Layer.FOREGROUND);
 		chartPanel.getChart().getXYPlot().addDomainMarker(
@@ -1105,7 +1186,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					Collections.sort(vals);
 					lut.min = vals.get(0).doubleValue();
 					lut.max = vals.get(vals.size() - 1).doubleValue();
-					regenerateImage();
+					regenerateImage(AutoContrast.keepLast);
 					selectedMarker = null;
 				}
 			}
@@ -1154,7 +1235,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			newLut.min = orig.min;
 			newLut.max = orig.max;
 			luts.put(channelName, newLut);
-			regenerateImage();
+			regenerateImage(AutoContrast.keepLast);
 		}
 	}
 
@@ -1328,7 +1409,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		case JOptionPane.CLOSED_OPTION:
 			lut.min = lutMin;
 			lut.max = lutMax;
-			regenerateImage();
+			regenerateImage(AutoContrast.keepLast);
 			break;
 		default:
 			throw new IllegalStateException("Unexpected option: "
@@ -1378,7 +1459,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		public void actionPerformed(final ActionEvent e) {
 			if (LociViewerNodeFastView.this.strategy != strategy) {
 				LociViewerNodeFastView.this.strategy = strategy;
-				regenerateImage();
+				regenerateImage(AutoContrast.keepLast);
 			}
 		}
 
