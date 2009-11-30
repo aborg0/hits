@@ -72,9 +72,9 @@ public class LociReaderNodeModel extends NodeModel {
 	static final ArrayList<String> ALLOWED_EXTENSIONS = LociReaderNodeDialog
 			.computeExtensions();
 
-	private static final SettingsModelString folder = new SettingsModelString(
+	private final SettingsModelString folder = new SettingsModelString(
 			CFGKEY_FOLDER, DEFAULT_FOLDER);
-	private static final SettingsModelString extensions = new SettingsModelString(
+	private final SettingsModelString extensions = new SettingsModelString(
 			CFGKEY_EXTENSION, DEFAULT_EXTENSION);
 
 	/**
