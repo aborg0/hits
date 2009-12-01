@@ -1012,8 +1012,27 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 *         &rArr; reader).
 	 */
 	private Map<Integer, FormatReader> getPlateRowColFieldTimeZMap() {
-		return getPlateRowColFieldTimeMap().get(
-				Double.valueOf(zSelector.getSelected()));
+		final Double val = Double.valueOf(zSelector.getSelected());
+		final Map<Double, Map<Integer, FormatReader>> map = getPlateRowColFieldTimeMap();
+		final Map<Integer, FormatReader> ret = map.get(val);
+		if (ret != null) {
+			return ret;
+		}
+		double minDiff = Double.MAX_VALUE;
+		Map<Integer, FormatReader> possRet = null;
+		for (final Entry<Double, Map<Integer, FormatReader>> entry : map
+				.entrySet()) {
+			final double diff = Math.abs(entry.getKey().doubleValue()
+					- val.doubleValue());
+			if (diff < minDiff && entry.getValue() != null) {
+				minDiff = diff;
+				possRet = entry.getValue();
+			}
+		}
+		if (possRet != null) {
+			return possRet;
+		}
+		return Collections.emptyMap();// TODO replace with empty FormatReader
 	}
 
 	/**

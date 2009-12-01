@@ -10,6 +10,7 @@ import ij.process.ImageProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,8 +29,10 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.collection.CollectionDataValue;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -38,6 +41,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.exp.imaging.data.def.DefaultImageCell;
 
 /**
@@ -48,6 +52,13 @@ import org.knime.exp.imaging.data.def.DefaultImageCell;
  */
 public class ConvertToImageNodeModel extends NodeModel {
 	private static final String IMAGE = "image";
+	/** Configuration key for the combine channels property. */
+	static final String CFGKEY_COMBINE_CHANNELS = "combine channels";
+	/** Default value of the combine channels property. */
+	static final boolean DEFAULT_COMBINE_CHANNELS = true;
+
+	private SettingsModelBoolean combineChannels = new SettingsModelBoolean(
+			CFGKEY_COMBINE_CHANNELS, DEFAULT_COMBINE_CHANNELS);
 
 	/**
 	 * Constructor for the node model.
@@ -74,7 +85,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void reset() {
-		// TODO: generated method stub
+		// No state saved, nothing to do
 	}
 
 	/**
@@ -98,6 +109,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	}
 
 	/**
+	 * FIXME Cannot done with ColumnRearranger
 	 * 
 	 * @param dataTableSpec
 	 * @param readerTableSpec
@@ -247,58 +259,86 @@ public class ConvertToImageNodeModel extends NodeModel {
 				}
 				final Pair<FormatReader, String> pair = inner2.get(inner2
 						.containsKey(field) ? field : null);
-				final DataCell timeCell = row.getCell(time0Index);
-				final Double time = Double.valueOf(((DoubleValue) timeCell)
-						.getDoubleValue());
-				final DataCell zCell = row.getCell(z0Index);
-				final Double z = Double.valueOf(((DoubleValue) zCell)
-						.getDoubleValue());
-				final DataCell omeIdCell = row.getCell(id0Index);
-				final String omeId = ((StringValue) omeIdCell).getStringValue();
-				if (!omeId.equals(pair.getRight())) {
-					throw new IllegalStateException("Not matching ids: "
-							+ omeId + " <-> " + pair.getRight());
-				}
+				final CollectionDataValue timeCell = (CollectionDataValue) row
+						.getCell(time0Index);
+				int timeIndex = 0;
+				for (final DataCell timeDataCell : timeCell.iterator()
+						.hasNext() ? timeCell : Collections
+						.singletonList(new DoubleCell(0.0))) {
+					final Double time = Double
+							.valueOf(((DoubleValue) timeDataCell)
+									.getDoubleValue());
+					final CollectionDataValue zCell = (CollectionDataValue) row
+							.getCell(z0Index);
+					final int zIndex = 0;
+					for (final DataCell zDataCell : zCell.iterator().hasNext() ? zCell
+							: Collections.singletonList(new DoubleCell(0.0))) {
+						final Double z = Double
+								.valueOf(((DoubleValue) zDataCell)
+										.getDoubleValue());
+						final DataCell omeIdCell = row.getCell(id0Index);
+						final String omeId = ((StringValue) omeIdCell)
+								.getStringValue();
+						if (!omeId.equals(pair.getRight())) {
+							throw new IllegalStateException(
+									"Not matching ids: " + omeId + " <-> "
+											+ pair.getRight());
+						}
+						final ImagePlusReader imagePlusReader = ImagePlusReader
+								.makeImagePlusReader(pair.getLeft());
+						imagePlusReader.setSeries(((IntValue) row
+								.getCell(imageId0Index)).getIntValue());
+						if (pair.getLeft().getSizeC() == 1) {
+							final int channel = // channels.iterator().next()
+							// .intValue() - 1;
+							0;
+							ImageProcessor[] openProcessors;
+							try {
+								openProcessors = imagePlusReader
+										.openProcessors(channel);
+								final ImageProcessor ip = /* reader */openProcessors[0];
+								return new DefaultImageCell(new ImagePlus("",
+										ip));
+							} catch (final FormatException e) {
+								return DataType.getMissingCell();
+							} catch (final IOException e) {
+								return DataType.getMissingCell();
+							}
+						}
+						final ImageStack imageStack = new ImageStack(
+								imagePlusReader.getSizeX(), imagePlusReader
+										.getSizeY());
+						try {
+							for (int i = 0; i < Math.min(3, imagePlusReader
+									.getSizeC()); ++i) {
 
-				final ImagePlusReader imagePlusReader = ImagePlusReader
-						.makeImagePlusReader(pair.getLeft());
-				imagePlusReader.setSeries(((IntValue) row
-						.getCell(imageId0Index)).getIntValue());
-				if (pair.getLeft().getSizeC() == 1) {
-					final int channel = // channels.iterator().next()
-					// .intValue() - 1;
-					0;
-					ImageProcessor[] openProcessors;
-					try {
-						openProcessors = imagePlusReader
-								.openProcessors(channel);
-						final ImageProcessor ip = /* reader */openProcessors[0];
-						return new DefaultImageCell(new ImagePlus("", ip));
-					} catch (final FormatException e) {
-						return DataType.getMissingCell();
-					} catch (final IOException e) {
-						return DataType.getMissingCell();
-					}
-				}
-				final ImageStack imageStack = new ImageStack(imagePlusReader
-						.getSizeX(), imagePlusReader.getSizeY());
-				try {
-					for (int i = 0; i < Math.min(3, imagePlusReader.getSizeC()); ++i) {
-						ImagePlus image;
-						image = new ImagePlus(null, imagePlusReader
-								.openProcessors(i)[0]);
-						new ImageConverter(image).convertToGray8();
-						imageStack.addSlice(null, image.getProcessor());
-					}
-					final ImagePlus imagePlus = new ImagePlus("", imageStack);
-					new ImageConverter(imagePlus).convertRGBStackToRGB();
+								ImagePlus image;
+								image = new ImagePlus(null,
+										imagePlusReader
+												.openProcessors(imagePlusReader
+														.getIndex(zIndex, i,
+																timeIndex))[0]);
+								new ImageConverter(image).convertToGray8();
+								imageStack.addSlice(null, image.getProcessor());
+							}
+							final ImagePlus imagePlus = new ImagePlus("",
+									imageStack);
+							new ImageConverter(imagePlus)
+									.convertRGBStackToRGB();
 
-					return new DefaultImageCell(imagePlus);
-				} catch (final FormatException e) {
-					return DataType.getMissingCell();
-				} catch (final IOException e) {
-					return DataType.getMissingCell();
+							return new DefaultImageCell(imagePlus);
+						} catch (final FormatException e) {
+							return DataType.getMissingCell();
+						} catch (final IOException e) {
+							return DataType.getMissingCell();
+						}
+						// ++zIndex;
+					}
+					++timeIndex;
 				}
+				throw new IllegalStateException(
+						"Should not happen: no time or z information: "
+								+ row.getKey());
 			}
 		}, PublicConstants.LOCI_ID);
 		return ret;
@@ -309,7 +349,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO: generated method stub
+		combineChannels.saveSettingsTo(settings);
 	}
 
 	/**
@@ -318,7 +358,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		combineChannels.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -327,7 +367,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// TODO: generated method stub
+		combineChannels.validateSettings(settings);
 	}
 
 	/**
@@ -337,7 +377,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// No internal state to load
 	}
 
 	/**
@@ -347,7 +387,7 @@ public class ConvertToImageNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		// TODO: generated method stub
+		// No internal state to save
 	}
 
 }
