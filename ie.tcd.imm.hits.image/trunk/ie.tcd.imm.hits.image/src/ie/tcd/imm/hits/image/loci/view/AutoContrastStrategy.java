@@ -8,18 +8,6 @@ import ij.process.LUT;
 
 import java.util.Arrays;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 /**
  * An enum for the simple strategies of auto contrast.
  * 
@@ -124,17 +112,17 @@ public enum AutoContrastStrategy implements Displayable {
 		public void changeLut(final LUT lut, final int[] histogram,
 				final double... additionalParams)/* => */{
 			final double mode = mode(histogram);
-			final long n = sum(histogram);
+			// final long n = sum(histogram);
 
 			final int[] removedGauss = removeBump(histogram, mode);
 			// removeGauss((int) mode,
 			// findBestFittingGauss(histogram, mode), histogram, n);
 
-			final int[] diff = new int[histogram.length];
-			for (int i = diff.length; i-- > 0;) {
-				diff[i] = histogram[i] - removedGauss[i];
-			}
-			debugView(histogram, removedGauss, diff);
+			// final int[] diff = new int[histogram.length];
+			// for (int i = diff.length; i-- > 0;) {
+			// diff[i] = histogram[i] - removedGauss[i];
+			// }
+			// debugView(histogram, removedGauss, diff);
 			FirstHighest.changeLut(lut, removedGauss, additionalParams);
 		}
 
@@ -149,9 +137,10 @@ public enum AutoContrastStrategy implements Displayable {
 		public void changeLut(final LUT lut, final int[] histogram,
 				final double... additionalParams) /* => */{
 			final double mode = mode(histogram);
-			final long n = sum(histogram);
-			final int[] removedGauss = removeGauss((int) mode,
-					findBestFittingGauss(histogram, mode), histogram, n);
+			// final long n = sum(histogram);
+			final int[] removedGauss = removeBump(histogram, mode);
+			// removeGauss((int) mode,
+			// findBestFittingGauss(histogram, mode), histogram, n);
 			SecondHighest.changeLut(lut, removedGauss, additionalParams);
 		}
 
@@ -162,21 +151,29 @@ public enum AutoContrastStrategy implements Displayable {
 	};
 
 	/**
+	 * Changes the {@code lut} based on {@code histogram, additionalParams}.
+	 * 
 	 * @param lut
+	 *            The {@link LUT} to change.
 	 * @param histogram
+	 *            A histogram.
 	 * @param additionalParams
+	 *            Additional parameters.
 	 */
 	public abstract void changeLut(final LUT lut, final int[] histogram,
 			final double... additionalParams);
 
 	/**
 	 * @param histogram
-	 * @param mode
-	 * @return
+	 *            A histogram.
+	 * @param highValue
+	 *            The index where there is a high value in the {@code histogram}
+	 *            array.
+	 * @return A histogram without the largest "bump".
 	 */
-	protected int[] removeBump(final int[] histogram, final double mode) {
+	protected int[] removeBump(final int[] histogram, final double highValue) {
 		final int[] ret = new int[histogram.length];
-		final double[] posAndSlope = posAndSlope(histogram, mode);
+		final double[] posAndSlope = posAndSlope(histogram, highValue);
 		for (int i = ret.length; i-- > 0;) {
 			if (i > posAndSlope[2]) {
 				ret[i] = histogram[i];
@@ -192,9 +189,20 @@ public enum AutoContrastStrategy implements Displayable {
 	}
 
 	/**
+	 * Tries to identify the proper positions and slopes on each side of {@code
+	 * mode}.
+	 * 
 	 * @param histogram
+	 *            A histogram array.
 	 * @param mode
-	 * @return
+	 *            The index of a large value in {@code histogram}.
+	 * @return The values:
+	 *         <ol start="0">
+	 *         <li>Left position</li>
+	 *         <li>Left slope</li>
+	 *         <li>Right position</li>
+	 *         <li>Right slope</li>
+	 *         </ol>
 	 */
 	private double[] posAndSlope(final int[] histogram, final double mode) {
 		final double[] ret = new double[4];
@@ -206,7 +214,7 @@ public enum AutoContrastStrategy implements Displayable {
 					maxSlope = slope;
 				}
 			}
-			if (maxSlope < 100) {// FIXME find a better constant
+			if (maxSlope < 20) {// FIXME find a better constant
 				ret[2] = i;
 				ret[3] = maxSlope;
 				break;
@@ -220,7 +228,7 @@ public enum AutoContrastStrategy implements Displayable {
 					maxSlope = slope;
 				}
 			}
-			if (maxSlope < 100) {// FIXME find a better constant
+			if (maxSlope < 20) {// FIXME find a better constant
 				ret[0] = i;
 				ret[1] = maxSlope;
 				break;
@@ -233,9 +241,13 @@ public enum AutoContrastStrategy implements Displayable {
 	// BrightField;
 
 	/**
+	 * Computes the standard deviation like measure based on {@code mode}.
+	 * 
 	 * @param histogram
+	 *            A histogram array.
 	 * @param mode
-	 * @return
+	 *            A large value in {@code histogram}.
+	 * @return The standard deviation of histogram
 	 */
 	protected double findBestFittingGauss(final int[] histogram,
 			final double mode) {
@@ -254,27 +266,28 @@ public enum AutoContrastStrategy implements Displayable {
 		return Math.sqrt(Math.abs(sumSquare / sum - mode * mode));
 	}
 
-	private static int[] removeGauss(final int modeIndex, final double stdDev,
-			final int[] histogram, final long n) {
-		final int[] ret = new int[histogram.length];
-		for (int i = histogram.length; i-- > 0;) {
-			ret[i] = Math.max(0, (int) (histogram[i] - n
-					* value(i, modeIndex, stdDev * stdDev)));
-		}
-		return ret;
-	}
+	// private static int[] removeGauss(final int modeIndex, final double
+	// stdDev,
+	// final int[] histogram, final long n) {
+	// final int[] ret = new int[histogram.length];
+	// for (int i = histogram.length; i-- > 0;) {
+	// ret[i] = Math.max(0, (int) (histogram[i] - n
+	// * value(i, modeIndex, stdDev * stdDev)));
+	// }
+	// return ret;
+	// }
 
-	/**
-	 * @param i
-	 * @param modeIndex
-	 * @param var
-	 * @return
-	 */
-	private static double value(final double x, final double mean,
-			final double var) {
-		return oneDivSqrt2Pi / Math.sqrt(var)
-				* Math.exp(-(x - mean) * (x - mean) / 2 / var);
-	}
+	// /**
+	// * @param i
+	// * @param modeIndex
+	// * @param var
+	// * @return
+	// */
+	// private static double value(final double x, final double mean,
+	// final double var) {
+	// return oneDivSqrt2Pi / Math.sqrt(var)
+	// * Math.exp(-(x - mean) * (x - mean) / 2 / var);
+	// }
 
 	/**
 	 * Finds the maximal index of non-zero values in histogram.
@@ -333,13 +346,13 @@ public enum AutoContrastStrategy implements Displayable {
 		return (firstCommon + lastCommon) / 2.0;
 	}
 
-	private static long sum(final int[] histogram) {
-		long ret = 0;
-		for (final int i : histogram) {
-			ret += i;
-		}
-		return ret;
-	}
+	// private static long sum(final int[] histogram) {
+	// long ret = 0;
+	// for (final int i : histogram) {
+	// ret += i;
+	// }
+	// return ret;
+	// }
 
 	private static double avg(final int[] histogram) {
 		long ret = 0;
@@ -351,67 +364,68 @@ public enum AutoContrastStrategy implements Displayable {
 		return sum * 1.0 / ret;
 	}
 
-	private static void debugView(final int[]... histograms) {
-		final JPanel panel = new JPanel();
+	// private static void debugView(final int[]... histograms) {
+	// final JPanel panel = new JPanel();
+	//
+	// for (final int[] histogramInt : histograms) {
+	//
+	// final XYDataset histogram = createSerie(histogramInt);
+	// final JFreeChart lineChart = ChartFactory.createXYLineChart(
+	// "Histogram", null, null, histogram,
+	// PlotOrientation.VERTICAL, true, true, false);
+	//
+	// lineChart.getXYPlot().getDomainAxis().setRange(
+	// histogram.getXValue(0, 0),
+	// histogram.getXValue(0, histogram.getItemCount(0) - 1));
+	// final LogarithmicAxis rangeAxis = new LogarithmicAxis("Frequency");
+	// // rangeAxis.setAutoRangeIncludesZero(true);
+	// rangeAxis.setAllowNegativesFlag(true);
+	// lineChart.getXYPlot().setRangeAxis(rangeAxis);
+	// final ChartPanel chartPanel = new ChartPanel(lineChart);
+	// panel.add(chartPanel);
+	// }
+	// JOptionPane.showOptionDialog(null, panel, "",
+	// JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+	// null, null);
+	//
+	// }
 
-		for (final int[] histogramInt : histograms) {
-
-			final XYDataset histogram = createSerie(histogramInt);
-			final JFreeChart lineChart = ChartFactory.createXYLineChart(
-					"Histogram", null, null, histogram,
-					PlotOrientation.VERTICAL, true, true, false);
-
-			lineChart.getXYPlot().getDomainAxis().setRange(
-					histogram.getXValue(0, 0),
-					histogram.getXValue(0, histogram.getItemCount(0) - 1));
-			final LogarithmicAxis rangeAxis = new LogarithmicAxis("Frequency");
-			// rangeAxis.setAutoRangeIncludesZero(true);
-			rangeAxis.setAllowNegativesFlag(true);
-			lineChart.getXYPlot().setRangeAxis(rangeAxis);
-			final ChartPanel chartPanel = new ChartPanel(lineChart);
-			panel.add(chartPanel);
-		}
-		JOptionPane.showOptionDialog(null, panel, "",
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-				null, null);
-
-	}
-
-	/**
-	 * @param histogramInt
-	 * @return
-	 */
-	private static XYDataset createSerie(final int[] histogram) {
-		final XYSeries ret = new XYSeries("");
-		final double[] dh = new double[histogram.length];
-		for (int i = dh.length; i-- > 0;) {
-			dh[i] = histogram[i];
-		}
-		int min = 0;
-		for (int i = 0; i < histogram.length; ++i) {
-			if (histogram[i] == 0) {
-				min = i;
-			} else {
-				break;
-			}
-		}
-		int max = histogram.length - 1;
-		for (int i = histogram.length; i-- > 0;) {
-			if (histogram[i] == 0) {
-				max = i;
-			} else {
-				break;
-			}
-		}
-		// final double[][] data = new double[2][max - min + 1];
-		for (int i = max - min; i-- > 0;) {
-			// data[0][i] = min + i;
-			// data[1][i] = histogram[i + min];
-			ret.add(min + i, histogram[i + min]);
-		}
-		return new XYSeriesCollection(ret);
-	}
+	// /**
+	// * @param histogramInt
+	// * @return
+	// */
+	// private static XYDataset createSerie(final int[] histogram) {
+	// final XYSeries ret = new XYSeries("");
+	// final double[] dh = new double[histogram.length];
+	// for (int i = dh.length; i-- > 0;) {
+	// dh[i] = histogram[i];
+	// }
+	// int min = 0;
+	// for (int i = 0; i < histogram.length; ++i) {
+	// if (histogram[i] == 0) {
+	// min = i;
+	// } else {
+	// break;
+	// }
+	// }
+	// int max = histogram.length - 1;
+	// for (int i = histogram.length; i-- > 0;) {
+	// if (histogram[i] == 0) {
+	// max = i;
+	// } else {
+	// break;
+	// }
+	// }
+	// // final double[][] data = new double[2][max - min + 1];
+	// for (int i = max - min; i-- > 0;) {
+	// // data[0][i] = min + i;
+	// // data[1][i] = histogram[i + min];
+	// ret.add(min + i, histogram[i + min]);
+	// }
+	// return new XYSeriesCollection(ret);
+	// }
 
 	private static double EPSILON = 1e-6;
-	private static final double oneDivSqrt2Pi = 1.0 / Math.sqrt(2.0 * Math.PI);
+	// private static final double oneDivSqrt2Pi = 1.0 / Math.sqrt(2.0 *
+	// Math.PI);
 }

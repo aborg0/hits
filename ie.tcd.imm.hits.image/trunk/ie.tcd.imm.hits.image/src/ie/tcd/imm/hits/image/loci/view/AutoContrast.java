@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Icon;
 
 /**
@@ -36,12 +37,19 @@ public class AutoContrast extends AbstractAction {
 
 		/**
 		 * @param source
+		 *            Same as {@link ActionEvent#getSource() source}.
 		 * @param id
+		 *            Same as {@link ActionEvent#getID() id}.
 		 * @param command
+		 *            Same as {@link ActionEvent#getActionCommand() command}.
 		 * @param when
+		 *            Same as {@link ActionEvent#getWhen() when}.
 		 * @param modifiers
+		 *            Same as {@link ActionEvent#getModifiers() modifiers}.
 		 * @param histogram
+		 *            The histogram to use for contrast computations.
 		 * @param lut
+		 *            The {@link LUT} to modify.
 		 */
 		public ContrastActionEvent(final Object source, final int id,
 				final String command, final long when, final int modifiers,
@@ -54,6 +62,10 @@ public class AutoContrast extends AbstractAction {
 	}
 
 	/**
+	 * @param strategy
+	 *            The {@link AutoContrastStrategy}.
+	 * @param additionalParameters
+	 *            The additional parameters for {@code strategy}.
 	 * 
 	 */
 	public AutoContrast(final AutoContrastStrategy strategy,
@@ -63,6 +75,11 @@ public class AutoContrast extends AbstractAction {
 
 	/**
 	 * @param name
+	 *            The name of the {@link Action}.
+	 * @param strategy
+	 *            The {@link AutoContrastStrategy}.
+	 * @param additionalParameters
+	 *            The additional parameters for {@code strategy}.
 	 */
 	public AutoContrast(final String name, final AutoContrastStrategy strategy,
 			final double... additionalParameters) {
@@ -71,9 +88,13 @@ public class AutoContrast extends AbstractAction {
 
 	/**
 	 * @param name
+	 *            The name of the {@link Action}.
 	 * @param icon
+	 *            The icon of the {@link Action}.
 	 * @param strategy
+	 *            The {@link AutoContrastStrategy}.
 	 * @param additionalParameters
+	 *            The additional parameters for {@code strategy}.
 	 */
 	public AutoContrast(final String name, final Icon icon,
 			final AutoContrastStrategy strategy,

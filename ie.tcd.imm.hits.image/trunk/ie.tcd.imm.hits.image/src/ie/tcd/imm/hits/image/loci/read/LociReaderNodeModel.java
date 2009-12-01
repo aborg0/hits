@@ -15,7 +15,6 @@ import java.util.List;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
@@ -26,7 +25,6 @@ import loci.formats.ome.OMEXML200809Metadata;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.plugins.util.ImagePlusReader;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -143,10 +141,11 @@ public class LociReaderNodeModel extends NodeModel {
 								.getMissingCell()/* T */, new LociReaderCell(
 								(FormatReader) formatReader),// 
 						new StringCell(xml), new StringCell(relPos)));
-				final Collection<DataCell> channelNames = asDataCells(getChannelNames(
+				final Collection<StringCell> channelNames = asStringDataCells(getChannelNames(
 						MetadataTools.asRetrieve(formatReader
 								.getMetadataStore()), formatReader
 								.getEffectiveSizeC()));
+
 				for (int i = 0; i < reader.getSeriesCount(); ++i) {
 					exec.checkCanceled();
 					reader.setSeries(i);
@@ -155,32 +154,42 @@ public class LociReaderNodeModel extends NodeModel {
 						logger.warn("stopped because of not enough memory");
 						break;
 					}
+					final Collection<DoubleCell> timeCells = asDoubleDataCells(getTimes(
+							MetadataTools.asRetrieve(formatReader
+									.getMetadataStore()), i, formatReader
+									.getSizeT()));
+					final Collection<DoubleCell> zCells = asDoubleDataCells(getZs(
+							MetadataTools.asRetrieve(formatReader
+									.getMetadataStore()), i, formatReader
+									.getSizeZ()));
 					// final Integer timepoint = omeXml.getWellSampleTimepoint(
 					// 0/* plate */, 0 /* well */, 0/* field */);
 					// final Integer z = omeXml.getTiffDataFirstZ(0/* imageIdx
 					// */,
 					// 0/* pixelsIndex */, 0/* tiffDataIndex */);
-					final int imageCount = reader.getSizeZ()
-							* reader.getSizeT();// * reader.getEffectiveSizeC();
-					for (int j = 0; j < imageCount; ++j) {
-						final int[] zctCoords = FormatTools.getZCTCoords(
-								reader, j);
-						plateContainer.addRowToTable(new DefaultRow(new RowKey(
-								"Row_" + relPos + "_" + i + "_" + j),
-								new StringCell(relPos), new StringCell(Misc
-										.toUpperLetter(Integer.toString(i
-												/ fieldCount / colCount + 1))),
-								new IntCell(i / fieldCount % colCount + 1),
-								new IntCell(i % fieldCount + 1),
-								// Z
-								new DoubleCell(zctCoords[0]),
-								// T
-								new DoubleCell(zctCoords[2]),
-								// C
-								CollectionCellFactory
-										.createListCell(channelNames),
-								new StringCell(relPos), new IntCell(i)));
-					}
+					// final int imageCount = reader.getSizeZ()
+					// * reader.getSizeT();// * reader.getEffectiveSizeC();
+					// for (int j = 0; j < imageCount; ++j) {
+					// final int[] zctCoords = FormatTools.getZCTCoords(
+					// reader, j);
+					plateContainer.addRowToTable(new DefaultRow(
+							new RowKey("Row_" + relPos + "_" + i
+							// + "_" + j
+							),
+							new StringCell(relPos),
+							new StringCell(Misc.toUpperLetter(Integer
+									.toString(i / fieldCount / colCount + 1))),
+							new IntCell(i / fieldCount % colCount + 1),
+							new IntCell(i % fieldCount + 1),
+							// Z
+							CollectionCellFactory.createListCell(zCells),
+							// T
+							CollectionCellFactory.createListCell(timeCells),// new
+							// DoubleCell(zctCoords[2]),
+							// C
+							CollectionCellFactory.createListCell(channelNames),
+							new StringCell(relPos), new IntCell(i)));
+					// }
 					if (i % 100 == 0) {
 						logger.debug("i: " + i);
 					}
@@ -202,17 +211,35 @@ public class LociReaderNodeModel extends NodeModel {
 	}
 
 	/**
-	 * Converts {@code strings} to {@link DataCell} ({@link StringCell}s).
+	 * Converts {@code strings} to {@link StringCell}s.
 	 * 
 	 * @param strings
 	 *            Some {@link String}s.
 	 * @return A list of {@link StringCell}s.
 	 */
-	private static Collection<DataCell> asDataCells(
+	private static Collection<StringCell> asStringDataCells(
 			final Collection<String> strings) {
-		final Collection<DataCell> ret = new ArrayList<DataCell>(strings.size());
+		final Collection<StringCell> ret = new ArrayList<StringCell>(strings
+				.size());
 		for (final String channelName : strings) {
 			ret.add(new StringCell(channelName));
+		}
+		return ret;
+	}
+
+	/**
+	 * Converts {@code numbers} to {@link DoubleCell}s.
+	 * 
+	 * @param numbers
+	 *            Some {@link Number}s.
+	 * @return A list of {@link DoubleCell}s.
+	 */
+	private static Collection<DoubleCell> asDoubleDataCells(
+			final Collection<? extends Number> numbers) {
+		final Collection<DoubleCell> ret = new ArrayList<DoubleCell>(numbers
+				.size());
+		for (final Number number : numbers) {
+			ret.add(new DoubleCell(number.doubleValue()));
 		}
 		return ret;
 	}
@@ -229,6 +256,43 @@ public class LociReaderNodeModel extends NodeModel {
 		final List<String> ret = new ArrayList<String>(sizeC);
 		for (int i = 0; i < sizeC; ++i) {
 			ret.add(metadata.getLogicalChannelName(0, i));
+		}
+		return ret;
+	}
+
+	/**
+	 * @param metadata
+	 *            A {@link MetadataRetrieve}.
+	 * @param serie
+	 *            The well number.
+	 * @param sizeT
+	 *            The number of points in the T dimension.
+	 * @return The time points.
+	 */
+	private Collection<? extends Number> getTimes(
+			final MetadataRetrieve metadata, final int serie, final int sizeT) {
+		final List<Number> ret = new ArrayList<Number>(sizeT);
+		for (int i = 0; i < sizeT; ++i) {
+			ret.add(metadata.getPlaneTimingDeltaT(serie, 0, i)
+					- metadata.getPlaneTimingDeltaT(serie, 0, 0));
+		}
+		return ret;
+	}
+
+	/**
+	 * @param metadata
+	 *            A {@link MetadataRetrieve}.
+	 * @param serie
+	 *            The well number.
+	 * @param sizeT
+	 *            The number of points in the T dimension.
+	 * @return The time points.
+	 */
+	private Collection<? extends Number> getZs(final MetadataRetrieve metadata,
+			final int serie, final int sizeT) {
+		final List<Number> ret = new ArrayList<Number>(sizeT);
+		for (int i = 0; i < sizeT; ++i) {
+			ret.add(metadata.getStagePositionPositionZ(serie, 0, i));
 		}
 		return ret;
 	}
@@ -349,10 +413,10 @@ public class LociReaderNodeModel extends NodeModel {
 				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
 						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
 						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_Z,
-						DoubleCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_TIME,
-						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_Z, ListCell
+						.getCollectionType(DoubleCell.TYPE)).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_TIME, ListCell
+						.getCollectionType(DoubleCell.TYPE)).createSpec(),
 				new DataColumnSpecCreator(PublicConstants.LOCI_CHANNELS,
 						ListCell.getCollectionType(StringCell.TYPE))
 						.createSpec(), new DataColumnSpecCreator(
@@ -372,10 +436,10 @@ public class LociReaderNodeModel extends NodeModel {
 				new DataColumnSpecCreator(PublicConstants.LOCI_COLUMN,
 						IntCell.TYPE).createSpec(), new DataColumnSpecCreator(
 						PublicConstants.LOCI_FIELD, IntCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_Z,
-						DoubleCell.TYPE).createSpec(),
-				new DataColumnSpecCreator(PublicConstants.LOCI_TIME,
-						DoubleCell.TYPE).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_Z, ListCell
+						.getCollectionType(DoubleCell.TYPE)).createSpec(),
+				new DataColumnSpecCreator(PublicConstants.LOCI_TIME, ListCell
+						.getCollectionType(DoubleCell.TYPE)).createSpec(),
 				new DataColumnSpecCreator(PublicConstants.LOCI_CHANNELS,
 						ListCell.getCollectionType(StringCell.TYPE))
 						.createSpec(), new DataColumnSpecCreator(

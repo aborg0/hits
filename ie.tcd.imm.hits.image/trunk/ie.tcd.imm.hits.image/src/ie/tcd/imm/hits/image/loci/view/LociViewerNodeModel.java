@@ -29,6 +29,7 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.collection.CollectionDataValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -221,38 +222,46 @@ public class LociViewerNodeModel extends NodeModel {
 				other2
 						.put(
 								field,
-								new LinkedHashMap<Double, Map<Double, Map<Integer, FormatReader>>>());
+								new TreeMap<Double, Map<Double, Map<Integer, FormatReader>>>());
 			}
 			final Map<Double, Map<Double, Map<Integer, FormatReader>>> other3 = other2
 					.get(field);
 
-			final DataCell timeCell = row.getCell(time0Index);
-			final Double time = Double.valueOf(((DoubleValue) timeCell)
-					.getDoubleValue());
-			if (!other3.containsKey(time)) {
-				other3
-						.put(
-								time,
-								new LinkedHashMap<Double, Map<Integer, FormatReader>>());
-			}
-			final Map<Double, Map<Integer, FormatReader>> other4 = other3
-					.get(time);
-			final DataCell zCell = row.getCell(z0Index);
-			final Double z = Double.valueOf(((DoubleValue) zCell)
-					.getDoubleValue());
-			if (!other4.containsKey(z)) {
-				other4.put(z, new LinkedHashMap<Integer, FormatReader>());
-			}
-			final Map<Integer, FormatReader> other5 = other4.get(z);
+			final CollectionDataValue timeCell = (CollectionDataValue) row
+					.getCell(time0Index);
+			for (final DataCell timeDataCell : timeCell) {
 
-			final DataCell omeIdCell = row.getCell(id0Index);
-			final String omeId = ((StringValue) omeIdCell).getStringValue();
-			if (!omeId.equals(pair.getRight())) {
-				throw new IllegalStateException("Not matching ids: " + omeId
-						+ " <-> " + pair.getRight());
+				final Double time = Double.valueOf(((DoubleValue) timeDataCell)
+						.getDoubleValue());
+				if (!other3.containsKey(time)) {
+					other3.put(time,
+							new TreeMap<Double, Map<Integer, FormatReader>>());
+				}
+				final Map<Double, Map<Integer, FormatReader>> other4 = other3
+						.get(time);
+				final CollectionDataValue zCell = (CollectionDataValue) row
+						.getCell(z0Index);
+				for (final DataCell zDataCell : zCell) {
+					final Double z = Double.valueOf(((DoubleValue) zDataCell)
+							.getDoubleValue());
+					if (!other4.containsKey(z)) {
+						other4.put(z,
+								new LinkedHashMap<Integer, FormatReader>());
+					}
+					final Map<Integer, FormatReader> other5 = other4.get(z);
+
+					final DataCell omeIdCell = row.getCell(id0Index);
+					final String omeId = ((StringValue) omeIdCell)
+							.getStringValue();
+					if (!omeId.equals(pair.getRight())) {
+						throw new IllegalStateException("Not matching ids: "
+								+ omeId + " <-> " + pair.getRight());
+					}
+					other5.put(Integer.valueOf(((IntValue) row
+							.getCell(imageId0Index)).getIntValue()), pair
+							.getLeft());
+				}
 			}
-			other5.put(Integer.valueOf(((IntValue) row.getCell(imageId0Index))
-					.getIntValue()), pair.getLeft());
 		}
 		return new BufferedDataTable[] {};
 	}

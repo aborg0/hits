@@ -4,7 +4,6 @@
 package org.knime.core.node.defaultnodesettings;
 
 import ie.tcd.imm.hits.image.loci.read.LociReaderNodeModel;
-import ie.tcd.imm.hits.image.util.ConvertImage;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageConverter;
@@ -211,23 +210,24 @@ public class DialogComponentFileSelectionWithPreview extends
 						final int sizeX = imageReader.getSizeX();
 						final int sizeY = imageReader.getSizeY();
 						final ImageStack stack = new ImageStack(sizeX, sizeY);
-						final int imageCount = imageReader.getImageCount();
+						final int imageCount = imageReader.getSizeC();
 						logger.debug(imageCount);
-						for (int j = 0; j < Math.min(1, imageReader
-								.getSeriesCount()); j++) {
-							imageReader.setSeries(j);
-							for (int i = 0; i < Math.min(3, imageCount); i++) {
-								final ImageProcessor ip = imageReader
-										.openProcessors(i)[0];
-								final ImagePlus bit8 = new ImagePlus("" + i, ip);
-								new ImageConverter(bit8).convertToGray8();
-								stack.addSlice(1 + j + "_" + (i + 1), bit8
-										.getProcessor()
-								// ip
-										);
-								logger.debug("i: " + i);
-							}
+						// for (int j = 0; j < Math.min(1, imageReader
+						// .getSeriesCount()); j++) {
+						final int j = 0;
+						imageReader.setSeries(j);
+						for (int i = 0; i < Math.min(3, imageCount); i++) {
+							final ImageProcessor ip = imageReader
+									.openProcessors(i)[0];
+							final ImagePlus bit8 = new ImagePlus("" + i, ip);
+							new ImageConverter(bit8).convertToGray8();
+							stack.addSlice(1 + j + "_" + (i + 1), bit8
+									.getProcessor()
+							// ip
+									);
+							logger.debug("i: " + i);
 						}
+						// }
 						final ImagePlus imagePlus = new ImagePlus("xx", stack);
 						metaInfo.removeAll();
 						fileInfo.append(imagePlus == null ? "" : imagePlus
@@ -267,13 +267,13 @@ public class DialogComponentFileSelectionWithPreview extends
 							metaInfo.add(new JScrollPane(new JTextArea(fileInfo
 									.toString(), 5, 80)));
 							logger.info(fileInfo);
-							final ImageConverter imageConverter = new ImageConverter(
-									pointer[0]);
-							imageConverter.convertRGBStackToRGB();
-							// TODO update when newer ImageJ is available
-							final BufferedImage image = ConvertImage
-									.toBufferedImage(pointer[0].getImage());
-							// .getBufferedImage();
+							if (pointer[0].getStackSize() > 1) {
+								final ImageConverter imageConverter = new ImageConverter(
+										pointer[0]);
+								imageConverter.convertRGBStackToRGB();
+							}
+							final BufferedImage image = pointer[0]
+									.getBufferedImage();
 							assert image != null;
 							imagePanel.set(image);
 							getComponentPanel().revalidate();

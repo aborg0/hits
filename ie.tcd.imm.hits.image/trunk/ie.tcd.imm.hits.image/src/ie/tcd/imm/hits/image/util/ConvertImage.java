@@ -23,8 +23,10 @@ public class ConvertImage {
 	 * Converts an {@link Image} to a {@link BufferedImage}.
 	 * 
 	 * @param image
-	 * @return
+	 *            An {@link Image}.
+	 * @return The {@code image} as a {@link BufferedImage}.
 	 */
+	@Deprecated
 	public static BufferedImage toBufferedImage(final Image image) {
 		final BufferedImage bi = new BufferedImage(image.getWidth(null), image
 				.getHeight(null), BufferedImage.TYPE_INT_RGB);

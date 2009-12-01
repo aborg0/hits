@@ -77,13 +77,13 @@ public class ColourUtil {
 		return ret;
 	}
 
-	private static byte[] flip(final byte[] vals) {
-		final byte[] ret = new byte[vals.length];
-		for (int i = vals.length; i-- > 0;) {
-			ret[vals.length - i] = vals[i];
-		}
-		return ret;
-	}
+	// private static byte[] flip(final byte[] vals) {
+	// final byte[] ret = new byte[vals.length];
+	// for (int i = vals.length; i-- > 0;) {
+	// ret[vals.length - i] = vals[i];
+	// }
+	// return ret;
+	// }
 
 	private static byte[] invert(final byte[] vals) {
 		final byte[] ret = new byte[vals.length];

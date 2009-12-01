@@ -63,7 +63,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -121,12 +120,12 @@ import com.sun.media.jai.widget.DisplayJAI;
  */
 public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	/**
-	 * TODO Javadoc!
-	 * 
-	 * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
+	 * A simple {@link AbstractAction} that sets the
+	 * {@link LociViewerNodeFastView#contrastStrategy} to the defined in the
+	 * constructor {@link AutoContrast} object.
 	 */
 	private class SetAutoContrast extends AbstractAction {
-
+		private static final long serialVersionUID = -1716780980886699511L;
 		private final String message;
 		private final AutoContrastStrategy strat;
 		private final double left;
@@ -134,9 +133,14 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 		/**
 		 * @param message
+		 *            The name of the action.
 		 * @param strat
+		 *            The {@link AutoContrastStrategy} to use in the
+		 *            {@link AutoContrast}.
 		 * @param left
+		 *            The first additional parameter.
 		 * @param right
+		 *            The second additional parameter.
 		 */
 		public SetAutoContrast(final String message,
 				final AutoContrastStrategy strat, final double left,
@@ -148,15 +152,11 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			this.right = right;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
-		 * )
+		/**
+		 * Sets the new strategy, regenerates the image.
 		 */
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(final ActionEvent e) /* => */{
 			contrastStrategy = new AutoContrast(message, strat, left, right);
 			regenerateImage();
 		}
@@ -430,8 +430,6 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		getJMenuBar().add(coloursMenu);
 		final JMenu contrastMenu = new JMenu("Contrast");
 		final ButtonGroup contrastButtons = new ButtonGroup();
-		final EnumMap<AutoContrastStrategy, JMenuItem> autoContrastStrategies = new EnumMap<AutoContrastStrategy, JMenuItem>(
-				AutoContrastStrategy.class);
 		final JRadioButtonMenuItem keepLast = new JRadioButtonMenuItem(
 				new SetAutoContrast(AutoContrastStrategy.KeepLast
 						.getDisplayText(), AutoContrastStrategy.KeepLast, 1.0,
@@ -449,10 +447,19 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
+	 * Adds for {@code strat} some menus to {@code contrastMenu}, the leaves are
+	 * {@link JRadioButtonMenuItem}s, added also to the {@code contrastButtons}.
+	 * 
 	 * @param strat
+	 *            An {@link AutoContrastStrategy}.
 	 * @param contrastMenu
+	 *            The "Contrast" menu.
 	 * @param contrastButtons
+	 *            A {@link ButtonGroup} for the contrast
+	 *            {@link JRadioButtonMenuItem}s.
 	 * @param options
+	 *            The optional values for the actions, combination of these will
+	 *            be used to generate the menus.
 	 */
 	private void add(final AutoContrastStrategy strat,
 			final JMenu contrastMenu, final ButtonGroup contrastButtons,
@@ -577,7 +584,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateTimeSelector() {
 		deregister(timeSelector);
-		timeSelector = OptionalNamedSelector.createSingle(TIME,
+		timeSelector = OptionalNamedSelector.createSingle(TIME + " s",
 				asStringSet(getPlateRowColFieldMap().keySet()));
 		recreateZSelector();
 		final ActionListener actionListener = new ActionListener() {
@@ -594,8 +601,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateZSelector() {
 		deregister(zSelector);
-		zSelector = OptionalNamedSelector.createSingle(Z,
-				asStringSet(getPlateRowColFieldTimeMap().keySet()));
+		zSelector = OptionalNamedSelector.createSingle(Z + " \u00B5m",
+				asStringSet(getPlateRowColFieldTimeMap().keySet())// ,
+				// "\u00B5m")
+				);
 		recreateChannelSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
@@ -717,7 +726,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * 
+	 * Regenerates the {@link #imagePlus} object of zooming.
 	 */
 	protected void regenerateImage() {
 		imagePlus = generateImagePlus(channelSelector.getSelections(),
@@ -725,6 +734,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		repaintImage();
 	}
 
+	/**
+	 * Regenerates the {@link #imagePlus} object of zooming, based on the
+	 * {@code autoContrast} parameter and the state of the object.
+	 * 
+	 * @param autoContrast
+	 *            The {@link AutoContrast} object to regenerate the image.
+	 */
 	protected void regenerateImage(final AutoContrast autoContrast) {
 		imagePlus = generateImagePlus(channelSelector.getSelections(),
 				autoContrast);
@@ -854,6 +870,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 * @param selectedChannels
 	 *            The selected channels ({@code 1}-based).
 	 * @param autoContrast
+	 *            The {@link AutoContrast} object to use for enhancing the
+	 *            contrast of each channel.
 	 * @return The generated {@link ImagePlus} object.
 	 */
 	private ImagePlus generateImagePlus(final Set<Integer> selectedChannels,
@@ -892,6 +910,17 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		}
 		return ret;
 	}
+
+	// private static <T extends Number> Set<String> asStringSetWithUnit(
+	// final Iterable<T> vals, final String unit) {
+	// final Set<String> ret = new LinkedHashSet<String>();
+	// for (final T t : vals) {
+	// ret.add(NumberFormat.getNumberInstance(Locale.getDefault()).format(
+	// t.doubleValue())
+	// + " " + unit);
+	// }
+	// return ret;
+	// }
 
 	private void deregisterPreviousSelectors() {
 		deregister(plateSelector);
