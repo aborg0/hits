@@ -10,8 +10,15 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatReader;
@@ -25,7 +32,11 @@ import loci.formats.ome.OMEXML200809Metadata;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.plugins.util.ImagePlusReader;
 
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomainCreator;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.RowKey;
@@ -96,6 +107,7 @@ public class LociReaderNodeModel extends NodeModel {
 			final ImagePlusReader reader = ImagePlusReader
 					.makeImagePlusReader(new ChannelSeparator(ImagePlusReader
 							.makeImageReader()));
+			exec.checkCanceled();
 			final IMetadata omeXml = new OMEXML200809Metadata();
 			// OMEXMLFactory.newOMENode();
 			// MetadataTools.createOMEXMLMetadata("");
@@ -115,8 +127,13 @@ public class LociReaderNodeModel extends NodeModel {
 				folderFile = new File(rawFolder);
 				extension = extensions.getStringValue();
 			}
-			for (final URI file : visit(folderFile, extension)) {
+			int progress = 0;
+			final URI[] files = visit(folderFile, extension);
+			for (final URI file : files) {
+				exec.checkCanceled();
 				reader.setId(file.getPath());
+				exec.setProgress(progress * 1.0 / files.length, "Loading: "
+						+ file.getPath());
 				logger.debug("loaded: " + file);
 				final IFormatReader formatReader = ((ImageReader) ((ChannelSeparator) reader
 						.getReader()).getReader()).getReader();
@@ -194,6 +211,7 @@ public class LociReaderNodeModel extends NodeModel {
 						logger.debug("i: " + i);
 					}
 				}
+				++progress;
 			}
 		} finally {
 			plateContainer.close();
@@ -206,8 +224,52 @@ public class LociReaderNodeModel extends NodeModel {
 		} finally {
 			experimentContainer.close();
 		}
-		return new BufferedDataTable[] { plateContainer.getTable(),
+		final BufferedDataTable table = plateContainer.getTable();
+		final BufferedDataTable tableWithDomain = exec.createSpecReplacerTable(
+				table, addValues(table));
+		return new BufferedDataTable[] { tableWithDomain,
 				xmlPlateContainer.getTable(), experimentContainer.getTable() };
+	}
+
+	/**
+	 * Adds domain values to selected columns.
+	 * 
+	 * @param table
+	 *            A table with plate, channel, time columns.
+	 * @return The same {@link DataTableSpec} with added domain of the values in
+	 *         plate, channel, time columns.
+	 */
+	private static DataTableSpec addValues(final BufferedDataTable table) {
+		final DataTableSpec tableSpec = table.getDataTableSpec();
+		final DataColumnSpec[] colSpecs = new DataColumnSpec[tableSpec
+				.getNumColumns()];
+		final Set<String> selectedNames = new HashSet<String>(Arrays.asList(
+				PublicConstants.LOCI_PLATE, PublicConstants.LOCI_Z,
+				PublicConstants.LOCI_TIME, PublicConstants.LOCI_CHANNELS,
+				PublicConstants.LOCI_ID));
+		final Map<Integer, Set<DataCell>> map = new HashMap<Integer, Set<DataCell>>();
+		for (int i = colSpecs.length; i-- > 0;) {
+			colSpecs[i] = tableSpec.getColumnSpec(i);
+			if (selectedNames.contains(colSpecs[i].getName())) {
+				map.put(Integer.valueOf(i), new LinkedHashSet<DataCell>());
+			}
+		}
+		for (final DataRow dataRow : table) {
+			for (final Entry<Integer, Set<DataCell>> entry : map.entrySet()) {
+				final DataCell cell = dataRow
+						.getCell(entry.getKey().intValue());
+				entry.getValue().add(cell);
+			}
+		}
+		for (final Entry<Integer, Set<DataCell>> entry : map.entrySet()) {
+			final int index = entry.getKey().intValue();
+			final DataColumnSpecCreator creator = new DataColumnSpecCreator(
+					colSpecs[index]);
+			creator.setDomain(new DataColumnDomainCreator(entry.getValue())
+					.createDomain());
+			colSpecs[index] = creator.createSpec();
+		}
+		return new DataTableSpec(colSpecs);
 	}
 
 	/**
@@ -245,13 +307,23 @@ public class LociReaderNodeModel extends NodeModel {
 	}
 
 	/**
+	 * @param reader
+	 *            An {@link IFormatReader}.
+	 * @return The logical channel names.
+	 */
+	public static List<String> getChannelNames(final IFormatReader reader) {
+		return getChannelNames(MetadataTools.asRetrieve(reader
+				.getMetadataStore()), reader.getSizeC());
+	}
+
+	/**
 	 * @param metadata
 	 *            A {@link MetadataRetrieve}.
 	 * @param sizeC
 	 *            The effective channel count.
 	 * @return The logical channel names.
 	 */
-	private Collection<String> getChannelNames(final MetadataRetrieve metadata,
+	public static List<String> getChannelNames(final MetadataRetrieve metadata,
 			final int sizeC) {
 		final List<String> ret = new ArrayList<String>(sizeC);
 		for (int i = 0; i < sizeC; ++i) {
@@ -284,14 +356,14 @@ public class LociReaderNodeModel extends NodeModel {
 	 *            A {@link MetadataRetrieve}.
 	 * @param serie
 	 *            The well number.
-	 * @param sizeT
-	 *            The number of points in the T dimension.
-	 * @return The time points.
+	 * @param sizeZ
+	 *            The number of points in the Z dimension.
+	 * @return The Z coordinates points.
 	 */
 	private Collection<? extends Number> getZs(final MetadataRetrieve metadata,
-			final int serie, final int sizeT) {
-		final List<Number> ret = new ArrayList<Number>(sizeT);
-		for (int i = 0; i < sizeT; ++i) {
+			final int serie, final int sizeZ) {
+		final List<Number> ret = new ArrayList<Number>(sizeZ);
+		for (int i = 0; i < sizeZ; ++i) {
 			ret.add(metadata.getStagePositionPositionZ(serie, 0, i));
 		}
 		return ret;
