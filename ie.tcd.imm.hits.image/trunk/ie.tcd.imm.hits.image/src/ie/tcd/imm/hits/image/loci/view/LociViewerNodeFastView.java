@@ -584,7 +584,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateTimeSelector() {
 		deregister(timeSelector);
-		timeSelector = OptionalNamedSelector.createSingle(TIME + " s",
+		timeSelector = OptionalNamedSelector.createSingle(TIME + " "
+				+ getNodeModel().getTimeUnit(),
 				asStringSet(getPlateRowColFieldMap().keySet()));
 		recreateZSelector();
 		final ActionListener actionListener = new ActionListener() {
@@ -601,7 +602,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateZSelector() {
 		deregister(zSelector);
-		zSelector = OptionalNamedSelector.createSingle(Z + " \u00B5m",
+		zSelector = OptionalNamedSelector.createSingle(Z + " "
+				+ getNodeModel().getZUnit(),
 				asStringSet(getPlateRowColFieldTimeMap().keySet())// ,
 				// "\u00B5m")
 				);
