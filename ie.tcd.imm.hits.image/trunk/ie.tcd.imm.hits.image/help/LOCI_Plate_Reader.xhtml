@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/basic.css"/>
+<title>LOCI Plate Reader node</title>
+</head>
+<body>
+<h1><a name="overview">LOCI Plate Reader node overview</a></h1>
+<p>This node is able to read images using the (slightly modified) <a href="http://www.loci.wisc.edu/software/bio-formats">Bio-Formats</a> framework. The <a href="../html/nodes/CellHTS2.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p> 
+<h1><a name="output">Result data</a></h1>
+<h2><a name="output1">mapping to readers</a></h2>
+<p>These are the references to the readers in the second outport.</p>
+<h3>Structure</h3>
+<p>
+<ul>
+<li><code>LOCI-Plate</code> - The identifiers of the plate, textual type (<code>S</code>). </li>
+<li><code>LOCI-Row</code> - The row name, textual type (<code>S</code>), from <code>A</code> to <code>H</code>. </li>
+<li><code>LOCI-Column</code> - The column position, integral type (<code>I</code>), from <code>1</code> to <code>12</code>. </li>
+<li><code>LOCI-Field</code> - The field identifier, integral type (<code>I</code>), from <code>1</code>. </li>
+<li><code>LOCI-Z</code> - The position inside the well (Z dimension), list of decimal type (<code>D</code>) values. </li>
+<li><code>LOCI-T</code> - The time since the first image taken from that field (t dimension), list of decimal type (<code>D</code>) values. </li>
+<li><code>LOCI-C</code> - The channels of the image, list of textual type (<code>S</code>) values. </li>
+<li><code>LOCI-Id</code> - The identifier of the reader in the second outport, textual type (<code>S</code>). </li>
+<li><code>Image-Id</code> - The identifier of the actual image <em>within</em> the reader, textual type (<code>S</code>). </li>
+</ul>
+</p>
+<h2><a name="output2">readers</a></h2>
+<p>These are the actual Bio-Formats readers.</p>
+<h3>Structure</h3>
+<p>
+<ul>
+<li><code>LOCI-Plate</code> - The identifiers of the plate, textual type (<code>S</code>). </li>
+<li><code>LOCI-Row</code> - The row name, textual type (<code>S</code>), from <code>A</code> to <code>H</code>, might be empty indicating that all of the rows on the plate are belonging to the reader in this row.</li>
+<li><code>LOCI-Column</code> - The column position, integral type (<code>I</code>), from <code>1</code> to <code>12</code>, might be empty indicating that all of the columns on the plate are belonging to the reader in this row. </li>
+<li><code>LOCI-Field</code> - The field identifier, integral type (<code>I</code>), from <code>1</code>, might be empty indicating that all of the fields on the well are belonging to the reader in this row. </li>
+<li><code>LOCI-Z</code> - The position inside the well (Z dimension), list of decimal type (<code>D</code>) values, might be empty indicating that all of the planes in the well are belonging to the reader in this row. </li>
+<li><code>LOCI-T</code> - The time since the first image taken from that field (t dimension), list of decimal type (<code>D</code>) values, might be empty indicating that all of the time points on the well are belonging to the reader in this row. </li>
+<li><code>LOCI-C</code> - The channels of the image, list of textual type (<code>S</code>) values, might be empty indicating that all of the channels on the plate are belonging to the reader in this row. </li>
+<li><code>LOCI</code> - The actual reader, LOCI reader type. </li>
+<li><code>OME-XML</code> - The textual representation of the metadata associated with the reader, textual type (<code>S</code>). </li>
+<li><code>LOCI-Id</code> - The identifier of the reader, textual type (<code>S</code>). </li>
+</ul>
+</p>
+<h2><a name="output3">metadata</a></h2>
+<p>Currently empty, should be filled with metadata information from the images.</p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/footer.xhtml/copyright" />
+</body>
+</html>

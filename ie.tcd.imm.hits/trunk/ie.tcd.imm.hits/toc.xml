@@ -129,7 +129,9 @@
 		<topic label="Compare with other experiments" href="help/usage.xhtml#compare">
 			<anchor id="UseCaseCompare"/>
 		</topic>
-	</topic>
+		<topic label="Images"><!--href="PLUGINS_ROOT/ie.tcd.imm.hits.image/help/LOCI_Plate_Reader.xhtml"-->
+			<anchor id="Images"/>
+		</topic>
 	<topic label="References" href="help/references.xhtml">
 		<anchor id="References"/>
 	</topic>
