@@ -443,7 +443,9 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				AutoContrastStrategy.SecondHighest }) {
 			add(strat, contrastMenu, contrastButtons, options);
 		}
-		getJMenuBar().add(contrastMenu);
+		if (Boolean.parseBoolean(System.getProperty("knime.expert.mode"))) {
+			getJMenuBar().add(contrastMenu);
+		}
 	}
 
 	/**
