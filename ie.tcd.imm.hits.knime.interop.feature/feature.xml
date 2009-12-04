@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.knime.interop.feature"
       label="HiTS interoperability with other projects"
-      version="0.0.3.qualifier"
+      version="0.0.4.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.knime.interop.feature">
 
@@ -19,7 +19,8 @@
    </license>
 
    <url>
-      <discovery label="HiTS update site" url="http://code.google.com/p/hits/"/>
+      <update label="HiTS official update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
+      <discovery label="HiTS update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
    </url>
 
    <requires>
