@@ -278,8 +278,8 @@ public class LociReaderNodeModel extends NodeModel {
 			unitName = unit.substring(1);
 		}
 		if (!currentUnit.endsWith(unitName)) {
-			throw new omero.IllegalArgumentException("Incompatible units: "
-					+ unit + ", " + currentUnit);
+			throw new IllegalArgumentException("Incompatible units: " + unit
+					+ ", " + currentUnit);
 		}
 		final String unitPrefix = getPrefix(unit, unitName);
 		final String currentUnitPrefix = getPrefix(currentUnit, unitName);

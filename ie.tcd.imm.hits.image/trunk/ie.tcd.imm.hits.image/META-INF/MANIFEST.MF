@@ -2,12 +2,10 @@ Manifest-Version: 1.0
 Export-Package: ie.tcd.imm.hits.view.util;x-friends:="ie.tcd.imm.knime
  .test"
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: image.jar,lib/jcommon-1.0.16.jar,lib/jfreechart-1.0.
- 13-experimental.jar,lib/jfreechart-1.0.13-swt.jar,lib/jfreechart-1.0.
- 13.jar,lib/omero/ehcache-1.5.0.jar,lib/omero/omero_client.jar,lib/ome
- ro/omero-clients-util-Beta-4.1.0-DEV.jar,lib/omero/omero.insight.jar,
- lib/omero/swingx-0.9.4.jar,lib/omero/TableLayout-bin-jdk1.5-2009-08-2
- 6.jar,lib/omero/testOmero.jar
+Bundle-ClassPath: image.jar,
+ lib/jfreechart-1.0.13.jar,
+ lib/jfreechart-1.0.13-experimental.jar,
+ lib/jcommon-1.0.16.jar
 Bundle-Name: Bio-Formats image import
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -22,9 +20,10 @@ Require-Bundle: org.eclipse.core.runtime,
  edu.wisc.loci.loci_plugins;bundle-version="4.0.1",
  com.sun.media.jai_codec;bundle-version="1.1.3",
  javax.media.jai_core;bundle-version="1.1.3",
- org.eclipse.help,org.eclipse.help.ui,
+ org.eclipse.help,
+ org.eclipse.help.ui,
  ie.tcd.imm.hits.help.base;bundle-version="0.0.1",
- org.knime.ext.imaging;bundle-version="2.1.0",
+ org.knime.ext.imaging;bundle-version="2.1.1",
  com.springsource.org.apache.commons.discovery;bundle-version="0.4.0",
  com.springsource.org.apache.commons.logging;bundle-version="1.1.1"
 Bundle-Vendor: TCD

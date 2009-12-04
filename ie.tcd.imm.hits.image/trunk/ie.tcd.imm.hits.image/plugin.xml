@@ -17,7 +17,6 @@
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.read.LociReaderNodeFactory" id="ie.tcd.imm.hits.image.loci.read.LociReaderNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.view.LociViewerNodeFactory" id="ie.tcd.imm.hits.image.loci.view.LociViewerNodeFactory"/>
       <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.loci.convert.ConvertToImageNodeFactory" id="ie.tcd.imm.hits.image.ome.convert.ConvertToImageNodeFactory"/>
-      <!--node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.image.omero.read.OMEROReaderNodeFactory" id="ie.tcd.imm.hits.image.omero.read.OMEROReaderNodeFactory"/-->
    </extension>
    <extension point="org.eclipse.help.toc">
 	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
