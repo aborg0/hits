@@ -2,22 +2,24 @@
 <feature
       id="ie.tcd.imm.hits.feature"
       label="HiTS main feature"
-      version="0.4.1.qualifier"
+      version="0.5.0.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.feature">
 
    <description url="http://code.google.com/p/hits/">
       HiTS - High Throughput Screening
 KNIME plugin for analysing data from HTS/HCS experiments using
-cellHTS2 (based on 2.8.2, but should work well with 2.8.3 too).
+cellHTS2 (based on 2.10.2, but should work well with 2.8.x, 2.6.x
+too).
 It depends on Rserve.
-It also supports basic data visualisation technics, like heatmaps. (For a bit more advanced visualisation check: KNIME labs, and the ie.tcd.imm.hits.exp.feature feature.)
-News in version 0.4.0:
+It also supports basic data visualisation technics, like heatmaps.
+(For a bit more advanced visualisation check: KNIME distmatrix,
+and
+the ie.tcd.imm.hits.exp.feature feature.)
+News in version 0.5.0:
  - bug fixes,
- - improved colour legend export
- - more detailed error messages
- - new node:
-   - Score to P value
+ - better support of biomaRt node,
+ - support for remote files for readers.
    </description>
 
    <copyright>

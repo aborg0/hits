@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.knime.util.feature"
       label="KNIME utilities"
-      version="0.2.1.qualifier"
+      version="0.2.2.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.knime.util.feature">
 
@@ -19,6 +19,7 @@
    </license>
 
    <url>
+      <update label="HiTS official update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
       <discovery label="HiTS" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
    </url>
 

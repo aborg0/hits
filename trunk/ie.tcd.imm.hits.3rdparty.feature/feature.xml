@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ie.tcd.imm.hits.3rdparty.feature"
-      label="HiTS 3rd party features"
-      version="0.4.1.qualifier"
+      label="HiTS 3rd party components feature"
+      version="0.5.0.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.3rdparty.feature">
 
@@ -12,8 +12,8 @@
  - JSR305 annotations
  - Apache POI
  - Apache Commons Math
- - REngine
  - RServe
+   - REngine
    </description>
 
    <copyright>
@@ -28,6 +28,7 @@ new BSD - JSR305
    </license>
 
    <url>
+      <update label="HiTS official update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
       <discovery label="HiTS update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update"/>
    </url>
 
