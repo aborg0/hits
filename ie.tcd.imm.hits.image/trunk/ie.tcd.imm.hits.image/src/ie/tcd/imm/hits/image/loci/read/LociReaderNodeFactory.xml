@@ -8,7 +8,11 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Reads the images of a folder to access them later with LOCI Plate Viewer.</intro>
+        <intro>
+        Reads the images of a folder to access them later with LOCI Plate Viewer.
+        <br/>
+        Details can be found <a href="../../help/Loci_Plate_Viewer.xhtml">here</a>.
+        </intro>
         
         
         <option name="folder">The folder of images</option>

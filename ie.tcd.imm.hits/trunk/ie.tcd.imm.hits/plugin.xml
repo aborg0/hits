@@ -36,14 +36,14 @@
       <initializer class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceInitializer"/>
    	</extension>
    	<extension point="org.eclipse.help.toc">
-      <toc file="toc.xml"/>
       <toc file="HiTSToc.xml" primary="true"/>
+      <toc extradir="help" file="toc.xml"/>
 	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
 	  <toc extradir="html" file="tocs/HiTS_nodes.xml"/>
 	  <toc extradir="html" file="tocs/view_nodes.xml"/>
       <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
-    <toc extradir="html" file="tocs/HiTS.xml"/>
-</extension>
+      <toc extradir="html" file="tocs/HiTS.xml"/>
+    </extension>
    	<extension point="org.eclipse.help.base.luceneSearchParticipants">
       <binding participantId="org.eclipse.help.base.xhtml"/>
    	</extension>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html>
 <head>
-<title>Node description for LOCI Plate Reader</title>
+<title>Node description for LOCI to KNIME images</title>
 <style type="text/css">
 			body {
 	background-color: #fff;
@@ -80,35 +80,34 @@ a:visited{
 		</style>
 </head>
 <body>
-<h1>LOCI Plate Reader</h1>
-<p>
-        Reads the images of a folder to access them later with LOCI Plate Viewer.
-        <br/>
-        Details can be found <a href="../../help/Loci_Plate_Viewer.xhtml">here</a>.
-        </p>
+<h1>LOCI to KNIME images</h1>
+<p>Based on the information from LOCI Plate Reader it converts the images present in that format to KNIME image format.</p>
 <h2>Dialog Options</h2>
 <dl>
-<dt>folder</dt>
-<dd>The folder of images</dd>
-<dt>extensions</dt>
-<dd>Extensions to select the image files</dd>
+<dt>combine channels</dt>
+<dd>When selected the first (at most) 3 (grey-scale) channels will be combined to RGB images.</dd>
 </dl>
 <h2>Ports</h2>
 <dl>
+<dt>Input Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>A port with references to images.</td>
+</tr>
+<tr>
+<td class="dt">1</td>
+<td>A port where the readers are present.</td>
+</tr>
+</table>
+</dd>
 <dt>Output Ports</dt>
 <dd>
 <table>
 <tr>
 <td class="dt">0</td>
-<td>maps the images to LOCI readers</td>
-</tr>
-<tr>
-<td class="dt">1</td>
-<td>LOCI readers</td>
-</tr>
-<tr>
-<td class="dt">2</td>
-<td>metadata from readers</td>
+<td>Table containing the images</td>
 </tr>
 </table>
 </dd>

@@ -4,4 +4,5 @@
 <toc label="HiTS" link_to="..\ie.tcd.imm.hits\tocs\HiTS.xml#HiTS">
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image\html\nodes\LOCI_Plate_Reader.html" label="LOCI Plate Reader"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image\html\nodes\LOCI_Plate_Viewer.html" label="LOCI Plate Viewer"/>
+<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image\html\nodes\LOCI_to_KNIME_images.html" label="LOCI to KNIME images"/>
 </toc>
