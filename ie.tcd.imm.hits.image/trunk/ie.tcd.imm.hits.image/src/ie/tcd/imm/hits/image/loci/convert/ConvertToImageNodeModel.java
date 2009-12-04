@@ -239,8 +239,8 @@ public class ConvertToImageNodeModel extends NodeModel {
 					final IMetadata metadata = pair.getLeft().getRight();
 					final double zDoubleValue = ((DoubleValue) zDataCell)
 							.getDoubleValue();
-					final float timeDiff = metadata.getPlaneTimingDeltaT(serie,
-							0, timeIndex)
+					final double timeDiff = metadata.getPlaneTimingDeltaT(
+							serie, 0, timeIndex)
 							- metadata.getPlaneTimingDeltaT(serie, 0, 0);
 					values.set(resultTimeIndex, new DoubleCell(timeDiff));
 					final FormatReader formatReader = pair.getLeft().getLeft();

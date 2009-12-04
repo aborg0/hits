@@ -1,6 +1,19 @@
+Index: .classpath
+===================================================================
+--- .classpath	(revision 5729)
++++ .classpath	(working copy)
+@@ -3,7 +3,7 @@
+ 	<classpathentry kind="src" path="src"/>
+ 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+-	<classpathentry combineaccessrules="false" kind="src" path="/ome-xml"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/External libraries"/>
++	<classpathentry combineaccessrules="false" kind="src" path="/ome-xml"/>
+ 	<classpathentry kind="output" path="build/classes"/>
+ </classpath>
 Index: src/loci/formats/in/MinimalTiffReader.java
 ===================================================================
---- src/loci/formats/in/MinimalTiffReader.java	(revision 5674)
+--- src/loci/formats/in/MinimalTiffReader.java	(revision 5729)
 +++ src/loci/formats/in/MinimalTiffReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats.in;
@@ -49,7 +62,7 @@ Index: src/loci/formats/in/MinimalTiffReader.java
  }
 Index: src/loci/formats/in/InCellReader.java
 ===================================================================
---- src/loci/formats/in/InCellReader.java	(revision 5674)
+--- src/loci/formats/in/InCellReader.java	(revision 5729)
 +++ src/loci/formats/in/InCellReader.java	(working copy)
 @@ -24,7 +24,10 @@
  package loci.formats.in;
@@ -70,25 +83,7 @@ Index: src/loci/formats/in/InCellReader.java
  
    public static final String INCELL_MAGIC_STRING = "IN Cell Analyzer 1000";
  
-@@ -565,7 +569,16 @@
- 
-   // -- Helper classes --
- 
--  class MinimalInCellHandler extends DefaultHandler {
-+  /**
-+   * @return The channelNames.
-+   */
-+  public List<String> getChannelNames() {
-+	return channelNames == null ? null : Collections.unmodifiableList(channelNames);
-+  }
-+
-+// -- Helper classes --
-+
-+class MinimalInCellHandler extends DefaultHandler {
-     private String currentImageFile;
-     private String currentThumbnail;
-     private int wellRow, wellCol;
-@@ -889,8 +902,10 @@
+@@ -808,8 +812,10 @@
      }
    }
  
@@ -103,7 +98,7 @@ Index: src/loci/formats/in/InCellReader.java
      public Double deltaT, exposure;
 Index: src/loci/formats/FormatReader.java
 ===================================================================
---- src/loci/formats/FormatReader.java	(revision 5674)
+--- src/loci/formats/FormatReader.java	(revision 5729)
 +++ src/loci/formats/FormatReader.java	(working copy)
 @@ -24,6 +24,8 @@
  package loci.formats;
@@ -162,7 +157,7 @@ Index: src/loci/formats/FormatReader.java
      if (key == null || value == null || !collectMetadata) return;
  
      key = key.trim();
-@@ -788,21 +791,21 @@
+@@ -794,21 +797,22 @@
    }
  
    /* @see IFormatReader#getGlobalMetadata() */
@@ -181,14 +176,15 @@ Index: src/loci/formats/FormatReader.java
  
    /** @deprecated */
 -  public Hashtable getMetadata() {
-+  public Hashtable<String, ?> getMetadata() {
++  @Deprecated
++  public Hashtable<String, Object> getMetadata() {
      FormatTools.assertId(currentId, true, 1);
 -    Hashtable h = new Hashtable(getGlobalMetadata());
 +    Hashtable<String, Object> h = new Hashtable<String, Object>(getGlobalMetadata());
      int oldSeries = getSeries();
  
      IMetadata meta = getMetadataStore() instanceof IMetadata ?
-@@ -817,7 +820,7 @@
+@@ -823,7 +827,7 @@
          }
        }
        setSeries(series);
@@ -197,26 +193,26 @@ Index: src/loci/formats/FormatReader.java
        Object[] keys = seriesMetadata.keySet().toArray();
        for (Object key : keys) {
          h.put(name + " " + key, seriesMetadata.get(key));
-@@ -906,4 +909,16 @@
+@@ -912,4 +916,16 @@
      close(false);
    }
  
 +  // -- Serialize related methods --
-+  private void writeObject(ObjectOutputStream out) throws IOException {
-+	out.defaultWriteObject();
++  private void writeObject(final ObjectOutputStream out) throws IOException {
++    out.defaultWriteObject();
 +  }
 +
-+  private void readObject(ObjectInputStream input) throws IOException,
-+		ClassNotFoundException {
-+	// our "pseudo-constructor"
-+	input.defaultReadObject();
-+	in = null;
-+	metadataStore = new DummyMetadata();
++  private void readObject(final ObjectInputStream input) throws IOException,
++    ClassNotFoundException {
++    // our "pseudo-constructor"
++    input.defaultReadObject();
++    in = null;
++    metadataStore = new DummyMetadata();
 +  }
  }
 Index: src/loci/formats/gui/GUITools.java
 ===================================================================
---- src/loci/formats/gui/GUITools.java	(revision 5674)
+--- src/loci/formats/gui/GUITools.java	(revision 5729)
 +++ src/loci/formats/gui/GUITools.java	(working copy)
 @@ -79,8 +79,8 @@
      if (handler instanceof ImageReader) {
@@ -249,7 +245,7 @@ Index: src/loci/formats/gui/GUITools.java
      return filters;
 Index: src/loci/formats/tiff/IFDList.java
 ===================================================================
---- src/loci/formats/tiff/IFDList.java	(revision 5674)
+--- src/loci/formats/tiff/IFDList.java	(revision 5729)
 +++ src/loci/formats/tiff/IFDList.java	(working copy)
 @@ -34,4 +34,6 @@
   *
@@ -261,7 +257,7 @@ Index: src/loci/formats/tiff/IFDList.java
 +}
 Index: src/loci/formats/IFormatHandler.java
 ===================================================================
---- src/loci/formats/IFormatHandler.java	(revision 5674)
+--- src/loci/formats/IFormatHandler.java	(revision 5729)
 +++ src/loci/formats/IFormatHandler.java	(working copy)
 @@ -24,6 +24,7 @@
  package loci.formats;
@@ -282,7 +278,7 @@ Index: src/loci/formats/IFormatHandler.java
    boolean isThisType(String name);
 Index: src/loci/formats/CoreMetadata.java
 ===================================================================
---- src/loci/formats/CoreMetadata.java	(revision 5674)
+--- src/loci/formats/CoreMetadata.java	(revision 5729)
 +++ src/loci/formats/CoreMetadata.java	(working copy)
 @@ -23,6 +23,7 @@
  
@@ -292,20 +288,18 @@ Index: src/loci/formats/CoreMetadata.java
  import java.util.Hashtable;
  
  /**
-@@ -32,8 +33,11 @@
+@@ -32,7 +33,10 @@
   * <dd><a href="https://skyking.microscopy.wisc.edu/trac/java/browser/trunk/components/bio-formats/src/loci/formats/CoreMetadata.java">Trac</a>,
   * <a href="https://skyking.microscopy.wisc.edu/svn/java/trunk/components/bio-formats/src/loci/formats/CoreMetadata.java">SVN</a></dd></dl>
   */
 -public class CoreMetadata {
--  // TODO
 +public class CoreMetadata implements Serializable {
 +  /**  */
 +  private static final long serialVersionUID = 7601920004118508775L;
 +
-+// TODO
+   // TODO
    //
    // We may also want to consider refactoring the FormatReader getter methods
-   // that populate missing CoreMetadata fields on the fly
 @@ -123,7 +127,7 @@
    public boolean metadataComplete;
  
@@ -326,7 +320,7 @@ Index: src/loci/formats/CoreMetadata.java
  }
 Index: src/loci/formats/FormatHandler.java
 ===================================================================
---- src/loci/formats/FormatHandler.java	(revision 5674)
+--- src/loci/formats/FormatHandler.java	(revision 5729)
 +++ src/loci/formats/FormatHandler.java	(working copy)
 @@ -23,6 +23,9 @@
  

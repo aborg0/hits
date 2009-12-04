@@ -459,7 +459,7 @@ public class LociReaderNodeModel extends NodeModel {
 			final double multiplier) {
 		final List<Number> ret = new ArrayList<Number>(sizeT);
 		for (int i = 0; i < sizeT; ++i) {
-			final float diff = metadata.getPlaneTimingDeltaT(serie, 0, i)
+			final double diff = metadata.getPlaneTimingDeltaT(serie, 0, i)
 					- metadata.getPlaneTimingDeltaT(serie, 0, 0);
 			ret.add(Double.valueOf(diff * multiplier));
 		}
