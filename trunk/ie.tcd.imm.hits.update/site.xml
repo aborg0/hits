@@ -157,14 +157,15 @@
          Contains some -maybe useful- features missing from KNIME.
       </description>
    </category-def>
-   <category-def name="KNIME labs" label="KNIME labs (only Distance Matrix)">
+   <category-def name="KNIME labs" label="KNIME labs (partial)">
       <description>
-         This group contains only the Distance Matrix feature from KNIME labs.
+         This group contains only the old Distance Matrix feature, and the KNIME imaging feature from KNIME labs.
       </description>
    </category-def>
-   <category-def name="KNIME" label="KNIME (only math expressions node, JEP)">
+   <category-def name="KNIME" label="KNIME (partial)">
       <description>
-         This category contains a dependency of the HiTS main feature. This is the KNIME math expressions extension (JEP).
+         This category contains a dependency of the HiTS main and for the HiTS experimental feature.
+The KNIME math expressions extension (JEP), and the distance matrix extension is available.
       </description>
    </category-def>
    <category-def name="HiTS experimental" label="HiTS experimental">
