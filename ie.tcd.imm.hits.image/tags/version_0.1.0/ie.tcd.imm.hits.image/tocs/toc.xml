@@ -1,0 +1,15 @@
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Images" link_to="..\ie.tcd.imm.hits\toc.xml#Images">
+   <topic href="help/toc.xhtml" label="Images">
+	   <anchor id="preImageReading"/>
+	   <topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image/help/LOCI_Plate_Reader.xhtml" label="Image reading">
+	   </topic>
+	   <topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image/help/LOCI_Plate_Viewer.xhtml" label="Image visualisation">
+	   </topic>
+	   <topic href="PLUGINS_ROOT/ie.tcd.imm.hits.image/html/nodes/LOCI_to_KNIME_images.html" label="Image conversion to KNIME image format">
+	   </topic>
+	   <anchor id="postImageConversion"/>
+   </topic>
+   
+</toc>
