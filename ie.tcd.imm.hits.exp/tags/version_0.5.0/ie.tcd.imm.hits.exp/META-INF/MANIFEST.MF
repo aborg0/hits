@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Export-Package: ie.tcd.imm.hits.knime.util.leaf.ordering;version="0.4.0";x-friends:="ie.tcd.imm.knime.test"
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: labs.jar
+Bundle-Name: KNIME Labs based node extensions for KNIME Workbench
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.core,
+ org.knime.base,
+ ie.tcd.imm.hits;bundle-version="[0.5.0,1.0.0)",
+ ie.tcd.imm.hits.common;bundle-version="[0.0.4,1.0.0)",
+ org.eclipse.help,
+ org.eclipse.help.ui,
+ ie.tcd.imm.hits.help.base,
+ org.knime.distmatrix;bundle-version="2.1.0"
+Bundle-Vendor: TCD
+Bundle-Version: 0.5.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-Activator: ie.tcd.imm.hits.exp.LabsNodePlugin
+Import-Package: edu.umd.cs.findbugs.annotations,
+ javax.annotation,
+ javax.annotation.meta
+Bundle-SymbolicName: ie.tcd.imm.hits.exp; singleton:=true
+
