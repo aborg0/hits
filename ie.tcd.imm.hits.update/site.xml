@@ -24,7 +24,13 @@
    <feature url="http://www.knime.org/update_2.x/labs/features/org.knime.features.distmatrix_2.0.1.0020189.jar" id="org.knime.features.distmatrix" version="2.0.1.0020189">
       <category name="KNIME labs"/>
    </feature>
+   <feature url="http://www.knime.org/update/2.1/features/org.knime.features.distmatrix_2.1.1.0023926.jar" id="org.knime.features.distmatrix" version="2.1.1.0023926">
+      <category name="KNIME"/>
+   </feature>
    <feature url="http://www.knime.org/update_2.x/features/org.knime.features.ext.jep_2.0.3.0021120.jar" id="org.knime.features.ext.jep" version="2.0.3.0021120">
+      <category name="KNIME"/>
+   </feature>
+   <feature url="http://www.knime.org/update/2.1/features/org.knime.features.ext.jep_2.1.1.0023926.jar" id="org.knime.features.ext.jep" version="2.1.1.0023926">
       <category name="KNIME"/>
    </feature>
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp.feature_0.4.0.200908201405.jar" id="ie.tcd.imm.hits.exp.feature" version="0.4.0.200908201405">
@@ -40,6 +46,9 @@
       <category name="KNIME utilities"/>
    </feature>
    <feature url="http://www.knime.org/update_2.x/labs/features/org.knime.features.distmatrix_2.0.3.0022208.jar" id="org.knime.features.distmatrix" version="2.0.3.0022208">
+      <category name="KNIME labs"/>
+   </feature>
+   <feature url="http://labs.knime.org/update/2.1/features/org.knime.features.ext.imaging_2.1.1.0023926.jar" id="org.knime.features.ext.imaging" version="2.1.1.0023926">
       <category name="KNIME labs"/>
    </feature>
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.2.0.200908202037.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.0.200908202037">
@@ -102,9 +111,15 @@
    <archive path="plugins/ie.tcd.imm.hits.knime.interop_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.knime.interop_0.0.3.200910131532.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.0.1.0020189.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.1.0020189.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.3.0022208.jar"/>
+   <archive path="plugins/org.knime.distmatrix_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.distmatrix_2.1.1.0023926.jar"/>
    <archive path="plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar"/>
+   <archive path="plugins/org.knime.features.distmatrix.source_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.distmatrix.source_2.1.1.0023926.jar"/>
    <archive path="plugins/org.knime.ext.jep_2.0.3.0021120.jar" url="http://www.knime.org/update_2.x/plugins/org.knime.ext.jep_2.0.3.0021120.jar"/>
+   <archive path="plugins/org.knime.ext.jep_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.ext.jep_2.1.1.0023926.jar"/>
    <archive path="plugins/org.knime.features.ext.jep.source_2.0.3.0021120.jar" url="http://www.knime.org/update_2.x/plugins/org.knime.features.ext.jep.source_2.0.3.0021120.jar"/>
+   <archive path="plugins/org.knime.features.ext.jep.source_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.ext.jep.source_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.ext.imaging_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.ext.imaging_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.features.ext.imaging.source_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.ext.imaging.source_2.1.1.0023926.jar"/>
    <archive path="plugins/org.apache.commons.math_2.0.0.jar" url="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/commons/commons-math/2.0/commons-math-2.0.jar"/>
    <archive path="plugins/org.apache.commons.math_1.2.0.jar" url="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-math/commons-math/1.2/commons-math-1.2.jar"/>
    <archive path="plugins/com.springsource.org.apache.commons.logging_1.1.1.jar" url="http://repository.springsource.com/ivy/bundles/external/org.apache.commons/com.springsource.org.apache.commons.logging/1.1.1/com.springsource.org.apache.commons.logging-1.1.1.jar"/>
@@ -122,10 +137,13 @@
    <archive path="plugins/com.jgoodies.forms_1.0.4.jar" url="http://hits.googlecode.com/files/com.jgoodies.forms_1.0.4.jar"/>
    <archive path="plugins/com.sun.media.jai_codec_1.1.3.jar" url="http://hits.googlecode.com/files/com.sun.media.jai_codec_1.1.3.jar"/>
    <archive path="plugins/edu.wisc.loci.bio-formats_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.bio-formats_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.bio-formats_4.1.1.5726.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.bio-formats_4.1.1.5726.jar"/>
    <archive path="plugins/edu.wisc.loci.loci_plugins_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci_plugins_4.0.1.5585.jar"/>
    <archive path="plugins/edu.wisc.loci.loci-common_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci-common_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.loci-common_4.1.1.5727.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci-common_4.1.1.5727.jar"/>
    <archive path="plugins/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar"/>
    <archive path="plugins/edu.wisc.loci.ome-xml_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.ome-xml_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.ome-xml_4.1.1.5726.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.ome-xml_4.1.1.5726.jar"/>
    <archive path="plugins/edu.wisc.loci.poi-loci_1.0.0.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.poi-loci_1.0.0.5585.jar"/>
    <archive path="plugins/ij.imagej_1.42.0.n.jar" url="http://hits.googlecode.com/files/ij.imagej_1.42.0.n.jar"/>
    <archive path="plugins/javax.media.jai_core_1.1.3.jar" url="http://hits.googlecode.com/files/javax.media.jai_core_1.1.3.jar"/>
