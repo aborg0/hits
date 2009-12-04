@@ -184,7 +184,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 		logger.debug("Pivoting finished");
 		final BufferedDataTable out = container.getTable();
 		final FlowVariablePortObject portObject = new FlowVariablePortObject();
-		pushScopeVariableString("reversePattern", getReversePattern(parts));
+		pushFlowVariableString("reversePattern", getReversePattern(parts));
 		return new PortObject[] { out, portObject };
 	}
 
@@ -453,7 +453,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 				name.append(part);
 			} else if (object instanceof Variable) {
 				final Variable part = (Variable) object;
-				name.append(peekScopeVariableString(part.name));
+				name.append(peekFlowVariableString(part.name));
 			} else if (object instanceof VarColumn) {
 				name.append(dataColumnSpec.getName());
 			} else if (object instanceof Column) {
@@ -538,7 +538,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 				try {
 					final int terminator = vars[i].indexOf(']');
 					final String varName = vars[i].substring(1, terminator);
-					final String var = peekScopeVariableString(varName);
+					final String var = peekFlowVariableString(varName);
 					if (var == null) {
 						throw new InvalidSettingsException("No variable: "
 								+ varName);

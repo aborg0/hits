@@ -25,7 +25,7 @@ public class SubsetsNodeDialog extends DefaultNodeSettingsPane {
 	protected SubsetsNodeDialog() {
 		final DialogComponentColumnFilter origColumnName = new DialogComponentColumnFilter(
 				new SettingsModelFilterString(
-						SubsetsNodeModel.CFGKEY_COLUMN_NAMES), 0);
+						SubsetsNodeModel.CFGKEY_COLUMN_NAMES), 0, true);
 		addDialogComponent(origColumnName);
 		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
 				SubsetsNodeModel.CFGKEY_CREATE_MULTISET,

@@ -48,7 +48,7 @@ public class PivotNodeDialog extends DefaultNodeSettingsPane {
 		final SettingsModelFilterString pivotModel = new SettingsModelFilterString(
 				PivotNodeModel.CFGKEY_TO_COLUMNS);
 		final DialogComponentColumnFilter pivotDialog = new DialogComponentColumnFilter(
-				pivotModel, 0);
+				pivotModel, 0, true);
 		pivotDialog.setIncludeTitle("Pivot columns");
 		pivotDialog.setExcludeTitle("Key or value columns");
 		addDialogComponent(pivotDialog);
