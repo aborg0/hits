@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./pivot.png" type="Manipulator">
+    <!-- All rights reserved. (C) Copyright 2009, Trinity College Dublin -->
+    <name>Pivot</name>
+    
+    <shortDescription>
+        Converts information present in rows to columns.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Converts information present in rows to columns
+        For example if the input table is as follow:
+<pre>
+|Plate|Parameter|Dimension|
++-----+---------+---------+
+|    1|height   |      245|
+|    1|width    |      480|
+|    2|height   |      490|
+|    2|width    |      960|
+</pre>
+        If you select <b>Pattern</b> as <u>Pivot columns</u> and use <tt>${Parameter}</tt> for <tt>Pattern</tt> and
+		set in the <i>Other Columns</i> tab <b>Plate</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u>, you will obtain the following result:
+<pre>
+|Plate|height   |width    |
++-----+---------+---------+
+|    1|      245|      480|
+|    2|      490|      960|
+</pre>
+        If you change in the <i>Other Columns</i> tab, the <u>Keys</u> to <b>Dimension</b> and the <u>Values</u> to <b>Plate</b>, you will obtain the following table:
+<pre>
+|Dimension|height   |width    |
++---------+---------+---------+
+|      245|        1|        ?|
+|      280|        ?|        1|
+|      490|        2|        ?|
+|      960|        ?|        2|
+</pre>
+		If you elect <b>Plate</b> as <u>Pivot columns</u> and choose in the <i>Other Columns</i> tab <b>Parameter</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u> (assuming the domain of <b>Plate</b> 
+		was computed before, using the <a href="PLUGINS_ROOT/org.knime.base/html/nodes/Domain_Calculator.html">Domain Calculator</a> KNIME node) setting the <tt>Pattern</tt> to <tt>${Plate}</tt> will yield the following result:
+<pre>
+|Parameter|1   |2   |
++---------+----+----+
+|height   | 245|   ?|
+|width    | 490|   ?|
+|height   |   ?| 280|
+|width    |   ?| 960|
+</pre>
+        Finally, you might want to pivot using the data in <b>Parameter</b>, rather than <b>Plate</b>. To do this, select <b>Plate</b> as <u>Pivot columns</u>, 
+		and choose in the <i>Other Columns</i> tab <b>Parameter</b> for <u>Keys</u> and <b>Dimension</b> for the <u>Values</u>
+		after what you should change the <tt>Pattern</tt> to: "<tt>${}_on_plate_${Plate}</tt>". Doing this will result in the following table:
+<pre>
+|Parameter|Dimension_on_plate_1|Dimension_on_plate_2|
++---------+--------------------+--------------------+
+|height   |                 245|                 280|
+|width    |                 490|                 960|
+</pre>
+        See also: <a href="http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/pivot/">sample workflow</a>.
+        </intro>
+        
+        <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present). The domain of these columns should be available. Please use <b>Domain Calculator</b> node to achieve this.</option>
+        <option name="Pattern">The format of the new columns.
+        <tt>${}</tt> - is replaced by the value contained in the columns selected as <u>Values</u> (in the <i>Other Columns</i> tab),
+        <tt>${pivot column name}</tt> value(s) of one of the nominal column used for pivoting (cf. columns selected in <i>Pivot columns</i>)).</option>
+        <option name="Behaviour">
+        Handling of missing values in the result: <ul>
+<li>fillEmpty - put empty cells.</li>
+<li>signalError - stop the conversion with an error.</li></ul>
+        What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error.</li></ul></option>
+        <option name="HiLite Strategy">Support HiLite or not.</option>
+        <option name="Other Columns/Values">The values of these columns will be added as part of the newly created columns names in place of <tt>${}</tt>.</option>
+        <option name="Other Columns/Keys">Data used for in the resulting cells.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input table">A table with known domains for the keys and pivoting columns.</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="Pivoted table">Pivoted Table: The resulting transformed table.</outPort>
+        <outPort index="1" name="Reverse pattern">Reverse Pattern: A variable containing the pattern to use with the unpivot node.</outPort>
+        <!-- possibly more output ports here-->
+    </ports>    
+</knimeNode>

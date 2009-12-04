@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./merge.png" type="Manipulator">
+    <!-- All rights reserved. (C) Copyright 2009, Trinity College Dublin -->
+    <name>Merge</name>
+    
+    <shortDescription>
+        Resorts the rows. It is mostly like an "anti-sort".
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>This node is a bit like an anti-sort. If you have a list something like this:
+<pre>
+Col1 |Col2
+A    |1
+A    |2
+A    |3
+B    |4
+B    |5
+B    |6</pre>, and you want to merge the <tt>Col1</tt> with itself, the result will look like this:
+<pre>
+Col1 |Col2
+A    |1
+B    |4
+A    |2
+B    |5
+A    |3
+B    |6</pre>. This might be useful for the <a href="Pivot.html">Pivot</a> node. 
+    </intro>
+ 
+        <option name="Independent columns">The columns not used in the reordering.</option>
+        <option name="Columns used to reorder">The columns of reorder.</option>
+        <option name="Sort in memory">Faster in-memory operation, only this is supported.</option>
+        <option name="Reverse the order in a block">Reverses the order of the rows in the generated blocks.</option>
+        <option name="Halt on error">If the reordering is not possible consistent (because there are missing rows from a pattern) it will stop, else just writes an error to the <tt>Console</tt>.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="A table">A table with some columns/rows.</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="Reordered table">Description of first output port...</outPort>
+        <!-- possibly more output ports here-->
+    </ports>    
+    <!-- views>
+        <view index="0" name="name of first view">Description of first view...</view>
+    </views-->
+</knimeNode>
