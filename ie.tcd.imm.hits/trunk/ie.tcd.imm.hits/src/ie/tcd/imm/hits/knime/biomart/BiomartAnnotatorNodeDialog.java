@@ -292,6 +292,8 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(proxyPort);
 		addDialogComponent(proxyUser);
 		addDialogComponent(proxyPassword);
+		// TODO add button to check proxy settings
+		// TODO add button to install/update biomaRt
 		addDialogComponent(new UpdatableComponent() {
 			@Override
 			protected void updateComponent() /* => */{

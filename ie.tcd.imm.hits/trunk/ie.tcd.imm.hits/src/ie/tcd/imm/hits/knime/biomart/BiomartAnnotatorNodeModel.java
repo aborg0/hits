@@ -4,6 +4,7 @@
 package ie.tcd.imm.hits.knime.biomart;
 
 import ie.tcd.imm.hits.util.RUtil;
+import ie.tcd.imm.hits.util.file.OpenStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -257,7 +260,31 @@ public class BiomartAnnotatorNodeModel extends NodeModel {
 	 */
 	private void setProxy(final RConnection conn) throws RserveException,
 			REXPMismatchException {
-		if (!proxyHost.getStringValue().isEmpty()) {
+		if (proxyFromEclipseModel.getBooleanValue()) {
+			final IProxyService proxyService = OpenStream.getProxyService();
+			// TODO update when KNIME is based on eclipse 3.5
+			final IProxyData proxyDataForHost = proxyService
+					.getProxyDataForHost("biomart.org",
+							IProxyData.HTTP_PROXY_TYPE);
+			if (proxyDataForHost != null && proxyDataForHost.getHost() != null
+					&& !proxyDataForHost.getHost().isEmpty()) {
+				final StringBuilder proxyString = new StringBuilder("http://");
+				if (proxyDataForHost.getUserId() != null
+						&& !proxyDataForHost.getUserId().isEmpty()) {
+					proxyString.append(proxyDataForHost.getUserId());
+					if (proxyDataForHost.getPassword() != null
+							&& !proxyDataForHost.getPassword().isEmpty()) {
+						proxyString.append(':').append(
+								proxyDataForHost.getPassword());
+					}
+					proxyString.append("@");
+				}
+				proxyString.append(proxyDataForHost.getHost()).append(':')
+						.append(proxyDataForHost.getPort());
+				RUtil.voidEval(conn, "Sys.setenv(\"http_proxy\" = \""
+						+ proxyString + "\")");
+			}
+		} else if (!proxyHost.getStringValue().isEmpty()) {
 			// http://username:password@proxy.server:8080
 			final StringBuilder proxyString = new StringBuilder("http://");
 			if (!proxyUser.getStringValue().isEmpty()) {
