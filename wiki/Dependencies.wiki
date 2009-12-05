@@ -1,9 +1,10 @@
 #summary Dependencies of the project
 This package is using the following components:
- * [http://www.knime.org/downloads/knime KNIME] 2.0.2 or above (The first [http://www.knime.org/introduction/screencasts screencast] helps you to install it.)
+ * [http://www.knime.org/downloads/knime KNIME] 2.1.0 or above (The first [http://www.knime.org/introduction/screencasts screencast] helps you to install it.)
    * You will need to install the *KNIME math expression extension (JEP)* too.
- * ~~[http://labs.knime.org/ KNIME Labs]'s~~ *KNIME Distance Matrix Feature 2.0.3.0022208 or above*
- * [http://cran.r-project.org/mirrors.html R] 2.8.x, or 2.9.x ([InstallR  help to install and setup R])
- * [http://www.bioconductor.org/packages/release/bioc/html/cellHTS2.html CellHTS2] 2.6.x or 2.8.x (recommends {{{locfit}}}) ([InstallCellHTS2 help to install and setup CellHTS2]) *Currently 2.10.x not supported!*
+ * ~~[http://labs.knime.org/ KNIME Labs]'s~~ *KNIME Distance Matrix Feature* 2.1.0 or above
+ * [http://labs.knime.org/ KNIME Labs]'s *KNIME image processing feature* 2.1.1 or above - _optional_
+ * [http://cran.r-project.org/mirrors.html R] 2.8.x, 2.9.x or 2.10.x ([InstallR  help to install and setup R])
+ * [http://www.bioconductor.org/packages/release/bioc/html/cellHTS2.html CellHTS2] 2.6.x, 2.8.x, or 2.10.x (recommends {{{locfit}}}) ([InstallCellHTS2 help to install and setup CellHTS2])
  * [http://www.rforge.net/Rserve/ Rserve] 0.6.0 or later ([InstallRserve help to install and setup Rserve]) (Might work with 0.5.2 too.)
  * [http://java.sun.com/javase/ Java SE 6] (SUN JRE 6 update 10 and above have very annoying UI problems with KNIME under MS Windows, Linux, so those are not recommended; the one is included with the KNIME installation is mostly OK, so you do not have to download anything. Although the Sun JRE 6 update 14 and above looks really good, so you might consider using it.)
