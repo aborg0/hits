@@ -108,6 +108,7 @@
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.3.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200912041736.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.1.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.2.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.2.0.jar"/>
@@ -163,6 +164,7 @@
    <archive path="plugins/edu.wisc.loci.bio-formats_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.bio-formats_4.0.1.5585.jar"/>
    <archive path="plugins/edu.wisc.loci.bio-formats_4.1.1.5726.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.bio-formats_4.1.1.5726.jar"/>
    <archive path="plugins/edu.wisc.loci.loci_plugins_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci_plugins_4.0.1.5585.jar"/>
+   <archive path="plugins/edu.wisc.loci.loci_plugins_4.1.0.5674.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci_plugins_4.1.0.5674.jar"/>
    <archive path="plugins/edu.wisc.loci.loci-common_4.0.1.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci-common_4.0.1.5585.jar"/>
    <archive path="plugins/edu.wisc.loci.loci-common_4.1.1.5727.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.loci-common_4.1.1.5727.jar"/>
    <archive path="plugins/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar" url="http://hits.googlecode.com/files/edu.wisc.loci.mdbtools-java_1.0.0.5585.jar"/>
