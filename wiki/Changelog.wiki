@@ -141,6 +141,7 @@ Available since: 15th April 2009 (as version 0.0.1)
 = Interoperability =
 == Changes from 0.0.3 to 0.0.4 ==
 Date: 5th December 2009
+
 No real change, only dependency updates.
 
 == Changes from 0.0.1 to 0.0.3 ==
