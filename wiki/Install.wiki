@@ -12,7 +12,7 @@ This video shows the installation of KNIME, HCDC and HiTS (without the R, Rserve
 
 == Prerequisites ==
 
-You need an installed KNIME 2.0.x (or above) installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
+You need an installed KNIME 2.1.x (or above) installed on your computer. You can find instructions on how to install it at [http://www.knime.org/downloads/knime this page].
 If you are using an internet connection with proxy, you may want to set the appropriate preferences at File/Preferences.../_General_/_Network Connections_ tab. Please note you have to check *Enable proxy authentication* if you have to give user name and password for your proxy connection.
 
 You may want to look at this presentation if you are in trouble: [http://docs.google.com/Presentation?id=dcr7k9x6_32fs9kfrc5 HiTS Start and Setup KNIME]
