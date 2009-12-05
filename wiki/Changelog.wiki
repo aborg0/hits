@@ -2,6 +2,16 @@
 
 = HiTS =
 
+== Changes from 0.4.1 to 0.5.0 ==
+Date: 5th December 2009
+
+Bug fixes:
+ * biomaRt node
+   * Now it is possible to use it behind firewalls
+CellHTS2
+ * support for cellHTS2 2.10.x (based on cellHTS2 2.10.2)
+ * Issue 27 done.
+
 == Changes from 0.4.0 to 0.4.1 ==
 Date: 13th October 2009
 
@@ -94,6 +104,10 @@ Date: 4th March 2009
 Some bugfixes, little improvements, an incompatible update (using normalise instead of normalize in [RankNode Rank] node), added user documentation and some help to interpret the settings ([CellHTS2Node CellHTS2] and [HeatmapNode Heatmap] nodes).
 
 = KNIME utilities =
+== Changes from 0.2.1 to 0.2.2 ==
+Date: 5th December 2009
+Improved documentation: Issue 26
+
 == Changes from 0.2.0 to 0.2.1 ==
 Date: 13th October 2009
 
@@ -124,6 +138,10 @@ Available since: 15th April 2009 (as version 0.0.1)
  * Unpivot
 
 = Interoperability =
+== Changes from 0.0.3 to 0.0.4 ==
+Date: 5th December 2009
+No real change, only dependency updates.
+
 == Changes from 0.0.1 to 0.0.3 ==
 Date: 13th October 2009
 
@@ -137,6 +155,11 @@ Date: 20th August 2009
  * Plate Format - converts between different plate layouts.
 
 = Image handling =
+== Changes from 0.0.3 to 0.1.0 ==
+Date: 5th December 2009
+Improved user interface (histogram, better colour adjustment options) of the image viewer, better support for Z-stacks, time-dependent series. Updated Bio-Formats to the recently released 4.1.1 version.
+New node: LOCI to KNIME images - this node gives you the many possibilities of KNIME image processing for the images loaded with Bio-Formats.
+
 == Changes from 0.0.1 to 0.0.3 ==
 Date: 13th October 2009
 
