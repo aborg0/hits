@@ -72,13 +72,20 @@ public class OpenStream {
 		try {
 			final URL url = uri.toURL();
 			if (url.getProtocol().toLowerCase().startsWith("http")) {
-				final IProxyData proxyDataForHost = OpenStream
-						.getProxyService().getProxyDataForHost(uri.getHost(),
-								uri.getScheme().toUpperCase());
-				final InetSocketAddress sockAddr = new InetSocketAddress(
-						InetAddress.getByName(proxyDataForHost.getHost()),
-						proxyDataForHost.getPort());
-				final Proxy proxy = new Proxy(Type.HTTP, sockAddr);
+				final IProxyService proxyService = OpenStream.getProxyService();
+				final Proxy proxy;
+				final IProxyData proxyDataForHost;
+				if (proxyService.isProxiesEnabled()) {
+					proxyDataForHost = proxyService.getProxyDataForHost(uri
+							.getHost(), uri.getScheme().toUpperCase());
+					final InetSocketAddress sockAddr = new InetSocketAddress(
+							InetAddress.getByName(proxyDataForHost.getHost()),
+							proxyDataForHost.getPort());
+					proxy = new Proxy(Type.HTTP, sockAddr);
+				} else {
+					proxy = Proxy.NO_PROXY;
+					proxyDataForHost = null;
+				}
 				final URLConnection connection = openConnection(uri,
 						proxyDataForHost, proxy);
 				try {
@@ -124,10 +131,10 @@ public class OpenStream {
 				truncated = new URI(truncated.toString().substring(0,
 						truncated.toString().lastIndexOf("/")));
 				final URLConnection possConnection = adjust.open(truncated);
-				if (supportedArchiveContentTypes.contains(possConnection
-						.getContentType())) {
-					if (possConnection.getContentType().toLowerCase().contains(
-							"gzip")) {
+				final String contentType = possConnection.getContentType();
+				if (contentType != null
+						&& supportedArchiveContentTypes.contains(contentType)) {
+					if (contentType.toLowerCase().contains("gzip")) {
 						return new GZIPInputStream(possConnection
 								.getInputStream());
 					}
@@ -171,7 +178,7 @@ public class OpenStream {
 		final Bundle bundle = Platform.getBundle(CORE_NET_BUNDLE);
 		while (bundle.getState() != Bundle.ACTIVE) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (final InterruptedException e) {
 				logger.warn(CORE_NET_BUNDLE + " bundle not activated.", e);
 			}
@@ -231,7 +238,8 @@ public class OpenStream {
 		} catch (final IOException e1) {
 			throw e1;
 		}
-		if (proxyDataForHost.isRequiresAuthentication()) {
+		if (proxyDataForHost != null
+				&& proxyDataForHost.isRequiresAuthentication()) {
 			final String proxyLogin = proxyDataForHost.getUserId() + ":"
 					+ proxyDataForHost.getPassword();
 			connection.setRequestProperty("Proxy-Authorization", "Basic "
@@ -272,5 +280,42 @@ public class OpenStream {
 			root = new File(root.toString()).toURI();
 		}
 		return root;
+	}
+
+	/**
+	 * Finds the base URI of the {@code uris}.
+	 * 
+	 * @param uris
+	 *            Some {@link URI}s.
+	 * @return May be {@code null} if no {@link URI}s provided(, or cannot
+	 *         provide a proper result).
+	 */
+	@Nullable
+	public static URI findBaseUri(final URI... uris) {
+		if (uris.length == 0) {
+			return null;
+		}
+
+		StringBuilder longestCommonPath;
+		{
+			final String p = uris[0].getPath();
+			longestCommonPath = new StringBuilder(p.substring(0, p
+					.lastIndexOf('/') + 1));
+		}
+		for (final URI uri : uris) {
+			final String path = uri.getPath();
+			while (!path.startsWith(longestCommonPath.toString())) {
+				longestCommonPath.setLength(Math.max(longestCommonPath
+						.lastIndexOf("/"), 0));
+			}
+		}
+		try {
+			return new URI(uris[0].getScheme(), uris[0].getUserInfo(), uris[0]
+					.getHost(), uris[0].getPort(),
+					longestCommonPath.toString(), uris[0].getQuery(), uris[0]
+							.getFragment());
+		} catch (final URISyntaxException e) {
+			return null;
+		}
 	}
 }

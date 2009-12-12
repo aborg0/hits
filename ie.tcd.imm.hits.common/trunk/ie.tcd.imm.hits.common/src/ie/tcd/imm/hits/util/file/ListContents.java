@@ -33,6 +33,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.knime.core.node.NodeLogger;
 
 /**
@@ -126,15 +127,21 @@ public class ListContents {
 		}
 		if (root.getScheme().toLowerCase().startsWith("http")) {
 			// http://torkildr.blogspot.com/2008/10/connecting-through-proxy.html
-			final IProxyData proxyDataForHost = OpenStream.getProxyService()
-					.getProxyDataForHost(root.getHost(),
-							root.getScheme().toUpperCase());
-			final InetSocketAddress sockAddr = new InetSocketAddress(
-					InetAddress.getByName(proxyDataForHost.getHost()),
-					proxyDataForHost.getPort());
-			final Proxy proxy = new Proxy(Type.HTTP, sockAddr);
-			findContentsHttp(origRoot, root, proxyDataForHost, proxy, visited,
-					results, maxDepth);
+			final IProxyService proxyService = OpenStream.getProxyService();
+			if (proxyService.isProxiesEnabled()) {
+				final IProxyData proxyDataForHost = proxyService
+						.getProxyDataForHost(root.getHost(), root.getScheme()
+								.toUpperCase());
+				final InetSocketAddress sockAddr = new InetSocketAddress(
+						InetAddress.getByName(proxyDataForHost.getHost()),
+						proxyDataForHost.getPort());
+				final Proxy proxy = new Proxy(Type.HTTP, sockAddr);
+				findContentsHttp(origRoot, root, proxyDataForHost, proxy,
+						visited, results, maxDepth);
+			} else {
+				findContentsHttp(origRoot, root, null, null, visited, results,
+						maxDepth);
+			}
 		}
 	}
 
@@ -322,7 +329,7 @@ public class ListContents {
 		createNewExecutor();
 		final Callable<Map<String, URI>> task = new Callable<Map<String, URI>>() {
 			@Override
-			public Map<String, URI> call() throws IOException {
+			public Map<String, URI> call() /* => */throws IOException {
 				return findContents(root, maxDepth);
 			}
 		};

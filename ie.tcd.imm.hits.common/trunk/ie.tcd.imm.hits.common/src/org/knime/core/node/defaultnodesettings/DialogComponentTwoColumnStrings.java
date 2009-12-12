@@ -54,7 +54,7 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		public void mouseClicked(final MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
 				this.action.actionPerformed(new ActionEvent(e.getSource(),
-						((int) System.currentTimeMillis() & 0xffffffff), ""));
+						((int) (System.currentTimeMillis() & 0xffffffff)), ""));
 			}
 		}
 	}

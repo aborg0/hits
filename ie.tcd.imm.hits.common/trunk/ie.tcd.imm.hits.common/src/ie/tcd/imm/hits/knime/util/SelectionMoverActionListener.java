@@ -78,9 +78,10 @@ public class SelectionMoverActionListener implements ActionListener,
 	public void actionPerformed(final ActionEvent e) {
 		final int[] selectedIndices = list.getSelectedIndices();
 		final int max = model.getSize();
-		if (selectedIndices.length > 0 && move > 0
-				&& selectedIndices[selectedIndices.length - 1] + move < max
-				|| move < 0 && selectedIndices[0] + move >= 0) {
+		if (selectedIndices.length > 0
+				&& (move > 0
+						&& selectedIndices[selectedIndices.length - 1] + move < max || move < 0
+						&& selectedIndices[0] + move >= 0)) {
 			final int sgn = move > 0 ? 1 : -1;
 			final int start = sgn == -1 ? 0 : selectedIndices.length - 1;
 			final int end = sgn == -1 ? selectedIndices.length : -1;

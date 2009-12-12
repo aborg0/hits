@@ -15,6 +15,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		browseButton.addActionListener(new ActionListener() {
 			@java.lang.SuppressWarnings("synthetic-access")
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(final ActionEvent e)/* => */{
 				final String selectedDir = getCurrentSelection();
 				final JFileChooser fileChooser = new JFileChooser(selectedDir);
 				fileChooser
@@ -163,8 +164,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					final File selectedFile = fileChooser.getSelectedFile();
 					final String newDir = (selectedFile.isDirectory() ? selectedFile
-							: selectedFile.getParentFile()).getAbsoluteFile()
-							.toString();
+							: selectedFile.getParentFile()).toURI().toString();
 					dirNameComboBox.removeItem(newDir);
 					dirNameComboBox.addItem(newDir);
 					dirNameComboBox.setSelectedItem(newDir);
@@ -174,7 +174,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		});
 		dirNameComboBox.addItemListener(new ItemListener() {
 			@Override
-			public void itemStateChanged(final ItemEvent e) {
+			public void itemStateChanged(final ItemEvent e) /* => */{
 				updateList(getCurrentSelection());
 			}
 		});
@@ -223,6 +223,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 					@Override
 					public void run()/* => */{
 						try {
+							fileNameModel.clear();
 							for (final Entry<String, URI> entry : contents
 									.get().entrySet()) {
 								if (possibleExtensions.accept(null, entry
@@ -245,7 +246,9 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 						getComponentPanel().revalidate();
 					}
 				});
-			} catch (final Exception e) {
+			} catch (final URISyntaxException e) {
+				// do nothing.
+			} catch (final RuntimeException e) {
 				// do nothing.
 			}
 			// final File dir = new File(newDir);
@@ -324,68 +327,69 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	protected void updateComponent() {
 		final SettingsModelStringArray model = (SettingsModelStringArray) getModel();
 		final String[] strings = model.getStringArrayValue();
-		String dirName = null;
 		final String[] fileNames = new String[strings.length];
+		final URI[] uris = new URI[strings.length];
+		for (int i = strings.length; i-- > 0;) {
+			try {
+				uris[i] = new URI(strings[i]);
+			} catch (final URISyntaxException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+		URI baseUri = OpenStream.findBaseUri(uris);
 		for (int i = 0; i < strings.length; ++i) {
 			final String fileName = strings[i];
-			final File file = new File(fileName);
-			if (file.isDirectory()) {
-				throw new IllegalStateException(
-						"Cannot put directories to files.: "
-								+ file.getAbsolutePath());
+			try {
+				final URI uri = new URI(fileName);
+				uris[i] = uri;
+				fileNames[i] = baseUri.relativize(uri).getPath();
+			} catch (final URISyntaxException e) {
+				throw new IllegalStateException(e);
 			}
-			if (dirName == null) {
-				dirName = file.getParent();
-			}
-			if (!file.getParent().equals(dirName)) {
-				throw new IllegalStateException(
-						"Files from only one directory are accepted.");
-			}
-			fileNames[i] = file.getName();
 		}
-		final String currentSelection = getCurrentSelection();
 		final String homeDirName = System.getProperty("user.home");
-		final File dir = new File(
-				dirName == null || !new File(dirName).isDirectory() ? (currentSelection == null ? homeDirName
-						: new File(currentSelection).isDirectory() ? currentSelection
-								: homeDirName)
-						: dirName);
-		dirNameComboBox.setSelectedItem(dir.getAbsolutePath());
-		final File[] files = dir.listFiles(possibleExtensions);
-		final SortedSet<String> names = new TreeSet<String>();
-		if (files != null) {
-			for (final File file : files) {
-				names.add(file.getName());
+		if (baseUri == null) {
+			final File dir = new File(homeDirName);
+			baseUri = dir.toURI();
+		}
+		dirNameComboBox.getModel().setSelectedItem(baseUri.toString());
+		try {
+			final Map<String, URI> contents = ListContents.findContents(
+					baseUri, 2);
+			fileNameModel.clear();
+			final SortedSet<String> names = new TreeSet<String>(contents
+					.keySet());
+			final List<String> toRemove = new ArrayList<String>();
+			for (final String name : names) {
+				if (!possibleExtensions.accept(null, name)) {
+					toRemove.add(name);
+				}
 			}
-		}
-		fileNameModel.clear();
-		for (final String fileName : fileNames) {
-			if (!names.contains(fileName)) {
-				logger.warn("The file: " + fileName
-						+ " is no longer available.",
-						new IllegalStateException("The file: " + fileName
-								+ " is no longer available."));
+			names.removeAll(toRemove);
+			for (final String fileName : fileNames) {
+				if (!names.contains(fileName)) {
+					logger.warn("The file: " + fileName
+							+ " is no longer available.",
+							new IllegalStateException("The file: " + fileName
+									+ " is no longer available."));
+				}
+				fileNameModel.addElement(fileName);
+				names.remove(fileName);
 			}
-			fileNameModel.addElement(fileName);
-			names.remove(fileName);
+			final int[] indices = new int[fileNames.length];
+			for (int i = indices.length; i-- > 0;) {
+				indices[i] = i;
+			}
+			fileNameList.setSelectedIndices(indices);
+			for (final String name : names) {
+				fileNameModel.addElement(name);
+			}
+			getComponentPanel().validate();
+		} catch (final IOException e) {
+			return;
 		}
-		final int[] indices = new int[fileNames.length];
-		for (int i = indices.length; i-- > 0;) {
-			indices[i] = i;
-		}
-		fileNameList.setSelectedIndices(indices);
-		for (final String name : names) {
-			fileNameModel.addElement(name);
-		}
-		getComponentPanel().validate();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.knime.core.node.defaultnodesettings.DialogComponent#
-	 * validateSettingsBeforeSave()
-	 */
 	/**
 	 * {@inheritDoc}
 	 */
