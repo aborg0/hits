@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -599,8 +600,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				.size() == 1 ? sliders.iterator().next().getValueMapping()
 				: null;
 		final Map<Integer, Integer> inverseMap = new HashMap<Integer, Integer>();
-		for (final Entry<Integer, ? extends Pair<?, ?>> entry : mapping
-				.entrySet()) {
+		for (final Entry<Integer, ? extends Pair<?, ?>> entry : (mapping == null ? Collections
+				.<Integer, Pair<?, ?>> emptyMap()
+				: mapping).entrySet()) {
 			final Pair<?, ?> pair = entry.getValue();
 			if (pair.getRight() instanceof Number) {
 				final Number valNum = (Number) pair.getRight();

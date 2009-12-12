@@ -918,6 +918,7 @@ public class CellHTS2NodeModel extends NodeModel {
 	 *             If cannot parse the error message.
 	 */
 	@SuppressWarnings("restriction")
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings("SF")
 	private CellHTS2Version setupCellHTS2Extensions(final RConnection conn,
 			CellHTS2Version version) throws REXPMismatchException {
 		if (ImporterNodePlugin.getDefault().getPreferenceStore().getBoolean(
