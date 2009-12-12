@@ -200,7 +200,8 @@ public class ImporterNodeModel extends NodeModel {
 						throw new IllegalStateException(
 								"Wrong structure of the xls file: " + fileName);
 					}
-					for (int i = specColNum; i < perWellSheet.getLastRowNum() + 1; ++i) {
+					for (int i = specColNum - 1; i < perWellSheet
+							.getLastRowNum() + 1; ++i) {
 						final DataCell[] values = new DataCell[columns
 								+ (addAnnotations ? 2 : 0)];
 						values[0] = new StringCell(fileName);// barcode
@@ -360,7 +361,8 @@ public class ImporterNodeModel extends NodeModel {
 					.convertURI(annotFile));
 			stream.close();
 		} catch (final IOException e) {
-			throw new InvalidSettingsException("Unable to read: " + annotFile);
+			throw new InvalidSettingsException("Unable to read: " + annotFile,
+					e);
 		}
 		// if (!annotFile.isEmpty() && !new File(annotFile).canRead()) {
 		// throw new InvalidSettingsException(
