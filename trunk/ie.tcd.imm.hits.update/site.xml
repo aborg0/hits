@@ -105,14 +105,14 @@
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.2.2.200912041736.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.2.200912041736">
       <category name="KNIME utilities"/>
    </feature>
-   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.5.1.200912131508.jar" id="ie.tcd.imm.hits.feature" version="0.5.1.200912131508">
+   <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.feature_0.5.1.200912131558.jar" id="ie.tcd.imm.hits.feature" version="0.5.1.200912131558">
       <category name="HiTS"/>
    </feature>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.3rdparty_0.3.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.3rdparty_0.3.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200912041736.jar"/>
-   <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200912131508.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200912131508.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.help.base_0.0.1.200912131558.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.help.base_0.0.1.200912131558.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.0.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.1.1.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.1.1.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.2.0.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.2.0.jar"/>
@@ -120,7 +120,7 @@
    <archive path="plugins/ie.tcd.imm.hits_0.4.0.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.4.0.200908202037.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.4.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.4.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits_0.5.0.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.5.0.200912041736.jar"/>
-   <archive path="plugins/ie.tcd.imm.hits_0.5.1.200912131508.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.5.1.200912131508.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits_0.5.1.200912131558.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits_0.5.1.200912131558.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.exp_0.4.0.200908202037.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp_0.4.0.200908202037.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.exp_0.4.1.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp_0.4.1.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.exp_0.5.0.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp_0.5.0.200912041736.jar"/>
@@ -128,7 +128,7 @@
    <archive path="plugins/ie.tcd.imm.hits.common_0.0.2.200909291756.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.2.200909291756.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.common_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.3.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.common_0.0.4.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.4.200912041736.jar"/>
-   <archive path="plugins/ie.tcd.imm.hits.common_0.0.5.200912131508.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.5.200912131508.jar"/>
+   <archive path="plugins/ie.tcd.imm.hits.common_0.0.5.200912131558.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.common_0.0.5.200912131558.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.image_0.0.1.200909291756.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image_0.0.1.200909291756.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.image_0.0.3.200910131532.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image_0.0.3.200910131532.jar"/>
    <archive path="plugins/ie.tcd.imm.hits.image_0.1.0.200912041736.jar" url="http://hits.googlecode.com/files/ie.tcd.imm.hits.image_0.1.0.200912041736.jar"/>
