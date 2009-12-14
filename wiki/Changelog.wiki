@@ -2,6 +2,13 @@
 
 = HiTS =
 
+== Changes from 0.5.0 to 0.5.1 ==
+Date: 13th December 2009
+
+Bug fixes:
+ * INCell xls Importer
+  * proper handling of file names with spaces in their path
+
 == Changes from 0.4.1 to 0.5.0 ==
 Date: 5th December 2009
 
