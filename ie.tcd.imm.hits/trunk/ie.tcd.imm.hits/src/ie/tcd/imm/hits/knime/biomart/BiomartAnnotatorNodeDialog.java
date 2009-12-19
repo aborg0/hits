@@ -252,17 +252,28 @@ public class BiomartAnnotatorNodeDialog extends DefaultNodeSettingsPane {
 					final IProxyData proxyDataForHost = proxyService
 							.getProxyDataForHost("biomart.org",
 									IProxyData.HTTP_PROXY_TYPE);
-					((SettingsModelString) proxyHost.getModel())
-							.setStringValue(proxyDataForHost.getHost() == null ? ""
-									: proxyDataForHost.getHost());
-					((SettingsModelInteger) proxyPort.getModel())
-							.setIntValue(proxyDataForHost.getPort());
-					((SettingsModelString) proxyUser.getModel())
-							.setStringValue(proxyDataForHost.getUserId() == null ? ""
-									: proxyDataForHost.getUserId());
-					((SettingsModelString) proxyPassword.getModel())
-							.setStringValue(proxyDataForHost.getPassword() == null ? ""
-									: proxyDataForHost.getPassword());
+					if (proxyDataForHost == null) {
+						((SettingsModelString) proxyHost.getModel())
+								.setStringValue("");
+						((SettingsModelInteger) proxyPort.getModel())
+								.setIntValue(-1);
+						((SettingsModelString) proxyUser.getModel())
+								.setStringValue("");
+						((SettingsModelString) proxyPassword.getModel())
+								.setStringValue("");
+					} else {
+						((SettingsModelString) proxyHost.getModel())
+								.setStringValue(proxyDataForHost.getHost() == null ? ""
+										: proxyDataForHost.getHost());
+						((SettingsModelInteger) proxyPort.getModel())
+								.setIntValue(proxyDataForHost.getPort());
+						((SettingsModelString) proxyUser.getModel())
+								.setStringValue(proxyDataForHost.getUserId() == null ? ""
+										: proxyDataForHost.getUserId());
+						((SettingsModelString) proxyPassword.getModel())
+								.setStringValue(proxyDataForHost.getPassword() == null ? ""
+										: proxyDataForHost.getPassword());
+					}
 				}
 				try {
 					final REXPGenericVector martsList;
