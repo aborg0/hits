@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="lib/omero/ehcache-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/omero/omero_client.jar"/>
 	<classpathentry kind="lib" path="lib/omero/omero-clients-util-Beta-4.1.0-DEV.jar"/>
-	<classpathentry kind="lib" path="lib/omero/omero.insight.jar"/>
+	<classpathentry kind="lib" path="lib/omero/omero.insight.jar" sourcepath="/InsightTrunkMain"/>
 	<classpathentry kind="lib" path="lib/omero/swingx-0.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/omero/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="lib" path="lib/omero/testOmero.jar"/>
