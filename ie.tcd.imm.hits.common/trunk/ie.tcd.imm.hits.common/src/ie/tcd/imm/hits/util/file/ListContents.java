@@ -254,7 +254,9 @@ public class ListContents {
 		ZipEntry nextEntry;
 		while ((nextEntry = inputStream.getNextEntry()) != null) {
 			try {
-				final URI resolved = root.resolve("./" + nextEntry.getName());
+				final URI resolved = root.resolve("./"
+						+ nextEntry.getName().replaceAll(" ", "%20").replace(
+								'\\', '/'));
 				final String key = // root + nextEntry.getName();//
 				// resolved.relativize(origRoot).toString();
 				origRoot.relativize(resolved).toString();

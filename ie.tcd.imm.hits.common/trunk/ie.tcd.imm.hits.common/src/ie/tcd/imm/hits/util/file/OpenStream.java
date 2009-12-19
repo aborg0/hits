@@ -140,7 +140,8 @@ public class OpenStream {
 					}
 					final ZipInputStream zis;
 					zis = new ZipInputStream(possConnection.getInputStream());
-					final String path = truncated.relativize(uri).toString();
+					final String path = truncated.relativize(uri).toString()
+							.replaceAll("%20", " ");
 					ZipEntry zipEntry;
 					while ((zipEntry = zis.getNextEntry()) != null) {
 						if (zipEntry.getName().equalsIgnoreCase(path)) {
