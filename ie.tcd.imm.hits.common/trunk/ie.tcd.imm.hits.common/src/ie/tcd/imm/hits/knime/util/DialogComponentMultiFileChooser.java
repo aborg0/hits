@@ -163,8 +163,11 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 						getComponentPanel().getParent(), null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					final File selectedFile = fileChooser.getSelectedFile();
-					final String newDir = (selectedFile.isDirectory() ? selectedFile
-							: selectedFile.getParentFile()).toURI().toString();
+					final String newDir = (selectedFile.isDirectory()
+							|| selectedFile.isFile()
+							&& selectedFile.getName().toLowerCase().endsWith(
+									"zip") ? selectedFile : selectedFile
+							.getParentFile()).toURI().toString();
 					dirNameComboBox.removeItem(newDir);
 					dirNameComboBox.addItem(newDir);
 					dirNameComboBox.setSelectedItem(newDir);
