@@ -32,7 +32,18 @@ You should consider to increase the memory available to KNIME: edit knime.ini an
 You have to add a new update site to your KNIME installation. This should be: {{{http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/}}}
 You can set it in the Help/Software Updates.../Find and Install.../_Search for new features to install_ *Next*, *New Remote Site...* and you can set any name you remember for the _Name:_ field, and the {{{http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/}}} URL for the _URL:_ field.
 
-After you have set the update site, you can select it and click on *Finish*. (Here you may be prompted to your proxy user and password.) After this you have to select every plugins from the found list. Accept the license. After every plugins are installed you selected, you will be asked to restart your KNIME. Please do that.
+After you have set the update site, you can select it and click on *Finish*. (Here you may be prompted to your proxy user and password.)
+Recommended list of features (after the added labs update site (`http://labs.knime.org/update/2.1`)):
+||*Name*||*Version*||
+||HiTS 3rd party components feature||0.5.0.200912041736||
+||HiTS main feature||0.4.1.200912041736||
+||HiTS experimental features||0.4.1.200912041736||
+||HiTS imaging feature||0.1.0.200912041736||
+||HiTS interoperability feature||0.0.4.200912311558||
+||KNIME utilities||0.2.2.200912041736||
+
+Accept the license. After every plugins are installed you selected, you will be asked to 
+restart your KNIME. Please do that.
 
 Installation is complete. You can check if you see a HiTS group in your Node Repository, and some preferences in File/Preferences.../KNIME/HiTS Preferences
 
