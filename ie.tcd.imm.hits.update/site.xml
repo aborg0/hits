@@ -27,10 +27,16 @@
    <feature url="http://www.knime.org/update/2.1/features/org.knime.features.distmatrix_2.1.1.0023926.jar" id="org.knime.features.distmatrix" version="2.1.1.0023926">
       <category name="KNIME"/>
    </feature>
+   <feature url="http://www.knime.org/update/2.1/features/org.knime.features.distmatrix_2.1.2.0024559.jar" id="org.knime.features.distmatrix" version="2.1.2.0024559">
+      <category name="KNIME"/>
+   </feature>
    <feature url="http://www.knime.org/update_2.x/features/org.knime.features.ext.jep_2.0.3.0021120.jar" id="org.knime.features.ext.jep" version="2.0.3.0021120">
       <category name="KNIME"/>
    </feature>
    <feature url="http://www.knime.org/update/2.1/features/org.knime.features.ext.jep_2.1.1.0023926.jar" id="org.knime.features.ext.jep" version="2.1.1.0023926">
+      <category name="KNIME"/>
+   </feature>
+   <feature url="http://www.knime.org/update/2.1/features/org.knime.features.ext.jep_2.1.2.0024559.jar" id="org.knime.features.ext.jep" version="2.1.2.0024559">
       <category name="KNIME"/>
    </feature>
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.hits.exp.feature_0.4.0.200908201405.jar" id="ie.tcd.imm.hits.exp.feature" version="0.4.0.200908201405">
@@ -49,6 +55,9 @@
       <category name="KNIME labs"/>
    </feature>
    <feature url="http://labs.knime.org/update/2.1/features/org.knime.features.ext.imaging_2.1.1.0023926.jar" id="org.knime.features.ext.imaging" version="2.1.1.0023926">
+      <category name="KNIME labs"/>
+   </feature>
+   <feature url="http://labs.knime.org/update/2.1/features/org.knime.features.ext.imaging_2.1.2.0024559.jar" id="org.knime.features.ext.imaging" version="2.1.2.0024559">
       <category name="KNIME labs"/>
    </feature>
    <feature url="http://hits.googlecode.com/files/ie.tcd.imm.knime.util.feature_0.2.0.200908202037.jar" id="ie.tcd.imm.knime.util.feature" version="0.2.0.200908202037">
@@ -143,14 +152,20 @@
    <archive path="plugins/org.knime.distmatrix_2.0.1.0020189.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.1.0020189.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.distmatrix_2.0.3.0022208.jar"/>
    <archive path="plugins/org.knime.distmatrix_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.distmatrix_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.distmatrix_2.1.2.0024559.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.distmatrix_2.1.2.0024559.jar"/>
    <archive path="plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar" url="http://www.knime.org/update_2.x/labs/plugins/org.knime.features.distmatrix.source_2.0.3.0022208.jar"/>
    <archive path="plugins/org.knime.features.distmatrix.source_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.distmatrix.source_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.features.distmatrix.source_2.1.2.0024559.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.distmatrix.source_2.1.2.0024559.jar"/>
    <archive path="plugins/org.knime.ext.jep_2.0.3.0021120.jar" url="http://www.knime.org/update_2.x/plugins/org.knime.ext.jep_2.0.3.0021120.jar"/>
    <archive path="plugins/org.knime.ext.jep_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.ext.jep_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.ext.jep_2.1.2.0024559.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.ext.jep_2.1.2.0024559.jar"/>
    <archive path="plugins/org.knime.features.ext.jep.source_2.0.3.0021120.jar" url="http://www.knime.org/update_2.x/plugins/org.knime.features.ext.jep.source_2.0.3.0021120.jar"/>
    <archive path="plugins/org.knime.features.ext.jep.source_2.1.1.0023926.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.ext.jep.source_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.features.ext.jep.source_2.1.2.0024559.jar" url="http://www.knime.org/update/2.1/plugins/org.knime.features.ext.jep.source_2.1.2.0024559.jar"/>
    <archive path="plugins/org.knime.ext.imaging_2.1.1.0023926.jar" url="http://labs.knime.org/update/2.1/plugins/org.knime.ext.imaging_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.ext.imaging_2.1.2.0024559.jar" url="http://labs.knime.org/update/2.1/plugins/org.knime.ext.imaging_2.1.2.0024559.jar"/>
    <archive path="plugins/org.knime.features.ext.imaging.source_2.1.1.0023926.jar" url="http://labs.knime.org/update/2.1/plugins/org.knime.features.ext.imaging.source_2.1.1.0023926.jar"/>
+   <archive path="plugins/org.knime.features.ext.imaging.source_2.1.2.0024559.jar" url="http://labs.knime.org/update/2.1/plugins/org.knime.features.ext.imaging.source_2.1.2.0024559.jar"/>
    <archive path="plugins/org.apache.commons.math_2.0.0.jar" url="http://mirrors.ibiblio.org/pub/mirrors/maven2/org/apache/commons/commons-math/2.0/commons-math-2.0.jar"/>
    <archive path="plugins/org.apache.commons.math_2.0.0.jar" url="http://hits.googlecode.com/files/org.apache.commons.math_2.0.0.jar"/>
    <archive path="plugins/org.apache.commons.math_1.2.0.jar" url="http://mirrors.ibiblio.org/pub/mirrors/maven2/commons-math/commons-math/1.2/commons-math-1.2.jar"/>
