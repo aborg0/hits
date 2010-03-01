@@ -263,7 +263,7 @@ public class OpenStream {
 		// final int colonPos = uri.indexOf(':');
 		// final URI root = new URI(colonPos > 0 && colonPos < 3 ? uri.replace(
 		// ":", "%58").replace('\\', '/') : uri.replace('\\', '/'));
-		final URI root = new URI(uri.replace('\\', '/'));
+		final URI root = new URI(uri.replace('\\', '/').replaceAll(" ", "%20"));
 		return convertURI(root);
 	}
 
@@ -278,7 +278,7 @@ public class OpenStream {
 	public static URI convertURI(URI root) {
 		if (root.getScheme() == null || // Windows drive letter
 				root.getScheme().length() == 1) {
-			root = new File(root.toString()).toURI();
+			root = new File(root.toString().replaceAll("%20", " ")).toURI();
 		}
 		return root;
 	}

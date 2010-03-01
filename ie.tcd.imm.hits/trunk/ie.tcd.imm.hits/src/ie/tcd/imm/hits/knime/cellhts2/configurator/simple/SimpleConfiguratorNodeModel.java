@@ -139,7 +139,8 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 			throws FileNotFoundException, IOException {
 		final InputStream stream;
 		try {
-			stream = OpenStream.open(new URI(plateConfModel.getStringValue()));
+			stream = OpenStream.open(OpenStream.convertURI(plateConfModel
+					.getStringValue()));
 		} catch (final URISyntaxException e1) {
 			throw new IOException("Wrong plate configuration file: "
 					+ plateConfModel.getStringValue());
@@ -205,7 +206,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 			throws FileNotFoundException, IOException {
 		final InputStream stream;
 		try {
-			stream = OpenStream.open(new URI(descriptionFileModel
+			stream = OpenStream.open(OpenStream.convertURI(descriptionFileModel
 					.getStringValue()));
 		} catch (final URISyntaxException e1) {
 			throw new IOException("Wrong plate configuration file: "
