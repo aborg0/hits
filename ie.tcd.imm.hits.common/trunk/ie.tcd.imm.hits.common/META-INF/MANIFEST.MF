@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common Plug-in for KNIME development
 Bundle-SymbolicName: ie.tcd.imm.hits.common
-Bundle-Version: 0.0.5.qualifier
+Bundle-Version: 0.0.6.qualifier
 Bundle-Activator: ie.tcd.imm.hits.common.internal.KNIMECommonActivator
 Bundle-Vendor: TCD
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
