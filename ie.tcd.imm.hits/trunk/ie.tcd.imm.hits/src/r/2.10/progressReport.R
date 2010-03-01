@@ -10,7 +10,9 @@ myUpdateProgress <- function(time, currentStep, additionalTime=time$timePerStep[
 {
     if(!is.na(additionalTime))
         time$timeCounter <- time$timeCounter + additionalTime
-    time$currentStep <- match(currentStep, time$steps2Do)
+    cs <- match(currentStep, time$steps2Do)
+    if(!is.na(cs))
+        time$currentStep <- cs
     cat(sprintf("\r%d%% done (step %s of %d)", min(floor(time$timeCounter/time$totalTime*100), 100),
                 as.character(min(time$currentStep, time$nsteps)), time$nsteps))
     return(invisible(time))

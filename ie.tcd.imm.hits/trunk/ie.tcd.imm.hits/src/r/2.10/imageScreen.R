@@ -44,7 +44,7 @@ imageScreen <- function (object, ar=3/5, zrange=NULL, map=FALSE, anno=NULL,
     if(is.null(zrange))
     {
         ## set default values
-        zrange <- range(sc.true, na.rm=TRUE)
+        zrange <- range(sc.true[is.finite(sc.true)], na.rm=TRUE)
     }	
     if (!is.null(anno))
     {

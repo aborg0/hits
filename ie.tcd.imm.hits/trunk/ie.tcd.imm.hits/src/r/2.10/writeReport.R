@@ -250,6 +250,9 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
     nrChannel <- if(!is.null(xnorm)) as.integer(dim(xnorm)[3]) else d[3] 
     objState <- sapply(cellHTSlist, function(i) if(!is.null(i)) state(i))	
     overallState <- apply(objState, 1, any)
+    if(overallState["configured"] && ! state(xr)["configured"])
+        stop("All cellHTS2 object must be configured, object '", deparse(substitute(raw)),
+             "' is not.")
     whAnnotated <- colnames(objState)[objState["annotated",]]
 
     ## get appropriate data
@@ -561,8 +564,7 @@ writeReport <- function(raw, normalized=NULL, scored=NULL, cellHTSlist=NULL, out
                                    expOrder=expOrder,
                                    configured=overallState["configured"]))
     tab <- writeHtml(plateList.module)
-    progress <- myUpdateProgress(progress, "step3",
-                                 0.2*length(which(plateList(xr)$Status=="OK")))
+    progress <- myUpdateProgress(progress, "step3")
 		
     ## The 'Plate Configuration' module: this is an array of image plots indicating the
     ## plate layout (controls, samples, flagged wells). The workhorse function to produce
