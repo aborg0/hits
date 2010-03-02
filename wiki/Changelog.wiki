@@ -2,6 +2,13 @@
 
 = HiTS =
 
+== Changes from 0.5.1 to 0.5.2 ==
+Date: 1st March 2010
+
+Bug fixes:
+ * Spaces related bugs in the reader nodes.
+ * Updating cellHTS2 to 2.10.5
+
 == Changes from 0.5.0 to 0.5.1 ==
 Date: 13th December 2009
 
