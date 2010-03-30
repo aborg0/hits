@@ -35,7 +35,7 @@ You can set it in the Help/Software Updates.../Find and Install.../_Search for n
 After you have set the update site, you can select it and click on *Finish*. (Here you may be prompted to your proxy user and password.)
 Recommended list of features (after the added labs update site (`http://labs.knime.org/update/2.1`)):
 ||*Name*||*Version*||
-||HiTS 3rd party components feature||0.5.0.200912041736||
+||HiTS 3rd party components feature||0.5.2.201003012050||
 ||HiTS main feature||0.4.1.200912041736||
 ||HiTS experimental features||0.4.1.200912041736||
 ||HiTS imaging feature||0.1.0.200912041736||
