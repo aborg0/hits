@@ -1,6 +1,11 @@
-#summary Changes in the project
+ #summary Changes in the project
 
 = HiTS =
+== Changes from 0.5.2 to 0.5.3 ==
+Date: 10th April 2010
+
+Bug fixes:
+ * Plates with no samples should work now.
 
 == Changes from 0.5.1 to 0.5.2 ==
 Date: 1st March 2010
