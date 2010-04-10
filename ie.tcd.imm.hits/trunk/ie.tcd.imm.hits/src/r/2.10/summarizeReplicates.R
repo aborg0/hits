@@ -175,6 +175,11 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
     ## 2) Summarize between scored replicates:
     ## we need these wrappers because the behavior of max(x, na.rm=TRUE) if all
     ##   elements of x are NA is to return -Inf, which is not what we want.
+    myMedian <- function(x)
+    {
+        x <- x[!is.na(x)]
+        ifelse(length(x)>=1, median(x), as.numeric(NA))
+    }
     myMax <- function(x)
     {
         x <- x[!is.na(x)]
@@ -218,7 +223,7 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
             xnorm <- Data(object)[,,i]       # NB - the function is only implemented for one-channel data
             score[, i] <- switch(summary,
                                  mean = rowMeans(xnorm, na.rm=TRUE),
-                                 median = rowMedians(xnorm, na.rm=TRUE),
+                                 median = apply(xnorm, 1, myMedian),#rowMedians(xnorm, na.rm=TRUE),
                                  max  = apply(xnorm, 1, myMax),
                                  min  = apply(xnorm, 1, myMin),
                                  rms = apply(xnorm, 1, myRMS),
@@ -240,7 +245,7 @@ summarizeReplicates <- function(object, summary="min", method=singleColor)
                 xnorm <- Data(object)[,,i, drop=FALSE]
                 score[, i] <- switch(summary,
                                      mean = rowMeans(xnorm, na.rm=TRUE),
-                                     median = rowMedians(xnorm, na.rm=TRUE),
+                                     median = apply(xnorm, 1, myMedian),#rowMedians(xnorm, na.rm=TRUE),
                                      max  = apply(xnorm, 1, myMax),
                                      min  = apply(xnorm, 1, myMin),
                                      rms = apply(xnorm, 1, myRMS),

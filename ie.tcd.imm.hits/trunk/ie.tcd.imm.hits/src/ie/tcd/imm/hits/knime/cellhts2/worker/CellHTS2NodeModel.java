@@ -946,6 +946,7 @@ public class CellHTS2NodeModel extends NodeModel {
 								+ rSpecDir.getAbsolutePath().replace('\\', '/')
 								+ "\")");
 				RUtil.voidEval(conn, "library(\"cellHTS2\")");
+				RUtil.voidEval(conn, "source(\"getMeasureRepAgreement.R\")");
 				switch (version) {
 				case originalPre28:
 					RUtil.voidEval(conn, "source(\"summarizeReplicates.R\")\n");
