@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.feature"
       label="HiTS main feature"
-      version="0.5.2.qualifier"
+      version="0.5.3.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.feature">
 
@@ -16,8 +16,8 @@ It also supports basic data visualisation technics, like heatmaps.
 (For a bit more advanced visualisation check: KNIME distmatrix,
 and
 the ie.tcd.imm.hits.exp.feature feature.)
-News in version 0.5.1:
- - bug fixes (wrong start position in import, wrong handling of path with spaces).
+News in version 0.5.3:
+ - support for plates with no samples.
    </description>
 
    <copyright>
