@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<title>Settings of HiTS</title>
+</head>
+<body>
+<h1><a name="columns">Columns</a></h1>
+<ul>
+	<li><a name="experiment">Experiment</a> - text (<em>S</em>tring)
+	type, contains the experiment name</li>
+	<li><a name="normMethod">Normalisation method</a> - text (<em>S</em>tring)
+	type, contains the normalisation method, possible terms:
+	<ul>
+		<li><samp><a href="concepts.xhtml#Bscore">Bscore</a></samp></li>
+		<li><samp><a href="concepts.xhtml#POC">POC</a></samp></li>
+		<li><samp><a href="concepts.xhtml#median">negatives</a></samp></li>
+		<li><samp><a href="concepts.xhtml#NPI">NPI</a></samp></li>
+		<li><samp><a href="concepts.xhtml#mean">mean</a></samp></li>
+		<li><samp><a href="concepts.xhtml#shorth">shorth</a></samp></li>
+		<li><samp><a href="concepts.xhtml#locfit">locfit</a></samp></li>
+		<li><samp><a href="concepts.xhtml#loess">loess</a></samp></li>
+	</ul>
+	</li>
+	<li><a name="log">log transform</a> - text (<em>S</em>tring) type,
+	terms: the <samp><a href="concepts.xhtml#log">log</a></samp> text, or
+	empty</li>
+	<li><a name="normKind">Normalisation kind</a> - text (<em>S</em>tring)
+	type, the normalisation kind (<samp><a
+		href="concepts.xhtml#multiplicative">multiplicative</a></samp> or <samp><a
+		href="concepts.xhtml#additive">additive</a></samp>) are the possible values</li>
+	<li><a name="varAdjust">Variance adjustment</a> - text (<em>S</em>tring)
+	type, variance adjustment, possible terms: <samp>no adjustment</samp>,
+	<samp>by plate</samp> and <samp>by experiment</samp></li>
+	<li><a name="scoreMethod">Scoring method</a> - text (<em>S</em>tring)
+	type, scoring method, possible terms:
+	<ul>
+		<li><samp>none</samp></li>
+		<li><samp>zscore</samp></li>
+		<li><samp>NPI</samp></li>
+		<li><samp>zscoreByPlate</samp></li>
+		<li><samp>zscoreNonRobust</samp></li>
+		<li><samp>zscoreNonRobustByPlate</samp></li>
+	</ul>
+	</li>
+	<li><a name="sumMethod">Summarise method</a> - text (<em>S</em>tring)
+	type, the summarisation method, possible terms:
+	<ul>
+		<li><samp><a href="concepts.xhtml#mean">mean</a></samp></li>
+		<li><samp><a href="concepts.xhtml#median">median</a></samp></li>
+		<li><samp><a href="concepts.xhtml#min">min</a></samp></li>
+		<li><samp><a href="concepts.xhtml#max">max</a></samp></li>
+		<li><samp><a href="concepts.xhtml#closestToZero">closestToZero</a></samp></li>
+		<li><samp><a href="concepts.xhtml#furthestToZero">furthestToZero</a></samp></li>
+		<li><samp><a href="concepts.xhtml#rms">rms</a></samp></li>
+	</ul>
+	</li>
+	<li><a name="plate">Plate</a> - integral (<em>I</em>nteger) type, starting from <samp>1</samp>, the plate values</li>
+	<li><a name="position">Position</a> - integral (<em>I</em>nteger)
+	type, starting from <samp>1</samp>, the position on the plate, <samp>A1</samp> is <samp>1</samp>, <samp>A12</samp> is <samp>12</samp></li>
+	<li><a name="well">Well</a> - text (<em>S</em>tring) type, the well identifier, format like: <samp>A01</samp></li>
+	<li><a name="replicate">Replicate</a> - integral (<em>I</em>nteger)
+	type, starting from <samp>1</samp> the replicate values</li>
+	<li><a name="finalWellAnnot">final well annotation</a> - text (<em>S</em>tring)
+	type, this is the well annotation after applying the screen log file; some wells may be <samp>flag</samp>ged; it may be multiple, depending on the parameters, but it can be on its own (in that case it gets a <samp>_null</samp> suffix)</li>
+	<li><a name="wellAnnot">well annotation</a> - text (<em>S</em>tring)
+	type, this is the original well annotation like <samp>sample</samp>, <samp>pos</samp>, <samp>neg</samp>, <samp>other</samp></li>
+	<li><a name="geneId">Gene id</a> - text (<em>S</em>tring) type, an identifier of the gene</li>
+	<li><a name="geneSymbol">Gene symbol</a> - text (<em>S</em>tring)
+	type, the gene symbol</li>
+	<li><a name="geneAnnot">Gene annotation</a> - text (<em>S</em>tring)
+	type, additional gene annotations (any other textual column from the input)</li>
+	<li><a name="empty">empty</a> - text (<em>S</em>tring)
+	type, empty column</li>
+	<li><a name="score">score</a> - floating point number (<em>D</em>ouble)
+	type, does not depend on replicates, but depends on parameters these are the scored values</li>
+	<li><a name="meanDiff">mean or diff</a> - floating point number (<em>D</em>ouble)
+	type, does not depend on replicates, but depends on parameters; when there are two replicates the result is the raw value from the second replicate minus raw value of the first replicate, otherwise the mean of the replicate values</li>
+	<li><a name="median">median</a> - floating point number (<em>D</em>ouble)
+	type, does not depend on replicates, but depends on parameters, the median of the raw replicate values</li>
+	<li><a name="raw">raw</a> - floating point number (<em>D</em>ouble)
+	type, depends both on replicates and parameters. These are the original values</li>
+	<li><a name="norm">normalised</a> - floating point number (<em>D</em>ouble)
+	type, depends both on replicates and parameters. These are the normalised values</li>
+	<li><a name="rawPer">raw/(plate, replicate mean)</a> - floating
+	point number (<em>D</em>ouble) type, depends both on replicates and parameters. These are  the raw value divided by the physical plate mean</li>
+</ul>
+
+<h1><a name="colOrder">Column order</a></h1>
+<p><img src="HiTSPreferences.png"/></p>
+<p>In this panel you can set the column order and select which one should be present in the output.</p>
+<p>There are four special columns, the</p>
+<ul>
+<li><samp>group by channels start</samp></li>
+<li><samp>group by channels end</samp></li>
+<li><samp>group by replicates start</samp></li>
+<li><samp>group by replicates end</samp></li>
+</ul>
+<p>These entries allows you to group the results to your need, but you must have both if the specified columns depend  on  both channels and replicates too, and only the channels if it depends on the channels. You may have more then one channel in the start-end area, but the start-end intervals may not overlap.</p>
+<h1><a name="colours">Colours</a></h1>
+<p><img src="defaultColoursPreferences.png"/></p>
+<p>You can set which data should have which colour. Currently you have only one choice for each data option.</p>
+<p>See also: <a href="visualise.xhtml">Visualisation, colours</a></p>
+<h1><a name="connection">Connection</a></h1>
+<p><img src="connectionPreferences.png"/></p>
+<p>The proxy settings are important if you are behind a firewall and want to use nodes accessing services outside of your network.</p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/footer.xhtml/copyright"/>
+</body>
+</html>
