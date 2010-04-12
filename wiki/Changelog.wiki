@@ -1,4 +1,4 @@
- #summary Changes in the project
+#summary Changes in the project
 
 = HiTS =
 == Changes from 0.5.2 to 0.5.3 ==
