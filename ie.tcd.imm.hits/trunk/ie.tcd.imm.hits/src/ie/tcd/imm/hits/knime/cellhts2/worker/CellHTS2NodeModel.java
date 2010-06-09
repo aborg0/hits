@@ -940,13 +940,13 @@ public class CellHTS2NodeModel extends NodeModel {
 					RUtil.voidEval(conn, "source(\"normalizePlates.R\")\n");
 					RUtil.voidEval(conn, "source(\"customNormalisation.R\")\n");
 					RUtil.voidEval(conn, "source(\"customScoring.R\")\n");
+					RUtil.voidEval(conn, "source(\"getMeasureRepAgreement.R\")");
 				}
 				RUtil
 						.voidEval(conn, "setwd(\""
 								+ rSpecDir.getAbsolutePath().replace('\\', '/')
 								+ "\")");
 				RUtil.voidEval(conn, "library(\"cellHTS2\")");
-				RUtil.voidEval(conn, "source(\"getMeasureRepAgreement.R\")");
 				switch (version) {
 				case originalPre28:
 					RUtil.voidEval(conn, "source(\"summarizeReplicates.R\")\n");
