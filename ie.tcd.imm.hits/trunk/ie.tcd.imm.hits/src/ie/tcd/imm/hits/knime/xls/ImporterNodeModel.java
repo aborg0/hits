@@ -196,10 +196,10 @@ public class ImporterNodeModel extends NodeModel {
 					}
 					final int replicateCount = replicateCountModel
 							.getIntValue();
-					if (perWellSheet.getLastRowNum() - 2 != rows * cols) {
-						throw new IllegalStateException(
-								"Wrong structure of the xls file: " + fileName);
-					}
+//					if (perWellSheet.getLastRowNum() - 2 != rows * cols) {
+//						throw new IllegalStateException(
+//								"Wrong structure of the xls file: " + fileName);
+//					}
 					for (int i = specColNum - 1; i < perWellSheet
 							.getLastRowNum() + 1; ++i) {
 						final DataCell[] values = new DataCell[columns

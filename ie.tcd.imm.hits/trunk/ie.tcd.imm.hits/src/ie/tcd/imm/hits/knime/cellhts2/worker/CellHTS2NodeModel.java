@@ -453,30 +453,41 @@ public class CellHTS2NodeModel extends NodeModel {
 						.substring(1)));
 			}
 			exec.checkCanceled();
-			final int wellCount = wellRowCount * wellColCount;
+			final int wellCount = wellRowCount * wellColCount < 96 ? 96 : 384;
+			switch (wellCount)
+			{
+			case 96:
+				wellColCount = 12;
+				wellRowCount = 8;
+				break;
+			case 384:
+				wellColCount = 24;
+				wellRowCount = 16;
+				break;
+			}
 			final int paramCount = parametersModel.getIncludeList().size();
 			CellHTS2NodeModel.logger.debug(wellRowCount + "x" + wellColCount
 					+ "  " + plateCount + " plate, " + replicateCount
 					+ " replicates, " + paramCount + " channels");
-			if (wellCount * replicateCount * plateCount != inData[0]
-					.getRowCount()) {
-				final String errorMessage = "There are wrong number of input rows, please check them:\nfound: "
-						+ inData[0].getRowCount()
-						+ ", while expected: "
-						+ plateCount
-						+ "*"
-						+ replicateCount
-						+ "*"
-						+ wellRowCount
-						+ "*"
-						+ wellColCount
-						+ "="
-						+ wellCount
-						* replicateCount * plateCount;
-				CellHTS2NodeModel.logger.fatal(errorMessage);
-				throw new IllegalStateException(errorMessage);
-			}
-			sendRawValues(exec, conn, inData[0], replicateCount, plateIdx,
+//			if (wellCount * replicateCount * plateCount != inData[0]
+//					.getRowCount()) {
+//				final String errorMessage = "There are wrong number of input rows, please check them:\nfound: "
+//						+ inData[0].getRowCount()
+//						+ ", while expected: "
+//						+ plateCount
+//						+ "*"
+//						+ replicateCount
+//						+ "*"
+//						+ wellRowCount
+//						+ "*"
+//						+ wellColCount
+//						+ "="
+//						+ wellCount
+//						* replicateCount * plateCount;
+//				CellHTS2NodeModel.logger.fatal(errorMessage);
+//				throw new IllegalStateException(errorMessage);
+//			}
+			sendRawValues(exec, conn, inData[0], plateCount, replicateCount, plateIdx,
 					replicateIdx, wellIdx, wellCount, paramCount);
 			exec.setProgress(.001, "Data read.");
 			convertRawInputToCellHTS2(experimentName, conn, replicateCount,
@@ -1012,6 +1023,8 @@ public class CellHTS2NodeModel extends NodeModel {
 	 *            Connection to Rserve.
 	 * @param inData
 	 *            First input data table.
+	 * @param plateCount
+	 * 			  Number of plates.
 	 * @param replicateCount
 	 *            Number of replicates.
 	 * @param plateIdx
@@ -1028,11 +1041,12 @@ public class CellHTS2NodeModel extends NodeModel {
 	 *             User cancelled the execution.
 	 */
 	private void sendRawValues(final ExecutionMonitor exec,
-			final RConnection conn, final BufferedDataTable inData,
+			final RConnection conn, final BufferedDataTable inData, final int plateCount,
 			final int replicateCount, final int plateIdx,
 			final int replicateIdx, final int wellIdx, final int wellCount,
 			final int paramCount) throws CanceledExecutionException {
-		final double[] rawValues = new double[inData.getRowCount() * paramCount];
+		final double[] rawValues = new double[plateCount * replicateCount * wellCount * paramCount];
+		Arrays.fill(rawValues, Double.NaN);
 		// final int i = 0;
 		// final HashSet<String> paramSet = new HashSet<String>(
 		// parametersModel.getIncludeList());
