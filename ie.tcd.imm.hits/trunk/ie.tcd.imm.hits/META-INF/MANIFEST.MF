@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  ie.tcd.imm.hits.help.base;bundle-version="[0.0.1,1.0.0)",
  org.eclipse.core.net;bundle-version="1.1.0"
 Bundle-Vendor: TCD
-Bundle-Version: 0.5.3.qualifier
+Bundle-Version: 0.5.4.qualifier
 Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Import-Package: edu.umd.cs.findbugs.annotations,
