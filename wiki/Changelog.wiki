@@ -1,6 +1,13 @@
 #summary Changes in the project
 
 = HiTS =
+== Changes from 0.5.3 to 0.5.4 ==
+Date: 5th July 2010
+
+Bug fixes:
+ * Problem with html report fixed.
+ * Incomplete plates are supported.
+
 == Changes from 0.5.2 to 0.5.3 ==
 Date: 10th April 2010
 
