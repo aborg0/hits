@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.knime.org/2008/09/XMLConfig" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.knime.org/2008/09/XMLConfig http://www.knime.org/XMLConfig_2008_09.xsd" key="settings.xml">
+<entry key="name" type="xstring" value="Java Snippet"/>
+<config key="internal_node_subsettings">
+<entry key="memory_policy" type="xstring" value="CacheSmallInMemory"/>
+</config>
+<config key="model">
+<entry key="expression" type="xstring" value="/* Please note that as of KNIME 2.0%%00010 * you must use the &quot;return&quot; keyword%%00010 * to specify the return value.%%00010 */%%00010return Integer.valueOf($Cluster$.substring(8));"/>
+<entry key="replaced_column" type="xstring" value="Cluster"/>
+<entry key="append_column" type="xboolean" value="true"/>
+<entry key="test_compilation_on_dialog_close" type="xboolean" value="true"/>
+<entry key="return_type" type="xstring" value="java.lang.Integer"/>
+<config key="java_libraries"/>
+<entry key="expression_version" type="xint" value="2"/>
+</config>
+<entry key="hasContent" type="xboolean" value="false"/>
+<config key="ports">
+<config key="port_0">
+<entry key="index" type="xint" value="0"/>
+<entry key="port_dir_location" type="xstring" isnull="true" value=""/>
+</config>
+</config>
+</config>
