@@ -274,6 +274,7 @@ public class ControlsHandlerKNIMEFactory
 		case RadioButton:
 		case Slider:
 		case Tab:
+		case TextField:
 			final Integer sel = selections.iterator().next();
 			slider.selectSingle(sel);
 			break;
@@ -292,5 +293,4 @@ public class ControlsHandlerKNIMEFactory
 				split);
 		return control;
 	}
-
 }

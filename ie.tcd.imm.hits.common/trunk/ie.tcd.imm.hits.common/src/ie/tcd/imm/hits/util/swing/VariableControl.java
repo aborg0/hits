@@ -16,6 +16,7 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
 /**
@@ -55,7 +56,9 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 		/** Something like a {@link JTabbedPane}. */
 		Tab(EnumSet.of(SelectionType.Unmodifiable, SelectionType.Single)),
 		/** The control which is not visible to the user. */
-		Invisible(EnumSet.allOf(SelectionType.class));
+		Invisible(EnumSet.allOf(SelectionType.class)),
+		/** A single {@link JTextField}. */
+		TextField(EnumSet.of(SelectionType.Unmodifiable, SelectionType.Single));
 
 		private final Set<SelectionType> possibleSelections;
 
@@ -112,8 +115,8 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 	public ControlTypes getType();
 
 	/**
-	 * @return The {@link ChangeListener} which is associated to the {@code
-	 *         ModelType} {@link #getModel() model}.
+	 * @return The {@link ChangeListener} which is associated to the
+	 *         {@code ModelType} {@link #getModel() model}.
 	 */
 	public ChangeListener getModelChangeListener();
 

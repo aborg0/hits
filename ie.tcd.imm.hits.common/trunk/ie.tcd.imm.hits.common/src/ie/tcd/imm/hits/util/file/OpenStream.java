@@ -76,12 +76,17 @@ public class OpenStream {
 				final Proxy proxy;
 				final IProxyData proxyDataForHost;
 				if (proxyService.isProxiesEnabled()) {
-					proxyDataForHost = proxyService.getProxyDataForHost(uri
-							.getHost(), uri.getScheme().toUpperCase());
-					final InetSocketAddress sockAddr = new InetSocketAddress(
-							InetAddress.getByName(proxyDataForHost.getHost()),
-							proxyDataForHost.getPort());
-					proxy = new Proxy(Type.HTTP, sockAddr);
+					IProxyData[] proxyData = proxyService.select(uri);
+					if (proxyData.length > 0) {
+						proxyDataForHost = proxyData[0];
+						final InetSocketAddress sockAddr = new InetSocketAddress(
+								InetAddress.getByName(proxyDataForHost
+										.getHost()), proxyDataForHost.getPort());
+						proxy = new Proxy(Type.HTTP, sockAddr);
+					} else {
+						proxyDataForHost = null;
+						proxy = Proxy.NO_PROXY;
+					}
 				} else {
 					proxy = Proxy.NO_PROXY;
 					proxyDataForHost = null;
@@ -135,8 +140,8 @@ public class OpenStream {
 				if (contentType != null
 						&& supportedArchiveContentTypes.contains(contentType)) {
 					if (contentType.toLowerCase().contains("gzip")) {
-						return new GZIPInputStream(possConnection
-								.getInputStream());
+						return new GZIPInputStream(
+								possConnection.getInputStream());
 					}
 					final ZipInputStream zis;
 					zis = new ZipInputStream(possConnection.getInputStream());
@@ -300,21 +305,21 @@ public class OpenStream {
 		StringBuilder longestCommonPath;
 		{
 			final String p = uris[0].getPath();
-			longestCommonPath = new StringBuilder(p.substring(0, p
-					.lastIndexOf('/') + 1));
+			longestCommonPath = new StringBuilder(p.substring(0,
+					p.lastIndexOf('/') + 1));
 		}
 		for (final URI uri : uris) {
 			final String path = uri.getPath();
 			while (!path.startsWith(longestCommonPath.toString())) {
-				longestCommonPath.setLength(Math.max(longestCommonPath
-						.lastIndexOf("/"), 0));
+				longestCommonPath.setLength(Math.max(
+						longestCommonPath.lastIndexOf("/"), 0));
 			}
 		}
 		try {
-			return new URI(uris[0].getScheme(), uris[0].getUserInfo(), uris[0]
-					.getHost(), uris[0].getPort(),
-					longestCommonPath.toString(), uris[0].getQuery(), uris[0]
-							.getFragment());
+			return new URI(uris[0].getScheme(), uris[0].getUserInfo(),
+					uris[0].getHost(), uris[0].getPort(),
+					longestCommonPath.toString(), uris[0].getQuery(),
+					uris[0].getFragment());
 		} catch (final URISyntaxException e) {
 			return null;
 		}

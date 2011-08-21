@@ -161,6 +161,10 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 				ControlTypes.Slider));
 		toSlider.setText("to slider");
 		menuCompat.add(toSlider);
+		final JMenuItem toTextField = new JMenuItem(new VisualChangeAction(
+				ControlTypes.TextField));
+		toTextField.setText("to edit field");
+		menuCompat.add(toTextField);
 		popup.add(menuCompat);
 		final JMenu moveMenu = new JMenu();
 		moveMenu.setText("Move to");

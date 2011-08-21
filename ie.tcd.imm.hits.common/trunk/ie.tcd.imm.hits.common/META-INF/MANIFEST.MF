@@ -24,3 +24,5 @@ Import-Package: edu.umd.cs.findbugs.annotations,
  javax.annotation,
  javax.annotation.concurrent,
  javax.annotation.meta
+Bundle-ClassPath: lib/patricia-trie-0.6.jar,
+ .

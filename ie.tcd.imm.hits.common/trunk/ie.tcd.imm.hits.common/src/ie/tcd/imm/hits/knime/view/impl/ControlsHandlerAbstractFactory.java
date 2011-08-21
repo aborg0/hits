@@ -251,6 +251,9 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 			throw new UnsupportedOperationException("Not supported yet.");
 		case ScrollBarVertical:
 			throw new UnsupportedOperationException("Not supported yet.");
+		case TextField:
+			ret = new TextFieldControl<Model, Sel>(settingsModelListSelection, selection, this, changeListener, domainModel);
+			break;
 		default:
 			throw new UnsupportedOperationException("Not supported yet: "
 					+ controlType);
