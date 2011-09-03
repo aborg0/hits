@@ -150,7 +150,7 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 	@Override
 	protected String[] parseString(final String stringList) {
 		@SuppressWarnings("unchecked")
-		final List<? extends Enum> list = ColumnSelectionFieldEditor
+		final List<? extends Enum<?>> list = ColumnSelectionFieldEditor
 				.parseString(possibleValues.iterator().next().getClass(),
 						stringList);
 		final String[] ret = new String[list.size()];

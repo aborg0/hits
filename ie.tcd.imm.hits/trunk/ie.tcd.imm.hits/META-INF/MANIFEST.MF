@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Export-Package: ie.tcd.imm.hits.knime.util;version="0.5.0",
+ ie.tcd.imm.hits.knime.view;version="0.6.0",
  ie.tcd.imm.hits.knime.view.heatmap;version="0.5.0";x-friends:="ie.tcd.imm.hits.exp,ie.tcd.imm.knime.test",
  ie.tcd.imm.hits.knime.view.impl;x-friends:="ie.tcd.imm.knime.test",
  ie.tcd.imm.hits.util;version="0.5.0",
@@ -27,9 +28,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.rforge.REngine;bundle-version="0.6.0",
  net.rforge.Rserve;bundle-version="0.6.0",
  ie.tcd.imm.hits.help.base;bundle-version="[0.0.1,1.0.0)",
- org.eclipse.core.net;bundle-version="1.1.0"
+ org.eclipse.core.net;bundle-version="1.1.0",
+ com.google.code.findbugs.jsr305;resolution:=optional,
+ com.google.code.findbugs.annotations;bundle-version="1.3.9";resolution:=optional,
+ org.knime.ext.svg;bundle-version="2.4.0";resolution:=optional
 Bundle-Vendor: TCD
-Bundle-Version: 0.5.4.qualifier
+Bundle-Version: 0.6.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
 Import-Package: edu.umd.cs.findbugs.annotations,

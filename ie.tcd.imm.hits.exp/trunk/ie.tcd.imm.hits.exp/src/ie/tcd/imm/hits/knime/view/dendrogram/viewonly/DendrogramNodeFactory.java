@@ -71,7 +71,7 @@ public class DendrogramNodeFactory extends NodeFactory<DendrogramNodeModel> {
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**
@@ -79,6 +79,6 @@ public class DendrogramNodeFactory extends NodeFactory<DendrogramNodeModel> {
 	 */
 	@Override
 	public NodeDialogPane createNodeDialogPane() {
-		throw new UnsupportedOperationException();
+		return new DendrogramNodeDialog();
 	}
 }

@@ -50,12 +50,12 @@ import org.knime.base.node.util.DataArray;
 import org.knime.base.node.viz.plotter.AbstractPlotter;
 import org.knime.base.node.viz.plotter.DataProvider;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
+import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTreeNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPoint;
-import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.base.util.coordinate.AscendingNumericTickPolicyStrategy;
 import org.knime.base.util.coordinate.Coordinate;
 import org.knime.base.util.coordinate.DescendingNumericTickPolicyStrategy;
@@ -77,7 +77,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@DefaultAnnotation({ Nonnull.class, CheckReturnValue.class })
 public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	private static final long serialVersionUID = -7290110714225915563L;
 
@@ -241,10 +241,11 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 										.getCoordinate()
 										.getCurrentPolicy()
 										.getDisplayName()
-										.equals(
-												DescendingNumericTickPolicyStrategy.ID));
-				heatmapDendrogramPlotterProperties.getFlipHorizontal()
-						.getAction().actionPerformed(
+										.equals(DescendingNumericTickPolicyStrategy.ID));
+				heatmapDendrogramPlotterProperties
+						.getFlipHorizontal()
+						.getAction()
+						.actionPerformed(
 								new ActionEvent(e.getSource(), 0,
 										heatmapDendrogramPlotterProperties
 												.getFlipHorizontal()
@@ -266,8 +267,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	}
 
 	/**
-	 * Updates the direction property based on {@code
-	 * heatmapDendrogramPlotterProperties}.
+	 * Updates the direction property based on
+	 * {@code heatmapDendrogramPlotterProperties}.
 	 * 
 	 * @param heatmapDendrogramPlotterProperties
 	 *            The {@link HeatmapDendrogramPlotterProperties}.
@@ -292,8 +293,8 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 		super.setDataProvider(provider);
 		if (provider instanceof DendrogramNodeModel) {
 			final DendrogramNodeModel model = (DendrogramNodeModel) provider;
-			((HeatmapDendrogramPlotterProperties) getProperties()).update(model
-					.getColumns(), model.getRange());
+			((HeatmapDendrogramPlotterProperties) getProperties()).update(
+					model.getColumns(), model.getRange());
 			((HeatmapDendrogramDrawingPane) getDrawingPane())
 					.setNodeModel(model);
 		}
@@ -352,7 +353,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	/**
 	 * @return The model for the view.
 	 */
-	private BinaryTree<DendrogramPoint> viewModel() {
+	BinaryTree<DendrogramPoint> viewModel() {
 		mapFromKeysToIndices.clear();
 		int i = 0;
 		for (final DataRow row : getDataProvider().getDataArray(1)) {

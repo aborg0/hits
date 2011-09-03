@@ -23,9 +23,12 @@
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
 import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
+import ie.tcd.imm.hits.knime.view.ImageExportOption;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import org.knime.base.data.xml.SvgCell;
 import org.knime.base.node.mine.cluster.hierarchical.ClusterTreeModel;
 import org.knime.base.node.mine.cluster.hierarchical.view.ClusterViewNode;
 import org.knime.base.node.util.DataArray;
@@ -52,6 +56,7 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.container.ContainerTable;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -61,10 +66,13 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModelEnum;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.PortUtil;
+import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
 
 /**
  * This is the model implementation of Dendrogram. Allows to create dendrogram
@@ -85,6 +93,13 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	/** The selected columns. */
 	private final List<String> selectedColumns = new ArrayList<String>();
 
+	static final String CFGKEY_EXPORT_IMAGE = "export.image";
+	static final ImageExportOption DEFAULT_EXPORT_IMAGE = ImageExportOption.None;
+
+	private SettingsModelEnum<ImageExportOption> exportImage = new SettingsModelEnum<ImageExportOption>(
+			CFGKEY_EXPORT_IMAGE, DEFAULT_EXPORT_IMAGE,
+			ImageExportOption.values());
+
 	private @Nullable
 	DataArray origData;
 
@@ -96,29 +111,74 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	 */
 	protected DendrogramNodeModel() {
 		super(new PortType[] { ClusterTreeModel.TYPE, BufferedDataTable.TYPE },
-				new PortType[0]);
+				new PortType[] { ImagePortObject.TYPE });
 	}
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new PortObjectSpec[0];
+		switch (exportImage.getEnumValue()) {
+		case None:
+		case Svg:
+			return new PortObjectSpec[] { new ImagePortObjectSpec(SvgCell.TYPE) };
+		case Png:
+			return new PortObjectSpec[] { new ImagePortObjectSpec(
+					PNGImageContent.TYPE) };
+		default:
+			throw new UnsupportedOperationException(
+					"Not supported image export format: "
+							+ exportImage.getEnumValue());
+		}
 	}
 
 	@Override
-	protected BufferedDataTable[] execute(final PortObject[] data,
+	protected PortObject[] execute(final PortObject[] data,
 			final ExecutionContext exec) throws Exception {
 		selectedColumns.clear();
 		setTreeModel((ClusterTreeModel) data[0]);
+		int rowCount;
 		origData = new DefaultDataArray((BufferedDataTable) data[1], 1,
-				((BufferedDataTable) data[1]).getRowCount());
+				rowCount = ((BufferedDataTable) data[1]).getRowCount());
 		mapOfKeys.clear();
 		int i = 0;
 		for (final DataRow row : origData/* data[0] */) {
 			mapOfKeys.put(row.getKey().getString(), Integer.valueOf(i++));
 		}
 		fillStats((BufferedDataTable) data[1]);
-		return new BufferedDataTable[0];
+		final HeatmapDendrogramDrawingPane view;
+		if (exportImage.getEnumValue() == ImageExportOption.None) {
+			view = null;
+		} else {
+			view = new HeatmapDendrogramDrawingPane();
+			final HeatmapDendrogramPlotter plotter = new HeatmapDendrogramPlotter(
+					view, new HeatmapDendrogramPlotterProperties());
+			plotter.setDataProvider(this);
+			plotter.setHiLiteHandler(getInHiLiteHandler(1));
+			plotter.setRootNode(root);
+
+			view.setPreferredSize(new Dimension(1000, 2 * rowCount));
+			view.setColourModel(new ColourModel());
+			view.setHeatmapCellHeight(17);
+			view.setCellWidth(20);
+			view.setShowValues(false);
+			view.setRootNode(plotter.viewModel());
+		}
+		switch (exportImage.getEnumValue()) {
+		case None:
+			return new PortObject[] { new ImagePortObject(
+					ImageExportOption.Empty, new ImagePortObjectSpec(
+							SvgCell.TYPE)) };
+		case Png:
+			return new PortObject[] { new ImagePortObject(
+					ImageExportOption.Png.paint(view), new ImagePortObjectSpec(
+							PNGImageContent.TYPE)) };
+		case Svg:
+			return new PortObject[] { new ImagePortObject(
+					ImageExportOption.Svg.paint(view), new ImagePortObjectSpec(
+							SvgCell.TYPE)) };
+		}
+		return new PortObject[] { new ImagePortObject(null,
+				new ImagePortObjectSpec(SvgCell.TYPE)) };
 	}
 
 	private void setTreeModel(final ClusterTreeModel data) {
@@ -165,8 +225,8 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 				final DataCell cell = row.getCell(colIndices[i]);
 				if (cell instanceof DoubleValue) {
 					final DoubleValue val = (DoubleValue) cell;
-					vals.get(colNames[i]).get(StatTypes.raw).add(
-							Double.valueOf(val.getDoubleValue()));
+					vals.get(colNames[i]).get(StatTypes.raw)
+							.add(Double.valueOf(val.getDoubleValue()));
 				}
 			}
 		}
@@ -183,17 +243,23 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {// No settings.
+			throws InvalidSettingsException {
+		// For compatibility reasons exportImage is not checked.
 	}
 
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		// No settings
+		try {
+			exportImage.loadSettingsFrom(settings);
+		} catch (final InvalidSettingsException e) {
+			exportImage.setStringValue(DEFAULT_EXPORT_IMAGE.getDisplayText());
+		}
 	}
 
 	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {// No settings
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		exportImage.saveSettingsTo(settings);
 	}
 
 	/**
