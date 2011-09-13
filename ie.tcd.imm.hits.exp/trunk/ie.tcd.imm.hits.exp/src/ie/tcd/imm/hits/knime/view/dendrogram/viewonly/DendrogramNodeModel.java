@@ -150,18 +150,30 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 			view = null;
 		} else {
 			view = new HeatmapDendrogramDrawingPane();
+			final HeatmapDendrogramPlotterProperties props = new HeatmapDendrogramPlotterProperties();
+			props.getCellWidth().setValue(20);
+			props.getShowValues().getModel().setSelected(false);
 			final HeatmapDendrogramPlotter plotter = new HeatmapDendrogramPlotter(
-					view, new HeatmapDendrogramPlotterProperties());
+					view, props);
 			plotter.setDataProvider(this);
 			plotter.setHiLiteHandler(getInHiLiteHandler(1));
 			plotter.setRootNode(root);
 
-			view.setPreferredSize(new Dimension(1000, 2 * rowCount));
 			view.setColourModel(new ColourModel());
 			view.setHeatmapCellHeight(17);
-			view.setCellWidth(20);
 			view.setShowValues(false);
-			view.setRootNode(plotter.viewModel());
+			// view.setRootNode(plotter.viewModel());
+			view.setNodeModel(this);
+			// final DendrogramNodeView nodeView = new DendrogramNodeView(this,
+			// plotter);
+			// nodeView.modelChanged();
+			// YODO move to DendrogramNodeView, as SelectData is available only
+			// there.
+			final Dimension newSize = new Dimension(1000, 2 * rowCount);
+			plotter.setSize(view.getPreferredSize());
+			view.setPreferredSize(newSize);
+			plotter.updateSize();
+			view.setCellWidth(20);
 		}
 		switch (exportImage.getEnumValue()) {
 		case None:

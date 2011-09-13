@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.help.ui,
  ie.tcd.imm.hits.help.base,
  org.knime.distmatrix;bundle-version="2.1.0",
- org.knime.ext.svg;bundle-version="2.4.0"
+ org.knime.ext.svg;bundle-version="2.4.1.0030871"
 Bundle-Vendor: TCD
 Bundle-Version: 0.6.0.qualifier
 Bundle-ManifestVersion: 2
