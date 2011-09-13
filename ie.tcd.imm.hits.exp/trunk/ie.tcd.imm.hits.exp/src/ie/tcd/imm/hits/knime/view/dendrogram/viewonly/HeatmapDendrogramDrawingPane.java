@@ -49,10 +49,10 @@ import javax.annotation.Nonnull;
 
 import org.knime.base.node.util.DataArray;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
+import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTreeNode;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramDrawingPane;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPoint;
-import org.knime.base.node.viz.plotter.dendrogram.BinaryTree.Traversal;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
@@ -67,7 +67,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@DefaultAnnotation({ Nonnull.class, CheckReturnValue.class })
 public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private static final long serialVersionUID = 5198699225298295730L;
 	private static final float BOLD = 2.0f;
@@ -109,8 +109,10 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 		if (this.nodeModel != null && this.nodeModel.getDataArray(1) != null) {
 			computeIndices();
 			for (final DataRow row : this.nodeModel.getOrigData()) {
-				maxStringLength = Math.max(maxStringLength, getFontMetrics(
-						getFont()).stringWidth(row.getKey().getString()));
+				maxStringLength = Math.max(
+						maxStringLength,
+						getFontMetrics(getFont()).stringWidth(
+								row.getKey().getString()));
 			}
 		}
 		selectedColumns.clear();
@@ -195,31 +197,28 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 								visibleColumns.get(i), StatTypes.raw);
 						final Color col = model.compute(val);
 						g.setColor(col);
-						g.fillRect(point.x
-								+ (directionLeftToRight ? (i - visibleColumns
-										.size())
-										* cellWidth : i /*- 1*/
-										* cellWidth), point.y - cellHeight / 2,
-								cellWidth, cellHeight + 1);
+						g.fillRect(
+								point.x
+										+ (directionLeftToRight ? (i - visibleColumns
+												.size()) * cellWidth
+												: i /*- 1*/
+														* cellWidth), point.y
+										- cellHeight / 2, cellWidth,
+								cellHeight + 1);
 						if (showValues) {
-							g
-									.setColor(Color.RGBtoHSB(col.getRed(), col
-											.getGreen(), col.getBlue(), null)[2] > .6f ? Color.BLACK
-											: Color.WHITE);
+							g.setColor(Color.RGBtoHSB(col.getRed(),
+									col.getGreen(), col.getBlue(), null)[2] > .6f ? Color.BLACK
+									: Color.WHITE);
 							final String str = Misc.round(val);
-							g
-									.drawString(
-											str,
-											point.x
-													+ (directionLeftToRight ? (i - visibleColumns
-															.size())
-															* cellWidth
-															: i * cellWidth)
+							g.drawString(
+									str,
+									point.x
+											+ (directionLeftToRight ? (i - visibleColumns
+													.size()) * cellWidth
+													: i * cellWidth)
 
-													+ (cellWidth - fm
-															.stringWidth(str))
-													/ 2, point.y + fontHeight
-													/ 3);
+											+ (cellWidth - fm.stringWidth(str))
+											/ 2, point.y + fontHeight / 3);
 						}
 					}
 				}
@@ -229,22 +228,24 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				if (colorAttr != ColorAttr.DEFAULT) {
 					final Color rowColor = colorAttr.getColor();
 					g.setColor(rowColor);
-					g.fillRect(directionLeftToRight ? point.x
-							- visibleColumns.size() * cellWidth
-							- maxStringLength : leafX + visibleColumns.size()
-							* cellWidth, point.y - cellHeight / 2,
-							maxStringLength, cellHeight + 1);
-					g
-							.setColor(Color.RGBtoHSB(rowColor.getGreen(),
-									rowColor.getGreen(), rowColor.getBlue(),
-									null)[2] < .4f ? Color.WHITE : Color.BLACK);
+					g.fillRect(
+							directionLeftToRight ? point.x
+									- visibleColumns.size() * cellWidth
+									- maxStringLength : leafX
+									+ visibleColumns.size() * cellWidth,
+							point.y - cellHeight / 2, maxStringLength,
+							cellHeight + 1);
+					g.setColor(Color.RGBtoHSB(rowColor.getGreen(),
+							rowColor.getGreen(), rowColor.getBlue(), null)[2] < .4f ? Color.WHITE
+							: Color.BLACK);
 				} else {
 					g.setColor(Color.RGBtoHSB(getBackground().getGreen(),
 							getBackground().getGreen(), getBackground()
 									.getBlue(), null)[2] < .4f ? Color.WHITE
 							: Color.BLACK);
 				}
-				g.drawString(row.getKey().getString(),
+				g.drawString(
+						row.getKey().getString(),
 						directionLeftToRight ? point.x - visibleColumns.size()
 								* cellWidth
 								- fm.stringWidth(row.getKey().getString())
@@ -278,12 +279,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 						: getBackground());
 				break;
 			case FadeUnHilit:
-				g
-						.setColor(node.getContent().isSelected()
-								|| node.getContent().isHilite() ? ColorAttr.DEFAULT
-								.getColor(node.getContent().isSelected(), false)
-								: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
-										: ColorAttr.INACTIVE);
+				g.setColor(node.getContent().isSelected()
+						|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+						.getColor(node.getContent().isSelected(), false)
+						: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
+								: ColorAttr.INACTIVE);
 				break;
 			default:
 				break;
@@ -295,10 +295,12 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					assert node.getContent().getRows().size() == 1 : node
 							.getContent().getRows().size();
 					final Point point = node.getContent().getPoint();
-					g.drawRect(point.x
-							- (directionLeftToRight ? visibleColumns.size()
-									* cellWidth : 0), point.y - cellHeight / 2
-							+ 1, cellWidth * visibleColumns.size(), cellHeight);
+					g.drawRect(
+							point.x
+									- (directionLeftToRight ? visibleColumns
+											.size() * cellWidth : 0), point.y
+									- cellHeight / 2 + 1, cellWidth
+									* visibleColumns.size(), cellHeight);
 				}
 			} else {
 				((Graphics2D) g).setStroke(new BasicStroke(lineThickness));
@@ -328,13 +330,11 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 							: getBackground());
 					break;
 				case FadeUnHilit:
-					g
-							.setColor(node.getContent().isSelected()
-									|| node.getContent().isHilite() ? ColorAttr.DEFAULT
-									.getColor(node.getContent().isSelected(),
-											false)
-									: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
-											: ColorAttr.INACTIVE);
+					g.setColor(node.getContent().isSelected()
+							|| node.getContent().isHilite() ? ColorAttr.DEFAULT
+							.getColor(node.getContent().isSelected(), false)
+							: node.getContent().isSelected() ? ColorAttr.INACTIVE_SELECTED
+									: ColorAttr.INACTIVE);
 					break;
 				default:
 					break;
@@ -357,19 +357,17 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 				g.fillOval(dendroPoint.getPoint().x, dendroPoint.getPoint().y,
 						4, 4);
 			}
-			((Graphics2D) g).setStroke(backupStroke);
-			g.setColor(ColorAttr.SELECTED);
-			for (final int selectedIndex : selectedIndices) {
-				final int pos = leafX
-						+ (directionLeftToRight ? (selectedIndex - visibleColumns
-								.size())
-								* cellWidth
-								: selectedIndex * cellWidth);
-				g.drawLine(pos, 0, pos, getHeight());
-				g.drawLine(pos + cellWidth, 0, pos + cellWidth, getHeight());
-			}
-			g.setColor(backupColor);
 		}
+		((Graphics2D) g).setStroke(backupStroke);
+		g.setColor(ColorAttr.SELECTED);
+		for (final int selectedIndex : selectedIndices) {
+			final int pos = leafX
+					+ (directionLeftToRight ? (selectedIndex - visibleColumns
+							.size()) * cellWidth : selectedIndex * cellWidth);
+			g.drawLine(pos, 0, pos, getHeight());
+			g.drawLine(pos + cellWidth, 0, pos + cellWidth, getHeight());
+		}
+		g.setColor(backupColor);
 	}
 
 	/**
@@ -412,9 +410,9 @@ public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 					&& idx >= allCount) {
 				return keys[rowIdx];
 			}
-			final DataCell cell = nodeModel.getOrigData().getRow(
-					nodeModel.getMap().get(keys[rowIdx]).intValue()).getCell(
-					indices[idx]);
+			final DataCell cell = nodeModel.getOrigData()
+					.getRow(nodeModel.getMap().get(keys[rowIdx]).intValue())
+					.getCell(indices[idx]);
 			return "<html>"
 					+ visibleColumns.get(idx)
 					+ ": <b>"
