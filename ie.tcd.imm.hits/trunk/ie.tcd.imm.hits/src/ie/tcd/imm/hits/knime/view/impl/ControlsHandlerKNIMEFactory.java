@@ -274,7 +274,8 @@ public class ControlsHandlerKNIMEFactory
 		case RadioButton:
 		case Slider:
 		case Tab:
-		case TextField:
+		// FIXME uncheck when using the new common plugin
+		//case TextField:
 			final Integer sel = selections.iterator().next();
 			slider.selectSingle(sel);
 			break;
