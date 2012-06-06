@@ -166,90 +166,73 @@ Bscore <- function(object, save.model=FALSE) {
      overall.effects <- array(as.numeric(NA), dim=c(nrPlates, d[2:3]))
   }
 
-
   isSample <- (wellAnno(object)=="sample")
 
   for(p in 1:nrPlates) {
-    # use only sample wells for the fit:
+    ## use only sample wells for the fit:
     plateInds <-(1:nrWpP)+nrWpP*(p-1)
     samples = isSample[plateInds]
 
-    for(r in 1:nrSamples)
+    for(r in 1:nrSamples) {
       for(ch in 1:nrChannels) {
-#       y must be a numeric matrix with "plate rows" in rows and "plate columns" in columns:
+        ## y must be a numeric matrix with "plate rows" in rows and "plate columns" in columns:
         y <- ysamp <- xdat[plateInds, r, ch]
         if(!all(is.na(y))) {
-        ysamp[!samples]=NA
-        ysamp <- matrix(ysamp,
+          ysamp[!samples]=NA
+          ysamp <- matrix(ysamp,
+                          ncol=pdim(object)["ncol"],
+                          nrow=pdim(object)["nrow"], byrow=TRUE)
+          y = matrix(y,
             ncol=pdim(object)["ncol"], nrow=pdim(object)["nrow"], byrow=TRUE)
-        y = matrix(y,
-            ncol=pdim(object)["ncol"], nrow=pdim(object)["nrow"], byrow=TRUE)
-        m = medpolish(ysamp, eps = 1e-5, maxiter = 200, trace.iter=!TRUE, na.rm = TRUE)
+          m = medpolish(ysamp, eps = 1e-5, maxiter = 200, trace.iter=!TRUE, na.rm = TRUE)
+          
+          ## apply the model to all the plate wells and obtain the residuals rijp
+          ## replace NA by zero:
+          isNArow = is.na(m$row)
+          isNAcol = is.na(m$col)
+          isNA = outer(isNArow, isNAcol, "*")
+          m$row[isNArow]=0
+          m$col[isNAcol]=0
+          rowcol = outer(m$row, m$col, "+")
+          
+          res = y - (m$overall + rowcol) 
+          
+          ## if the effect is NA in both column and row elements, restore the NA value:
+          if (sum(isNA)) rowcol[as.logical(isNA)] = NA
+          ## res is a matrix plate row * plate column
+          xdat[plateInds, r, ch] <- as.vector(t(res))
+          
+          if (save.model) {
+            rowcol.effects[plateInds,r,ch] <- as.vector(t(rowcol))
+            overall.effects[p,r,ch]<-m$overall
+          } # if
+        } # if
+      } # for ch
+    }# for r
+  } # for p
 
-## apply the model to all the plate wells and obtain the residuals rijp
-## replace NA by zero:
-  isNArow = is.na(m$row)
-  isNAcol = is.na(m$col)
-  isNA = outer(isNArow, isNAcol, "*")
-  m$row[isNArow]=0
-  m$col[isNAcol]=0
-  rowcol = outer(m$row, m$col, "+")
+  if(save.model) {
+    object@rowcol.effects <- rowcol.effects
+    object@overall.effects <- overall.effects
+  }
 
-  res = y - (m$overall + rowcol) 
-
-# if the effect is NA in both column and row elements, restore the NA value:
-  if (sum(isNA)) rowcol[as.logical(isNA)] = NA
-    #res is a matrix plate row * plate column
-    xdat[plateInds, r, ch] <- as.vector(t(res))
-
-  if (save.model) {
-      rowcol.effects[plateInds,r,ch] <- as.vector(t(rowcol))
-      #residuals[,p,r,ch] = as.vector(t(m$residuals)) ## DON'T USE m$residuals, otherwise we'll have more NA 
-      overall.effects[p,r,ch]<-m$overall
-   }
-  } 
-} # ch
-}# p
-
- if(save.model) {
-   object@rowcol.effects <- rowcol.effects
-   object@overall.effects <- overall.effects
- }
-
-   Data(object) <- xdat
-   object@state[["normalized"]] = TRUE
-   validObject(object)
-   return(object)
+  Data(object) <- xdat
+  object@state[["normalized"]] = TRUE
+  validObject(object)
+  return(object)
 }
 
 
-##                 ------- spatialNormalization ---------
-##
-## Fit a polynomial surface within each plate to the plate corrected intensities using local fit.
-## uses a second degree polynomial (local quadratic fit)
-##
-## Inputs:
-##### x -  cellHTS object
-##### model  - fit the polynomial surface using robust "locfit" or "loess". The default is "locfit".
-##### smoothPar - the parameter which controls the degree of smoothing (corresponds to 'span' argument of loess, or to the parameter 'nn' of 'lp' of locfit). The default is smoothPar = 0.6
-##### save.model - should the fitted values be saved? Default=FALSE. If TRUE, the fitted values are stored in the slot 'rowcol.effects'. 
-## -------------------------------------------------------------
-
-spatialNormalization <- function(object, model="locfit", smoothPar=0.6, save.model=FALSE){
+## ------- spatialNormalization ---------
+spatialNormalization <- function(object, save.model=FALSE, ...){
    
-  if(!inherits(object, "cellHTS")) stop("'object' should be of 'cellHTS' class.")
+  if(!inherits(object, "cellHTS"))
+    stop("'object' should be of 'cellHTS' class.")
  
   if(!state(object)[["configured"]])
     stop("Please configure 'object' (using the function 'configure') before normalization.")
 
-
-
-  ## acts on slot 'assayData'
   xnorm <- Data(object)
-
-  if (model=="locfit")  require("locfit") || stop("Package 'locfit' was not found and
-needs to be installed.")
-
 
   d <- dim(xnorm)
   nrWpP <- prod(pdim(object))
@@ -260,7 +243,8 @@ needs to be installed.")
   rowcol.effects <- array(as.numeric(NA), dim=d)
   posn <- 1:nrWpP
 
-## Map the position in the plates into a (x,y) coordinates of a cartesian system having its origin at the centre of the plate
+  ## Map the position in the plates into a (x,y) coordinates of a cartesian system
+  ## having its origin at the centre of the plate
   row <- 1 +(posn-1) %/% pdim(object)[["ncol"]]
   col <- 1 + (posn-1) %% pdim(object)[["ncol"]]
   centre <- 0.5 + c(pdim(object)[["ncol"]]/2, pdim(object)[["nrow"]]/2) 
@@ -269,63 +253,36 @@ needs to be installed.")
 
   wAnno <- wellAnno(object)
 
-  for(p in 1:nrPlates) {
-    # use only sample wells for the fit:
-    plateInds <- (1:nrWpP)+nrWpP*(p-1)
-    samples <- (wAnno[plateInds]=="sample")
+  for(p in seq_len(nrPlates)) {
+    ## use only sample wells for the fit:
+    plateInds = (1:nrWpP)+nrWpP*(p-1)
+    isSample = (wAnno[plateInds]=="sample")
 
     for(r in 1:nrSamples)
       for(ch in 1:nrChannels){
-        y <- ysamp <- xnorm[plateInds, r, ch]
-        if(!all(is.na(y))) {
-          ysamp[!samples] <- NA
-          y <- yf <- data.frame(y=y, xpos=xpos, ypos=ypos)
-          yf$xpos <- factor(xpos)
-          yf$ypos <- factor(ypos)
-          ysamp <- yfsamp <- data.frame(y=ysamp, xpos=xpos, ypos=ypos)
-          yfsamp$xpos <- factor(xpos)
-          yfsamp$ypos <- factor(ypos)
+        df = data.frame(y=xnorm[plateInds, r, ch], xpos=xpos, ypos=ypos)
+        if (all(is.na(df$y)))
+          next
 
-          ## Correct for spatial effects inside the plate using robust local fit
-          posNAs <- is.na(ysamp$y)
-          ysamp_complete <- ysamp[!posNAs,]
-          yfsamp_complete <- yfsamp[!posNAs,]
-          m = switch(model,
-            "loess" = loess(y ~ xpos + ypos, data=ysamp_complete, normalize=TRUE, span=smoothPar,
-                          control = loess.control(iterations=40)),
-            "locfit" = locfit(y ~ lp(xpos, ypos, nn=smoothPar, scale=TRUE),
-                          data = yfsamp_complete, lfproc=locfit.robust),
-            stop(sprintf("Invalid value '%s' for argument 'model'", model))
-          )
+        sdf = subset(df, isSample & (!is.na(df$y)))
+        m = locfit(y ~ lp(xpos, ypos, ...), data = sdf, lfproc=locfit.robust)
+        predx = predict(m, newdata=df)
 
-        # apply the model to all the plate wells and obtain the residuals rijp
-        predx <- switch(model,
-          "loess" <- predict(m, newdata=y),
-          "locfit" <- predict(m, newdata=yf))
-
-        #replace predicted NA by 0 to avoid having extra NA entries in xn:
-        isNA <- is.na(predx)
-        predx[isNA] <- 0  # safe, because we are going to perform a subtraction
-        xnorm[plateInds,r,ch] <- y$y - predx
-        # put back to NAs
-        predx[isNA] <- NA  
-
-        rowcol.effects[plateInds,r,ch] = predx
-        }#if all is.na
-
-        }#for channel
-    }#for replicate
+        xnorm[plateInds, r, ch] = df$y - predx
+        rowcol.effects[plateInds, r, ch] = predx
+      }#for channel
+  }#for replicate
 
   if (save.model) {
-     object@rowcol.effects <- rowcol.effects
+     object@rowcol.effects = rowcol.effects
      ## reset overall.effects to default of 'cellHTS' class to avoid problems in validity:
      object@overall.effects <-new("cellHTS")@overall.effects
    }
 
   object@state["normalized"] = TRUE
-  Data(object) <- xnorm
+  Data(object) = xnorm
   validObject(object)
   return(object)
-} #end function
+} 
 
 

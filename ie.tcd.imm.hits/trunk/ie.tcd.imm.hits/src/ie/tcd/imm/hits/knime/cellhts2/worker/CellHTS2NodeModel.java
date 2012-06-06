@@ -133,14 +133,14 @@ public class CellHTS2NodeModel extends NodeModel {
 	 */
 	static final String[] POSSIBLE_NORMALISATION_METHODS_LOCFIT = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
-			"shorth", "locfit", "loess" };
+			"shorth", "locfit" };
 	/**
 	 * Possible values of the normalisation methods when {@code locfit} is
 	 * installed, and custom normalisation is also allowed.
 	 */
 	static final String[] POSSIBLE_NORMALISATION_METHODS_LOCFIT_EXPERIMENTAL = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
-			"shorth", "locfit", "loess", "customA", "customB", "customC" };
+			"shorth", "locfit", "customA", "customB", "customC" };
 	/** Possible values of the normalisation methods. */
 	static final String[] POSSIBLE_NORMALISATION_METHODS = new String[] {
 			"every", "median", "Bscore", "POC", "negatives", "NPI", "mean",
@@ -320,36 +320,46 @@ public class CellHTS2NodeModel extends NodeModel {
 		/**
 		 * Original cellHTS2 without modifications, before version {@code 2.8.0}
 		 */
-		originalPre28(false, true),
+		originalPre28(false, true, "2.7"),
 		/** HiTS modified cellHTS2 before version {@code 2.8.0} */
-		modifiedPre28(true, true),
+		modifiedPre28(true, true, "2.7"),
 		/**
 		 * Original cellHTS2 without modifications, at least version {@code
 		 * 2.8.0}
 		 */
-		original28OrCompat(false, false),
+		original28OrCompat(false, false, "2.8"),
 		/** HiTS modified cellHTS2 after version {@code 2.8.0} */
-		modified28OrCompat(true, false),
+		modified28OrCompat(true, false, "2.8"),
 		/**
 		 * Original cellHTS2 without modifications, at least version {@code
 		 * 2.10.0}
 		 */
-		original210OrCompat(false, false, false),
+		original210OrCompat(false, false, false, "2.10"),
 		/** HiTS modified cellHTS2 after version {@code 2.10.0} */
-		modified210OrCompat(true, false, false);
+		modified210OrCompat(true, false, false, "2.10"),
+		/**
+		 * Original cellHTS2 without modifications, at least version {@code
+		 * 2.12.0}
+		 */
+		original212OrCompat(false, false, false, "2.12"),
+		/** HiTS modified cellHTS2 after version {@code 2.12.0} */
+		modified212OrCompat(true, false, false, "2.12");
 
 		private final boolean modified, pre28;
 		private final boolean pre210;
+		
+		private final String versionFolder;
 
-		private CellHTS2Version(final boolean modified, final boolean pre28) {
-			this(modified, pre28, true);
+		private CellHTS2Version(final boolean modified, final boolean pre28, String versionFolder) {
+			this(modified, pre28, true, versionFolder);
 		}
 
 		private CellHTS2Version(final boolean modified, final boolean pre28,
-				final boolean pre210) {
+				final boolean pre210, String versionFolder) {
 			this.modified = modified;
 			this.pre28 = pre28;
 			this.pre210 = pre210;
+			this.versionFolder = versionFolder;
 		}
 
 		public boolean isModified() {
@@ -365,6 +375,10 @@ public class CellHTS2NodeModel extends NodeModel {
 		 */
 		public boolean isPre210() {
 			return pre210;
+		}
+		
+		public String getVersionFolder() {
+			return versionFolder;
 		}
 	}
 
@@ -424,6 +438,8 @@ public class CellHTS2NodeModel extends NodeModel {
 				version = CellHTS2Version.original28OrCompat;
 			} else if (cellHTS2Version.matches("2\\.10\\.\\d*")) {
 				version = CellHTS2Version.original210OrCompat;
+			} else if (cellHTS2Version.matches("2\\.12\\.\\d*")) {
+				version = CellHTS2Version.original212OrCompat;
 			} else {
 				throw new IllegalStateException(
 						"This R installation has no supported cellHTS2 installed.");
@@ -453,7 +469,7 @@ public class CellHTS2NodeModel extends NodeModel {
 						.substring(1)));
 			}
 			exec.checkCanceled();
-			final int wellCount = wellRowCount * wellColCount < 96 ? 96 : 384;
+			final int wellCount = wellRowCount * wellColCount <= 96 ? 96 : 384;
 			switch (wellCount)
 			{
 			case 96:
@@ -513,6 +529,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			switch (version) {
 			case modified28OrCompat:
 			case modified210OrCompat:
+			case modified212OrCompat:
 				additionalParams = ", colOrder=c(" + createColOrderString()
 						+ ")";
 				break;
@@ -524,6 +541,7 @@ public class CellHTS2NodeModel extends NodeModel {
 			case original28OrCompat:
 			case originalPre28:
 			case original210OrCompat:
+			case original212OrCompat:
 				additionalParams = "";
 				break;
 			default:
@@ -940,8 +958,7 @@ public class CellHTS2NodeModel extends NodeModel {
 								.getDefault().getBundle()).getBundleData())
 								.getBundleFile().getBaseFile(), "bin/r/");
 				final File rSpecDir = new File(rSourcesDir,
-						(version.isPre28() ? "2.7" : version.isPre210() ? "2.8"
-								: "2.10"));
+						version.getVersionFolder());
 				if (Boolean.parseBoolean(System.getProperty(PROPERTY_EXPERT))) {
 					RUtil.voidEval(conn, "setwd(\""
 							+ rSourcesDir.getAbsolutePath().replace('\\', '/')
@@ -973,6 +990,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					version = CellHTS2Version.modifiedPre28;
 					break;
 				case original210OrCompat:
+				case original212OrCompat:
 					RUtil.voidEval(conn, "source(\"settings.R\")");
 				case original28OrCompat:
 					RUtil.voidEval(conn, "library(\"prada\")");
@@ -998,6 +1016,7 @@ public class CellHTS2NodeModel extends NodeModel {
 					RUtil.voidEval(conn, "source(\"screenSummaryModule.R\")\n");
 					RUtil.voidEval(conn, "source(\"writeReport.R\")\n");
 					version = version == CellHTS2Version.original210OrCompat ? CellHTS2Version.modified210OrCompat
+							: version == CellHTS2Version.original212OrCompat ? CellHTS2Version.modified212OrCompat
 							: CellHTS2Version.modified28OrCompat;
 					break;
 				default:
@@ -1179,6 +1198,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		switch (version) {
 		case modified28OrCompat:
 		case modified210OrCompat:
+		case modified212OrCompat:
 			final List<String> ret = new ArrayList<String>(includeList);
 			Collections.sort(ret, String.CASE_INSENSITIVE_ORDER);
 			return ret;
@@ -1186,6 +1206,7 @@ public class CellHTS2NodeModel extends NodeModel {
 		case original28OrCompat:
 		case originalPre28:
 		case original210OrCompat:
+		case original212OrCompat:
 			return includeList;
 
 		default:
@@ -1389,6 +1410,8 @@ public class CellHTS2NodeModel extends NodeModel {
 							case original28OrCompat:
 							case original210OrCompat:
 							case modified210OrCompat:
+							case modified212OrCompat:
+							case original212OrCompat:
 								writer
 										.write(String
 												.format(
@@ -1911,6 +1934,8 @@ public class CellHTS2NodeModel extends NodeModel {
 				case original28OrCompat:
 				case modified210OrCompat:
 				case original210OrCompat:
+				case modified212OrCompat:
+				case original212OrCompat:
 					channels.append("\"").append(parameters.get(i - 1));
 					break;
 				case modifiedPre28:

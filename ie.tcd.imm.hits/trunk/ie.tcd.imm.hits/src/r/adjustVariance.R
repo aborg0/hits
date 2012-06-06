@@ -31,43 +31,41 @@ adjustVariancebyBatch <- function(object)
     nrWpP <- prod(pdim(object))
     nrSamples <- d[2]
     nrChannels <- d[3]
+    nrPlates <- max(plate(object))
     samps <- (wellAnno(object)=="sample")
 
-    ## check if 'batch' slot is available:
-    ## (as it is defined, the batch slot allows to have batches changing with plate,
-    ## replicate and channel.
-    ## 'batch' slot should be an array with the same dimensions of Data(object)
+    ## check if 'batch' info is available:
     bb <- batch(object)
     if(is.null(bb))
-		stop("Please add the batch information using the 'batch' method. This should be ",
-				"an array with number of rows equal to number of plates and number of columns",
-				" equal to number of samples.")
-	if(nrow(bb) != nrPlates || ncol(bb) != nrSamples)
-		stop(sprintf("'batch' should have dimensions 'Plates x Samples' (%s).",
-						paste(c(nrPlates, nrSamples), collapse=" x ")))
-	nrBatches <- nbatch(object)
-	for(r in 1:nrSamples)
-	{
-		#wellsPerBatch <- split(plate(object), bb[,r,ch])
-		for(ch in 1:nrChannels)
-		{
-			#platesPerBatch <- split(plate(object), bb[,r,ch])
-			#nrB <- length(platesPerBatch) # this number depends on the channel and replicate
-			for(b in 1:nrBatches)
-			{
-				thisBatch <- which(bb[,r] == b)
-				if(length(thisBatch))
-				{
-					plateInd <- as.vector(mapply(function(from, to) from:to, to=thisBatch*nrWpP,
-									from=(thisBatch*nrWpP)-nrWpP+1))
-					spp <- samps[plateInd]
-					xnorm[plateInd,r,ch] <-
-							xnorm[plateInd,r,ch]/mad(xnorm[plateInd,r,ch][spp], na.rm=TRUE)
-				}
-			}#batch
-		}#channel
-	}#sample
-	return(xnorm)
+        stop("Please add the batch information using the 'batch' method. This should be ",
+             "an array with number of rows equal to number of plates and number of columns",
+             " equal to number of samples.")
+    if(nrow(bb) != nrPlates || ncol(bb) != nrSamples)
+        stop(sprintf("'batch' should have dimensions 'Plates x Samples' (%s).",
+                     paste(c(nrPlates, nrSamples), collapse=" x ")))
+    nrBatches <- nbatch(object)
+    for(r in 1:nrSamples)
+    {
+        #wellsPerBatch <- split(plate(object), bb[,r,ch])
+        for(ch in 1:nrChannels)
+        {
+            #platesPerBatch <- split(plate(object), bb[,r,ch])
+            #nrB <- length(platesPerBatch) # this number depends on the channel and replicate
+            for(b in 1:nrBatches)
+            {
+                thisBatch <- which(bb[,r] == b)
+                if(length(thisBatch))
+                {
+                    plateInd <- as.vector(mapply(function(from, to) from:to, to=thisBatch*nrWpP,
+                                                 from=(thisBatch*nrWpP)-nrWpP+1))
+                    spp <- samps[plateInd]
+                    xnorm[plateInd,r,ch] <-
+                        xnorm[plateInd,r,ch]/mad(xnorm[plateInd,r,ch][spp], na.rm=TRUE)
+                }
+            }#batch
+        }#channel
+    }#sample
+    return(xnorm)
 }
 
 

@@ -82,7 +82,7 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
     }
     
     ## 2. Plate-by-plate adjustment:
-    allowedFunctions <- c("mean", "median", "shorth", "negatives", "POC", "NPI", "Bscore", "loess", "locfit")
+    allowedFunctions <- c("mean", "median", "shorth", "negatives", "POC", "NPI", "Bscore", "locfit")
     ## overwrite assayData with the new data 
     object <- switch(method,
                      "mean" = perPlateScaling(object, scale, method),
@@ -92,8 +92,7 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
                      "POC" = controlsBasedNormalization(object, method, posControls, negControls),
                      "NPI" = controlsBasedNormalization(object, method, posControls, negControls),
                      "Bscore" = Bscore(object, ...),
-                     "loess" = spatialNormalization(object, model="loess", ...), 
-                     "locfit" = spatialNormalization(object, model="locfit", ...),
+                     "locfit" = spatialNormalization(object, ...),
                      "customA" = customA(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
                      "customB" = customB(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
                      "customC" = customC(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
