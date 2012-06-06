@@ -1,6 +1,14 @@
 #summary Changes in the project
 
 = HiTS =
+== Changes from 0.5.4 to 0.5.5 ==
+Date: 6th June 2012
+
+Added support for cellHTS2 2.12 and 2.14 versions. This also introduced the loss of loess normalisation.
+
+Bug fixes:
+ * Problem with 96 well plates fixed.
+
 == Changes from 0.5.3 to 0.5.4 ==
 Date: 5th July 2010
 
