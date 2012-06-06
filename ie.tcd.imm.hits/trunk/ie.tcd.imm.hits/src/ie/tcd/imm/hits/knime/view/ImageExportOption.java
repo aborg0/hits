@@ -66,6 +66,7 @@ public enum ImageExportOption implements Displayable, ComponentPainter {
 			if (size.width <= 0 || size.width <= 0) {
 				size = new Dimension(300, 300);
 			}
+			component.setSize(size);
 			final BufferedImage image = new BufferedImage(size.width,
 					size.height, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g = image.createGraphics();

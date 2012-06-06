@@ -139,10 +139,12 @@ summarizeChannels <- function(object, fun=function(r1, r2, thresh=-Inf)
     
     ## store the summarized data in 'assayData' slot:
     ## 1) remove channel 2:
-    chNames <- assayDataElementNames(object) 
-    assayDataElement(object, chNames[2:nrChans]) <- NULL
+	chNames <- assayDataElementNames(object) 
+	assayDataElement(object, chNames[2:nrChans]) <- NULL
     ## 2) replace the contents of the (single) remaining channel by the new summarized values:
     Data(object) <- xnorm
+	if (regexpr("2\\.[12][^0123]\\..", package.version("cellHTS2")) == 1)
+		channelNames(object) <- "summarized"
     ## 3) State is now considered to be normalized
     if(!state(object)["normalized"])     
         object@processingInfo[["normalized"]] <- "channel summarization"
