@@ -31,7 +31,7 @@ http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/Heatma
 http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/simpleHeatmapView.png
 
 == Heatmap with Dendrogram ==
-http://hits.googlecode.com/svn/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/help/heatmapDendrogramView.png
+http://hits.googlecode.com/svn/ie.tcd.imm.hits.exp/trunk/ie.tcd.imm.hits.exp/help/heatmapDendrogramView.png
 
 <wiki:video url="http://www.youtube.com/watch?v=wJNyGALgnJY" width="640" height="480">
 
