@@ -6,7 +6,6 @@ import ie.tcd.imm.hits.knime.interop.config.Default;
 import ie.tcd.imm.hits.knime.interop.config.Root;
 import ie.tcd.imm.hits.knime.util.TransformingNodeModel;
 import ie.tcd.imm.hits.util.Misc;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.CompoundToken;
 import ie.tcd.imm.hits.util.template.SimpleToken;
 import ie.tcd.imm.hits.util.template.Token;
@@ -25,10 +24,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +64,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.util.Pair;
 import org.xml.sax.SAXException;
 
 /**
@@ -117,11 +117,11 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 				if (dt != DialogType.type) {
 					tmp
 							.add(new Pair<Pair<ColumnType, Boolean>, DialogType>(
-									new Pair<ColumnType, Boolean>(colType,
+									Pair.create(colType,
 											Boolean.TRUE), dt));
 				}
 				tmp.add(new Pair<Pair<ColumnType, Boolean>, DialogType>(
-						new Pair<ColumnType, Boolean>(colType, Boolean.FALSE),
+						Pair.create(colType, Boolean.FALSE),
 						dt));
 			}
 		}
@@ -256,7 +256,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		try {
-			return new DataTableSpec[] { createRearranger(inSpecs[0]).getLeft()
+			return new DataTableSpec[] { createRearranger(inSpecs[0]).getFirst()
 					.createSpec() };
 		} catch (final TokenizeException e) {
 			logger.warn("Problem: " + e.getMessage(), e);
@@ -271,8 +271,8 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		final Pair<ColumnRearranger, Map<String, Set<DataCell>>> pair = createRearranger(inData[0]
 				.getDataTableSpec());
 		final BufferedDataTable table = exec.createColumnRearrangeTable(
-				inData[0], pair.getLeft(), exec);
-		final Map<String, Set<DataCell>> domains = pair.getRight();
+				inData[0], pair.getFirst(), exec);
+		final Map<String, Set<DataCell>> domains = pair.getSecond();
 		final DataColumnSpec[] newSpecs = new DataColumnSpec[table
 				.getDataTableSpec().getNumColumns()];
 		for (int i = table.getDataTableSpec().getNumColumns(); i-- > 0;) {
@@ -293,7 +293,6 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 				newSpec) };
 	}
 
-	@SuppressWarnings("unchecked")
 	private static final List<Class<? extends Token>> acceptedTokens = Arrays
 			.asList(SimpleToken.class, CompoundToken.class);
 
@@ -639,7 +638,7 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 	/**
 	 * @return The initial state of the {@link Tokenizer}.
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings("NP")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("NP")
 	private Pair<Token, List<? extends Token>> createContinueState() {
 		return new Pair<Token, List<? extends Token>>(null,
 				new ArrayList<Token>());
@@ -776,12 +775,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.saveSettingsTo(settings);
 		generateMissing.saveSettingsTo(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			if (outPair.getRight() == DialogType.position) {
-				positionModels.get(outPair.getLeft().getLeft()).saveSettingsTo(
+			if (outPair.getSecond() == DialogType.position) {
+				positionModels.get(outPair.getFirst().getFirst()).saveSettingsTo(
 						settings);
 			} else {
-				settingsModels.get(outPair.getLeft().getLeft()).get(
-						outPair.getLeft().getRight()).get(outPair.getRight())
+				settingsModels.get(outPair.getFirst().getFirst()).get(
+						outPair.getFirst().getSecond()).get(outPair.getSecond())
 						.saveSettingsTo(settings);
 			}
 		}
@@ -797,12 +796,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.loadSettingsFrom(settings);
 		generateMissing.loadSettingsFrom(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			if (outPair.getRight() == DialogType.position) {
-				positionModels.get(outPair.getLeft().getLeft())
+			if (outPair.getSecond() == DialogType.position) {
+				positionModels.get(outPair.getFirst().getFirst())
 						.loadSettingsFrom(settings);
 			} else {
-				settingsModels.get(outPair.getLeft().getLeft()).get(
-						outPair.getLeft().getRight()).get(outPair.getRight())
+				settingsModels.get(outPair.getFirst().getFirst()).get(
+						outPair.getFirst().getSecond()).get(outPair.getSecond())
 						.loadSettingsFrom(settings);
 			}
 		}
@@ -818,12 +817,12 @@ public class BioConverterNodeModel extends TransformingNodeModel {
 		keepOriginal.validateSettings(settings);
 		generateMissing.validateSettings(settings);
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> outPair : possibleKeys()) {
-			if (outPair.getRight() == DialogType.position) {
-				positionModels.get(outPair.getLeft().getLeft())
+			if (outPair.getSecond() == DialogType.position) {
+				positionModels.get(outPair.getFirst().getFirst())
 						.validateSettings(settings);
 			} else {
-				settingsModels.get(outPair.getLeft().getLeft()).get(
-						outPair.getLeft().getRight()).get(outPair.getRight())
+				settingsModels.get(outPair.getFirst().getFirst()).get(
+						outPair.getFirst().getSecond()).get(outPair.getSecond())
 						.validateSettings(settings);
 			}
 		}

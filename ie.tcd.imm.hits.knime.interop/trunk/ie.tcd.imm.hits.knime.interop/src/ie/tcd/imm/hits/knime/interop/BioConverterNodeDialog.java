@@ -4,7 +4,6 @@ import ie.tcd.imm.hits.knime.interop.config.Profile;
 import ie.tcd.imm.hits.knime.interop.config.Root;
 import ie.tcd.imm.hits.knime.interop.config.Value;
 import ie.tcd.imm.hits.util.Displayable;
-import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +34,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.util.Pair;
 
 /**
  * <code>NodeDialog</code> for the "BioConverter" Node. Converts between
@@ -158,14 +158,14 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 						.get(profile.getExtends());
 				for (final Pair<Pair<ColumnType, Boolean>, DialogType> pair : BioConverterNodeModel
 						.possibleKeys()) {
-					if (pair.getLeft().getRight().booleanValue() == profile
+					if (pair.getFirst().getSecond().booleanValue() == profile
 							.isInput()) {
-						setPattern(profile.getName(), pair.getLeft().getLeft(),
-								pair.getLeft().getRight().booleanValue(), pair
-										.getRight(), ancestor.get(
-										pair.getLeft().getLeft()).get(
-										pair.getLeft().getRight()).get(
-										pair.getRight()));
+						setPattern(profile.getName(), pair.getFirst().getFirst(),
+								pair.getFirst().getSecond().booleanValue(), pair
+										.getSecond(), ancestor.get(
+										pair.getFirst().getFirst()).get(
+										pair.getFirst().getSecond()).get(
+										pair.getSecond()));
 					}
 				}
 			}
@@ -338,10 +338,10 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final Map<ColumnType, Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>>> components) {
 		for (final Pair<Pair<ColumnType, Boolean>, DialogType> pair : BioConverterNodeModel
 				.possibleKeys()) {
-			final DialogType dialogType = pair.getRight();
+			final DialogType dialogType = pair.getSecond();
 			if (dialogType == DialogType.group) {
-				final ColumnType columnType = pair.getLeft().getLeft();
-				final boolean input = pair.getLeft().getRight().booleanValue();
+				final ColumnType columnType = pair.getFirst().getFirst();
+				final boolean input = pair.getFirst().getSecond().booleanValue();
 				final DialogType[] nonGroups = DialogType.nonGroups(input);
 				final DialogComponentWithDefaults groupComponent = new DialogComponentWithDefaults(
 						new SettingsModelString(BioConverterNodeModel
@@ -350,12 +350,12 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 										columnType, input, dialogType)),
 						DialogType.group.name(), createEnablementMap(root,
 								nonGroups), collectPatterns(columnType, pair
-								.getLeft().getRight().booleanValue()),
+								.getFirst().getSecond().booleanValue()),
 						"custom", select(components, columnType, Arrays
 								.asList(nonGroups), input));
 				final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> p = components
 						.get(columnType);
-				(input ? p.getLeft() : p.getRight()).put(DialogType.group,
+				(input ? p.getFirst() : p.getSecond()).put(DialogType.group,
 						groupComponent);
 			}
 		}
@@ -462,7 +462,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 						throw new UnsupportedOperationException(
 								"Not supported type: " + dialogType.getClass());
 					}
-					(left ? pair.getLeft() : pair.getRight()).put(dialogType,
+					(left ? pair.getFirst() : pair.getSecond()).put(dialogType,
 							dialog);
 				}
 			}
@@ -581,7 +581,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final DialogType type, final boolean input) {
 		final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> pair = components
 				.get(colType);
-		final DialogComponent ret = (input ? pair.getLeft() : pair.getRight())
+		final DialogComponent ret = (input ? pair.getFirst() : pair.getSecond())
 				.get(type);
 		if (ret == null) {
 			throw new NullPointerException();
@@ -612,7 +612,7 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 			final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> value = entry
 					.getValue();
 			final Map<DialogType, DialogComponent> map = input ? value
-					.getLeft() : value.getRight();
+					.getFirst() : value.getSecond();
 			ret[i++] = map.get(type);
 		}
 		return ret;
@@ -642,8 +642,8 @@ public class BioConverterNodeDialog extends DefaultNodeSettingsPane {
 		int i = 0;
 		final Pair<Map<DialogType, DialogComponent>, Map<DialogType, DialogComponent>> value = components
 				.get(columnType);
-		final Map<DialogType, DialogComponent> map = input ? value.getLeft()
-				: value.getRight();
+		final Map<DialogType, DialogComponent> map = input ? value.getFirst()
+				: value.getSecond();
 		for (final DialogType type : types) {
 			ret[i++] = map.get(type);
 		}

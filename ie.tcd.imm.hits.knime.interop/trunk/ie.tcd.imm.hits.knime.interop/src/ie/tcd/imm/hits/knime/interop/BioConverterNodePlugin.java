@@ -26,7 +26,7 @@ public class BioConverterNodePlugin extends Plugin {
 	/**
 	 * The constructor.
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings("ST")
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("ST")
 	public BioConverterNodePlugin() {
 		super();
 		plugin = this;

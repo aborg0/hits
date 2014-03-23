@@ -21,8 +21,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * This {@link DialogComponent} allows to combine various
  * {@link DialogComponent}s and set their defaults.
@@ -32,10 +30,11 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  */
 // TODO save last used values. <br/>
 // TODO add option to guess the initial value.
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class DialogComponentWithDefaults extends DialogComponent {
 
-	private final JComboBox selectionBox = new JComboBox();
+	private final JComboBox<String> selectionBox = new JComboBox<>();
 	private final Map<String, Boolean[]> enablementOptions;
 	private final Map<String, Object[]> defaultValues;
 	private final DialogComponent[] components;
