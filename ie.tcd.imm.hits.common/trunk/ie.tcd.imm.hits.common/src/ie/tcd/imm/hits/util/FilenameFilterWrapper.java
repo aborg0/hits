@@ -10,12 +10,11 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.swing.filechooser.FileFilter;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * Wraps a {@link FilenameFilter} to a {@link FileFilter}.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class FilenameFilterWrapper extends FileFilter {
 
 	private final FilenameFilter filenameFilter;

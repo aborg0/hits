@@ -7,8 +7,6 @@ import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A ({@link Serializable}) triple of {@link Serializable} objects.
  * 
@@ -20,7 +18,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Type3>
  *            The type of the third object.
  */
-@DefaultAnnotation( { CheckReturnValue.class })
+@CheckReturnValue
 public class SerializableTriple<Type1 extends Serializable, Type2 extends Serializable, Type3 extends Serializable>
 		implements Serializable, ITriple<Type1, Type2, Type3> {
 	private static final long serialVersionUID = 346626861413922725L;

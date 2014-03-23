@@ -97,7 +97,8 @@ public class TokenizerHelper {
 	 * @return The list of filtered elements. Does not contain {@code null}
 	 *         values.
 	 */
-	protected <T extends Token> List<T> filter(
+	@SafeVarargs
+	final protected <T extends Token> List<T> filter(
 			final Iterable<? extends Token> tokens,
 			final boolean goIntoCompounds,
 			final Class<? extends T>... tokenClasses) {

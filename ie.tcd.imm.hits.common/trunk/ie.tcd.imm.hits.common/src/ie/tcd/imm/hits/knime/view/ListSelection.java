@@ -9,8 +9,6 @@ import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * This interface is to select a set of values from a list of values.
  * 
@@ -18,7 +16,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Type>
  *            The type of the values.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public interface ListSelection<Type> {
 
 	/**

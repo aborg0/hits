@@ -28,6 +28,7 @@ public class SettingsModelEnumWithIcon<EnumType extends Enum<EnumType> & Display
 	 * @param enumValues
 	 *            The allowed values.
 	 */
+	@SafeVarargs
 	public SettingsModelEnumWithIcon(final String configName,
 			final String defaultValue, final EnumType... enumValues) {
 		super(configName, defaultValue, enumValues);
@@ -41,6 +42,7 @@ public class SettingsModelEnumWithIcon<EnumType extends Enum<EnumType> & Display
 	 * @param enumValues
 	 *            The allowed values.
 	 */
+	@SafeVarargs
 	public SettingsModelEnumWithIcon(final String configName,
 			final EnumType defaultValue, final EnumType... enumValues) {
 		super(configName, defaultValue.getDisplayText(), enumValues);

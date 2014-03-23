@@ -4,11 +4,10 @@
 /**
  * Various helper classes.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 package ie.tcd.imm.hits.util;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 

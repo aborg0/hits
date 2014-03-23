@@ -3,7 +3,6 @@
  */
 package ie.tcd.imm.hits.util.template;
 
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.impl.FilterTokenizer;
 import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer;
 import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer;
@@ -15,7 +14,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.RegEx;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import org.knime.core.util.Pair;
 
 /**
  * This class provides some methods to create {@link Tokenizer} implementations
@@ -26,7 +25,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class TokenizerFactory {
 
 	/**
@@ -114,7 +114,7 @@ public class TokenizerFactory {
 			final Pair<? extends Token, ? extends List<? extends Token>> continueState,
 			final Pattern groupStart, final Pattern groupEnd, final int offset) {
 		return new FilterTokenizer(new GroupingTokenizer(offset, groupStart,
-				groupEnd, continueState.getLeft(), continueState.getRight()));
+				groupEnd, continueState.getFirst(), continueState.getSecond()));
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class TokenizerFactory {
 			final boolean goIntoCompounds, final Pattern groupStart,
 			final Pattern groupEnd, final int offset) {
 		return new FilterTokenizer(new GroupingTokenizer(offset, groupStart,
-				groupEnd, continueState.getLeft(), continueState.getRight()),
+				groupEnd, continueState.getFirst(), continueState.getSecond()),
 				goIntoCompounds, acceptedClasses
 						.toArray(new Class[acceptedClasses.size()]));
 	}

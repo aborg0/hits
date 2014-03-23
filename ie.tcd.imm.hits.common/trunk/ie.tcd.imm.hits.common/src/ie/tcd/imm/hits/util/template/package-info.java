@@ -6,11 +6,10 @@
  * <p>
  * The {@link TokenizerFactory} allows you to create implementations to your needs.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 package ie.tcd.imm.hits.util.template;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 

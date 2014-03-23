@@ -4,6 +4,6 @@
 /**
  * Classes in this package are general purpose utility classes for Swing.
  */
-@edu.umd.cs.findbugs.annotations.DefaultAnnotation( {
-		javax.annotation.Nonnull.class, javax.annotation.CheckReturnValue.class })
+@javax.annotation.Nonnull
+@javax.annotation.CheckReturnValue
 package ie.tcd.imm.hits.util.swing;

@@ -25,14 +25,13 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A {@link SettingsModel} for {@link ListSelection}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class SettingsModelListSelection extends SettingsModel implements
 		ListSelection<String> {
 

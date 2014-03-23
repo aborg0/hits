@@ -189,7 +189,7 @@ public class OpenStream {
 				logger.warn(CORE_NET_BUNDLE + " bundle not activated.", e);
 			}
 		}
-		final ServiceReference ref = bundle.getBundleContext()
+		final ServiceReference<?> ref = bundle.getBundleContext()
 				.getServiceReference(IProxyService.class.getName());
 		if (ref != null) {
 			return (IProxyService) bundle.getBundleContext().getService(ref);

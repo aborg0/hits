@@ -5,7 +5,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -20,9 +19,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -33,8 +32,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import org.knime.core.util.Pair;
 
 /**
  * This factory helps to handle {@link VariableControl}s.
@@ -45,7 +43,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 @NotThreadSafe
 public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectable<Model>>
 		implements ControlsHandler<SettingsModel, Model, Sel> {
@@ -631,7 +630,7 @@ public abstract class ControlsHandlerAbstractFactory<Model, Sel extends Selectab
 					continue;
 				}
 				if (view.equals(contEntry.getValue().get())) {
-					if (ret == null || ret.getRight() == null) {
+					if (ret == null || ret.getSecond() == null) {
 						ret = new Pair<SplitType, String>(entry.getKey(),
 								contEntry.getKey());
 					}

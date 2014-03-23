@@ -7,14 +7,13 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * Some always useful methods.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class Misc {
 	private Misc() {
 		super();

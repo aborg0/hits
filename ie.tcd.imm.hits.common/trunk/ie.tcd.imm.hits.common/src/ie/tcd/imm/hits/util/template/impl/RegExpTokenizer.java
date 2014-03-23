@@ -4,11 +4,11 @@
 package ie.tcd.imm.hits.util.template.impl;
 
 import ie.tcd.imm.hits.util.template.AbstractToken;
+import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 import ie.tcd.imm.hits.util.template.SimpleToken;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
-import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,14 +20,13 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.RegEx;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A simple, {@link Pattern#split(CharSequence) split}-based {@link Tokenizer}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class RegExpTokenizer extends TokenizerHelper implements Tokenizer,
 		Serializable {
 	private static final long serialVersionUID = 7828487000830931865L;

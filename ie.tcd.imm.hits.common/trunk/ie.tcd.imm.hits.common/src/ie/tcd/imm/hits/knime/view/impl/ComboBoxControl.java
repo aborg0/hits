@@ -25,8 +25,6 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#ComboBox}.
  * 
@@ -36,10 +34,11 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
-	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
+	private final JComboBox<String> combobox = new JComboBox<String>(new DefaultComboBoxModel<String>());
 
 	/**
 	 * @param model
@@ -122,7 +121,7 @@ public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		@SuppressWarnings("unchecked")
 		final ListSelection<String> model = (ListSelection<String>) getModel();
 		final List<String> possibleValues = model.getPossibleValues();
-		final DefaultComboBoxModel comboBoxModel = (DefaultComboBoxModel) combobox
+		final DefaultComboBoxModel<String> comboBoxModel = (DefaultComboBoxModel<String>) combobox
 				.getModel();
 		final LinkedList<String> comboElements = new LinkedList<String>();
 		for (int i = comboBoxModel.getSize(); i-- > 0;) {

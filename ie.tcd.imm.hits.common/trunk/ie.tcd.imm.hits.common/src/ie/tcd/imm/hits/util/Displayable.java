@@ -41,6 +41,7 @@ public interface Displayable {
 		 * @return The first element from {@code values}, whose
 		 *         {@link Displayable#getDisplayText()} is {@code text}.
 		 */
+		@SafeVarargs
 		public static @Nullable
 		<EnumType extends Enum<EnumType> & Displayable> EnumType findByDisplayText(
 				final String text, final EnumType... values) {

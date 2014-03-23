@@ -11,14 +11,13 @@ import javax.annotation.Nonnull;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * Some utility methods to related to KNIME.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class Misc {
 
 	/**

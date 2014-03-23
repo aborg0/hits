@@ -26,8 +26,6 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#Slider}.
  * 
@@ -37,7 +35,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class SliderControl<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,

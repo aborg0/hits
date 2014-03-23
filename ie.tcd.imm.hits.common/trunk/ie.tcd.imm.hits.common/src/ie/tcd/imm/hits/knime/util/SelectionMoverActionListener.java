@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.knime.util;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.annotation.Nonnull;
@@ -20,8 +19,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * When attached to an {@link ActionEvent} emitter (like a {@link JButton}), it
  * will move the selection(s) of the {@link #list referenced} {@link JList} up
@@ -32,12 +29,12 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@DefaultAnnotation(Nonnull.class)
-public class SelectionMoverActionListener implements ActionListener,
+@Nonnull
+public class SelectionMoverActionListener<T> implements ActionListener,
 		Serializable {
 	private static final long serialVersionUID = -2883537212024563886L;
-	private final JList list;
-	private final DefaultListModel model;
+	private final JList<T> list;
+	private final DefaultListModel<T> model;
 	private final int move;
 	private final SettingsModel settingsModel;
 
@@ -53,8 +50,8 @@ public class SelectionMoverActionListener implements ActionListener,
 	 *            The {@link SettingsModelFilterString}, or
 	 *            {@link SettingsModelStringArray} for the list of values.
 	 */
-	public SelectionMoverActionListener(final JList list,
-			final DefaultListModel model, final int move,
+	public SelectionMoverActionListener(final JList<T> list,
+			final DefaultListModel<T> model, final int move,
 			final SettingsModel settingsModel) {
 		super();
 		this.list = list;
@@ -88,7 +85,7 @@ public class SelectionMoverActionListener implements ActionListener,
 			// for (final int selected : selectedIndices) {
 			for (int j = start; j != end; j -= sgn) {
 				final int selected = selectedIndices[j];
-				final Object tmp = model.get(selected);
+				final T tmp = model.get(selected);
 				for (int i = move; i != 0; i -= sgn) {
 					model.setElementAt(model.get(selected + move), selected
 							+ move - sgn);
@@ -124,15 +121,7 @@ public class SelectionMoverActionListener implements ActionListener,
 				method.setAccessible(true);
 				final Object result = method.invoke(settingsModel);
 				assert result == null;
-			} catch (final SecurityException e1) {
-				// Do nothing, no change will be notified.
-			} catch (final NoSuchMethodException e1) {
-				// Do nothing, no change will be notified.
-			} catch (final IllegalArgumentException e1) {
-				// Do nothing, no change will be notified.
-			} catch (final IllegalAccessException e1) {
-				// Do nothing, no change will be notified.
-			} catch (final InvocationTargetException e1) {
+			} catch (final ReflectiveOperationException e1) {
 				// Do nothing, no change will be notified.
 			}
 			for (int i = 0; i < selectedIndices.length; i++) {

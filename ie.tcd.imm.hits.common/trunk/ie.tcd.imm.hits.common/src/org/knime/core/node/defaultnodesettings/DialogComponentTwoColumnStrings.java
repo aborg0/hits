@@ -59,16 +59,17 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		}
 	}
 
-	private final JList includeList = new JList(new DefaultListModel());
-	private final JList excludeList = new JList(new DefaultListModel());
+	private final JList<String> includeList = new JList<>(new DefaultListModel<String>());
+	private final JList<String> excludeList = new JList<>(new DefaultListModel<String>());
 
 	/**
 	 * The action to move the selection from a {@link JList} to the other.
+	 * @param <T> Type of the lists.
 	 */
-	private final class ChangeAction extends AbstractAction {
+	private final class ChangeAction<T> extends AbstractAction {
 		private static final long serialVersionUID = 5388523081226805353L;
-		private final JList fromList;
-		private final JList toList;
+		private final JList<T> fromList;
+		private final JList<T> toList;
 
 		/**
 		 * Constructs {@link ChangeAction}.
@@ -80,8 +81,8 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		 * @param toList
 		 *            The list to move to the elements.
 		 */
-		public ChangeAction(final String name, final JList fromList,
-				final JList toList) {
+		public ChangeAction(final String name, final JList<T> fromList,
+				final JList<T> toList) {
 			super(name);
 			this.fromList = fromList;
 			this.toList = toList;
@@ -89,11 +90,11 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			final Object[] selectedValues = fromList.getSelectedValues();
-			if (selectedValues.length > 0) {
-				for (final Object obj : selectedValues) {
-					((DefaultListModel) toList.getModel()).addElement(obj);
-					((DefaultListModel) fromList.getModel()).removeElement(obj);
+			final List<T> selectedValues = fromList.getSelectedValuesList();
+			if (selectedValues.size() > 0) {
+				for (final T obj : selectedValues) {
+					((DefaultListModel<T>) toList.getModel()).addElement(obj);
+					((DefaultListModel<T>) fromList.getModel()).removeElement(obj);
 				}
 			}
 			updateModel();
@@ -121,9 +122,9 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 		final JScrollPane excludeScroll = new JScrollPane(excludeList);
 		getComponentPanel().add(excludeScroll);
 		final JPanel buttonPanel = new JPanel();
-		final ChangeAction rightToLeftAction = new ChangeAction(
+		final ChangeAction<String> rightToLeftAction = new ChangeAction<>(
 				"<html>&lArr;</html>", includeList, excludeList);
-		final ChangeAction leftToRightAction = new ChangeAction(
+		final ChangeAction<String> leftToRightAction = new ChangeAction<>(
 				"<html>&rArr;</html>", excludeList, includeList);
 		final JButton toRightButton = new JButton(leftToRightAction);
 		final JButton toLeftButton = new JButton(rightToLeftAction);
@@ -167,18 +168,18 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 	protected void updateComponent() {
 		{
 			int i = 0;
-			((DefaultListModel) includeList.getModel()).clear();
+			((DefaultListModel<String>) includeList.getModel()).clear();
 			for (final String include : ((SettingsModelFilterString) getModel())
 					.getIncludeList()) {
-				((DefaultListModel) includeList.getModel()).add(i++, include);
+				((DefaultListModel<String>) includeList.getModel()).add(i++, include);
 			}
 		}
 		{
-			((DefaultListModel) excludeList.getModel()).clear();
+			((DefaultListModel<String>) excludeList.getModel()).clear();
 			int i = 0;
 			for (final String exclude : ((SettingsModelFilterString) getModel())
 					.getExcludeList()) {
-				((DefaultListModel) excludeList.getModel()).add(i++, exclude);
+				((DefaultListModel<String>) excludeList.getModel()).add(i++, exclude);
 			}
 		}
 		includeList.repaint();
@@ -191,12 +192,12 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 	 */
 	protected void updateModel() {
 		final SettingsModelFilterString model = (SettingsModelFilterString) getModel();
-		final DefaultListModel includeModel = (DefaultListModel) includeList
+		final DefaultListModel<String> includeModel = (DefaultListModel<String>) includeList
 				.getModel();
 		final ArrayList<String> include = new ArrayList<String>(includeModel
 				.getSize());
 		fill(includeModel, include);
-		final DefaultListModel excludeModel = (DefaultListModel) excludeList
+		final DefaultListModel<String> excludeModel = (DefaultListModel<String>) excludeList
 				.getModel();
 		final ArrayList<String> exclude = new ArrayList<String>(excludeModel
 				.getSize());
@@ -213,9 +214,9 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 	 * @param list
 	 *            The result list (should be modifiable).
 	 */
-	private void fill(final DefaultListModel model, final List<String> list) {
+	private void fill(final DefaultListModel<String> model, final List<String> list) {
 		for (int i = 0; i < model.size(); ++i) {
-			list.add((String) model.get(i));
+			list.add(model.get(i));
 		}
 	}
 
@@ -233,12 +234,12 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 	 *            The possible values of the columns.
 	 */
 	public void setAllPossibleValues(final Set<String> possibleValues) {
-		filterModel(possibleValues, (DefaultListModel) includeList.getModel());
-		final DefaultListModel model = (DefaultListModel) excludeList
+		filterModel(possibleValues, (DefaultListModel<String>) includeList.getModel());
+		final DefaultListModel<String> model = (DefaultListModel<String>) excludeList
 				.getModel();
 		filterModel(possibleValues, model);
 		for (final String string : possibleValues) {
-			if (!((DefaultListModel) includeList.getModel()).contains(string)
+			if (!((DefaultListModel<String>) includeList.getModel()).contains(string)
 					&& !model.contains(string)) {
 				model.add(model.getSize(), string);
 			}
@@ -256,7 +257,7 @@ public class DialogComponentTwoColumnStrings extends DialogComponent {
 	 *            A {@link DefaultListModel}.
 	 */
 	private void filterModel(final Set<String> possibleValues,
-			final DefaultListModel listModel) {
+			final DefaultListModel<String> listModel) {
 		for (int i = listModel.size(); i-- > 0;) {
 			if (!possibleValues.contains(listModel.get(i))) {
 				listModel.remove(i);

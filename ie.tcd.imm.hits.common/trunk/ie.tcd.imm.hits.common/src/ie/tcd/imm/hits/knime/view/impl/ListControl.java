@@ -28,8 +28,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A {@link VariableControl} with control type:
  * {@link VariableControl.ControlTypes#List}.
@@ -40,7 +38,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class ListControl<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
 	/**
@@ -89,13 +88,10 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
-				final Object[] selectedValues = list.getSelectedValues();
+				final List<String> selectedValues = list.getSelectedValuesList();
 				final Set<String> selection = new HashSet<String>();
-				for (final Object object : selectedValues) {
-					if (object instanceof String) {
-						final String str = (String) object;
+				for (final String str : selectedValues) {
 						selection.add(str);
-					}
 				}
 				switch (selectionType) {
 				case Unmodifiable:
@@ -125,7 +121,7 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 		getPanel().add(list);
 	}
 
-	private final JList list = new JList(new DefaultListModel());
+	private final JList<String> list = new JList<>(new DefaultListModel<String>());
 
 	/*
 	 * (non-Javadoc)
@@ -152,7 +148,7 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 		final List<String> possibleValues = model.getPossibleValues();
 		final Set<String> selection = model.getSelection();
 		final List<String> elements = getElements(list.getModel());
-		final DefaultListModel listModel = (DefaultListModel) list.getModel();
+		final DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();
 		if (!elements.equals(possibleValues)) {
 			listModel.removeAllElements();
 			for (final String value : possibleValues) {
@@ -179,7 +175,7 @@ public class ListControl<Model, Sel extends Selectable<Model>> extends
 	 *            A {@link ListModel}.
 	 * @return The elements in the {@link ListModel}.
 	 */
-	private static List<String> getElements(final ListModel model) {
+	private static List<String> getElements(final ListModel<String> model) {
 		final List<String> ret = new ArrayList<String>(model.getSize());
 		for (int i = 0; i < model.getSize(); ++i) {
 			ret.add((String) model.getElementAt(i));

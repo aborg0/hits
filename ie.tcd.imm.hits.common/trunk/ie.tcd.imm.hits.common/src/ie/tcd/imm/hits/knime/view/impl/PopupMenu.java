@@ -5,7 +5,6 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -28,7 +27,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import org.knime.core.util.Pair;
 
 /**
  * A popup menu for the {@link AbstractVariableControl}s.
@@ -41,7 +40,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		implements MouseListener {
 	private final JPopupMenu popup;
@@ -100,7 +100,7 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			controlsHandler.move(control, position.getRight());
+			controlsHandler.move(control, position.getSecond());
 		}
 
 	}
@@ -172,12 +172,12 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		final Set<Pair<SplitType, String>> containers = this.controlsHandler
 				.findContainers();
 		for (final Pair<SplitType, String> pair : containers) {
-			if (pair.getRight() != null && pair.getLeft() == split) {
+			if (pair.getSecond() != null && pair.getFirst() == split) {
 				final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
-				posMenu.setText(pair.getRight());
+				posMenu.setText(pair.getSecond());
 				posMenu.getModel().addChangeListener(new ChangeListener() {
 					private final JComponent container = PopupMenu.this.controlsHandler
-							.getContainer(pair.getLeft(), pair.getRight());
+							.getContainer(pair.getFirst(), pair.getSecond());
 					private final Color origBackground = container == null ? null
 							: container.getBackground();
 					private final Color origForeground = container == null ? null

@@ -4,11 +4,10 @@
 /**
  * Package for some {@link DialogComponent}s.
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 package org.knime.core.node.defaultnodesettings;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
