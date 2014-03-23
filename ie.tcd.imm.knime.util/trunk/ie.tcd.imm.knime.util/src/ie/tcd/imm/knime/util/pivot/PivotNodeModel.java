@@ -183,7 +183,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 		container.close();
 		logger.debug("Pivoting finished");
 		final BufferedDataTable out = container.getTable();
-		final FlowVariablePortObject portObject = new FlowVariablePortObject();
+		final FlowVariablePortObject portObject = FlowVariablePortObject.INSTANCE;
 		pushFlowVariableString("reversePattern", getReversePattern(parts));
 		return new PortObject[] { out, portObject };
 	}
