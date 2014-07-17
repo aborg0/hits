@@ -3,18 +3,19 @@
 
 <plugin>
   	<extension point="org.knime.workbench.repository.categories">
-      <category description="High Throughput Screening" icon="icons/HiTS.png" level-id="HiTS" name="HiTS" path="/"/>
+      <category description="High Throughput Screening" icon="icons/HiTS.png" level-id="HiTS" name="HiTS" path="/community/"/>
+      <category description="Views" icon="icons/HiTS.png" level-id="view" name="View" path="/community/HiTS/"/>
    	</extension>
 
    	<extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.xls.ImporterNodeFactory" id="ie.tcd.imm.knime.xls.ImporterNodeFactory"/>
-   	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.worker.CellHTS2NodeFactory" id="ie.tcd.imm.knime.cellhts2.CellHTS2NodeFactory"/>
-      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="ie.tcd.imm.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
-   	  <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.biomart.BiomartAnnotatorNodeFactory" id="ie.tcd.imm.knime.biomart.BiomartAnnotatorNodeFactory"/>
-      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
-      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
-	  <node category-path="/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
-      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.xls.ImporterNodeFactory" id="ie.tcd.imm.knime.xls.ImporterNodeFactory"/>
+   	  <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.worker.CellHTS2NodeFactory" id="ie.tcd.imm.knime.cellhts2.CellHTS2NodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="ie.tcd.imm.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
+   	  <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.biomart.BiomartAnnotatorNodeFactory" id="ie.tcd.imm.knime.biomart.BiomartAnnotatorNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/>
+	  <node category-path="/community/HiTS/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
     </extension>
 	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">

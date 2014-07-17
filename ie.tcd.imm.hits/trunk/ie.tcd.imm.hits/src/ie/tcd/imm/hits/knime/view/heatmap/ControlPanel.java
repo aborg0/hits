@@ -11,7 +11,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
-import ie.tcd.imm.hits.util.Pair;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -45,6 +44,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicBorders;
 
 import org.knime.core.node.NodeLogger;
+import org.knime.core.util.Pair;
 
 /**
  * With this panel you can control the appearance of the heatmap's circles

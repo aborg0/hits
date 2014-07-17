@@ -8,7 +8,6 @@ import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -31,6 +30,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.event.ChangeEvent;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.util.Pair;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -119,14 +119,14 @@ public class ControlsHandlerKNIMEFactory
 		if (firstPos == null || secondPos == null) {
 			return false;
 		}
-		if (firstPos.getLeft() == secondPos.getLeft()) {
+		if (firstPos.getFirst() == secondPos.getFirst()) {
 			return false;
 		}
-		if (firstPos.getLeft() == SplitType.AdditionalInfo
-				|| secondPos.getLeft() == SplitType.AdditionalInfo) {
+		if (firstPos.getFirst() == SplitType.AdditionalInfo
+				|| secondPos.getFirst() == SplitType.AdditionalInfo) {
 			return false;
 		}
-		if (firstPos.getLeft() == SplitType.SingleSelect) {
+		if (firstPos.getFirst() == SplitType.SingleSelect) {
 			return exchangeControls(second, first);
 		}
 		final Set<SliderModel> sliderModels = arrangement.getArrangementModel()
@@ -135,10 +135,10 @@ public class ControlsHandlerKNIMEFactory
 		final SliderModel secondSlider = findSlider(second, sliderModels);
 		final ArrayList<ParameterModel> primaryParams = new ArrayList<ParameterModel>();
 		final ArrayList<ParameterModel> secondaryParams = new ArrayList<ParameterModel>();
-		switch (firstPos.getLeft()) {
+		switch (firstPos.getFirst()) {
 		case PrimarySplit:
 			primaryParams.add(secondSlider.getParameters().iterator().next());
-			switch (secondPos.getLeft()) {
+			switch (secondPos.getFirst()) {
 			case SeconderSplit:
 				secondaryParams.add(firstSlider.getParameters().iterator()
 						.next());
@@ -154,7 +154,7 @@ public class ControlsHandlerKNIMEFactory
 			break;
 		case SeconderSplit:
 			secondaryParams.add(secondSlider.getParameters().iterator().next());
-			switch (secondPos.getLeft()) {
+			switch (secondPos.getFirst()) {
 			case PrimarySplit:
 				primaryParams
 						.add(firstSlider.getParameters().iterator().next());
@@ -177,7 +177,7 @@ public class ControlsHandlerKNIMEFactory
 		case ParalelSplitVertical:
 		default:
 			throw new UnsupportedOperationException("Not supported type: "
-					+ firstPos.getLeft());
+					+ firstPos.getFirst());
 		}
 		final List<ParameterModel> newAdditionalParams = new ArrayList<ParameterModel>();
 		final ShapeModel shapeModel = new ShapeModel(arrangement
@@ -189,11 +189,11 @@ public class ControlsHandlerKNIMEFactory
 		shapeModel.setColourModel(arrangement.getColourModel());
 		arrangement = shapeModel;
 		notifyChangeListeners(new ArrangementEvent(this, shapeModel));
-		deregister(firstSlider, firstPos.getLeft());
-		deregister(secondSlider, secondPos.getLeft());
-		register(firstSlider, secondPos.getLeft(), secondPos.getRight(), second
+		deregister(firstSlider, firstPos.getFirst());
+		deregister(secondSlider, secondPos.getFirst());
+		register(firstSlider, secondPos.getFirst(), secondPos.getSecond(), second
 				.getType());
-		register(secondSlider, firstPos.getLeft(), firstPos.getRight(), first
+		register(secondSlider, firstPos.getFirst(), firstPos.getSecond(), first
 				.getType());
 		return true;
 	}
@@ -258,7 +258,7 @@ public class ControlsHandlerKNIMEFactory
 				.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
 		for (final Integer key : new TreeSet<Integer>(valueMapping.keySet())) {
-			vals.add(valueMapping.get(key).getRight().toString());
+			vals.add(valueMapping.get(key).getSecond().toString());
 		}
 		final Set<Integer> selections = new TreeSet<Integer>(slider
 				.getSelections());
@@ -285,7 +285,7 @@ public class ControlsHandlerKNIMEFactory
 		}
 		final Collection<String> selected = new HashSet<String>();
 		for (final Integer integer : selections) {
-			selected.add(valueMapping.get(integer).getRight().toString());
+			selected.add(valueMapping.get(integer).getSecond().toString());
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				name, vals, selected);

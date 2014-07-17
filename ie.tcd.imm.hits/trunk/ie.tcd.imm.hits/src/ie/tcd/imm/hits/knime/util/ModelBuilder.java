@@ -8,7 +8,6 @@ import ie.tcd.imm.hits.common.PossibleStatistics;
 import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.common.PublicConstants.StaticUtil;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 import java.awt.Color;
@@ -39,6 +38,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.util.Pair;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
