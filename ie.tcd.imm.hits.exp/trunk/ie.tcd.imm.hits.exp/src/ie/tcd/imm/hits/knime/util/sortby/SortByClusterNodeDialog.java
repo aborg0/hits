@@ -10,8 +10,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * <code>NodeDialog</code> for the "SortByCluster" Node. Sorts the data by the
  * order defined by the clustering.
@@ -23,7 +21,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class SortByClusterNodeDialog extends DefaultNodeSettingsPane {
 
 	/**

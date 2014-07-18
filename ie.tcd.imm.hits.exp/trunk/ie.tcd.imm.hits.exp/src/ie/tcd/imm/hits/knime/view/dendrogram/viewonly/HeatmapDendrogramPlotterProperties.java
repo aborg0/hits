@@ -48,14 +48,13 @@ import javax.swing.border.LineBorder;
 import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotterProperties;
 import org.knime.base.node.viz.plotter.props.DefaultTab;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * The properties for the dendrogram with heatmap node.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class HeatmapDendrogramPlotterProperties extends
 		DendrogramPlotterProperties {
 	private static final long serialVersionUID = -6241965284919230058L;

@@ -304,7 +304,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 
 	private static final String CFG_H_TREE_DATA = "hTreeData";
 
-	private ClusterTreeModel clusterTreeModel;
+	private @Nullable ClusterTreeModel clusterTreeModel;
 
 	@Override
 	protected void saveInternals(final File nodeInternDir,

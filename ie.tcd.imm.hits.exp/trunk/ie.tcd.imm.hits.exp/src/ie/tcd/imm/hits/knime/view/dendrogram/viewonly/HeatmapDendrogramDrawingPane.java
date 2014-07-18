@@ -46,6 +46,7 @@ import java.util.TreeSet;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.knime.base.node.util.DataArray;
 import org.knime.base.node.viz.plotter.dendrogram.BinaryTree;
@@ -60,29 +61,28 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.property.ColorAttr;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * Drawing pane for the heatmap with dendrogram node.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation({ Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class HeatmapDendrogramDrawingPane extends DendrogramDrawingPane {
 	private static final long serialVersionUID = 5198699225298295730L;
 	private static final float BOLD = 2.0f;
-	private BinaryTree<DendrogramPoint> rootNode;
+	private @Nullable BinaryTree<DendrogramPoint> rootNode;
 	private float lineThickness = 1.0f;
 	private DendrogramNodeModel nodeModel;
-	private int[] indices;
-	private int[] selectedIndices;
-	private ColourModel colourModel;
+	private @Nullable int[] indices;
+	private @Nullable int[] selectedIndices;
+	private @Nullable ColourModel colourModel;
 	private int cellHeight;
 	private int cellWidth = 20;
 	private final List<String> selectedColumns = new ArrayList<String>();
 	private final List<String> visibleColumns = new ArrayList<String>();
 	private int maxStringLength;
-	private String[] keys;
+	private @Nullable String[] keys;
 	private boolean directionLeftToRight;
 
 	private int leafX;

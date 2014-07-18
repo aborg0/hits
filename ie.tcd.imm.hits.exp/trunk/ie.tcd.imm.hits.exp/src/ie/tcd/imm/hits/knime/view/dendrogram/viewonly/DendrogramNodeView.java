@@ -50,15 +50,14 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.NodeModel;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * A {@link HierarchicalClusterNodeView} with a ability to save the main content
  * as a PNG file.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class DendrogramNodeView extends DefaultVisualizationNodeView {
 
 	private static final String DATA_MENU = "Data";

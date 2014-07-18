@@ -10,15 +10,14 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * <code>NodeFactory</code> for the "SortByCluster" Node. Sorts the data by the
  * order defined by the clustering.
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class SortByClusterNodeFactory extends
 		NodeFactory<SortByClusterNodeModel> {
 

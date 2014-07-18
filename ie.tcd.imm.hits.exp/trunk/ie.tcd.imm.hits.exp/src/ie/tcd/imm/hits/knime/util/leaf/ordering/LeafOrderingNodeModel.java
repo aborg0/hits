@@ -4,7 +4,6 @@
 package ie.tcd.imm.hits.knime.util.leaf.ordering;
 
 import ie.tcd.imm.hits.knime.util.RowKeyHelper;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.Triple;
 
 import java.io.File;
@@ -38,6 +37,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.util.Pair;
 import org.knime.distmatrix.type.DistanceVectorDataValue;
 
 /**
@@ -99,7 +99,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 		final Map<RowKey, Pair<DataRow, Integer>> rows = new HashMap<RowKey, Pair<DataRow, Integer>>();
 		int idx = 0;
 		for (final DataRow dataRow : data) {
-			rows.put(dataRow.getKey(), Pair.apply(dataRow, Integer
+			rows.put(dataRow.getKey(), Pair.create(dataRow, Integer
 					.valueOf(idx++)));
 		}
 		exec.setMessage("creating final tree");
@@ -138,7 +138,7 @@ public class LeafOrderingNodeModel extends NodeModel {
 				ret.put(key, new HashMap<Pair<RowKey, RowKey>, Number>());
 			}
 			// ENH keep only the winner
-			ret.get(key).put(Pair.apply(entryKey.getO2(), entryKey.getO3()),
+			ret.get(key).put(Pair.create(entryKey.getO2(), entryKey.getO3()),
 					entry.getValue());
 		}
 		return ret;
@@ -198,8 +198,8 @@ public class LeafOrderingNodeModel extends NodeModel {
 			final Pair<DataRow, Integer> leafRow = rows.get(RowKeyHelper
 					.getKey(root));
 			return Triple.apply(
-					new ClusterViewNode(leafRow.getLeft().getKey()), leafRow
-							.getLeft().getKey(), leafRow.getLeft().getKey());
+					new ClusterViewNode(leafRow.getFirst().getKey()), leafRow
+							.getFirst().getKey(), leafRow.getFirst().getKey());
 		}
 		final Triple<ClusterViewNode, RowKey, RowKey> firstTree = buildNewTree(
 				m, root.getFirstSubnode(), rows, exec);
@@ -207,15 +207,15 @@ public class LeafOrderingNodeModel extends NodeModel {
 		final Triple<ClusterViewNode, RowKey, RowKey> secondTree = buildNewTree(
 				m, root.getSecondSubnode(), rows, exec);
 		final Map<Pair<RowKey, RowKey>, Number> map = m.get(root);
-		Pair<RowKey, RowKey> pairNoChange = Pair.apply(firstTree.getO3(),
+		Pair<RowKey, RowKey> pairNoChange = Pair.create(firstTree.getO3(),
 				secondTree.getO2());
 		if (!map.containsKey(pairNoChange)) {
-			pairNoChange = pairNoChange.flip();
+			pairNoChange = flip(pairNoChange);
 		}
-		Pair<RowKey, RowKey> pairChange = Pair.apply(secondTree.getO3(),
+		Pair<RowKey, RowKey> pairChange = Pair.create(secondTree.getO3(),
 				firstTree.getO2());
 		if (!map.containsKey(pairChange)) {
-			pairChange = pairChange.flip();
+			pairChange = flip(pairChange);
 		}
 		assert map.containsKey(pairNoChange);
 		assert map.containsKey(pairChange);
@@ -229,6 +229,10 @@ public class LeafOrderingNodeModel extends NodeModel {
 		return Triple.apply(new ClusterViewNode(secondTree.getO1(), firstTree
 				.getO1(), root.getDist()), secondTree.getO2(), firstTree
 				.getO3());
+	}
+
+	private static Pair<RowKey, RowKey> flip(Pair<RowKey, RowKey> pairNoChange) {
+		return Pair.create(pairNoChange.getSecond(), pairNoChange.getFirst());
 	}
 
 	private Map<Triple<DendrogramNode, RowKey, RowKey>, Number> visit(

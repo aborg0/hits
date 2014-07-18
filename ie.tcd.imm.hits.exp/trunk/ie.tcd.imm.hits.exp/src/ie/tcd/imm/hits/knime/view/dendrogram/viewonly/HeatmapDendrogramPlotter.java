@@ -39,6 +39,7 @@ import java.util.Set;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JSpinner;
@@ -70,14 +71,13 @@ import org.knime.core.data.property.ColorAttr;
 import org.knime.core.data.property.ShapeFactory;
 import org.knime.core.data.property.ShapeFactory.Shape;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * The plotter for the heatmap with dendrogram node.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation({ Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	private static final long serialVersionUID = -7290110714225915563L;
 
@@ -93,11 +93,11 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 				new ShiftedLogarithmicMappingMethod(2.0, 1.0));
 	}
 
-	private DendrogramNode rootNode;
+	private @Nullable DendrogramNode rootNode;
 
 	/** The set of selected dendrogram points. */
 	private final Set<DendrogramPoint> selected = new HashSet<DendrogramPoint>();
-	private BinaryTree<DendrogramPoint> tree;
+	private @Nullable BinaryTree<DendrogramPoint> tree;
 
 	private boolean directionLeftToRight;
 
@@ -353,7 +353,7 @@ public class HeatmapDendrogramPlotter extends DendrogramPlotter {
 	/**
 	 * @return The model for the view.
 	 */
-	BinaryTree<DendrogramPoint> viewModel() {
+	@Nullable BinaryTree<DendrogramPoint> viewModel() {
 		mapFromKeysToIndices.clear();
 		int i = 0;
 		for (final DataRow row : getDataProvider().getDataArray(1)) {

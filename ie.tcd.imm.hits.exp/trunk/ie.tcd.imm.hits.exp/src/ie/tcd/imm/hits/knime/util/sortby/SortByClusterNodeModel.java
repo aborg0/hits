@@ -33,15 +33,14 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * This is the model implementation of SortByCluster. Sorts the data by the
  * order defined by the clustering.
  * 
  * @author <a href="bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public class SortByClusterNodeModel extends NodeModel {
 
 	/** key for ascending order */

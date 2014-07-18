@@ -26,7 +26,6 @@ public class LabsNodePlugin extends Plugin {
 	/**
 	 * The constructor.
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings("ST")
 	public LabsNodePlugin() {
 		super();
 		plugin = this;
