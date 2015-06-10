@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<title>Simple Configurator for cellHTS2 node</title>
+<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/basic.css"/>
+</head>
+<body>
+<h1><a name="overview">Simple Configurator for cellHTS2 node overview</a></h1>
+<p>With this node you can read the plate configuration file of cellHTS2, and also the description file. The <a href="../html/nodes/Simple_Configurator_for_cellHTS2.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p>
+<h1><a name="configuration">Configuration</a></h1>
+<p><img src="simpleConfiguratorCellHTS2.png" /></p>
+<p>Select the plate configuration file in the first area, and the description file in the second.</p>
+<p><span class="hint">The default filter will show only the Plateconfig.txt/Description.txt files at first choice, but you can easily select the <samp>.txt</samp> filter.</span></p>
+<h1><a name="formatplateconf">Expected plate configuration file format</a></h1>
+<p>This is a tab separated file. The first row should contain the <samp>Wells: 96</samp> text, while the second: <samp>Plates: 1</samp> with your plate number. For further details see the <a href="">cellHTS2 complete manual</a>, 4.1 (Screen configuration: annotating the plate results/Format of the plate configuration file)</p>
+<p><span class="hint">If the plate configuration is not compatible with the data layout you will get error in the <a href="cellHTS2.xhtml">cellHTS2 node</a>.</span></p>
+<h1><a name="formatdesc">Expected annotation file format</a></h1>
+<p>This is a normal text file. The content will be loaded in a structured manner.</p>
+<p>For more information consult the <a href="">cellHTS2 complete manual</a>, 4 Screen configuration: annotating the plate results section.</p>
+<h1><a name="output">Output</a></h1>
+<h2><a name="output1">First output port</a></h2>
+<p>This is the plate configuration content. <span class="hint">Compatible with <a href="cellHTS2.xhtml#input2">cellHTS2 node second input port</a>.</span></p>
+<h3>Structure</h3>
+<ul>
+	<li><a href="settings.xhtml#plate">Plate</a> - text (<em>S</em>tring) type; it differs from the normal plate columns, because this may contain patterns.</li>
+	<li><a href="settings.xhtml#well">Well</a> - text (<em>S</em>tring) type; it differs from the normal well columns, because this may contain patterns.</li>
+	<li>Content - text (<em>S</em>tring) type; Usually <samp>sample</samp>, <samp>pos</samp>, <samp>neg</samp>, <samp>other</samp>, <samp>empty</samp> content is here. This is case insensitive.</li>
+</ul>
+<h2><a name="output2">Second output port</a></h2>
+<p>This is the description content. <span class="hint">Compatible with <a href="cellHTS2.xhtml#input3">cellHTS2 node third input port</a>.</span></p>
+<h3>Structure</h3>
+<ul>
+	<li>Group - text (<em>S</em>tring) type; the group of the key.</li>
+	<li>Key - text (<em>S</em>tring) type; a key for the value.</li>
+	<li>Value - text (<em>S</em>tring) type; the value for the group-key pair.</li>
+</ul>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/footer.xhtml/copyright" />
+</body>
+</html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./cellHTS2.png" type="Visualizer">
+    <name>CellHTS2</name>
+    
+    <shortDescription>
+        This node performs the calculations using CellHTS2
+    </shortDescription>
+    
+    <fullDescription>
+        <intro><p>Generates (static) heatmaps, quality reports related to the normalised data.</p>
+        <p>The results are presented in the selected output directory.</p>
+        <p>Detailed description: <a href="../../help/cellHTS2.xhtml">cellHTS2 node</a></p>
+        </intro>
+        <option name="experiment">The name of the experiment (should not contain tab characters)</option>
+        <option name="normalization"><p>The normalisation method for the parameters. (For "Z-score" select mean or median, and also some kind of variance adjust.)</p>
+        <p>The meaning of possible values:</p>
+        <ul>
+          <li>every - generates all possible normalisations to different sub-folders</li>
+          <li>median - the relative signal of each well compared to the median of the sample wells in the plate</li>
+          <li>Bscore - row and column biases within each plate are explicitly corrected for by fitting a two-way median polish to the raw data in a per-plate fashion</li>
+          <li>POC - normalise each raw measurements relative to the average of within-plate _positive_ controls</li>
+          <li>negatives - normalise each raw measurements relative to the average of within-plate _negative_ controls</li>
+          <li>NPI - Normalised percent inhibition, (mean(pos) - x)/(mean(pos) - mean(neg))</li>
+          <li>mean - per-plate average intensity on sample wells</li>
+          <li>shorth - the midpoint of the shorth of the per-plate distribution of values on sample wells</li>
+          <li>locfit - the locfit value of the samples on each plate</li>
+          <li>loess - the local regression value of the samples on each plate</li>
+        </ul>
+        </option>
+        <option name="multiplicative?">Using the additive, or the multiplicative normalisation. If checked: multiplicative, else additive. (For example: additive: x-mean, versus multiplicative: x/mean)</option>
+        <option name="log transform?">Transforms the normalised data to the logarithmic scale if checked.</option>
+        <option name="Variance adjustment">Adjust the values by dividing the variance by plate/experiment median absolute deviations (MAD) of sample wells, or do not adjust the values (no adjustment).</option>
+        <option name="Score"><p>The method to score the replicates. Possible values:
+        <ul>
+        <li>none - do not score and summarise the replicates</li>
+        <li>zscore - use the robust z score method (x-median)/MAD</li>
+        <li>NPI - Normalised percent inhibition, (mean(pos) - x)/(mean(pos) - mean(neg))</li>
+        <li>zscoreByPlate - use the robust z score method (x-median)/MAD for each plate</li>
+        <li>zscoreNonRobust - use the non-robust z score method (x-mean)/sd</li>
+        <li>zscoreNonRobustByPlate - use the non-robust z score method (x-mean)/sd for each plate</li>
+        </ul></p></option>
+        <option name="Summarize replicates with"><p>You can select which statistic would you like about from the scored replicates. Possible options:
+        <ul>
+        <li>mean - the mean (sum(x)/n) of the scored replicate values for each well</li>
+        <li>median - the median of the scored replicate values for each well</li>
+        <li>max - the maximum of the scored replicate values for each well</li>
+        <li>min - the minimum of the scored replicate values for each well</li>
+        <li>rms - the root mean square (sqrt(sum(x*x)/n)) of the scored replicate values for each well</li>
+        <li>closestToZero - the closest to 0 from the scored replicate values for each well</li>
+        <li>furthestFromZero - the farthest from 0 from the scored replicate values for each well</li>
+        </ul></p></option>
+        <option name="Generate HTML reports?">If checked the HTML reports will be generated. This option has no effect on the generation of outport data.</option>
+        <option name="Results">The result output directory. <b>The previous result will be overwritten.</b></option>
+        <option name="Pattern">The pattern used to generate additional structure of folders in output folder.</option>
+        <option name="Score range">The range of the scores in the generated score heatmaps.</option>
+        <option name="Aspect ratio of images">The aspect ratio of images in the experiment overview results.</option>
+        <option name="Parameters">On this tab you can select which parameters would you like to examine.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Data from an experiment">Some data from an input like <b>INCell xls Importer</b>'s output.</inPort>
+        <inPort index="1" name="Plate configuration">The experiment's plate configuration.</inPort>
+        <inPort index="2" name="Experiment description">The experiment's description.</inPort>
+        <inPort index="3" name="Screen log">The screen log.</inPort>
+        <outPort index="0" name="summarised values">Top Table (summarised)</outPort>
+        <outPort index="1" name="replicate values">Top Table (replicates)</outPort>
+        <outPort index="2" name="aggregate values">Aggregate Values</outPort>
+        <outPort index="3" name="configuration">Configuration</outPort>
+        <outPort index="4" name="output">Output Directory</outPort>
+    </ports>    
+    <views>
+        <view index="0" name="HTML result">Shows the generated HTML pages.</view>
+    </views>
+</knimeNode>

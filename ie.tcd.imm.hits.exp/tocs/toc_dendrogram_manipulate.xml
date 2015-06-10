@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="HiTS Table of Contents" link_to="..\ie.tcd.imm.hits\toc.xml#dendrogramManipulation" topic="help/toc.xhtml">
+	<topic label="Dendrogram Manipulation">
+		<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.exp/help/sortByCluster.xhtml" label="Sort by Cluster">
+			<anchor id="sortByCluster"/>
+		</topic>
+		<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.exp/html/nodes/Leaf_Ordering.html" label="Leaf Ordering">
+			<anchor id="leafOrdering"/>
+		</topic>
+		<topic href="PLUGINS_ROOT/ie.tcd.imm.hits.exp/html/nodes/Reverse_Order.html" label="Reverse Order">
+			<anchor id="leafOrdering"/>
+		</topic>
+	</topic>
+</toc>

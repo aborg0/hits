@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<title>Heatmap with Dendrogram node description</title>
+<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/basic.css"/>
+</head>
+<body>
+<h1>Dendrogram with Heatmap</h1>
+<p>This node is simply a view of  the  output of the <a href="PLUGINS_ROOT/org.knime.distmatrix/html/nodes/New_Hierarchical_Clustering.html">New Hierarchical Clustering</a> node (from the <a href="http://labs.knime.org/">KNIME Labs</a>, <a href="http://labs.knime.org/distance-matrix/nodes">distance matrix nodes</a>). The <a href="../html/nodes/Dendrogram_with_Heatmap.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p>
+<h2>View</h2>
+<p><img src="heatmapDendrogramView.png"/></p>
+<h3>Preferences in view</h3>
+<h4>Default Settings</h4>
+<p>The <code>Mouse Mode</code>, <code>Fit to size</code>, <code>Background Color</code>, <code>Use anti-aliasing</code> options are the same as in the other controls, like <a href="PLUGINS_ROOT/org.knime.base/html/nodes/Scatter_Plot.html">Scatter Plot</a> node has.</p>
+<p>The <code>zoom out</code>, <code>Flip Vertical</code> options do not work currently. The <code>Heatmap width</code> is the width of a cell in the heatmap, while the <code>Clusters</code> is the number of the clusters to show on the view (those are separated by horizontal black lines). The <code>Show Values</code> options makes the numbers for each cell visible or hide them. The <code>Flip Horizontal</code> button changes the orientation of the dendrogram, but <b>not</b> the heatmap columns.</p>
+<h4>Colours</h4>
+<p>For details check <a href="visualise.xhtml#colourSettings">Colour Settings</a> section.</p>
+<h4>Saving the generated image</h4>
+<p>You can save the visible part of the view (<code>File/Export as/</code>), or the whole generated heatmap (<code>File/Export as PNG</code> or <code>File/Export as SVG</code>) without the controls.</p>
+<h4>Changing the visible heatmap columns</h4>
+<p>There are some options to see the data on the view:</p>
+<ul>
+<li>Columns from second port (no indication of first)</li>
+<li>Columns only from the first port (present in second too)</li>
+<li>Columns in first in front (all of the columns from second port)</li>
+<li>Columns in first at back (all of the columns from second port)</li>
+<li>Columns from second port (selecting the columns present in first)</li>
+</ul>
+<h3>What is visible on the view?</h3>
+<p>The dendrogram and the heatmap are always on. The selection, and the HiLiting is just like in other nodes.</p>
+<p>When all of the columns are visible from the second inport, and the indicators are selected the vertical lines around the columns are indicating that the clustering based on those columns.</p>
+<p></p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/footer.xhtml/copyright"/>
+</body>
+</html>
