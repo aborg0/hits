@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/manipulation/" factory-class="ie.tcd.imm.knime.util.pivot.PivotNodeFactory" id="ie.tcd.imm.knime.util.pivot.PivotNodeFactory"/>
+      <node category-path="/manipulation/" factory-class="ie.tcd.imm.knime.util.unpivot.UnpivotNodeFactory" id="ie.tcd.imm.knime.util.unpivot.UnpivotNodeFactory"/>
+      <node category-path="/manipulation/matrix/" factory-class="ie.tcd.imm.knime.util.product.DirectProductNodeFactory" id="ie.tcd.imm.knime.util.product.DirectProductNodeFactory"/>
+      <node category-path="/manipulation/row/" factory-class="ie.tcd.imm.knime.util.merge.MergeNodeFactory" id="ie.tcd.imm.knime.util.merge.MergeNodeFactory"/>
+      <node category-path="/manipulation/column/" factory-class="ie.tcd.imm.knime.util.power.SubsetsNodeFactory" id="ie.tcd.imm.knime.util.power.SubsetsNodeFactory"/>
+   </extension>
+   <extension point="org.eclipse.help.toc">
+      <toc extradir="html" file="tocs/row_nodes.xml"/>
+      <toc extradir="html" file="tocs/manipulation_nodes.xml"/>
+      <toc extradir="html" file="tocs/column_nodes.xml"/>
+      <toc extradir="html" file="tocs/matrix_nodes.xml"/>
+   </extension>
+</plugin>
