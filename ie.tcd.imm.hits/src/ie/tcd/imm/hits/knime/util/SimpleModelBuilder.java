@@ -24,7 +24,6 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.IntValue;
 import org.knime.core.data.def.IntCell;
 
 /**
@@ -49,14 +48,13 @@ public class SimpleModelBuilder implements Serializable {
 	 *            A {@code 0}-based index to select a cell in {@code dataRow}.
 	 * @return The value at {@code index} position in {@code dataRow}.
 	 * @throws ClassCastException
-	 *             if the cell is not an {@link IntValue}.
+	 *             if the cell is not an {@link IntCell}.
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the {@code index} is not valid.
 	 */
 	public static Integer getInt(final DataRow dataRow, final int index) {
-		final DataCell cell = dataRow.getCell(index);
 		return Integer
-				.valueOf(((IntValue) cell).getIntValue());
+				.valueOf(((IntCell) dataRow.getCell(index)).getIntValue());
 	}
 
 	/**

@@ -42,6 +42,7 @@ getMeasureRepAgreement <- function(x, corr.method="spearman")
     
     ## dimensions
     d <- dim(y)
+	print(d)
     nrWells    <- prod(pdim(x))
     nrPlates   <- max(plate(x))
     nrReplicates <- d[2]
@@ -61,39 +62,41 @@ getMeasureRepAgreement <- function(x, corr.method="spearman")
             {
                 indp <- nrWells*(p-1)+c(1:nrWells)
                 yy <- y[indp,,ch][samps[indp],] #y[samples[indp],p,,ch]
-                rsums <- rowSums(!is.na(yy))
-                keep <- (rsums >1)
-                yy <- yy[keep,]
-                mr <- apply(yy, 1, mean, na.rm=TRUE) #mean over all replicates for each gene j
-                sr <- apply(yy,1, sd, na.rm=TRUE) #std for each gene j across all of the replicates
-                ngenes <- sum(keep)
-                if(ngenes) repSdev[p,ch] <- sqrt(sum(sr^2)/ngenes)
-
-                yy <- y[indp,,ch][samps[indp],]
-                repHasVals <- rowSums(t(!is.na(yy)))!=0
-                if(sum(repHasVals)>1)
-                {
-                    yy <- yy[,repHasVals]
-                    cmbs <- combn(1:ncol(yy), 2) 
-                    zcor <- c()
-                    for(j in 1:ncol(cmbs)) {
-                        z <- yy[,cmbs[,j]]
-                        zcor <- c(zcor, cor(z, method=corr.method, use="complete.obs")[1,2])
-                    }
-                    
-                    if (length(zcor)>1)
-                    { 
-                        corrCoef.min[p,ch] <- min(zcor, na.rm=TRUE)
-                        corrCoef.max[p,ch] <- max(zcor, na.rm=TRUE)
-                    }
-                    else
-                    {
-                        corrCoef.min[p,ch] <- zcor
-                        corrCoef.max[p,ch] <- zcor
-                        corrCoef[p,ch] <- zcor
-                    }
-
-                } # sum(repHasVals)
+                if (dim(yy)[1] > 0)
+				{
+					rsums <- rowSums(!is.na(yy))
+    	            keep <- (rsums >1)
+	                yy <- yy[keep,]
+	                mr <- apply(yy, 1, mean, na.rm=TRUE) #mean over all replicates for each gene j
+	                sr <- apply(yy,1, sd, na.rm=TRUE) #std for each gene j across all of the replicates
+	                ngenes <- sum(keep)
+	                if(ngenes) repSdev[p,ch] <- sqrt(sum(sr^2)/ngenes)
+	                yy <- y[indp,,ch][samps[indp],]
+	                repHasVals <- rowSums(t(!is.na(yy)))!=0
+	                if(sum(repHasVals)>1)
+	                {
+	                    yy <- yy[,repHasVals]
+	                    cmbs <- combn(1:ncol(yy), 2) 
+	                    zcor <- c()
+	                    for(j in 1:ncol(cmbs)) {
+	                        z <- yy[,cmbs[,j]]
+	                        zcor <- c(zcor, cor(z, method=corr.method, use="complete.obs")[1,2])
+	                    }
+	                    
+	                    if (length(zcor)>1)
+	                    { 
+	                        corrCoef.min[p,ch] <- min(zcor, na.rm=TRUE)
+	                        corrCoef.max[p,ch] <- max(zcor, na.rm=TRUE)
+	                    }
+	                    else
+	                    {
+	                        corrCoef.min[p,ch] <- zcor
+	                        corrCoef.max[p,ch] <- zcor
+	                        corrCoef[p,ch] <- zcor
+	                    }
+	
+	                } # sum(repHasVals)
+				}
             } # plates
         }# channels
     } # replicates

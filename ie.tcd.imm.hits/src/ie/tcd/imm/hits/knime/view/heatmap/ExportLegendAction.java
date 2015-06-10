@@ -141,8 +141,8 @@ public class ExportLegendAction<ModelType extends ColourComputer> extends
 
 			@SuppressWarnings("unchecked")
 			private final Tokenizer groupingTokenizer = new TokenizerFactory()
-					.createGroupingTokenizer(org.knime.core.util.Pair.
-							<Token, List<Token>> create(null, Collections
+					.createGroupingTokenizer(Pair
+							.<Token, List<Token>> leftNull(Collections
 									.<Token> emptyList()), Arrays
 							.<Class<? extends Token>> asList(SimpleToken.class,
 									CompoundToken.class), false, Pattern

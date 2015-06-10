@@ -1,1 +1,0 @@
-Import the workflow (sample.zip), and set point the file reader to test0.txt.

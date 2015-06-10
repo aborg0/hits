@@ -7,6 +7,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel.Places;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
 import ie.tcd.imm.hits.util.swing.colour.ColourFactory;
@@ -45,8 +46,6 @@ import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.knime.core.util.Pair;
 
 /**
  * This panel shows the legend of the heatmap's circles/rectangles.
@@ -243,10 +242,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 				 */
 				private String prettyPrint(
 						final Pair<ParameterModel, Object> pair) {
-					return pair == null ? "" : (pair.getFirst() == null ? ""
-							: pair.getFirst().getShortName())
+					return pair == null ? "" : (pair.getLeft() == null ? ""
+							: pair.getLeft().getShortName())
 							+ ": "
-							+ (pair.getSecond() == null ? "" : pair.getSecond()
+							+ (pair.getRight() == null ? "" : pair.getRight()
 									.toString());
 				}
 
@@ -371,7 +370,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 																* radius * .8)/*-bounds.width / 4, bounds.height / 4*/);
 								g
 										.drawString(
-												entry.getValue().getSecond()
+												entry.getValue().getRight()
 														.toString(),
 												bounds.width
 														/ 2
@@ -413,7 +412,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : valueMapping
 								.entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
-								g.drawString(entry.getValue().getSecond()
+								g.drawString(entry.getValue().getRight()
 										.toString(), radius / 2 - 30
 										+ radiuses[i], (int) (radius * 1.35)
 										+ i % 2 * 15);
@@ -438,7 +437,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
-								g.drawString(entry.getValue().getSecond()
+								g.drawString(entry.getValue().getRight()
 										.toString(), i * bounds.width
 										/ primaryCount, 30 + i % 2 * 15);
 								++i;
@@ -456,7 +455,7 @@ public class LegendPanel extends JPanel implements ActionListener {
 						for (final Entry<Integer, Pair<ParameterModel, Object>> entry : slider
 								.getValueMapping().entrySet()) {
 							if (slider.getSelections().contains(entry.getKey())) {
-								g.drawString(entry.getValue().getSecond()
+								g.drawString(entry.getValue().getRight()
 										.toString(), 5 - (i + 1) * bounds.width
 										/ secondaryCount, 30 + i % 2 * 15);
 								++i;
@@ -792,13 +791,13 @@ public class LegendPanel extends JPanel implements ActionListener {
 								.getSelections()) {
 							final StatTypes stat = (StatTypes) primarySlider
 									.getValueMapping().get(statSelect)
-									.getSecond();
+									.getRight();
 							int j = 0;
 							for (final Integer paramSelect : secondarySlider
 									.getSelections()) {
 								final String param = (String) secondarySlider
 										.getValueMapping().get(paramSelect)
-										.getSecond();
+										.getRight();
 								addSample(cm, i, j++, stat, param);
 							}
 							++i;
@@ -812,13 +811,13 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final String param = (String) paramSlider
 								.getValueMapping().get(
 										paramSelect.iterator().next())
-								.getSecond();
+								.getRight();
 						int i = 0;
 						for (final Integer primSelect : primarySlider
 								.getSelections()) {
 							final StatTypes stat = (StatTypes) primarySlider
 									.getValueMapping().get(primSelect)
-									.getSecond();
+									.getRight();
 							addSample(cm, i++, 0, stat, param);
 						}
 						break;
@@ -834,13 +833,13 @@ public class LegendPanel extends JPanel implements ActionListener {
 								.getSelections()) {
 							final String param = (String) primarySlider
 									.getValueMapping().get(paramSelect)
-									.getSecond();
+									.getRight();
 							int j = 0;
 							for (final Integer statSelect : secondarySlider
 									.getSelections()) {
 								final StatTypes stat = (StatTypes) secondarySlider
 										.getValueMapping().get(statSelect)
-										.getSecond();
+										.getRight();
 								addSample(cm, i, j++, stat, param);
 							}
 							++i;
@@ -855,12 +854,12 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final StatTypes stat = (StatTypes) statSlider
 								.getValueMapping().get(
 										statSelects.iterator().next())
-								.getSecond();
+								.getRight();
 						for (final Integer primSelect : primarySlider
 								.getSelections()) {
 							final String param = (String) primarySlider
 									.getValueMapping().get(primSelect)
-									.getSecond();
+									.getRight();
 							addSample(cm, i++, 0, stat, param);
 						}
 						break;
@@ -873,11 +872,11 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final String param = (String) paramSlider
 								.getValueMapping().get(
 										paramSlider.getSelections().iterator()
-												.next()).getSecond();
+												.next()).getRight();
 						int j = 0;
 						for (final Integer select : statSlider.getSelections()) {
 							final StatTypes stat = (StatTypes) statSlider
-									.getValueMapping().get(select).getSecond();
+									.getValueMapping().get(select).getRight();
 							addSample(cm, 0, j++, stat, param);
 						}
 						break;
@@ -886,11 +885,11 @@ public class LegendPanel extends JPanel implements ActionListener {
 						final StatTypes stat = (StatTypes) statSlider
 								.getValueMapping().get(
 										statSlider.getSelections().iterator()
-												.next()).getSecond();
+												.next()).getRight();
 						int j = 0;
 						for (final Integer select : paramSlider.getSelections()) {
 							final String param = (String) paramSlider
-									.getValueMapping().get(select).getSecond();
+									.getValueMapping().get(select).getRight();
 							addSample(cm, 0, j++, stat, param);
 						}
 						break;
@@ -899,10 +898,10 @@ public class LegendPanel extends JPanel implements ActionListener {
 						addSample(cm, 0, 0, (StatTypes) statSlider
 								.getValueMapping().get(
 										statSlider.getSelections().iterator()
-												.next()).getSecond(),
+												.next()).getRight(),
 								(String) paramSlider.getValueMapping().get(
 										paramSlider.getSelections().iterator()
-												.next()).getSecond());
+												.next()).getRight());
 						break;
 					}
 					break;

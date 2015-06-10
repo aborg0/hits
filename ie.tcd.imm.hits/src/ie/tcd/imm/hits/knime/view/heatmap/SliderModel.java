@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
@@ -19,7 +20,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import org.eclipse.swt.widgets.Slider;
-import org.knime.core.util.Pair;
 
 /**
  * This is something that represents a {@link ParameterModel} list and values.
