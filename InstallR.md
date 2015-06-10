@@ -1,0 +1,1 @@
+[This presentation](http://docs.google.com/Presentation?id=dcr7k9x6_43grqrqdfb) describes the steps to install and setup R.

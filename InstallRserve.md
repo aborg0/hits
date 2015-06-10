@@ -1,0 +1,1 @@
+[This presentation](http://docs.google.com/Presentation?id=dcr7k9x6_70gjn62fhp) describes the installation and setup of cellHTS2, locfit, biomaRt and Rserve. (The beginning and the end is the useful part for this task. If you have completed fully previously, you do not have to do it again.)
