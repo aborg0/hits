@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for Subsets</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>Subsets</h1>
+<p>
+        <p>Generates all possible subsets of the input table's selected columns' values.</p>
+        <p>
+<b>Be careful</b> as it generates all possible 2<sup>#different values</sup> combinations.</p>
+        </p>
+<h2>Dialog Options</h2>
+<dl>
+<dt>included column</dt>
+<dd>the columns to use in generation</dd>
+<dt>Create multiset?</dt>
+<dd>do not filter out the repeats in the values if the is selected</dd>
+</dl>
+<h2>Ports</h2>
+<dl>
+<dt>Input Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>a table</td>
+</tr>
+</table>
+</dd>
+<dt>Output Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>table with the generated subsets of the values</td>
+</tr>
+</table>
+</dd>
+</dl>
+</body>
+</html>
