@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -160,9 +159,6 @@ public class ButtonsControl<Model, Sel extends Selectable<Model>> extends
 		for (final String value : values) {
 			final JToggleButton toggleButton = new JToggleButton(value,
 					selections.contains(value) ^ !INCLUDE_INDICATOR);
-			for (final MouseListener listener : getListeners()) {
-				toggleButton.addMouseListener(listener);
-			}
 			toggleButton.setName(value);
 			buttons.add(toggleButton);
 			// group.add(toggleButton);
@@ -248,13 +244,5 @@ public class ButtonsControl<Model, Sel extends Selectable<Model>> extends
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	protected void notifyChange(
-			final MouseListener listener,
-			final ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl.Change change) {
-		super.notifyChange(listener, change);
-		updateComponent();
 	}
 }

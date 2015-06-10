@@ -3,6 +3,7 @@
  */
 package ie.tcd.imm.hits.knime.view;
 
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
@@ -17,7 +18,7 @@ import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 
-import org.knime.core.util.Pair;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * This interface is for handling the components. (This should also handle the
@@ -31,8 +32,7 @@ import org.knime.core.util.Pair;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface ControlsHandler<ModelType, Model, Sel extends Selectable<Model>> {
 	/**
 	 * Creates or gets the component for the {@code slider} with the type of

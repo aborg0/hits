@@ -27,7 +27,6 @@ public class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayable>
 	 * @param enumValues
 	 *            The allowed values.
 	 */
-	@SafeVarargs
 	public SettingsModelEnum(final String configName,
 			final String defaultValue, final EnumType... enumValues) {
 		super(configName, defaultValue);
@@ -42,7 +41,6 @@ public class SettingsModelEnum<EnumType extends Enum<EnumType> & Displayable>
 	 * @param enumValues
 	 *            The allowed values.
 	 */
-	@SafeVarargs
 	public SettingsModelEnum(final String configName,
 			final EnumType defaultValue, final EnumType... enumValues) {
 		super(configName, defaultValue.getDisplayText());

@@ -9,13 +9,14 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A {@link ParseException} with some additional data.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class TokenizeException extends ParseException {
 	private static final long serialVersionUID = -419497436622379860L;
 	@Nullable

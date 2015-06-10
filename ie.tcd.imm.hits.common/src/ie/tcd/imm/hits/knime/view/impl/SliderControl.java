@@ -9,7 +9,6 @@ import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
-import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -26,6 +25,8 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#Slider}.
  * 
@@ -35,8 +36,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SliderControl<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
 	private final JSlider slider = new JSlider(new DefaultBoundedRangeModel(1,
@@ -211,19 +211,4 @@ public class SliderControl<Model, Sel extends Selectable<Model>> extends
 		return true;
 	}
 
-	@Override
-	protected void notifyChange(final MouseListener listener,
-			final AbstractVariableControl.Change change) {
-		switch (change) {
-		case add:
-			slider.addMouseListener(listener);
-			break;
-		case remove:
-			slider.removeMouseListener(listener);
-			break;
-		default:
-			break;
-		}
-		super.notifyChange(listener, change);
-	}
 }

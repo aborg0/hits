@@ -8,22 +8,21 @@ import java.io.Serializable;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This interface contains the public constants of HiTS project. Some of the
  * constants are in enums in the same package.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface PublicConstants {
 
 	/** The name of the replicate column. */
 	public static final String REPLICATE_COLUMN = "Replicate";
 	/** The name of the plate column. */
 	public static final String PLATE_COLUMN = "Plate";
-	/** The name of the barcode/path column. */
-	public static final String BARCODE_COLUMN = "Barcode";
 	/** The name of the experiment column. */
 	public static final String EXPERIMENT_COLUMN = "Experiment";
 	/** The name of the normalisation method column. */
@@ -54,16 +53,8 @@ public interface PublicConstants {
 	public static final String LOCI_ROW = "LOCI-Row";
 	/** The 'column' column name in LOCI nodes. */
 	public static final String LOCI_COLUMN = "LOCI-Column";
-	/** The Z position column name in LOCI nodes. */
-	public static final String LOCI_Z = "LOCI-Z";
-	/** The time column name in LOCI nodes. */
-	public static final String LOCI_TIME = "LOCI-T";
-	/** The channel column name in LOCI nodes. */
-	public static final String LOCI_CHANNELS = "LOCI-C";
 	/** The field column name in LOCI nodes. */
 	public static final String LOCI_FIELD = "LOCI-Field";
-	/** The OME-XML content of a reader. */
-	public static final String LOCI_XML = "OME-XML";
 	/** The LOCI join identifier column name in LOCI nodes. */
 	public static final String LOCI_ID = "LOCI-Id";
 	/** The LOCI serialised image content column in LOCI nodes. */

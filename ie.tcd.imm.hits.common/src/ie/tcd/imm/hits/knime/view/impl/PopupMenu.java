@@ -5,6 +5,7 @@ package ie.tcd.imm.hits.knime.view.impl;
 
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
@@ -27,7 +28,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.knime.core.util.Pair;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * A popup menu for the {@link AbstractVariableControl}s.
@@ -40,8 +41,7 @@ import org.knime.core.util.Pair;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		implements MouseListener {
 	private final JPopupMenu popup;
@@ -100,7 +100,7 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		 */
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			controlsHandler.move(control, position.getSecond());
+			controlsHandler.move(control, position.getRight());
 		}
 
 	}
@@ -161,10 +161,6 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 				ControlTypes.Slider));
 		toSlider.setText("to slider");
 		menuCompat.add(toSlider);
-		final JMenuItem toTextField = new JMenuItem(new VisualChangeAction(
-				ControlTypes.TextField));
-		toTextField.setText("to edit field");
-		menuCompat.add(toTextField);
 		popup.add(menuCompat);
 		final JMenu moveMenu = new JMenu();
 		moveMenu.setText("Move to");
@@ -172,12 +168,12 @@ public class PopupMenu<ModelType, Model, Sel extends Selectable<Model>>
 		final Set<Pair<SplitType, String>> containers = this.controlsHandler
 				.findContainers();
 		for (final Pair<SplitType, String> pair : containers) {
-			if (pair.getSecond() != null && pair.getFirst() == split) {
+			if (pair.getRight() != null && pair.getLeft() == split) {
 				final JMenuItem posMenu = new JMenuItem(new MoveAction(pair));
-				posMenu.setText(pair.getSecond());
+				posMenu.setText(pair.getRight());
 				posMenu.getModel().addChangeListener(new ChangeListener() {
 					private final JComponent container = PopupMenu.this.controlsHandler
-							.getContainer(pair.getFirst(), pair.getSecond());
+							.getContainer(pair.getLeft(), pair.getRight());
 					private final Color origBackground = container == null ? null
 							: container.getBackground();
 					private final Color origForeground = container == null ? null

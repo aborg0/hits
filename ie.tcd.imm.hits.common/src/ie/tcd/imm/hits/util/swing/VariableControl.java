@@ -6,7 +6,6 @@ package ie.tcd.imm.hits.util.swing;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.util.select.Selectable;
 
-import java.awt.event.MouseListener;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
 
 /**
@@ -56,9 +54,7 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 		/** Something like a {@link JTabbedPane}. */
 		Tab(EnumSet.of(SelectionType.Unmodifiable, SelectionType.Single)),
 		/** The control which is not visible to the user. */
-		Invisible(EnumSet.allOf(SelectionType.class)),
-		/** A single {@link JTextField}. */
-		TextField(EnumSet.of(SelectionType.Unmodifiable, SelectionType.Single));
+		Invisible(EnumSet.allOf(SelectionType.class));
 
 		private final Set<SelectionType> possibleSelections;
 
@@ -115,8 +111,8 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 	public ControlTypes getType();
 
 	/**
-	 * @return The {@link ChangeListener} which is associated to the
-	 *         {@code ModelType} {@link #getModel() model}.
+	 * @return The {@link ChangeListener} which is associated to the {@code
+	 *         ModelType} {@link #getModel() model}.
 	 */
 	public ChangeListener getModelChangeListener();
 
@@ -124,28 +120,4 @@ public interface VariableControl<ModelType, Model, Sel extends Selectable<Model>
 	 * @return The actual domain model.
 	 */
 	public Sel getDomainModel();
-
-	/**
-	 * Adds the {@code listener} to the components.
-	 * 
-	 * @param listener
-	 *            A {@link MouseListener} to add.
-	 */
-	public void addControlListener(MouseListener listener);
-
-	/**
-	 * Removes all control listeners from the view (keeps the model related
-	 * listeners).
-	 */
-	public void removeControlListeners();
-
-	/**
-	 * Removes the selected control {@code listener}.
-	 * 
-	 * @param listener
-	 *            A {@link MouseListener} of the view.
-	 * @return <code>true</code> if the control listeners contained the
-	 *         specified listener.
-	 */
-	public boolean removeControlListener(MouseListener listener);
 }

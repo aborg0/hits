@@ -11,7 +11,6 @@ import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +24,8 @@ import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A {@link VariableControl} with {@link VariableControl.ControlTypes#ComboBox}.
  * 
@@ -34,11 +35,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModel;
  * @param <Sel>
  *            The type of the container of {@code Model}s.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		AbstractVariableControl<Model, Sel> {
-	private final JComboBox<String> combobox = new JComboBox<String>(new DefaultComboBoxModel<String>());
+	private final JComboBox combobox = new JComboBox(new DefaultComboBoxModel());
 
 	/**
 	 * @param model
@@ -121,7 +121,7 @@ public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		@SuppressWarnings("unchecked")
 		final ListSelection<String> model = (ListSelection<String>) getModel();
 		final List<String> possibleValues = model.getPossibleValues();
-		final DefaultComboBoxModel<String> comboBoxModel = (DefaultComboBoxModel<String>) combobox
+		final DefaultComboBoxModel comboBoxModel = (DefaultComboBoxModel) combobox
 				.getModel();
 		final LinkedList<String> comboElements = new LinkedList<String>();
 		for (int i = comboBoxModel.getSize(); i-- > 0;) {
@@ -190,19 +190,4 @@ public class ComboBoxControl<Model, Sel extends Selectable<Model>> extends
 		return true;
 	}
 
-	@Override
-	protected void notifyChange(final MouseListener listener,
-			final Change change) {
-		switch (change) {
-		case add:
-			combobox.addMouseListener(listener);
-			break;
-		case remove:
-			combobox.removeMouseListener(listener);
-			break;
-		default:
-			throw new IllegalStateException("Not supported change type.");
-		}
-		super.notifyChange(listener, change);
-	}
 }

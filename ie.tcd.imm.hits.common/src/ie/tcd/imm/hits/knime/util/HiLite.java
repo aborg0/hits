@@ -9,14 +9,15 @@ import java.util.Map;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * An annotation that describes the possible behaviours of HiLites when the
  * generated rows are not in a one-to-(at most) one relationship.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public enum HiLite {
 	/** HiLite is propagated only if all of the generated are selected */
 	OnlyIfAllSelected("HiLite if all selected in a group"),

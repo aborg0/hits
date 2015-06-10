@@ -3,12 +3,13 @@
  */
 package ie.tcd.imm.hits.util.template.impl;
 
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.template.AbstractToken;
-import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 import ie.tcd.imm.hits.util.template.CompoundToken;
 import ie.tcd.imm.hits.util.template.Token;
 import ie.tcd.imm.hits.util.template.TokenizeException;
 import ie.tcd.imm.hits.util.template.Tokenizer;
+import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.RegEx;
 
-import org.knime.core.util.Pair;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * This {@link Tokenizer} implementation allows to handle groups like:
@@ -31,8 +32,7 @@ import org.knime.core.util.Pair;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class GroupingTokenizer extends RegExpTokenizer {
 	private static final long serialVersionUID = -1774408671215139193L;
 
@@ -152,7 +152,7 @@ public class GroupingTokenizer extends RegExpTokenizer {
 	private final Collection<? extends Token> origPuffer;
 
 	private static final Pair<SplitToken, List<Token>> startState = Pair
-			.create(null, Collections.<Token> emptyList());
+			.leftNull(Collections.<Token> emptyList());
 
 	/**
 	 * @param offset

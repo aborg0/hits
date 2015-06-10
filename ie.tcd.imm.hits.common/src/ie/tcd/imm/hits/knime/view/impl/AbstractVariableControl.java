@@ -8,11 +8,6 @@ import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
@@ -48,8 +43,6 @@ public abstract class AbstractVariableControl<Model, Sel extends Selectable<Mode
 	private final ChangeListener changeListener;
 
 	private final Sel domainModel;
-
-	private final Collection<MouseListener> listeners = new ArrayList<MouseListener>();
 
 	/**
 	 * Sets the initial parameters.
@@ -135,7 +128,8 @@ public abstract class AbstractVariableControl<Model, Sel extends Selectable<Mode
 	@Override
 	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs)
 			throws NotConfigurableException {
-		// Do nothing
+		// TODO Auto-generated method stub
+
 	}
 
 	/*
@@ -264,60 +258,5 @@ public abstract class AbstractVariableControl<Model, Sel extends Selectable<Mode
 	@Override
 	public Sel getDomainModel() {
 		return domainModel;
-	}
-
-	/**
-	 * Type of the control listener change.
-	 */
-	protected enum Change {
-		/** New control listener added. */
-		add,
-		/** Control listener removed. */
-		remove;
-	}
-
-	@Override
-	public void addControlListener(final MouseListener listener) {
-		if (!listeners.contains(listener)) {
-			listeners.add(listener);
-			notifyChange(listener, Change.add);
-		}
-	}
-
-	@Override
-	public void removeControlListeners() {
-		for (final MouseListener l : listeners) {
-			notifyChange(l, Change.remove);
-		}
-		listeners.clear();
-	}
-
-	@Override
-	public boolean removeControlListener(final MouseListener listener) {
-		final boolean removed = listeners.remove(listener);
-		if (removed) {
-			notifyChange(listener, Change.remove);
-		}
-		return removed;
-	}
-
-	/**
-	 * Notifies the control about a change in the control listeners.
-	 * 
-	 * @param listener
-	 *            The {@link MouseListener} affected in the change.
-	 * @param change
-	 *            The type of the change.
-	 */
-	protected void notifyChange(final MouseListener listener,
-			final Change change) {
-		// By default do nothing.
-	}
-
-	/**
-	 * @return The control listeners.
-	 */
-	protected Collection<? extends MouseListener> getListeners() {
-		return Collections.unmodifiableCollection(listeners);
 	}
 }

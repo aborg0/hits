@@ -8,13 +8,14 @@ import java.io.Serializable;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A part of a {@link String}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface Token extends Serializable {
 	/** @return the position from {@code 0}, start of the token */
 	int getStartPosition();
