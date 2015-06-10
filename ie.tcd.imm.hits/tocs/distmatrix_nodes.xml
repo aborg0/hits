@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Distance Matrix" link_to="..\org.knime.distmatrix\tocs\distmatrix.xml#distmatrix">
+<topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Sort_by_Cluster.html" label="Sort by Cluster"/>
+</toc>

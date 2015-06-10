@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Data Views" link_to="..\org.knime.base\tocs\view.xml#view">
+<topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Simple_Heatmap.html" label="Simple Heatmap"/>
+</toc>
