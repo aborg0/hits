@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Features</title>
+</head>
+<body>
+<h1>Supported features</h1>
+<h2>cellHTS2</h2>
+<p>You may add gene annotations, log transform, normalise, score and summarise the scores using the cellHTS2 node and save the HTML results.</p>
+<p>On configuration gives help about the selected formulae.</p>
+<p>Set which columns are interesting and in which order.</p>
+<h2>biomaRt annotator</h2>
+<p>You can add biomaRt annotations to your data (from one source at a time).</p>
+<h2>Ranking</h2>
+<p>Ranking by plates, by experiment or physical plates; multiple experiments or normalisation methods; tie handling.</p>
+<h2>Heatmap</h2>
+<p>Allows you to visualise data from different experiments, different normalisation methods, and you can rearrange the controls and influence the structure of the shown data.</p>
+<p>The HiLiting works. You can change the used colours.</p>
+<p>Handles the associated colours as the background colour if available an unambiguous colour information to that visual well.</p>
+<p>You can influence the generated tooltips.</p>
+<p>Browse the HiLited rows.</p>
+<p>Export the heatmaps as png files.</p>
+<h1>Limitations</h1>
+<h2>cellHTS2</h2>
+<ul>
+<li>Screen log is not tested yet, it may be not working at all... If the screen log is empty it works well.</li>
+<li>The view does not support clicking on links.</li>
+</ul>
+<h2>Heatmap</h2>
+<h3>HiLiting</h3>
+<p>You cannot HiLite a part of a visual well, HiLite of a part of a visual well will generate HiLite on screen for the whole visual well. The HiLites are not saved, so next time (if you close your project) you have to HiLite everything you wanted.</p>
+<h2>Ranking</h2>
+<ul>
+<li>No proper regulation interface (you have option only to select a general natural point an direction, cannot specify to each parameter-statistics pair).</li>
+</ul>
+<h1>Not supported features</h1>
+<h2>cellHTS2</h2>
+<ul>
+<li>call generation</li>
+<li>Category analysis</li>
+<li>Two way analysis</li>
+<li>Summarise channels</li>
+<li>Negative sign for scoring of a parameter</li>
+<li>Other than 96 plate format</li>
+</ul>
+<h2>Heatmap</h2>
+<ul>
+<li>Does not support saving of actual arrangement/preferences.</li>
+<li>Other than 96 plate format</li>
+</ul>
+<include path="ie.tcd.imm.hits/help/footer.xhtml/copyright"/>
+</body>
+</html>

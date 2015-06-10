@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contexts>
+	<context id="columnSelection" title="Column selection">
+		<description>This is the column selection area.</description>
+		<topic href="../settings.xhtml#columns" label="Columns"/>
+		<topic href="help/settings.xhtml#colOrder" label="Column order"/>
+	</context>
+</contexts>

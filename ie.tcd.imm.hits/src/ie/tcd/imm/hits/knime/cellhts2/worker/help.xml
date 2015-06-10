@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:root xmlns:tns="http://code.google.com/p/hits/HelpConfig"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://code.google.com/p/hits/HelpConfig HelpConfig.xsd ">
+	<tns:pair key="default" type="image" value="res/noFormulaFound.png" />
+	<tns:pair key="default" type="HTML">
+		<p>
+			This formula has no detailed description. This usually
+			indicates that it is not intended for use.
+		</p>
+	</tns:pair>
+	<tns:pair key="default" type="generatedExplanation" value="" />
+
+	<tns:pair key="Bscore.false.false.by experiment" type="image"
+		value="res/Bscore.false.false.byexperiment.png" />
+	<tns:pair key="Bscore.false.false.by plate" type="image"
+		value="res/Bscore.false.false.byplate.png" />
+	<tns:pair key="Bscore.false.false.no adjustment" type="image"
+		value="res/Bscore.false.false.noadjustment.png" />
+	<tns:pair key="Bscore.true.false.by experiment" type="image"
+		value="res/Bscore.false.false.byexperiment.png" />
+	<tns:pair key="Bscore.true.false.by plate" type="image"
+		value="res/Bscore.false.false.byplate.png" />
+	<tns:pair key="Bscore.true.false.no adjustment" type="image"
+		value="res/Bscore.false.false.noadjustment.png" />
+	<tns:pair key="Bscore.true.true.by experiment" type="image"
+		value="res/Bscore.true.true.byexperiment.png" />
+	<tns:pair key="Bscore.true.true.by plate" type="image"
+		value="res/Bscore.true.true.byplate.png" />
+	<tns:pair key="Bscore.true.true.no adjustment" type="image"
+		value="res/Bscore.true.true.noadjustment.png" />
+	<tns:pair key="locfit.false.false.by experiment" type="image"
+		value="res/locfit.false.false.byexperiment.png" />
+	<tns:pair key="locfit.false.false.by plate" type="image"
+		value="res/locfit.false.false.byplate.png" />
+	<tns:pair key="locfit.false.false.no adjustment" type="image"
+		value="res/locfit.false.false.noadjustment.png" />
+	<tns:pair key="locfit.true.true.by experiment" type="image"
+		value="res/locfit.true.true.byexperiment.png" />
+	<tns:pair key="locfit.true.true.by plate" type="image"
+		value="res/locfit.true.true.byplate.png" />
+	<tns:pair key="locfit.true.true.no adjustment" type="image"
+		value="res/locfit.true.true.noadjustment.png" />
+	<tns:pair key="loess.false.false.by experiment" type="image"
+		value="res/loess.false.false.byexperiment.png" />
+	<tns:pair key="loess.false.false.by plate" type="image"
+		value="res/loess.false.false.byplate.png" />
+	<tns:pair key="loess.false.false.no adjustment" type="image"
+		value="res/loess.false.false.noadjustment.png" />
+	<tns:pair key="loess.true.false.by experiment" type="image"
+		value="res/loess.false.false.byexperiment.png" />
+	<tns:pair key="loess.true.false.by plate" type="image"
+		value="res/loess.false.false.byplate.png" />
+	<tns:pair key="loess.true.false.no adjustment" type="image"
+		value="res/loess.false.false.noadjustment.png" />
+	<tns:pair key="loess.true.true.by experiment" type="image"
+		value="res/loess.true.true.byexperiment.png" />
+	<tns:pair key="loess.true.true.by plate" type="image"
+		value="res/loess.true.true.byplate.png" />
+	<tns:pair key="loess.true.true.no adjustment" type="image"
+		value="res/loess.true.true.noadjustment.png" />
+	<tns:pair key="mean.false.false.by experiment" type="image"
+		value="res/mean.false.false.byexperiment.png" />
+	<tns:pair key="mean.false.false.by plate" type="image"
+		value="res/mean.false.false.byplate.png" />
+	<tns:pair key="mean.false.false.no adjustment" type="image"
+		value="res/mean.false.false.noadjustment.png" />
+	<tns:pair key="mean.true.false.by experiment" type="image"
+		value="res/mean.true.false.byexperiment.png" />
+	<tns:pair key="mean.true.false.by plate" type="image"
+		value="res/mean.true.false.byplate.png" />
+	<tns:pair key="mean.true.false.no adjustment" type="image"
+		value="res/mean.true.false.noadjustment.png" />
+	<tns:pair key="mean.true.true.by experiment" type="image"
+		value="res/mean.true.true.byexperiment.png" />
+	<tns:pair key="mean.true.true.by plate" type="image"
+		value="res/mean.true.true.byplate.png" />
+	<tns:pair key="mean.true.true.no adjustment" type="image"
+		value="res/mean.true.true.noadjustment.png" />
+	<tns:pair key="median.false.false.by experiment" type="image"
+		value="res/median.false.false.byexperiment.png" />
+	<tns:pair key="median.false.false.by plate" type="image"
+		value="res/median.false.false.byplate.png" />
+	<tns:pair key="median.false.false.no adjustment" type="image"
+		value="res/median.false.false.noadjustment.png" />
+	<tns:pair key="median.true.false.by experiment" type="image"
+		value="res/median.true.false.byexperiment.png" />
+	<tns:pair key="median.true.false.by plate" type="image"
+		value="res/median.true.false.byplate.png" />
+	<tns:pair key="median.true.false.no adjustment" type="image"
+		value="res/median.true.false.noadjustment.png" />
+	<tns:pair key="median.true.true.by experiment" type="image"
+		value="res/median.true.true.byexperiment.png" />
+	<tns:pair key="median.true.true.by plate" type="image"
+		value="res/median.true.true.byplate.png" />
+	<tns:pair key="median.true.true.no adjustment" type="image"
+		value="res/median.true.true.noadjustment.png" />
+	<tns:pair key="negatives.false.false.by experiment" type="image"
+		value="res/negatives.false.false.byexperiment.png" />
+	<tns:pair key="negatives.false.false.by plate" type="image"
+		value="res/negatives.false.false.byplate.png" />
+	<tns:pair key="negatives.false.false.no adjustment" type="image"
+		value="res/negatives.false.false.noadjustment.png" />
+	<tns:pair key="negatives.true.false.by experiment" type="image"
+		value="res/negatives.true.false.byexperiment.png" />
+	<tns:pair key="negatives.true.false.by plate" type="image"
+		value="res/negatives.true.false.byplate.png" />
+	<tns:pair key="negatives.true.false.no adjustment" type="image"
+		value="res/negatives.true.false.noadjustment.png" />
+	<tns:pair key="negatives.true.true.by experiment" type="image"
+		value="res/negatives.true.true.byexperiment.png" />
+	<tns:pair key="negatives.true.true.by plate" type="image"
+		value="res/negatives.true.true.byplate.png" />
+	<tns:pair key="negatives.true.true.no adjustment" type="image"
+		value="res/negatives.true.true.noadjustment.png" />
+	<tns:pair key="NPI.false.false.by experiment" type="image"
+		value="res/NPI.false.false.byexperiment.png" />
+	<tns:pair key="NPI.false.false.by plate" type="image"
+		value="res/NPI.false.false.byplate.png" />
+	<tns:pair key="NPI.false.false.no adjustment" type="image"
+		value="res/NPI.false.false.noadjustment.png" />
+	<tns:pair key="NPI.true.false.by experiment" type="image"
+		value="res/NPI.false.false.byexperiment.png" />
+	<tns:pair key="NPI.true.false.by plate" type="image"
+		value="res/NPI.false.false.byplate.png" />
+	<tns:pair key="NPI.true.false.no adjustment" type="image"
+		value="res/NPI.false.false.noadjustment.png" />
+	<tns:pair key="NPI.true.true.by experiment" type="image"
+		value="res/NPI.true.true.byexperiment.png" />
+	<tns:pair key="NPI.true.true.by plate" type="image"
+		value="res/NPI.true.true.byplate.png" />
+	<tns:pair key="NPI.true.true.no adjustment" type="image"
+		value="res/NPI.true.true.noadjustment.png" />
+	<tns:pair key="POC.false.false.by experiment" type="image"
+		value="res/POC.false.false.byexperiment.png" />
+	<tns:pair key="POC.false.false.by plate" type="image"
+		value="res/POC.false.false.byplate.png" />
+	<tns:pair key="POC.false.false.no adjustment" type="image"
+		value="res/POC.false.false.noadjustment.png" />
+	<tns:pair key="POC.true.false.by experiment" type="image"
+		value="res/POC.false.false.byexperiment.png" />
+	<tns:pair key="POC.true.false.by plate" type="image"
+		value="res/POC.false.false.byplate.png" />
+	<tns:pair key="POC.true.false.no adjustment" type="image"
+		value="res/POC.false.false.noadjustment.png" />
+	<tns:pair key="POC.true.true.by experiment" type="image"
+		value="res/POC.true.true.byexperiment.png" />
+	<tns:pair key="POC.true.true.by plate" type="image"
+		value="res/POC.true.true.byplate.png" />
+	<tns:pair key="POC.true.true.no adjustment" type="image"
+		value="res/POC.true.true.noadjustment.png" />
+	<tns:pair key="shorth.false.false.by experiment" type="image"
+		value="res/shorth.false.false.byexperiment.png" />
+	<tns:pair key="shorth.false.false.by plate" type="image"
+		value="res/shorth.false.false.byplate.png" />
+	<tns:pair key="shorth.false.false.no adjustment" type="image"
+		value="res/shorth.false.false.noadjustment.png" />
+	<tns:pair key="shorth.true.false.by experiment" type="image"
+		value="res/shorth.true.false.byexperiment.png" />
+	<tns:pair key="shorth.true.false.by plate" type="image"
+		value="res/shorth.true.false.byplate.png" />
+	<tns:pair key="shorth.true.false.no adjustment" type="image"
+		value="res/shorth.true.false.noadjustment.png" />
+	<tns:pair key="shorth.true.true.by experiment" type="image"
+		value="res/shorth.true.true.byexperiment.png" />
+	<tns:pair key="shorth.true.true.by plate" type="image"
+		value="res/shorth.true.true.byplate.png" />
+	<tns:pair key="shorth.true.true.no adjustment" type="image"
+		value="res/shorth.true.true.noadjustment.png" />
+	<tns:pair key="closestToZero" type="image"
+		value="res/closestToZero.png" />
+	<tns:pair key="furthestFromZero" type="image"
+		value="res/furthestFromZero.png" />
+	<tns:pair key="max" type="image" value="res/max.png" />
+	<tns:pair key="mean" type="image" value="res/mean.png" />
+	<tns:pair key="median" type="image" value="res/median.png" />
+	<tns:pair key="min" type="image" value="res/min.png" />
+	<tns:pair key="NPI" type="image" value="res/NPI.png" />
+	<tns:pair key="rms" type="image" value="res/rms.png" />
+	<tns:pair key="zscore" type="image" value="res/zscore.png" />
+	<tns:pair key="zscoreByPlate" type="image"
+		value="res/zscoreByPlate.png" />
+	<tns:pair key="zscoreNonRobust" type="image"
+		value="res/zscoreNonRobust.png" />
+	<tns:pair key="zscoreNonRobustByPlate" type="image"
+		value="res/zscoreNonRobustByPlate.png" />
+
+	<tns:pair key="mean" type="generatedExplanation"
+		value="s[well,plate] := average of scored replicate wells" />
+	<tns:pair key="mean" type="HTML">
+		The average/mean of the scored replicate well values
+	</tns:pair>
+	<tns:pair key="median" type="generatedExplanation"
+		value="s[well,plate] := median of scored replicate wells" />
+	<tns:pair key="median" type="HTML">
+		The median of the scored replicate well values
+	</tns:pair>
+	<tns:pair key="zscore" type="generatedExplanation"
+		value="scored well value:= (normalised well value minus the median of normalised sample well values of that physical plate) divided by ( median absolute deviation of [ normalised sample well values
+minus the median of normalised sample well values for each replicate group] for
+each replicate group)" />
+	<tns:pair key="zscoreByPlate" type="generatedExplanation"
+		value="scored well value:= (normalised well value minus the median of normalised sample well values of that physical plate) divided by ( median absolute deviation of [ normalised sample well values
+minus the median of normalised sample well values of that physical plate] of that physical plate)" />
+	<tns:pair key="zscoreNonRobust" type="generatedExplanation"
+		value="scored well value:= (normalised well value minus the mean of normalised sample well values of that physical plate) divided by ( standard deviation of [ normalised sample well values
+minus the mean of normalised sample well values for each replicate group] for
+each replicate group)" />
+	<tns:pair key="zscoreNonRobustByPlate" type="generatedExplanation"
+		value="scored well value:= (normalised well value minus the mean of normalised sample well values of that physical plate) divided by ( standard deviation of [ normalised sample well values
+minus the mean of normalised sample well values of that physical plate] of that physical plate)" />
+	<tns:pair key="zscore" type="HTML">
+		For each replicate (as independent experiments) the value of
+		median and MAD is computed for the sample wells. The result is
+		the result of (normalised well value minus median of samples)
+		divided by the mad of the samples
+	</tns:pair>
+	<tns:pair key="none" type="generatedExplanation"
+		value="Not scoring, not summarising." />
+	<tns:pair key="none" type="HTML">
+		Not scoring, not summarising.
+	</tns:pair>
+	<tns:pair key="NPI" type="generatedExplanation"
+		value="scored normalised well value:= ( (average of normalised pos well values for each physical plate minus
+normalised well value) divided by (average of normalised pos well values for each plate,replicate group
+minus average of normalised neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of normalised pos well values for each physical plate minus normalised sample well values ) divided by (average of normalised pos well
+values for each plate,replicate group minus average of normalised neg well values for each physical plate)] for each replicate group )" />
+
+	<tns:pair key="POC.false.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value) divided by (average of pos well values for each physical plate) multiplied by 100%" />
+	<tns:pair key="POC.false.false.by plate" type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by (average of pos well values for each physical plate) multiplied by 100) divided by ( median absolute deviation of
+[ ( sample well values ) divided by (average of pos well values for each physical plate) multiplied by 100] for each physical plate)" />
+	<tns:pair key="POC.false.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by (average of pos well values for each physical plate) multiplied by 100) divided by ( median absolute deviation of
+[ ( sample well values ) divided by (average of pos well values for each physical plate) multiplied by 100] for each replicate group )" />
+	<tns:pair key="POC.true.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value) divided by (average of pos well values for each physical plate) multiplied by 100%" />
+	<tns:pair key="POC.true.false.by plate" type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by (average of pos well values for each physical plate) multiplied by 100) divided by ( median absolute deviation of
+[ ( sample well values ) divided by (average of pos well values for each physical plate) multiplied by 100] for each physical plate)" />
+	<tns:pair key="POC.true.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by (average of pos well values for each physical plate) multiplied by 100) divided by ( median absolute deviation of
+[ ( sample well values ) divided by (average of pos well values for each physical plate) multiplied by 100] for each replicate group )" />
+	<tns:pair key="POC.true.true.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value ) divided by (average of logarithm
+(2) of pos well values for each physical plate) multiplied by 100%" />
+	<tns:pair key="POC.true.true.by plate" type="generatedExplanation"
+		value="normalised well value:= ( ( logarithm (2) of well value ) divided by (average of logarithm
+(2) of pos well values for each physical plate) multiplied by 100)
+divided by ( median absolute deviation of [ ( logarithm (2) of sample well
+values ) divided by (average of logarithm (2) of pos well values for each physical plate) multiplied by 100] for each physical plate)" />
+	<tns:pair key="POC.true.true.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( ( logarithm (2) of well value ) divided by (average of logarithm
+(2) of pos well values for each physical plate) multiplied by 100)
+divided by ( median absolute deviation of [ ( logarithm (2) of sample well
+values ) divided by (average of logarithm (2) of pos well values for each physical plate) multiplied by 100] for each replicate group )" />
+	<tns:pair key="median.false.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:=well value minus the median of sample well values of that physical plate" />
+	<tns:pair key="median.false.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the median of sample well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the median of sample well values for each physical plate] for each physical plate)
+" />
+	<tns:pair key="median.false.false.by plate" type="HTML">
+		<b>This is the Z score (by plate).</b>
+		<p>
+			It is computed plate-by-plate bases (plate means physical
+			plate in this case).
+		</p>
+	</tns:pair>
+	<tns:pair key="median.false.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the median of sample well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the median of sample well values for each physical plate] for
+each replicate group )" />
+	<tns:pair key="median.true.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value) divided by ( median of sample well values for each physical plate)" />
+	<tns:pair key="median.true.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by ( median of sample well values for each physical plate) ) divided by ( median absolute deviation of [ ( sample
+well values ) divided by ( median of sample well values for each physical plate)] for each physical plate)" />
+	<tns:pair key="median.true.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by ( median of sample well values for each physical plate) ) divided by ( median absolute deviation of [ ( sample
+well values ) divided by ( median of sample well values for each physical plate)] for each replicate group )" />
+	<tns:pair key="median.true.true.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= logarithm (2) of well value minus the median of logarithm (2) of
+sample well values for each physical plate" />
+	<tns:pair key="median.true.true.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the median of logarithm (2)
+of sample well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the median
+of logarithm (2) of sample well values for each physical plate] for each physical plate)" />
+	<tns:pair key="median.true.true.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the median of logarithm (2)
+of sample well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the median
+of logarithm (2) of sample well values for each physical plate] for
+each replicate group )" />
+	<tns:pair key="negatives.false.false.no adjustment"
+		type="generatedExplanation"
+		value="well value minus the median of neg well values for each physical plate" />
+	<tns:pair key="negatives.false.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the median of neg well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the median of neg well values for each physical plate] for each physical plate)" />
+	<tns:pair key="negatives.false.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the median of neg well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the median of neg well values for each physical plate] for each
+replicate group )" />
+	<tns:pair key="negatives.true.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value) divided by ( median of neg well values for each physical plate)" />
+	<tns:pair key="negatives.true.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by ( median of neg well values for each physical plate) ) divided by ( median absolute deviation of [ ( sample
+well values ) divided by ( median of neg well values for each physical plate)] for each physical plate)" />
+	<tns:pair key="negatives.true.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (well value) divided by ( median of neg well values for each physical plate) ) divided by ( median absolute deviation of [ ( sample
+well values ) divided by ( median of neg well values for each physical plate)] for each replicate group )" />
+	<tns:pair key="negatives.true.true.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= logarithm (2) of well value minus the median of logarithm (2) of
+neg well values for each physical plate" />
+	<tns:pair key="negatives.true.true.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the median of logarithm
+(2) of neg well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the median
+of logarithm (2) of neg well values for each physical plate] for each physical plate)" />
+	<tns:pair key="negatives.true.true.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the median of logarithm
+(2) of neg well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the median
+of logarithm (2) of neg well values for each physical plate] for each
+replicate group )" />
+	<tns:pair key="NPI.false.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate)" />
+	<tns:pair key="NPI.false.false.by plate" type="generatedExplanation"
+		value="normalised well value:= ( (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of pos well values for each physical plate minus sample well values ) divided by (average of pos well
+values for each plate,replicate group minus average of neg well values for each physical plate)] for each physical plate)" />
+	<tns:pair key="NPI.false.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of pos well values for each physical plate minus sample well values ) divided by (average of pos well
+values for each plate,replicate group minus average of neg well values for each physical plate)] for each replicate group )" />
+	<tns:pair key="NPI.true.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate)" />
+	<tns:pair key="NPI.true.false.by plate" type="generatedExplanation"
+		value="normalised well value:= ( (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of pos well values for each physical plate minus sample well values ) divided by (average of pos well
+values for each plate,replicate group minus average of neg well values for each physical plate)] for each physical plate)" />
+	<tns:pair key="NPI.true.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (average of pos well values for each physical plate minus
+well value) divided by (average of pos well values for each plate,replicate group
+minus average of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of pos well values for each physical plate minus sample well values ) divided by (average of pos well
+values for each plate,replicate group minus average of neg well values for each physical plate)] for each replicate group )" />
+	<tns:pair key="NPI.true.true.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= (average of logarithm (2) of pos well values for each physical plate minus logarithm (2) of well value ) divided by (average of
+logarithm (2) of pos well values for each plate,replicate group minus average
+of logarithm (2) of neg well values for each physical plate)" />
+	<tns:pair key="NPI.true.true.by plate" type="generatedExplanation"
+		value="normalised well value:= ( (average of logarithm (2) of pos well values for each physical plate minus logarithm (2) of well value ) divided by (average of
+logarithm (2) of pos well values for each plate,replicate group minus average
+of logarithm (2) of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of logarithm (2) of pos well values for each physical plate minus logarithm (2) of sample well values ) divided
+by (average of logarithm (2) of pos well values for each plate,replicate group
+minus average of logarithm (2) of neg well values for each physical plate)] for each physical plate)" />
+	<tns:pair key="NPI.true.true.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( (average of logarithm (2) of pos well values for each physical plate minus logarithm (2) of well value ) divided by (average of
+logarithm (2) of pos well values for each plate,replicate group minus average
+of logarithm (2) of neg well values for each physical plate) ) divided by
+( median absolute deviation of [ (average of logarithm (2) of pos well values for each physical plate minus logarithm (2) of sample well values ) divided
+by (average of logarithm (2) of pos well values for each plate,replicate group
+minus average of logarithm (2) of neg well values for each physical plate)] for each replicate group )" />
+	<tns:pair key="shorth.false.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= shorth of sample well values for each physical plate" />
+	<tns:pair key="shorth.false.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the shorth of pos well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the shorth of pos well values for each physical plate] for each physical plate)" />
+	<tns:pair key="shorth.false.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the shorth of pos well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the shorth of pos well values for each physical plate] for each
+replicate group )" />
+	<tns:pair key="shorth.true.false.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= shorth of sample well values for each physical plate" />
+	<tns:pair key="shorth.true.false.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the shorth of pos well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the shorth of pos well values for each physical plate] for each physical plate)" />
+	<tns:pair key="shorth.true.false.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= (well value minus the shorth of pos well values for each physical plate) divided by ( median absolute deviation of [ sample well values
+minus the shorth of pos well values for each physical plate] for each
+replicate group )" />
+	<tns:pair key="shorth.true.true.no adjustment"
+		type="generatedExplanation"
+		value="normalised well value:= shorth of logarithm (2) of sample well values for each physical plate" />
+	<tns:pair key="shorth.true.true.by plate"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the shorth of logarithm
+(2) of pos well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the shorth
+of logarithm (2) of pos well values for each physical plate] for each physical plate)" />
+	<tns:pair key="shorth.true.true.by experiment"
+		type="generatedExplanation"
+		value="normalised well value:= ( logarithm (2) of well value minus the shorth of logarithm
+(2) of pos well values for each physical plate) divided by ( median
+absolute deviation of [ logarithm (2) of sample well values minus the shorth
+of logarithm (2) of pos well values for each physical plate] for each
+replicate group )" />
+</tns:root>
