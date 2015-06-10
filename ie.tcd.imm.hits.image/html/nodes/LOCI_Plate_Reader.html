@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for LOCI Plate Reader</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>LOCI Plate Reader</h1>
+<p>
+        Reads the images of a folder to access them later with LOCI Plate Viewer.
+        <br/>
+        Details can be found <a href="../../help/Loci_Plate_Viewer.xhtml">here</a>.
+        </p>
+<h2>Dialog Options</h2>
+<dl>
+<dt>folder</dt>
+<dd>The folder of images</dd>
+<dt>extensions</dt>
+<dd>Extensions to select the image files</dd>
+</dl>
+<h2>Ports</h2>
+<dl>
+<dt>Output Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>maps the images to LOCI readers</td>
+</tr>
+<tr>
+<td class="dt">1</td>
+<td>LOCI readers</td>
+</tr>
+<tr>
+<td class="dt">2</td>
+<td>metadata from readers</td>
+</tr>
+</table>
+</dd>
+</dl>
+</body>
+</html>

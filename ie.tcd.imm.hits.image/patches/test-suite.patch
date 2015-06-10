@@ -1,0 +1,384 @@
+Index: src/loci/tests/testng/osgi/InstallBundles.java
+===================================================================
+--- src/loci/tests/testng/osgi/InstallBundles.java	(revision 0)
++++ src/loci/tests/testng/osgi/InstallBundles.java	(revision 0)
+@@ -0,0 +1,333 @@
++/*
++ * All rights reserved. (C) Copyright 2009, Trinity College Dublin
++ */
++package loci.tests.testng.osgi;
++
++import java.net.URL;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.Collection;
++import java.util.Collections;
++
++import loci.common.ReflectedUniverse;
++
++import org.eclipse.osgi.launch.Equinox;
++import org.eclipse.osgi.launch.EquinoxFactory;
++import org.osgi.framework.Bundle;
++import org.osgi.framework.BundleException;
++import org.osgi.framework.launch.Framework;
++import org.testng.Assert;
++import org.testng.annotations.AfterClass;
++import org.testng.annotations.DataProvider;
++import org.testng.annotations.Test;
++import org.testng.log4testng.Logger;
++
++/**
++ * Simple tests loading bundles.
++ * 
++ * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
++ */
++public class InstallBundles {
++	private static final Logger logger = Logger.getLogger(InstallBundles.class);
++
++	/**
++	 * The environment or property key to set the project root URL. (ex.:
++	 * {@code file:/D:/workspace})
++	 */
++	public static final String CFGKEY_PROJECT_ROOT = "project.root";
++
++	private static String projectURL = System.getenv(CFGKEY_PROJECT_ROOT) == null ? System
++			.getProperty(CFGKEY_PROJECT_ROOT)
++			: System.getenv(CFGKEY_PROJECT_ROOT);
++	private static final String artifactsURL = projectURL + "/java/artifacts/";
++
++	private static final Framework framework = initFramework();
++
++	/**
++	 * A data provider for
++	 * {@link #installBundle(String, Collection, Collection)} tests.
++	 * 
++	 * @return Three values:
++	 *         <ol start = "1">
++	 *         <li>Absolute path to project root of the bundle (will use
++	 *         {@link #projectURL})</li>
++	 *         <li>A list of absolute path for the dependencies.</li>
++	 *         <li>List of {@link loci.common.ReflectedUniverse} expressions
++	 *         (which should not throw exceptions).</li>
++	 *         </ol>
++	 */
++	@DataProvider(name = "bundleWithDependencies")
++	public static Object[][] bundlesWithDependencies() {
++		return new Object[][] {
++				{
++						artifactsURL + "loci-common.jar",
++						Collections.<String> emptyList(),
++						Arrays.asList("import loci.common.ReflectedUniverse",
++								"new ReflectedUniverse()") },
++				{
++						artifactsURL + "jvmlink.jar",
++						Collections.singletonList(artifactsURL
++								+ "loci-common.jar"),
++						Arrays.asList("import loci.jvmlink.ConnThread",
++								"ConnThread.getCommand(0)") },
++				{
++						artifactsURL + "bio-formats.jar",
++						Arrays
++								.asList(
++										artifactsURL + "loci-common.jar",
++										artifactsURL + "forms-1.0.4.jar",
++										// projectURL+"/java/artifacts/bufr-1.1.00.jar",
++										// projectURL+"/java/artifacts/grib-5.1.03.jar",
++										// projectURL+"/java/artifacts/ome-io.jar",
++										artifactsURL + "ome-xml.jar",
++										// projectURL+"/java/artifacts/ome-notes.jar",
++										artifactsURL
++												+ "com.springsource.org.apache.commons.logging-1.1.1.jar",
++										artifactsURL + "poi-loci.jar",
++										artifactsURL + "mdbtools-java.jar",
++										// projectURL+"/java/artifacts/jai_imageio.jar",
++										// projectURL+"/java/artifacts/netcdf-4.0.jar",
++										artifactsURL + "slf4j-jdk14-1.5.8.jar",
++										artifactsURL + "slf4j-api-1.5.8.jar"),
++						Arrays.asList("import loci.formats.FormatReader",
++								"import loci.formats.FormatTools",
++								"FormatTools.isSigned(4)",
++								"import loci.common.Location",
++								"import loci.formats.FilePattern",
++								"new FilePattern(\"\")") }, };
++	}
++
++	/**
++	 * @return The same as {@link #bundlesWithDependencies()}, without the first
++	 *         test case parameters.
++	 */
++	@DataProvider(name = "bundleWithDependenciesExceptLociCommon")
++	public static Object[][] bundlesWithDependenciesExceptFirst() {
++		final Object[][] orig = bundlesWithDependencies();
++		final Object[][] ret = new Object[orig.length - 1][orig[0].length];
++		System.arraycopy(orig, 1, ret, 0, orig.length - 1);
++		return ret;
++	}
++
++	/**
++	 * Creates a new {@link Equinox} {@link Framework}, installs the bundle
++	 * dependencies {@code dependencyBundlePaths}, then installs the bundle at
++	 * {@code bundlePath}, finally it executes the expressions {@code
++	 * testExpressions} with {@link loci.common.ReflectedUniverse}.
++	 * 
++	 * @param bundlePath
++	 *            An absolute {@link URL} path to the bundle to test.
++	 * @param dependencyBundlePaths
++	 *            A {@link Collection} of absolute {@link URL} paths to the
++	 *            dependency paths.
++	 * @param testExpressions
++	 *            A {@link Collection} of the expressions to execute within the
++	 *            bundle.
++	 * @throws Exception
++	 *             Something unexpected happened.
++	 */
++	@Test(testName = "install bundles", groups = { "osgi", "long-running" }, dataProvider = "bundleWithDependencies")
++	public void installBundle(final String bundlePath,
++			final Collection<String> dependencyBundlePaths,
++			final Collection<String> testExpressions) throws Exception {
++		logger.info(projectURL);
++		final Collection<Bundle> bundles = installDependencies(
++				dependencyBundlePaths, framework);
++		final Bundle bundle = initBundle(bundlePath, framework);
++		final ReflectedUniverse reflectedUniverse = new ReflectedUniverse(
++				getClassLoader(testExpressions, bundle));
++		for (final String testExpression : testExpressions) {
++			logger.debug(reflectedUniverse.exec(testExpression));
++		}
++		for (final Bundle b : bundles) {
++			b.uninstall();
++		}
++		bundle.uninstall();
++	}
++
++	/**
++	 * Similar to the {@link #installBundle(String, Collection, Collection)}
++	 * test, but it does not start the loaded bundle: <br/>
++	 * Creates a new {@link Equinox} {@link Framework}, installs the bundle
++	 * dependencies {@code dependencyBundlePaths}, then installs (but
++	 * <em>does not start</em>) the bundle at {@code bundlePath}, finally it
++	 * executes the expressions {@code testExpressions} with
++	 * {@link loci.common.ReflectedUniverse}.
++	 * 
++	 * @param bundlePath
++	 *            An absolute {@link URL} path to the bundle to test.
++	 * @param dependencyBundlePaths
++	 *            A {@link Collection} of absolute {@link URL} paths to the
++	 *            dependency paths.
++	 * @param testExpressions
++	 *            A {@link Collection} of the expressions to execute within the
++	 *            bundle.
++	 * @throws Exception
++	 *             Something unexpected happened.
++	 */
++	@Test(testName = "not install bundles", groups = { "osgi", "long-running" }, dataProvider = "bundleWithDependenciesExceptLociCommon", expectedExceptions = { ClassNotFoundException.class })
++	public void notInstallBundle(final String bundlePath,
++			final Collection<String> dependencyBundlePaths,
++			final Collection<String> testExpressions) throws Exception {
++		logger.info(projectURL);
++		final Collection<Bundle> bundles = installDependencies(
++				dependencyBundlePaths, framework);
++		final Bundle lastBundle = lastBundle(bundles);
++		getClassLoader(testExpressions, lastBundle);
++	}
++
++	/**
++	 * Stops the {@link Framework}.
++	 * 
++	 * @throws BundleException
++	 *             Problem during stop.
++	 */
++	@AfterClass
++	public static void stopFramework() throws BundleException {
++		framework.stop();
++	}
++
++	/**
++	 * Gets the {@link ClassLoader} from the first (import) {@code
++	 * testExpressions} from the {@code bundle}.
++	 * 
++	 * @param testExpressions
++	 *            A list of expressions, where the first one is an import.
++	 * @param bundle
++	 *            A {@link Bundle}.
++	 * @return The {@link ClassLoader} belonging to the imported class.
++	 * @throws ClassNotFoundException
++	 *             If the selected class not found.
++	 */
++	private static ClassLoader getClassLoader(
++			final Collection<String> testExpressions, final Bundle bundle)
++			throws ClassNotFoundException {
++		return bundle.loadClass(getClassName(testExpressions)).getClassLoader();
++	}
++
++	/**
++	 * @param bundles
++	 *            A {@link Collection} of {@link Bundle}s.
++	 * @return The last {@link Bundle}.
++	 */
++	private static Bundle lastBundle(final Collection<Bundle> bundles) {
++		if (bundles.size() == 0) {
++			throw new IllegalArgumentException();
++		}
++		Bundle ret = null;
++		for (final Bundle bundle : bundles) {
++			if (bundle == null) {
++				throw new IllegalArgumentException();
++			}
++			ret = bundle;
++		}
++		return ret;
++	}
++
++	/**
++	 * Loads and {@link Bundle#start() starts} the selected bundle from
++	 * {@link Framework}.
++	 * 
++	 * @param bundlePath
++	 *            An absolute {@link URL} path to the bundle.
++	 * @param framework
++	 *            A {@link Framework} to install the bundle.
++	 * @return The started and created {@link Bundle}.
++	 * @throws BundleException
++	 *             Problem with install or start.
++	 */
++	private static Bundle initBundle(final String bundlePath,
++			final Framework framework) throws BundleException {
++		final Bundle bundle = createBundle(bundlePath, framework);
++		bundle.start();
++		return bundle;
++	}
++
++	/**
++	 * Loads and {@link Bundle#start() starts} the selected bundle from
++	 * {@link Framework}.
++	 * 
++	 * @param bundlePath
++	 *            An absolute {@link URL} path to the bundle.
++	 * @param framework
++	 *            A {@link Framework} to install the bundle.
++	 * @return The started and created {@link Bundle}.
++	 * @throws BundleException
++	 *             Problem with install or start.
++	 */
++	private static Bundle createBundle(final String bundlePath,
++			final Framework framework) throws BundleException {
++		final Bundle bundle = framework.getBundleContext().installBundle(
++				bundlePath);
++		Assert.assertNotNull(bundle);
++		logger.debug(bundle.getBundleId());
++		return bundle;
++	}
++
++	/**
++	 * @return The initialised {@link Framework}.
++	 */
++	private static Framework initFramework() {
++		final Framework framework = new EquinoxFactory()
++				.newFramework(Collections.emptyMap());
++		try {
++			framework.start();
++		} catch (final BundleException e) {
++			throw new RuntimeException(e);
++		}
++		return framework;
++	}
++
++	/**
++	 * Installs (and {@link Bundle#start()} starts) the {@link Bundle}s.
++	 * 
++	 * @param dependencyBundlePaths
++	 *            A {@link Collection} of absolute {@link URL} paths to the
++	 *            dependency paths.
++	 * @param framework
++	 *            A {@link Framework} to install the bundle.
++	 * @return The installed (but not started) dependencies.
++	 * @throws BundleException
++	 *             Problem installing the enumerated bundles.
++	 */
++	private static Collection<Bundle> installDependencies(
++			final Collection<String> dependencyBundlePaths,
++			final Framework framework) throws BundleException {
++		final Collection<Bundle> bundles = new ArrayList<Bundle>();
++		for (final String dependencyPath : dependencyBundlePaths) {
++			final Bundle bundle = createBundle(dependencyPath, framework);
++			Assert.assertNotNull(bundle);
++			bundles.add(bundle);
++		}
++		return bundles;
++	}
++
++	/**
++	 * Finds the class name from the first {@code testExpression}, assuming that
++	 * is an {@code import} statement.
++	 * 
++	 * @param testExpressions
++	 *            Some expressions, the first should be {@code import}.
++	 * @return The class name.
++	 */
++	private static String getClassName(final Collection<String> testExpressions) {
++		final String expression = firstExpression(testExpressions);
++		if (!expression.startsWith("import ")) {
++			throw new IllegalArgumentException(
++					"The first expression is not an import: " + expression);
++		}
++		return expression.substring("import ".length());
++	}
++
++	/**
++	 * Selects the first expression.
++	 * 
++	 * @param testExpressions
++	 *            A {@link Collection} of expressions.
++	 * @return The first expression.
++	 */
++	private static String firstExpression(
++			final Collection<String> testExpressions) {
++		return testExpressions.iterator().next();
++	}
++}
+Index: src/loci/tests/testng/osgi/package-info.java
+===================================================================
+--- src/loci/tests/testng/osgi/package-info.java	(revision 0)
++++ src/loci/tests/testng/osgi/package-info.java	(revision 0)
+@@ -0,0 +1,7 @@
++@DefaultAnnotation( { CheckReturnValue.class, Nonnull.class })
++package loci.tests.testng.osgi;
++
++import javax.annotation.CheckReturnValue;
++import javax.annotation.Nonnull;
++
++import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+Index: .classpath
+===================================================================
+--- .classpath	(revision 5650)
++++ .classpath	(working copy)
+@@ -2,9 +2,12 @@
+ <classpath>
+ 	<classpathentry kind="src" path="src"/>
+ 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
++	<classpathentry kind="var" path="TESTNG_HOME/lib/testng-jdk15.jar"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/bio-formats"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/ome-io"/>
+ 	<classpathentry combineaccessrules="false" kind="src" path="/External libraries"/>
++	<classpathentry kind="var" path="FINDBUGS_ANNOTATIONS"/>
++	<classpathentry kind="var" path="JSR305_ANNOTATIONS"/>
+ 	<classpathentry kind="output" path="build/classes"/>
+ </classpath>
+Index: .settings/org.eclipse.jdt.core.prefs
+===================================================================
+--- .settings/org.eclipse.jdt.core.prefs	(revision 5650)
++++ .settings/org.eclipse.jdt.core.prefs	(working copy)
+@@ -1,4 +1,4 @@
+-#Wed Oct 01 16:21:38 CDT 2008
++#Wed Oct 07 13:12:06 BST 2009
+ eclipse.preferences.version=1
+ org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
+ org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.5
+@@ -8,5 +8,5 @@
+ org.eclipse.jdt.core.compiler.debug.localVariable=generate
+ org.eclipse.jdt.core.compiler.debug.sourceFile=generate
+ org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
+-org.eclipse.jdt.core.compiler.problem.enumIdentifier=warning
++org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
+ org.eclipse.jdt.core.compiler.source=1.5

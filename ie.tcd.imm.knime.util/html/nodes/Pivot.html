@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for Pivot</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>Pivot</h1>
+<p>Converts information present in rows to columns</p>
+<h2>Dialog Options</h2>
+<dl>
+<dt>Pivot columns</dt>
+<dd>Values from these columns will become the parts of the columns in the result table (no columns with these names will be present).</dd>
+<dt>Pattern</dt>
+<dd>The format of the new columns (<tt>${}</tt> - values, <tt>${pivot column name}</tt> values of that nominal column).</dd>
+<dt>Behaviour</dt>
+<dd>What to do if there will be missing parts in the result: <ul>
+<li>fillEmpty - put empty cells there</li>
+<li>signalError - stop the conversion with error</li>
+</ul>.</dd>
+<dt>HiLite Strategy</dt>
+<dd>Support HiLite or not.</dd>
+<dt>Values</dt>
+<dd>The values of these columns will add a part to the new columns to the place of <tt>${}</tt>.</dd>
+<dt>Keys</dt>
+<dd>These will remain in the results.</dd>
+</dl>
+<h2>Ports</h2>
+<dl>
+<dt>Input Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>A table with known domains for the keys and pivoting columns.</td>
+</tr>
+</table>
+</dd>
+<dt>Output Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>The table with information transformed to the columns.</td>
+</tr>
+<tr>
+<td class="dt">1</td>
+<td>An indicator of the pushed variable</td>
+</tr>
+</table>
+</dd>
+</dl>
+</body>
+</html>
