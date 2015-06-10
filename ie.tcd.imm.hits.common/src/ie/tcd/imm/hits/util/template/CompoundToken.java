@@ -6,6 +6,8 @@ package ie.tcd.imm.hits.util.template;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This interface is a marker for compound {@link Token}s.
  * 
@@ -13,8 +15,7 @@ import javax.annotation.Nonnull;
  * @param <TokenType>
  *            The type of the contained tokens.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface CompoundToken<TokenType extends Token> extends
 		Iterable<TokenType>, Token {
 	// Just a marker no other methods.

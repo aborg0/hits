@@ -5,6 +5,8 @@ package ie.tcd.imm.hits.util;
 
 import javax.annotation.CheckReturnValue;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A triple of objects.
  * 
@@ -16,7 +18,7 @@ import javax.annotation.CheckReturnValue;
  * @param <Type3>
  *            The type of the third object.
  */
-@CheckReturnValue
+@DefaultAnnotation( { CheckReturnValue.class })
 public interface ITriple<Type1, Type2, Type3> {
 	/**
 	 * @return the o1

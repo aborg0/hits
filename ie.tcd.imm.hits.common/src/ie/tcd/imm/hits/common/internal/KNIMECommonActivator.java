@@ -6,7 +6,7 @@ package ie.tcd.imm.hits.common.internal;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * Activator of ie.tcd.imm.hits.common plugin.
@@ -23,7 +23,7 @@ public class KNIMECommonActivator implements BundleActivator {
 	 * Constructs the {@link KNIMECommonActivator}, and assigns the
 	 * {@link #getInstance() instance}.
 	 */
-	@SuppressFBWarnings("ST")
+	@SuppressWarnings("ST")
 	public KNIMECommonActivator() {
 		super();
 		instance = this;

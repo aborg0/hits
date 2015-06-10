@@ -8,13 +8,14 @@ import java.util.WeakHashMap;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A common implementation of the {@link Token} interface.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class AbstractToken implements Token {
 	private static final long serialVersionUID = -4749109768887755365L;
 

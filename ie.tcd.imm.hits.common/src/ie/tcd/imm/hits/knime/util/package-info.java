@@ -4,10 +4,11 @@
 /**
  * Some help for KNIME handling.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 package ie.tcd.imm.hits.knime.util;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 

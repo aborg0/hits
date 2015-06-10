@@ -15,9 +15,6 @@ import java.util.Set;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-import org.ardverk.collection.PatriciaTrie;
-import org.ardverk.collection.StringKeyAnalyzer;
-import org.ardverk.collection.Trie;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -25,13 +22,14 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A {@link SettingsModel} for {@link ListSelection}.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class SettingsModelListSelection extends SettingsModel implements
 		ListSelection<String> {
 
@@ -50,7 +48,6 @@ public class SettingsModelListSelection extends SettingsModel implements
 	protected static final String CFGKEY_SELECTIONS = modelId + "_selections";
 	private final String configName;
 	private final List<String> possibleValues = new ArrayList<String>();
-	private final Trie<String, Object> possibleOptions = new PatriciaTrie<String, Object>(StringKeyAnalyzer.CHAR);
 	private final Set<String> selections = new HashSet<String>();
 
 	/**
@@ -89,9 +86,6 @@ public class SettingsModelListSelection extends SettingsModel implements
 		super();
 		this.configName = configName;
 		possibleValues.addAll(initialPossibleValues);
-		for (String val : initialPossibleValues) {
-			possibleOptions.put(val, Boolean.TRUE);
-		}
 		final boolean notified = updateSelection(selection);
 		if (!notified) {
 			notifyChangeListeners();
@@ -295,13 +289,6 @@ public class SettingsModelListSelection extends SettingsModel implements
 	@Override
 	public List<String> getPossibleValues() {
 		return Collections.unmodifiableList(possibleValues);
-	}
-	
-	/**
-	 * @return The possible options as a {@link Trie}.
-	 */
-	public Trie<String, Object> getPossibleOptions() {
-		return possibleOptions;
 	}
 
 	/*

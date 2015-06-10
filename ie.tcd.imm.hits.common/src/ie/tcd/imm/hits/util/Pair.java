@@ -7,8 +7,10 @@ import java.io.Serializable;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * Holds two (different possibly different type) values.
@@ -21,17 +23,14 @@ import javax.annotation.concurrent.Immutable;
  *            The type of the first/left value.
  * @param <Right>
  *            The type of the second/right value.
- * @deprecated Use {@link org.knime.core.util.Pair} instead.
  */
 @Immutable
-@Nonnull
-@CheckReturnValue
-@Deprecated
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class Pair<Left, Right> implements Serializable {
 	private static final long serialVersionUID = 2771814364666313214L;
 
-	private @Nullable final Left left;
-	private @Nullable final Right right;
+	private final Left left;
+	private final Right right;
 
 	/**
 	 * Constructs the {@link Pair}.
@@ -40,10 +39,8 @@ public class Pair<Left, Right> implements Serializable {
 	 *            The first/left object.
 	 * @param right
 	 *            The second, right object.
-	 * @deprecated Use the factory methods instead.
 	 */
-	@Deprecated
-	public Pair(@Nullable final Left left, @Nullable final Right right) {
+	public Pair(final Left left, final Right right) {
 		super();
 		this.left = left;
 		this.right = right;
@@ -78,7 +75,7 @@ public class Pair<Left, Right> implements Serializable {
 	 *            The second object.
 	 * @return A new {@link Pair} of {@code null} and the object.
 	 */
-	//@SuppressFBWarnings("NP")
+	@SuppressWarnings("NP")
 	public static <Left, Right> Pair<Left, Right> leftNull(final Right right) {
 		return apply(null, right);
 	}
@@ -94,7 +91,7 @@ public class Pair<Left, Right> implements Serializable {
 	 *            The first object.
 	 * @return A new {@link Pair} of the object and {@code null}.
 	 */
-	//@SuppressFBWarnings("NP")
+	@SuppressWarnings("NP")
 	public static <Left, Right> Pair<Left, Right> rightNull(final Left left) {
 		return apply(left, null);
 	}
@@ -108,7 +105,7 @@ public class Pair<Left, Right> implements Serializable {
 	 *            Type of the second object.
 	 * @return A new {@link Pair} of the object and {@code null}.
 	 */
-	//@SuppressFBWarnings("NP")
+	@SuppressWarnings("NP")
 	public static <Left, Right> Pair<Left, Right> empty() {
 		return apply(null, null);
 	}

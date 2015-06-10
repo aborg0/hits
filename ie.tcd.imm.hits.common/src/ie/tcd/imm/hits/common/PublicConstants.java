@@ -8,14 +8,15 @@ import java.io.Serializable;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * This interface contains the public constants of HiTS project. Some of the
  * constants are in enums in the same package.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface PublicConstants {
 
 	/** The name of the replicate column. */

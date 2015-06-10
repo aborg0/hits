@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,13 +50,14 @@ import org.knime.core.node.property.hilite.HiLiteMapper;
 import org.knime.core.node.property.hilite.HiLiteTranslator;
 import org.knime.core.util.Pair;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * Common base class for the transforming {@link NodeModel}s. Supports HiLite.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TransformingNodeModel extends NodeModel {
 
 	private static interface MapperConstructor {
