@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/basic.css"/>
+<title>LOCI Plate Viewer node</title>
+</head>
+<body>
+<h1><a name="overview">LOCI Plate Viewer node overview</a></h1>
+<p>This node is able to visualise the images read by <a href="LOCI_Plate_Reader.xhtml">LOCI Plate Reader</a> node. This view gives a basic option to show images, but allows you to track the HiLites, and HiLite different wells. The <a href="../html/nodes/LOCI_Plate_Viewer.html">node description</a> shows the overview of the functionality, while this page gives a more detailed explanation.</p> 
+<h1><a name="input">Input data</a></h1>
+<h2><a name="input1">First data port (image references)</a></h2>
+<p>This table should enumerate the images available from the readers. The format of the input is the same as the first outport's format of <a href="LOCI_Plate_Reader.xhtml#output1">LOCI Plate Reader</a>, maybe with other columns (order independent).</p>
+<h3>Expected format</h3>
+<p>There should be a column with name <samp>LOCI-Plate</samp> and textual type. Must not contain missing values (<samp>?</samp>).</p>
+<p>The <samp>LOCI_Row</samp> column with textual type is also mandatory. The values should be from <samp>A</samp> to <samp>H</samp>. Must not contain missing values (<samp>?</samp>).</p>
+<p>The <samp>LOCI_Column</samp> column has to be natural number (<em>I</em>nteger) type, also mandatory, between <samp>1</samp> and <samp>12</samp>.</p>
+<p>The <samp>LOCI_Field</samp> column has to be natural number (<em>I</em>nteger) type, also mandatory, values are from <samp>1</samp>.</p>
+<p>The <samp>LOCI_Z</samp> column has to be list of real number (<em>D</em>ouble) type, also mandatory.</p>
+<p>The <samp>LOCI_T</samp> column has to be list of real number (<em>D</em>ouble) type, also mandatory.</p>
+<p>The <samp>LOCI_C</samp> column has to be list of textual (<em>S</em>tring) type, also mandatory.</p>
+<p>The <samp>LOCI_Id</samp> column has to be a textual (<em>S</em>tring) type, also mandatory.</p>
+<p>The <samp>Image_Id</samp> column has to be a natural number (<em>I</em>nteger) type (values from <samp>0</samp>), also mandatory.</p>
+<p><span class="hint">The <a href="LOCI_Plate_Reader.xhtml">LOCI Plate Reader node</a>'s first outport's result is compatible with this port.</span></p>
+<h2><a name="input2">Second data port (image join table)</a></h2>
+<p>This should contain the Bio-Formats readers</p>
+<h3>Expected format</h3>
+<ul>
+<li><samp>LOCI-Plate</samp> <em>text</em> (<em>S</em>tring) type. The plate identifier goes here, mandatory.</li>
+<li><samp>LOCI-Row</samp> <em>text</em> (<em>S</em>tring) type. The row name (from <samp>A</samp> to <samp>H</samp>), might be empty, mandatory.</li>
+<li><samp>LOCI-Column</samp> <em>natural number</em> (<em>I</em>nteger) type. The column position (from <samp>1</samp> to <samp>12</samp>), might be empty, mandatory.</li>
+<li><samp>LOCI-Field</samp> <em>natural number</em> (<em>I</em>nteger) type. The field position (from <samp>1</samp>), might be empty, mandatory.</li>
+<li><samp>LOCI-Z</samp> <em>list of real numbers</em> (<em>D</em>ouble) type. The Z position, might be empty, mandatory.</li>
+<li><samp>LOCI-T</samp> <em>list of real numbers</em> (<em>D</em>ouble) type. The time position, might be empty, mandatory.</li>
+<li><samp>LOCI-C</samp> <em>list of text</em> (<em>S</em>tring) type. The channels, might be empty, mandatory.</li>
+<li><samp>LOCI</samp> <em>LOCI image reader</em> type. The actual image readers, should not be empty, mandatory.</li>
+<li><samp>OME-XML</samp> <em>text</em> (<em>S</em>tring) type. The metadata as xml, should not be empty, mandatory.</li>
+<li><samp>LOCI-Id</samp> <em>text</em> (<em>S</em>tring) type. The identifier of the reader, should not be empty, mandatory.</li>
+</ul>
+<p>The order of colums is not important.</p>
+<h1>Controls</h1>
+<h2>Mouse control</h2>
+<h3>Zooming</h3>
+<p>Hold the <samp>Ctrl</samp> key, and scroll with your mouse wheel.</p>
+<h3>Scrolling</h3>
+<p>Possible with mouse wheel, or by holding the main mouse button, and moving the mouse.</p>
+<h2>Other controls</h2>
+<h3>Selection</h3>
+<p><img src="basic_controls.png"/><img src="well_selection.png"/></p>
+<p>Selecting a value is possible by clicking on the button, or other form of control. With the zoom utility either changing the number or moving the slider have the same effect.</p>
+<h3>Adjust colour settings</h3>
+<p><img src="modify_ranges.png"/></p>
+<p>By right clicking on the channel name you can change the colours assigned to that channel, or modify the channel.</p>
+<p>To modify the range of a channel you have to find the two grey vertical lines on the histogram (might be necessary to zoom out from the popup menu), click on one of them, and click on a new position. This will change not just the preview of the image, but also the preview of the colours of that channel (without the possible inversion) above the histogram.</p>
+<h3>Zooming</h3>
+<h1>Menu</h1>
+<h2>HiLite</h2>
+<p>The common, usual HiLite menu. The smallest unit of HiLite is a well.</p>
+<h2>Colours</h2>
+<p>In this menu you can invert the colours used to visualise the image, or modify how the combine different channels.</p>
+<h3>Invert</h3>
+<p>Inverts the colours used, very simple operation, takes effect on all channels' colours.</p>
+<h3>Additive</h3>
+<p>The colours of the channels are added with other channel colours (for each R, G, B colour components independently) with truncated (<samp>0</samp> - <samp>255</samp>) values.</p>
+<h3>Minimum</h3>
+<p>The colours of the channels are combined with other channel colours (for each R, G, B colour components independently) by selecting the minimal values.</p>
+<h3>Maximum</h3>
+<p>The colours of the channels are combined with other channel colours (for each R, G, B colour components independently) by selecting the maximal values.</p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/footer.xhtml/copyright" />
+</body>
+</html>
