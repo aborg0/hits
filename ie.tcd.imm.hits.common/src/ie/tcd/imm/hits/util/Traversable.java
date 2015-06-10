@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * Something like {@link Iterable}, but it is more like a visitor.
  * 
@@ -17,8 +19,7 @@ import javax.annotation.Nonnull;
  * @param <State>
  *            The associated state for the interesting elements.
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public interface Traversable<Type, State> {
 
 	/**

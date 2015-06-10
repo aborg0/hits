@@ -9,13 +9,14 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * These are the possible splits for the arrangement.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public enum SplitType {
 	/**
 	 * Mostly for horisontal layout on scollpanes.

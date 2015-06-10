@@ -129,16 +129,15 @@ public class ListContents {
 			// http://torkildr.blogspot.com/2008/10/connecting-through-proxy.html
 			final IProxyService proxyService = OpenStream.getProxyService();
 			if (proxyService.isProxiesEnabled()) {
-				IProxyData[] select = proxyService.select(root);
-				if (select.length > 0) {
-					final IProxyData pd = select[0];
-					final InetSocketAddress sockAddr = new InetSocketAddress(
-							InetAddress.getByName(pd.getHost()), pd.getPort());
-					//We do not handle SOCKS yet.
-					final Proxy proxy = new Proxy(Type.HTTP, sockAddr);
-					findContentsHttp(origRoot, root, pd, proxy, visited,
-							results, maxDepth);
-				}
+				final IProxyData proxyDataForHost = proxyService
+						.getProxyDataForHost(root.getHost(), root.getScheme()
+								.toUpperCase());
+				final InetSocketAddress sockAddr = new InetSocketAddress(
+						InetAddress.getByName(proxyDataForHost.getHost()),
+						proxyDataForHost.getPort());
+				final Proxy proxy = new Proxy(Type.HTTP, sockAddr);
+				findContentsHttp(origRoot, root, proxyDataForHost, proxy,
+						visited, results, maxDepth);
 			} else {
 				findContentsHttp(origRoot, root, null, null, visited, results,
 						maxDepth);
@@ -255,9 +254,7 @@ public class ListContents {
 		ZipEntry nextEntry;
 		while ((nextEntry = inputStream.getNextEntry()) != null) {
 			try {
-				final URI resolved = root.resolve("./"
-						+ nextEntry.getName().replaceAll(" ", "%20").replace(
-								'\\', '/'));
+				final URI resolved = root.resolve("./" + nextEntry.getName());
 				final String key = // root + nextEntry.getName();//
 				// resolved.relativize(origRoot).toString();
 				origRoot.relativize(resolved).toString();

@@ -14,13 +14,14 @@ import java.util.List;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
- * Selects only certain classes of {@link Token}s from the results. 
+ * Selects only th
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public class FilterTokenizer extends TokenizerHelper implements Tokenizer {
 
 	private final Tokenizer tokenizer;
@@ -31,6 +32,7 @@ public class FilterTokenizer extends TokenizerHelper implements Tokenizer {
 	 * @param tokenizer
 	 *            The {@link Tokenizer} to wrap.
 	 */
+	@SuppressWarnings("unchecked")
 	public FilterTokenizer(final Tokenizer tokenizer) {
 		this(tokenizer, true, SimpleToken.class);
 	}
@@ -43,7 +45,6 @@ public class FilterTokenizer extends TokenizerHelper implements Tokenizer {
 	 * @param acceptedTokenClasses
 	 *            Instances of these classes are accepted
 	 */
-	@SafeVarargs
 	public FilterTokenizer(final Tokenizer tokenizer,
 			final boolean goIntoCompounds,
 			final Class<? extends Token>... acceptedTokenClasses) {

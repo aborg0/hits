@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?NLS TYPE="org.eclipse.help.toc"?>
-
-<toc label="Distance Matrix" link_to="..\org.knime.distmatrix\tocs\distmatrix.xml#distmatrix">
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.test\html\nodes\Compute_Order_Entropy.html" label="Compute Order Entropy"/>
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.test\html\nodes\Shuffle_Tree.html" label="Shuffle Tree"/>
-</toc>

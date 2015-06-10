@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -51,7 +51,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.util.StringHistory;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 /**
  * A {@link DialogComponent} for {@link SettingsModelStringArray} models. It is
@@ -62,19 +63,19 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@Nonnull
+@DefaultAnnotation(Nonnull.class)
 public class DialogComponentMultiFileChooser extends DialogComponent {
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(DialogComponentMultiFileChooser.class);
 
 	/** This selects the folder. */
-	protected final JComboBox<String> dirNameComboBox = new JComboBox<>();
+	protected final JComboBox dirNameComboBox = new JComboBox();
 	private final StringHistory stringHistory;
 	private final JButton browseButton = new JButton("Browse");
 	private final FilenameFilter possibleExtensions;
-	private final DefaultListModel<String> fileNameModel = new DefaultListModel<>();
+	private final DefaultListModel fileNameModel = new DefaultListModel();
 	/** This is where the filenames are shown. */
-	protected final JList<String> fileNameList = new JList<>(fileNameModel);
+	protected final JList fileNameList = new JList(fileNameModel);
 
 	private final TitledBorder border = new TitledBorder("");
 
@@ -93,7 +94,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 * @param validExtensions
 	 *            Only files with these extensions are shown.
 	 */
-	@SuppressFBWarnings("RCN")
+	@SuppressWarnings("RCN")
 	public DialogComponentMultiFileChooser(
 			final SettingsModelStringArray model, final String fileNameLabel,
 			final String historyId, @Nonnegative final int visibleRowCount,
@@ -162,11 +163,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 						getComponentPanel().getParent(), null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					final File selectedFile = fileChooser.getSelectedFile();
-					final String newDir = (selectedFile.isDirectory()
-							|| selectedFile.isFile()
-							&& selectedFile.getName().toLowerCase().endsWith(
-									"zip") ? selectedFile : selectedFile
-							.getParentFile()).toURI().toString();
+					final String newDir = (selectedFile.isDirectory() ? selectedFile
+							: selectedFile.getParentFile()).toURI().toString();
 					dirNameComboBox.removeItem(newDir);
 					dirNameComboBox.addItem(newDir);
 					dirNameComboBox.setSelectedItem(newDir);
@@ -189,12 +187,12 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 		labelAndButtonsPanel.add(moveUpButton, BorderLayout.NORTH);
 		// final int size = moveUpButton.getPreferredSize().height;
 		// moveUpButton.setPreferredSize(new Dimension(size, size));
-		moveUpButton.addActionListener(new SelectionMoverActionListener<String>(
+		moveUpButton.addActionListener(new SelectionMoverActionListener(
 				fileNameList, fileNameModel, -1, getModel()));
 		labelAndButtonsPanel
 				.add(new JLabel(fileNameLabel), BorderLayout.CENTER);
 		final JButton moveDownButton = new JButton("v");
-		moveDownButton.addActionListener(new SelectionMoverActionListener<String>(
+		moveDownButton.addActionListener(new SelectionMoverActionListener(
 				fileNameList, fileNameModel, 1, getModel()));
 		// moveDownButton.setPreferredSize(new Dimension(size, size));
 		labelAndButtonsPanel.add(moveDownButton, BorderLayout.SOUTH);
@@ -397,8 +395,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 	 */
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
-		final List<String> values = fileNameList.getSelectedValuesList();
-		if (values == null || values.size() < 1) {
+		final Object[] values = fileNameList.getSelectedValues();
+		if (values == null || values.length < 1) {
 			((SettingsModelStringArray) getModel())
 					.setStringArrayValue(new String[0]);
 		} else {
@@ -408,8 +406,8 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 			// "The selected directory is not directory: "
 			// + dir.getAbsolutePath());
 			// }
-			final String[] selectedValues = new String[values.size()];
-			for (int i = 0, length = values.size(); i < length; i++) {
+			final String[] selectedValues = new String[values.length];
+			for (int i = 0, length = values.length; i < length; i++) {
 				// final File file = new File(dir, values[i].toString());
 				// if (!file.canRead()) {
 				// throw new InvalidSettingsException(
@@ -419,7 +417,7 @@ public class DialogComponentMultiFileChooser extends DialogComponent {
 				try {
 					selectedValues[i] = OpenStream.convertURI(
 							getCurrentSelection())
-							.resolve(values.get(i)).toString();
+							.resolve(values[i].toString()).toString();
 				} catch (final URISyntaxException e) {
 					throw new InvalidSettingsException(
 							"Wrong file name or folder: " + e.getMessage(), e);

@@ -6,13 +6,14 @@ package ie.tcd.imm.hits.util.template;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+
 /**
  * A simple implementation of the {@link Token} interface.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@Nonnull
-@CheckReturnValue
+@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public final class SimpleToken extends AbstractToken {
 	private static final long serialVersionUID = -4055509769254551505L;
 
