@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.1-FINAL-20080629.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-contrib-3.1-FINAL-20080629.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-scratchpad-3.1-FINAL-20080629.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/REngine_2.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/Rserve_2.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/annotations.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsr305.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
