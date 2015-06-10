@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for BioConverter</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>BioConverter</h1>
+<p>
+			<p>This allows you to make advantage of different tools. It is
+				bundled with some predefined profiles to make easier the conversion.
+			</p>
+			<p>You can adjust the different concepts to your needs. In the
+				input part of each concept-tab select the profile you want to use,
+				or select the custom profile, and select the column, the pattern to
+				use, and the type/position of the result column.</p>
+			<p>
+				<b>Input format</b>
+			</p>
+			<p>
+				You can use regular expressions here. The first group
+				<tt>(</tt>
+				,
+				<tt>)</tt>
+				will create the result.
+			</p>
+			<p>
+				<b>Output name</b>
+			</p>
+			<p>
+				You have to use the same type/format for each output with the same
+				name. If not set it will not be generated, in that case you should
+				select the type:
+				<tt>Do not generate</tt>
+				.
+			</p>
+			<p>
+				<b>Output format</b>
+			</p>
+			<p>
+				Here you can create a string using some of the concepts available.
+				You can refer to the concepts like this:
+				<tt>${Well Row}</tt>
+				. Text outside of
+				<tt>${}</tt>
+				groups will remain the same.
+			</p>
+			<p>
+				Inside the
+				<tt>${}</tt>
+				groups you can perform simple transformations:
+				<ul>
+					<li>0n, where n is a digit will make the result an (at least) n
+						digits number, by prepending 0s.</li>
+					<li>dec(...), inc(...) decreses, increases the argument
+						by
+						1</li>
+					<li>toLowerLetter(...), toUpperLetter(...)
+						converts the (number) argument to a lower case or an upper case
+						letter. 1 -&gt; a</li>
+					<li>toNumber(...) converts the one-letter argument to a number. A=1, a=1</li>
+					<li>single positive (not starting with 0) numbers will be constants</li>
+				</ul>
+				<br/>
+				<b>Example</b>: <tt>${03dec(Plate)}</tt> will create a one-less plate identifier with at least 3 digits.
+			</p>
+			<p>
+				<b>Output type</b>
+			</p>
+			<p>
+				You can select the output result type. Must be one of these:
+				<ul>
+					<li>Integer</li>
+					<li>Real</li>
+					<li>String</li>
+					<li>Do not generate</li>
+				</ul>
+			</p>
+			<p>
+				<b>Output position</b>
+			</p>
+			<p>You can give a constraint on the position of the generated
+				column. For positive values those will be computed from the
+				beginning. The negative ones are computed from the (after all
+				generated) columns.</p>
+			<p>Details can be found <a href="../../help/bioConverter.xhtml">here</a>.</p>
+		</p>
+<h2>Dialog Options</h2>
+<dl>
+<dt>Input</dt>
+<dd>The template profile applied to the input table
+		</dd>
+<dt>Output</dt>
+<dd>The template profile to use on the result
+			columns</dd>
+<dt>Add unmatched columns?</dt>
+<dd>If checked it will not remove those columns that
+			are not specified in the input columns.</dd>
+<dt>Keep original columns?</dt>
+<dd>If checked it will not just add the new columns,
+			but also keep the input columns (those that are not replaced with a
+			new content).</dd>
+<dt>Try generate missing column values?</dt>
+<dd>If checked it will generate some kind of result
+			instead of missing values. (Currently does not work really well.)
+		</dd>
+<dt>Experiment</dt>
+<dd>You may set the experiment name related columns
+			here.</dd>
+<dt>Plate</dt>
+<dd>You may set the plate related columns here.
+		</dd>
+<dt>Replicate</dt>
+<dd>You may set the replicate related columns here.
+		</dd>
+<dt>Well Row</dt>
+<dd>You may set the row of well (the letter)
+			related columns here.</dd>
+<dt>Well Column</dt>
+<dd>You may set the column of well (the number)
+			related columns here.</dd>
+</dl>
+<h2>Ports</h2>
+<dl>
+<dt>Input Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>Any table that has rows, columns.
+		</td>
+</tr>
+</table>
+</dd>
+<dt>Output Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>A table with modified columns.
+		</td>
+</tr>
+</table>
+</dd>
+</dl>
+</body>
+</html>
