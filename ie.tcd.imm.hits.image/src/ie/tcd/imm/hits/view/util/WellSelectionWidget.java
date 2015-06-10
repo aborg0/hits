@@ -8,15 +8,14 @@ import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.ListSelection;
 import ie.tcd.imm.hits.knime.view.impl.AbstractVariableControl;
 import ie.tcd.imm.hits.knime.view.impl.SettingsModelListSelection;
-import ie.tcd.imm.hits.util.select.Selectable;
-import ie.tcd.imm.hits.util.select.Selector;
+import ie.tcd.imm.hits.util.Selectable;
+import ie.tcd.imm.hits.util.Selector;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -87,9 +86,6 @@ public class WellSelectionWidget<Model, Sel extends Selectable<Model>> extends
 				button.addActionListener(new ButtonActionListener(
 						row + (j + 1), (SettingsModelListSelection) getModel(),
 						selectionType));
-				for (final MouseListener l : getListeners()) {
-					button.addMouseListener(l);
-				}
 				buttons.get(row).put(Integer.valueOf(j), button);
 				view.add(button);
 			}

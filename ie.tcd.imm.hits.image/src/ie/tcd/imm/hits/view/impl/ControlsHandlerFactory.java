@@ -6,15 +6,14 @@ package ie.tcd.imm.hits.view.impl;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerAbstractFactory;
 import ie.tcd.imm.hits.knime.view.impl.SettingsModelListSelection;
+import ie.tcd.imm.hits.util.NamedSelector;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.select.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.SelectionType;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -27,7 +26,6 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 
@@ -43,7 +41,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 @NotThreadSafe
 public class ControlsHandlerFactory<Model> extends
-		ControlsHandlerAbstractFactory<Model, OptionalNamedSelector<Model>> {
+		ControlsHandlerAbstractFactory<Model, NamedSelector<Model>> {
 
 	/**
 	 * Constructs a {@link ControlsHandlerAbstractFactory}.
@@ -52,14 +50,87 @@ public class ControlsHandlerFactory<Model> extends
 		super();
 	}
 
+	// /**
+	// * @param controlType
+	// * The preferred {@link ControlTypes}.
+	// * @param settingsModelListSelection
+	// * The used model.
+	// * @param changeListener
+	// * The associated {@link ChangeListener}.
+	// * @param selection
+	// * The {@link SelectionType selection} mode.
+	// * @param split
+	// * The {@link SplitType} of the new control. Only needed for the
+	// * popup menu.
+	// * @return The {@link VariableControl} with the desired parameters.
+	// */
+	// @Override
+	// protected VariableControl<SettingsModel, Model, Selector<Model>>
+	// createControl(
+	// final Selector<Model> domainModel, final ControlTypes controlType,
+	// final SettingsModelListSelection settingsModelListSelection,
+	// final ChangeListener changeListener, final SelectionType selection,
+	// final SplitType split) {
+	// final VariableControl<SettingsModel, Model, Selector<Model>> ret;
+	// switch (controlType) {
+	// case Buttons:
+	// ret = new WellSelectionWidget<Model, Selector<Model>>(Format._96,
+	// settingsModelListSelection, selection, this,
+	// changeListener, domainModel);
+	// break;
+	// case List:
+	// ret = new ListControl<Model, Selector<Model>>(
+	// settingsModelListSelection, selection, this,
+	// changeListener, domainModel);
+	// break;
+	// case ComboBox:
+	// ret = new ComboBoxControl<Model, Selector<Model>>(
+	// settingsModelListSelection, selection, this,
+	// changeListener, domainModel);
+	// break;
+	// case Invisible:
+	// throw new UnsupportedOperationException("Not supported yet.");
+	// case Slider:
+	// ret = new SliderControl<Model, Selector<Model>>(
+	// settingsModelListSelection, selection, this,
+	// changeListener, domainModel);
+	// break;
+	// case RadioButton:
+	// throw new UnsupportedOperationException("Not supported yet.");
+	// // if (!cache.containsKey(slider)) {
+	// // cache.put(slider, new RadioControl(settingsModelListSelection,
+	// // SelectionType.Single));
+	// // }
+	// // return cache.get(slider);
+	// case Tab:
+	// throw new UnsupportedOperationException("Not supported yet.");
+	// case ScrollBarHorisontal:
+	// throw new UnsupportedOperationException("Not supported yet.");
+	// case ScrollBarVertical:
+	// throw new UnsupportedOperationException("Not supported yet.");
+	// default:
+	// throw new UnsupportedOperationException("Not supported yet: "
+	// + controlType);
+	// }
+	// final PopupMenu<SettingsModel, Model, Selector<Model>> popupMenu = new
+	// PopupMenu<SettingsModel, Model, Selector<Model>>(
+	// ret, split, this);
+	// ((AbstractVariableControl<?, ?>) ret).getPanel().addMouseListener(
+	// popupMenu);
+	// ret.getView().addMouseListener(popupMenu);
+	// for (final Component comp : ret.getView().getComponents()) {
+	// comp.addMouseListener(popupMenu);
+	// }
+	// return ret;
+	// }
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> createNewControl(
-			final OptionalNamedSelector<Model> model,
-			final ControlTypes controlType, final SelectionType selectionType,
-			final SplitType split) {
+	protected VariableControl<SettingsModel, Model, NamedSelector<Model>> createNewControl(
+			final NamedSelector<Model> model, final ControlTypes controlType,
+			final SelectionType selectionType, final SplitType split) {
 		final Map<Integer, Model> valueMapping = model.getValueMapping();
 		final List<String> vals = new LinkedList<String>();
 		for (final Model val : valueMapping.values()) {
@@ -92,7 +163,7 @@ public class ControlsHandlerFactory<Model> extends
 		}
 		final SettingsModelListSelection settingsModelListSelection = new SettingsModelListSelection(
 				model.getName(), vals, selected);
-		final VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> control = createControl(
+		final VariableControl<SettingsModel, Model, NamedSelector<Model>> control = createControl(
 				model, controlType, settingsModelListSelection, selectionType,
 				split);
 		model.addActionListener(new ActionListener() {
@@ -105,30 +176,13 @@ public class ControlsHandlerFactory<Model> extends
 		return control;
 	}
 
-	@Override
-	protected VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> createControl(
-			final OptionalNamedSelector<Model> domainModel,
-			final ControlTypes controlType,
-			final SettingsModelListSelection settingsModelListSelection,
-			final ChangeListener changeListener, final SelectionType selection,
-			final SplitType split) {
-		final VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> control = super
-				.createControl(domainModel, controlType,
-						settingsModelListSelection, changeListener, selection,
-						split);
-		for (final MouseListener l : domainModel.getControlListeners()) {
-			control.addControlListener(l);
-		}
-		return control;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean exchangeControls(
-			final VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> first,
-			final VariableControl<SettingsModel, Model, OptionalNamedSelector<Model>> second) {
+			final VariableControl<SettingsModel, Model, NamedSelector<Model>> first,
+			final VariableControl<SettingsModel, Model, NamedSelector<Model>> second) {
 		final Pair<SplitType, String> firstPos = getPosition(first);
 		final Pair<SplitType, String> secondPos = getPosition(second);
 		if (firstPos == null || secondPos == null) {

@@ -2,11 +2,9 @@ package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.image.loci.LociReaderCell;
-import ie.tcd.imm.hits.image.loci.read.LociReaderNodeModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.SerializableTriple;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +15,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -28,11 +25,9 @@ import loci.formats.FormatReader;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.collection.CollectionDataValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -51,12 +46,10 @@ public class LociViewerNodeModel extends NodeModel {
 	private static final String JOIN_TABLE_FILE = "join.zip";
 	private static final String ROW_TABLE_FILE = "rows.zip";
 
-	/** Plate, row, column, field, time, Z, image id (series), LOCI data */
-	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>> joinTable;
+	/** Plate, row, column, field, image id (series), LOCI data */
+	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
 
 	private Map<RowKey, SerializableTriple<String, String, Integer>> rowsToWells = new HashMap<RowKey, SerializableTriple<String, String, Integer>>();
-	private String zUnit;
-	private String timeUnit;
 
 	/**
 	 * Constructor for the node model.
@@ -71,7 +64,7 @@ public class LociViewerNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		joinTable = new HashMap<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>>();
+		joinTable = new HashMap<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>();
 
 		final int plate0Index = inData[0].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_PLATE);
@@ -81,10 +74,6 @@ public class LociViewerNodeModel extends NodeModel {
 				PublicConstants.LOCI_COLUMN);
 		final int field0Index = inData[0].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_FIELD);
-		final int time0Index = inData[0].getDataTableSpec().findColumnIndex(
-				PublicConstants.LOCI_TIME);
-		final int z0Index = inData[0].getDataTableSpec().findColumnIndex(
-				PublicConstants.LOCI_Z);
 		final int id0Index = inData[0].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_ID);
 		final int imageId0Index = inData[0].getDataTableSpec().findColumnIndex(
@@ -101,10 +90,6 @@ public class LociViewerNodeModel extends NodeModel {
 				PublicConstants.LOCI_IMAGE_CONTENT);
 		final int id1Index = inData[1].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_ID);
-		zUnit = inData[0].getDataTableSpec().getColumnSpec(z0Index)
-				.getProperties().getProperty(LociReaderNodeModel.UNIT, "");
-		timeUnit = inData[0].getDataTableSpec().getColumnSpec(time0Index)
-				.getProperties().getProperty(LociReaderNodeModel.UNIT, "");
 		final Map<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>> xmls = new LinkedHashMap<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>>();
 		for (final DataRow row : inData[1]) {
 			final DataCell plateCell = row.getCell(plate1Index);
@@ -176,11 +161,11 @@ public class LociViewerNodeModel extends NodeModel {
 				joinTable
 						.put(
 								plate,
-								new TreeMap<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>());
+								new TreeMap<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>());
 			}
 			final Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>> inner0 = xmls
 					.get(xmls.containsKey(plate) ? plate : null);
-			final Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>> other0 = joinTable
+			final Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>> other0 = joinTable
 					.get(plate);
 			final String rowValue;
 			final DataCell rowCell = row.getCell(row0Index);
@@ -193,11 +178,11 @@ public class LociViewerNodeModel extends NodeModel {
 				other0
 						.put(
 								rowValue,
-								new LinkedHashMap<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>());
+								new LinkedHashMap<Integer, Map<Integer, Map<Integer, FormatReader>>>());
 			}
 			final Map<Integer, Map<Integer, Pair<FormatReader, String>>> inner1 = inner0
 					.get(inner0.containsKey(rowValue) ? rowValue : null);
-			final Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>> other1 = other0
+			final Map<Integer, Map<Integer, Map<Integer, FormatReader>>> other1 = other0
 					.get(rowValue);
 			final Integer column;
 			final DataCell columnCell = row.getCell(col0Index);
@@ -210,11 +195,11 @@ public class LociViewerNodeModel extends NodeModel {
 				other1
 						.put(
 								column,
-								new LinkedHashMap<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>());
+								new LinkedHashMap<Integer, Map<Integer, FormatReader>>());
 			}
 			final Map<Integer, Pair<FormatReader, String>> inner2 = inner1
 					.get(inner1.containsKey(column) ? column : null);
-			final Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>> other2 = other1
+			final Map<Integer, Map<Integer, FormatReader>> other2 = other1
 					.get(column);
 			rowsToWells.put(row.getKey(), SerializableTriple.apply(plate,
 					rowValue, column));
@@ -228,49 +213,18 @@ public class LociViewerNodeModel extends NodeModel {
 			final Pair<FormatReader, String> pair = inner2.get(inner2
 					.containsKey(field) ? field : null);
 			if (!other2.containsKey(field)) {
-				other2
-						.put(
-								field,
-								new TreeMap<Double, Map<Double, Map<Integer, FormatReader>>>());
+				other2.put(field, new HashMap<Integer, FormatReader>());
 			}
-			final Map<Double, Map<Double, Map<Integer, FormatReader>>> other3 = other2
-					.get(field);
+			final Map<Integer, FormatReader> other3 = other2.get(field);
 
-			final CollectionDataValue timeCell = (CollectionDataValue) row
-					.getCell(time0Index);
-			for (final DataCell timeDataCell : timeCell) {
-
-				final Double time = Double.valueOf(((DoubleValue) timeDataCell)
-						.getDoubleValue());
-				if (!other3.containsKey(time)) {
-					other3.put(time,
-							new TreeMap<Double, Map<Integer, FormatReader>>());
-				}
-				final Map<Double, Map<Integer, FormatReader>> other4 = other3
-						.get(time);
-				final CollectionDataValue zCell = (CollectionDataValue) row
-						.getCell(z0Index);
-				for (final DataCell zDataCell : zCell) {
-					final Double z = Double.valueOf(((DoubleValue) zDataCell)
-							.getDoubleValue());
-					if (!other4.containsKey(z)) {
-						other4.put(z,
-								new LinkedHashMap<Integer, FormatReader>());
-					}
-					final Map<Integer, FormatReader> other5 = other4.get(z);
-
-					final DataCell omeIdCell = row.getCell(id0Index);
-					final String omeId = ((StringValue) omeIdCell)
-							.getStringValue();
-					if (!omeId.equals(pair.getRight())) {
-						throw new IllegalStateException("Not matching ids: "
-								+ omeId + " <-> " + pair.getRight());
-					}
-					other5.put(Integer.valueOf(((IntValue) row
-							.getCell(imageId0Index)).getIntValue()), pair
-							.getLeft());
-				}
+			final DataCell omeIdCell = row.getCell(id0Index);
+			final String omeId = ((StringValue) omeIdCell).getStringValue();
+			if (!omeId.equals(pair.getRight())) {
+				throw new IllegalStateException("Not matching ids: " + omeId
+						+ " <-> " + pair.getRight());
 			}
+			other3.put(Integer.valueOf(((IntValue) row.getCell(imageId0Index))
+					.getIntValue()), pair.getLeft());
 		}
 		return new BufferedDataTable[] {};
 	}
@@ -319,9 +273,6 @@ public class LociViewerNodeModel extends NodeModel {
 		// no settings
 	}
 
-	private static final String timeUnitPropertyKey = "time.unit";
-	private static final String zUnitPropertyKey = "z.unit";
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -330,7 +281,6 @@ public class LociViewerNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		zUnit = timeUnit = "";
 		{
 			final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
 			final FileInputStream fis = new FileInputStream(joinTableFile);
@@ -342,7 +292,7 @@ public class LociViewerNodeModel extends NodeModel {
 						final Object readObject = oos.readObject();
 						if (readObject instanceof Map<?, ?>) {
 							final Map<?, ?> newMap = (Map<?, ?>) readObject;
-							joinTable = (Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>>) newMap;
+							joinTable = (Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>>) newMap;
 						}
 					} catch (final ClassNotFoundException e) {
 						throw new IOException(e);
@@ -374,18 +324,6 @@ public class LociViewerNodeModel extends NodeModel {
 								rowsToWells.put(new RowKey(entry.getKey()),
 										entry.getValue());
 							}
-						}
-						try {
-							final Object object = oos.readObject();
-							if (object instanceof Properties) {
-								final Properties properties = (Properties) object;
-								timeUnit = properties.getProperty(
-										timeUnitPropertyKey, "");
-								zUnit = properties.getProperty(
-										zUnitPropertyKey, "");
-							}
-						} catch (final EOFException e) {
-							zUnit = timeUnit = "";
 						}
 					} catch (final ClassNotFoundException e) {
 						throw new IOException(e);
@@ -442,10 +380,6 @@ public class LociViewerNodeModel extends NodeModel {
 										.getValue());
 					}
 					oos.writeObject(toSave);
-					final Properties properties = new Properties();
-					properties.put(timeUnitPropertyKey, timeUnit);
-					properties.put(zUnitPropertyKey, zUnit);
-					oos.writeObject(properties);
 				} finally {
 					oos.close();
 				}
@@ -457,8 +391,8 @@ public class LociViewerNodeModel extends NodeModel {
 		}
 	}
 
-	/** @return Plate, row, column, field, time, z, image id (series), LOCI data */
-	public Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>> getJoinTable() {
+	/** @return Plate, row, column, field, image id (series), LOCI data */
+	public Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> getJoinTable() {
 		return joinTable;
 	}
 
@@ -467,19 +401,5 @@ public class LociViewerNodeModel extends NodeModel {
 	 */
 	public Map<RowKey, SerializableTriple<String, String, Integer>> getRowsToWells() {
 		return rowsToWells;
-	}
-
-	/**
-	 * @return The used time unit.
-	 */
-	String getTimeUnit() {
-		return timeUnit;
-	}
-
-	/**
-	 * @return The used time unit.
-	 */
-	String getZUnit() {
-		return zUnit;
 	}
 }

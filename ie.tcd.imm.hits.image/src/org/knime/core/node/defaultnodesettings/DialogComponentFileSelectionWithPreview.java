@@ -9,6 +9,7 @@ import ij.ImageStack;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,9 +41,8 @@ import loci.formats.CoreMetadata;
 import loci.formats.gui.ExtensionFileFilter;
 import loci.plugins.util.ImagePlusReader;
 
+import org.hcdc.plate.ImagePanel;
 import org.knime.core.node.NodeLogger;
-
-import com.sun.media.jai.widget.DisplayJAI;
 
 /**
  * This class allows to select a file and show preview of metadata, and images.
@@ -54,7 +54,7 @@ public class DialogComponentFileSelectionWithPreview extends
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(DialogComponentFileSelectionWithPreview.class);
 	private JPanel metaInfo;
-	private DisplayJAI imagePanel;
+	private ImagePanel imagePanel;
 	private String extension = "";
 	private JList fileNames = new JList(new DefaultListModel());
 	private ExecutorService threadPoolExecutor = new ThreadPoolExecutor(1, 1,
@@ -127,7 +127,7 @@ public class DialogComponentFileSelectionWithPreview extends
 		super(stringModel, historyID, dialogType, directoryOnly,
 				validExtensions);
 		metaInfo = new JPanel();
-		imagePanel = new DisplayJAI();
+		imagePanel = new ImagePanel(400, 400);
 		getComponentPanel().add(new JScrollPane(imagePanel));
 		getComponentPanel().add(new JScrollPane(metaInfo));
 		getComponentPanel().add(new JScrollPane(fileNames));
@@ -174,12 +174,8 @@ public class DialogComponentFileSelectionWithPreview extends
 			if (imagePanel != null) {
 				stopPreview();
 				try {
-					final BufferedImage bi = new BufferedImage(400, 400,
-							BufferedImage.TYPE_INT_RGB);
-					bi.getGraphics().drawString(
-							"Error loading image, file does not exist", 100,
-							200);
-					imagePanel.set(bi);
+					imagePanel.setImage(new BufferedImage(400, 400,
+							BufferedImage.TYPE_INT_RGB));
 				} catch (final RuntimeException e) {
 					logger.debug("Problem with handling exception: "
 							+ e.getMessage());
@@ -202,32 +198,29 @@ public class DialogComponentFileSelectionWithPreview extends
 								ImagePlusReader.makeImageReader()));
 
 				try {
+
 					try {
 						imageReader.setId(imageUrl);
-						if (Thread.currentThread().isInterrupted()) {
-							return;
-						}
 						final int sizeX = imageReader.getSizeX();
 						final int sizeY = imageReader.getSizeY();
 						final ImageStack stack = new ImageStack(sizeX, sizeY);
-						final int imageCount = imageReader.getSizeC();
+						final int imageCount = imageReader.getImageCount();
 						logger.debug(imageCount);
-						// for (int j = 0; j < Math.min(1, imageReader
-						// .getSeriesCount()); j++) {
-						final int j = 0;
-						imageReader.setSeries(j);
-						for (int i = 0; i < Math.min(3, imageCount); i++) {
-							final ImageProcessor ip = imageReader
-									.openProcessors(i)[0];
-							final ImagePlus bit8 = new ImagePlus("" + i, ip);
-							new ImageConverter(bit8).convertToGray8();
-							stack.addSlice(1 + j + "_" + (i + 1), bit8
-									.getProcessor()
-							// ip
-									);
-							logger.debug("i: " + i);
+						for (int j = 0; j < Math.min(1, imageReader
+								.getSeriesCount()); j++) {
+							imageReader.setSeries(j);
+							for (int i = 0; i < Math.min(3, imageCount); i++) {
+								final ImageProcessor ip = imageReader
+										.openProcessors(i)[0];
+								final ImagePlus bit8 = new ImagePlus("" + i, ip);
+								new ImageConverter(bit8).convertToGray8();
+								stack.addSlice(1 + j + "_" + (i + 1), bit8
+										.getProcessor()
+								// ip
+										);
+								logger.debug("i: " + i);
+							}
 						}
-						// }
 						final ImagePlus imagePlus = new ImagePlus("xx", stack);
 						metaInfo.removeAll();
 						fileInfo.append(imagePlus == null ? "" : imagePlus
@@ -258,24 +251,18 @@ public class DialogComponentFileSelectionWithPreview extends
 					} finally {
 						imageReader.close();
 					}
-					if (Thread.currentThread().isInterrupted()) {
-						return;
-					}
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							metaInfo.removeAll();
 							metaInfo.add(new JScrollPane(new JTextArea(fileInfo
 									.toString(), 5, 80)));
 							logger.info(fileInfo);
-							if (pointer[0].getStackSize() > 1) {
-								final ImageConverter imageConverter = new ImageConverter(
-										pointer[0]);
-								imageConverter.convertRGBStackToRGB();
-							}
-							final BufferedImage image = pointer[0]
-									.getBufferedImage();
+							final ImageConverter imageConverter = new ImageConverter(
+									pointer[0]);
+							imageConverter.convertRGBStackToRGB();
+							final Image image = pointer[0].getImage();
 							assert image != null;
-							imagePanel.set(image);
+							imagePanel.setImage(image);
 							getComponentPanel().revalidate();
 							getComponentPanel().repaint();
 						}
@@ -310,7 +297,7 @@ public class DialogComponentFileSelectionWithPreview extends
 		}
 		if (imagePanel != null) {
 			try {
-				imagePanel.set(new BufferedImage(400, 400,
+				imagePanel.setImage(new BufferedImage(400, 400,
 						BufferedImage.TYPE_INT_RGB));
 			} catch (final RuntimeException e) {
 				logger.debug("Problem with handling exception: "

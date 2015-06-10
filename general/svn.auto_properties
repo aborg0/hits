@@ -1,8 +1,0 @@
-[auto-props]
-*.png = svn:mime-type=image/png
-*.xhtml = svn:mime-type=application/xhtml+xml
-*.xml = svn:mime-type=application/xml
-*.html = svn:mime-type=text/html
-*.css = svn:mime-type=text/css
-*.xsd = svn:mime-type=application/xml
-*.jar = svn:mime-type=application/java-archive

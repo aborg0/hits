@@ -1,45 +1,31 @@
 package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.image.loci.view.AutoContrast.ContrastActionEvent;
-import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh;
-import ie.tcd.imm.hits.image.util.imagej.ImageConverterEnh.ConversionStrategy;
 import ie.tcd.imm.hits.knime.view.ControlsHandler;
 import ie.tcd.imm.hits.knime.view.SplitType;
 import ie.tcd.imm.hits.util.ITriple;
+import ie.tcd.imm.hits.util.NamedSelector;
+import ie.tcd.imm.hits.util.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.Pair;
-import ie.tcd.imm.hits.util.select.NamedSelector;
-import ie.tcd.imm.hits.util.select.OptionalNamedSelector;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 import ie.tcd.imm.hits.view.impl.ControlsHandlerFactory;
-import ie.tcd.imm.hits.view.util.ColourUtil;
 import ie.tcd.imm.hits.view.util.SimpleWellSelection;
-import ie.tcd.imm.hits.view.util.ZoomScrollPane;
-import ie.tcd.imm.hits.view.util.Zoomable.ZoomListener;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
-import ij.process.LUT;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,22 +39,11 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.util.ImagingListener;
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.Icon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JMenu;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
@@ -81,27 +56,8 @@ import javax.swing.event.ChangeListener;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 import loci.plugins.util.ImagePlusReader;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogarithmicAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.entity.ChartEntity;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.Layer;
-import org.jfree.ui.RectangleEdge;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeView;
@@ -119,50 +75,6 @@ import com.sun.media.jai.widget.DisplayJAI;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
-	/**
-	 * A simple {@link AbstractAction} that sets the
-	 * {@link LociViewerNodeFastView#contrastStrategy} to the defined in the
-	 * constructor {@link AutoContrast} object.
-	 */
-	private class SetAutoContrast extends AbstractAction {
-		private static final long serialVersionUID = -1716780980886699511L;
-		private final String message;
-		private final AutoContrastStrategy strat;
-		private final double left;
-		private final double right;
-
-		/**
-		 * @param message
-		 *            The name of the action.
-		 * @param strat
-		 *            The {@link AutoContrastStrategy} to use in the
-		 *            {@link AutoContrast}.
-		 * @param left
-		 *            The first additional parameter.
-		 * @param right
-		 *            The second additional parameter.
-		 */
-		public SetAutoContrast(final String message,
-				final AutoContrastStrategy strat, final double left,
-				final double right) {
-			super(message);
-			this.message = message;
-			this.strat = strat;
-			this.left = left;
-			this.right = right;
-		}
-
-		/**
-		 * Sets the new strategy, regenerates the image.
-		 */
-		@Override
-		public void actionPerformed(final ActionEvent e) /* => */{
-			contrastStrategy = new AutoContrast(message, strat, left, right);
-			regenerateImage();
-		}
-
-	}
-
 	/**
 	 * A {@link HiLiteListener} for the well control.
 	 */
@@ -217,34 +129,36 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private static final String GENERAL = "general";
 	private static final String PLATE = "plate";
+	// private static final String ROW = "row";
+	// private static final String COLUMN = "column";
 	private static final String FIELD = "field";
-	private static final String TIME = "time";
-	private static final String Z = "Z";
 	private static final String CHANNEL = "channel";
 
 	private static final NodeLogger logger = NodeLogger
 			.getLogger(LociViewerNodeFastView.class);
 
-	private JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+	private JPanel panel = new JPanel();
 
-	private ControlsHandler<SettingsModel, String, OptionalNamedSelector<String>> controlsHandlerFactory;
+	private ControlsHandler<SettingsModel, String, NamedSelector<String>> controlsHandlerFactory;
 	@Nullable
 	private OptionalNamedSelector<String> plateSelector;
+	// @Nullable
+	// private OptionalNamedSelector<String> rowSelector;
+	// @Nullable
+	// private OptionalNamedSelector<String> columnSelector;
 	@Nullable
 	private OptionalNamedSelector<String> fieldSelector;
 	@Nullable
-	private OptionalNamedSelector<String> timeSelector;
-	@Nullable
-	private OptionalNamedSelector<String> zSelector;
-	@Nullable
 	private OptionalNamedSelector<String> channelSelector;
-	/** Plate, row, column, field, time, z, image id (series), LOCI data */
-	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>> joinTable;
+	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>>> joinTable;
+	// private ImagePanelHits imagePanel = new ImagePanelHits();
 	private DisplayJAI imagePanel = new DisplayJAI();
+	// private ImageCanvas imagePanel = new ImageCanvas(new ImagePlus());
 	private List<ActionListener> listenersToNotGCd = new ArrayList<ActionListener>();
-	private ZoomScrollPane imageScrollPane;
+	private JScrollPane imageScrollPane;
 	private ImagePlus imagePlus;
-	private ImageProcessor[] imageProcessors;
+
+	// private WellSelectionWidget<String, NamedSelector<String>> wellSelection;
 
 	private BoundedRangeModel zoomModel = new DefaultBoundedRangeModel(100, 0,
 			10, 400);
@@ -252,21 +166,13 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	private SpinnerModel secondZoomModel = new SpinnerNumberModel(100, 10, 400,
 			1);
 	private JSpinner zoomSpinner = new JSpinner(secondZoomModel);
-	private Map<String, LUT> luts = new HashMap<String, LUT>();
 	private JPanel otherPanel;
-	/** The width of the current image */
-	protected int sizeX;
-	/** The height of the current image */
-	protected int sizeY;
 	private SimpleWellSelection wellSel;
 	private HiLiteListenerWells hiLiteListener;
-	private ConversionStrategy strategy = ConversionStrategy.Maximum;
-	private boolean inverse = false;
-	private AutoContrast contrastStrategy = AutoContrast.keepLast;
 	{
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e) /* => */{
+			public void stateChanged(final ChangeEvent e) {
 				if (!zoomModel.getValueIsAdjusting()
 						&& Math.abs(((Number) secondZoomModel.getValue())
 								.doubleValue()
@@ -279,7 +185,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		secondZoomModel.addChangeListener(new ChangeListener() {
 
 			@Override
-			public void stateChanged(final ChangeEvent e) /* => */{
+			public void stateChanged(final ChangeEvent e) {
 				if (Math.abs(((Number) secondZoomModel.getValue())
 						.doubleValue()
 						- zoomModel.getValue()) > 1E-5) {
@@ -304,7 +210,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			@Override
 			public boolean errorOccurred(final String message,
 					final Throwable thrown, final Object where,
-					final boolean isRetryable) /* => */throws RuntimeException {
+					final boolean isRetryable) throws RuntimeException {
 				// suppress error messages
 				return false;
 			}
@@ -325,41 +231,55 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 				GENERAL);
 		controlsHandlerFactory.setContainer(controls, SplitType.PrimarySplit,
 				GENERAL);
-		imageScrollPane = new ZoomScrollPane(imagePanel, zoomModel);
+		setComponent(new JScrollPane(panel));
+		panel.setLayout(new javax.swing.BoxLayout(panel,
+				javax.swing.BoxLayout.Y_AXIS));
+		panel.setAlignmentY(Component.TOP_ALIGNMENT);
+		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		imageScrollPane = new JScrollPane(imagePanel);
 		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
-		imageScrollPane.addZoomListener(new ZoomListener() {
-
-			@Override
-			public void zoom(final ZoomEvent event)/* => */{
-				zoomModel.setValue(event.zoomFactor());
-			}
-		});
+		imageScrollPane.setPreferredSize(new Dimension(800, 600));
+		// imageScrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+		// imageScrollPane.setAlignmentY(Component.CENTER_ALIGNMENT);
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		// panel.add(imageScrollPane);
+		imagePanel.setPreferredSize(new Dimension(800, 600));
+
+		// panel.add(new JScrollPane(controls));
+		final JSplitPane horizontalSplitPane = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT);
 		otherPanel = new JPanel();
+		// horizontalSplitPane.setRightComponent(otherPanel);
+		// horizontalSplitPane.setLeftComponent(imageScrollPane);
+		horizontalSplitPane.setOneTouchExpandable(true);
 		final JPanel jPanel = new JPanel();
+		// splitPane.setLeftComponent(horizontalSplitPane);
 		splitPane.setLeftComponent(imageScrollPane);
 		jPanel.add(controls);
 		jPanel.add(otherPanel);
-		splitPane.setResizeWeight(1.0);
+		// splitPane.setRightComponent(new JScrollPane(controls));
 		splitPane.setRightComponent(new JScrollPane(jPanel));
-		splitPane.getLeftComponent().setPreferredSize(new Dimension(1000, 600));
-		splitPane.getRightComponent()
-				.setPreferredSize(new Dimension(1000, 250));
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(600);
-		splitPane.revalidate();
 		panel.add(splitPane);
 		joinTable = Collections.emptyMap();
 		otherPanel.add(zoomSlider);
 		otherPanel.add(zoomSpinner);
 		zoomModel.addChangeListener(new ChangeListener() {
 			@Override
-			public void stateChanged(final ChangeEvent e)/* => */{
+			public void stateChanged(final ChangeEvent e) {
 				repaintImage();
 			}
 		});
 		final Format format = Format._96;
+		// final List<String> vals = createPlateVals(format);
+		// wellSelection = new WellSelectionWidget<String,
+		// NamedSelector<String>>(
+		// format, new SettingsModelListSelection("", vals, "A1"),
+		// SelectionType.Single, controlsHandlerFactory, null,
+		// OptionalNamedSelector.createSingle("", NamedSelector
+		// .createValues(vals)));
+		// otherPanel.add(wellSelection.getComponentPanel());
 
 		wellSel = new SimpleWellSelection(format);
 		hiLiteListener = new HiLiteListenerWells();
@@ -370,7 +290,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			private static final long serialVersionUID = -6054254350021725863L;
 
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
 				final Set<RowKey> selections = findSelectedRowKeys();
 				getNodeModel().getInHiLiteHandler(0)
 						.fireHiLiteEvent(selections);
@@ -380,7 +300,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			private static final long serialVersionUID = 8360935725278415300L;
 
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
 				final Set<RowKey> selections = findSelectedRowKeys();
 				getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(
 						selections);
@@ -390,113 +310,26 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 			private static final long serialVersionUID = 7449582397283093888L;
 
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
 				getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent();
 			}
 		});
-		setComponent(splitPane);
-		final JMenu coloursMenu = new JMenu("Colours");
-		final JCheckBoxMenuItem invert = new JCheckBoxMenuItem(
-				new AbstractAction("Invert") {
-					private static final long serialVersionUID = -3192154966624677909L;
-
-					@Override
-					public void actionPerformed(final ActionEvent e) /* => */{
-						inverse = !inverse;
-						regenerateImage(AutoContrast.keepLast);
-					}
-				});
-		invert.setState(inverse);
-		coloursMenu.add(invert);
-		coloursMenu.add(new JSeparator());
-		final EnumMap<ConversionStrategy, JRadioButtonMenuItem> strategies = new EnumMap<ConversionStrategy, JRadioButtonMenuItem>(
-				ConversionStrategy.class);
-		strategies.put(ConversionStrategy.Maximum, new JRadioButtonMenuItem(
-				new ColourCombinationAction("Maximum",
-						ConversionStrategy.Maximum)));
-		strategies.put(ConversionStrategy.Minimum, new JRadioButtonMenuItem(
-				new ColourCombinationAction("Minimum",
-						ConversionStrategy.Minimum)));
-		strategies.put(ConversionStrategy.Additive, new JRadioButtonMenuItem(
-				new ColourCombinationAction("Additive",
-						ConversionStrategy.Additive)));
-		final ButtonGroup buttonGroup = new ButtonGroup();
-		for (final JRadioButtonMenuItem menu : strategies.values()) {
-			coloursMenu.add(menu);
-			buttonGroup.add(menu);
-		}
-		buttonGroup.clearSelection();
-		buttonGroup.setSelected(strategies.get(strategy).getModel(), true);
-		getJMenuBar().add(coloursMenu);
-		final JMenu contrastMenu = new JMenu("Contrast");
-		final ButtonGroup contrastButtons = new ButtonGroup();
-		final JRadioButtonMenuItem keepLast = new JRadioButtonMenuItem(
-				new SetAutoContrast(AutoContrastStrategy.KeepLast
-						.getDisplayText(), AutoContrastStrategy.KeepLast, 1.0,
-						1.0));
-		contrastButtons.add(keepLast);
-		contrastMenu.add(keepLast);
-		final double[] options = new double[] { 1.0, .9, .75, .5, .25, .1 };
-		for (final AutoContrastStrategy strat : new AutoContrastStrategy[] {
-				AutoContrastStrategy.MinModeMax,
-				AutoContrastStrategy.FirstHighest,
-				AutoContrastStrategy.SecondHighest }) {
-			add(strat, contrastMenu, contrastButtons, options);
-		}
-		if (Boolean.parseBoolean(System.getProperty("knime.expert.mode"))) {
-			getJMenuBar().add(contrastMenu);
-		}
 	}
 
-	/**
-	 * Adds for {@code strat} some menus to {@code contrastMenu}, the leaves are
-	 * {@link JRadioButtonMenuItem}s, added also to the {@code contrastButtons}.
-	 * 
-	 * @param strat
-	 *            An {@link AutoContrastStrategy}.
-	 * @param contrastMenu
-	 *            The "Contrast" menu.
-	 * @param contrastButtons
-	 *            A {@link ButtonGroup} for the contrast
-	 *            {@link JRadioButtonMenuItem}s.
-	 * @param options
-	 *            The optional values for the actions, combination of these will
-	 *            be used to generate the menus.
-	 */
-	private void add(final AutoContrastStrategy strat,
-			final JMenu contrastMenu, final ButtonGroup contrastButtons,
-			final double[] options) {
-		final double d = options[0];
-		final JMenu menu = new JMenu(new SetAutoContrast(strat.getDisplayText()
-				+ "+/-" + d, strat, d, d));
-		for (int i = 0; i < options.length; ++i) {
-			final double o = options[i];
-			final JMenu subMenu = new JMenu(new SetAutoContrast(strat
-					.getDisplayText()
-					+ "+/-" + o, strat, o, o));
-			menu.add(subMenu);
-			for (int j = i; j < options.length; ++j) {
-				final double o2 = options[j];
-				final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
-						new SetAutoContrast(strat.getDisplayText() + "+" + o
-								+ "/-" + o2, strat, o2, o));
-				subMenu.add(menuItem);
-				contrastButtons.add(menuItem);
-			}
-			for (int j = i; j < options.length; ++j) {
-				final double o2 = options[j];
-				if (o2 == o) {
-					continue;
-				}
-				final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
-						new AutoContrast(strat.getDisplayText() + "+" + o2
-								+ "/-" + o, strat, o, o2));
-				subMenu.add(menuItem);
-				contrastButtons.add(menuItem);
-			}
-		}
-		contrastMenu.add(menu);
-	}
+	// /**
+	// * @param format
+	// * A {@link Format}
+	// * @return The wells on a plate with the specified {@link Format}.
+	// */
+	// private static List<String> createPlateVals(final Format format) {
+	// final List<String> ret = new ArrayList<String>(format.getWellCount());
+	// for (int i = 0; i < format.getRow(); ++i) {
+	// for (int j = 0; j < format.getCol(); ++j) {
+	// ret.add(Character.toString((char) ('A' + i)) + i);
+	// }
+	// }
+	// return ret;
+	// }
 
 	/**
 	 * {@inheritDoc}
@@ -507,8 +340,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		joinTable = getNodeModel().getJoinTable();
 		recreatePlateSelector();
 		getNodeModel().getInHiLiteHandler(0).addHiLiteListener(hiLiteListener);
-		((JComponent) getComponent()).revalidate();
-		getComponent().repaint();
+		panel.revalidate();
+		panel.repaint();
 	}
 
 	/**
@@ -539,10 +372,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		deregister(plateSelector);
 		plateSelector = OptionalNamedSelector.createSingle(PLATE, joinTable
 				.keySet());
+		// recreateRowSelector();
 		updateWellSelection();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
+				// rowSelector.setActiveValues(findValues(joinTable.get(
+				// plateSelector.getSelected()).keySet(), plateSelector
+				// .getValueMapping()));
+				// rowSelector.notifyListeners();
 				wellSel.notifyListeners();
 				hiLiteListener.updateHilites();
 			}
@@ -561,64 +399,78 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		wellSel.removeAllActionListeners();
 		wellSel.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
 				fieldSelector.notifyListeners();
 			}
 		});
 	}
 
+	// protected void recreateRowSelector() {
+	// // deregister(rowSelector);
+	// // rowSelector = OptionalNamedSelector.createSingle(ROW, plateSelector
+	// // .getSelections().isEmpty() ? Collections.<String> emptySet()
+	// // : getPlateMap().keySet());
+	// // recreateColumnSelector();
+	// final ActionListener actionListener = new ActionListener() {
+	// @Override
+	// public void actionPerformed(final ActionEvent e) {
+	// // columnSelector.setActiveValues(findValues(
+	// // asStringSet(getPlateRowMap().keySet()), columnSelector
+	// // .getValueMapping()));
+	// channelSelector.notifyListeners();
+	// }
+	// };
+	// // rowSelector.addActionListener(actionListener);
+	// listenersToNotGCd.add(actionListener);
+	// // controlsHandlerFactory.register(rowSelector, SplitType.SingleSelect,
+	// // GENERAL, ControlTypes.Buttons);
+	// }
+	//
+	// private void recreateColumnSelector() {
+	// // deregister(columnSelector);
+	// // columnSelector = OptionalNamedSelector.createSingle(COLUMN,
+	// // rowSelector
+	// // .getSelections().isEmpty() ? Collections.<String> emptySet()
+	// // : asStringSet(getPlateRowMap().keySet()));
+	// recreateFieldSelector();
+	// final ActionListener actionListener = new ActionListener() {
+	// @Override
+	// public void actionPerformed(final ActionEvent e) {
+	// // fieldSelector.setActiveValues(findValues(
+	// // asStringSet(getPlateRowColMap().keySet()),
+	// // fieldSelector.getValueMapping()));
+	// channelSelector.notifyListeners();
+	// }
+	// };
+	// // columnSelector.addActionListener(actionListener);
+	// listenersToNotGCd.add(actionListener);
+	// // controlsHandlerFactory.register(columnSelector,
+	// // SplitType.SingleSelect,
+	// // GENERAL, ControlTypes.Buttons);
+	// }
+
 	private void recreateFieldSelector() {
 		deregister(fieldSelector);
 		fieldSelector = OptionalNamedSelector.createSingle(FIELD,
-				asStringSet(increase(getPlateRowColMap().keySet(), 0)));
-		recreateTimeSelector();
+		/*
+		 * columnSelector.getSelections().isEmpty() ? Collections .<String>
+		 * emptySet() :
+		 */asStringSet(increase(getPlateRowColMap().keySet(), 0)));
+		recreateChannelSelector();
 		final ActionListener actionListener = new ActionListener() {
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
-				timeSelector.notifyListeners();
+			public void actionPerformed(final ActionEvent e) {
+				channelSelector.notifyListeners();
+				// channelSelector.setActiveValues(channelSelector
+				// .getActiveValues());
+				// channelSelector.setActiveValues(findValues(
+				// asStringSet(getPlateRowColFieldMap().keySet()),
+				// channelSelector.getValueMapping()));
 			}
 		};
 		fieldSelector.addActionListener(actionListener);
 		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(fieldSelector, SplitType.SingleSelect,
-				GENERAL, ControlTypes.Buttons);
-	}
-
-	private void recreateTimeSelector() {
-		deregister(timeSelector);
-		timeSelector = OptionalNamedSelector.createSingle(TIME + " "
-				+ getNodeModel().getTimeUnit(),
-				asStringSet(getPlateRowColFieldMap().keySet()));
-		recreateZSelector();
-		final ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
-				zSelector.notifyListeners();
-			}
-		};
-		timeSelector.addActionListener(actionListener);
-		listenersToNotGCd.add(actionListener);
-		controlsHandlerFactory.register(timeSelector, SplitType.SingleSelect,
-				GENERAL, ControlTypes.Buttons);
-	}
-
-	private void recreateZSelector() {
-		deregister(zSelector);
-		zSelector = OptionalNamedSelector.createSingle(Z + " "
-				+ getNodeModel().getZUnit(),
-				asStringSet(getPlateRowColFieldTimeMap().keySet())// ,
-				// "\u00B5m")
-				);
-		recreateChannelSelector();
-		final ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
-				channelSelector.notifyListeners();
-			}
-		};
-		zSelector.addActionListener(actionListener);
-		listenersToNotGCd.add(actionListener);
-		controlsHandlerFactory.register(zSelector, SplitType.SingleSelect,
 				GENERAL, ControlTypes.Buttons);
 	}
 
@@ -633,7 +485,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 
 	private void recreateChannelSelector() {
 		deregister(channelSelector);
-		final Collection<FormatReader> readers = getPlateRowColFieldTimeZMap()
+		final Collection<FormatReader> readers = getPlateRowColFieldMap()
 				.values();
 		List<String> channelNames;
 		if (readers.isEmpty()) {
@@ -667,48 +519,58 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						.addAll(createSampleChannelNames(reader.getSizeC()));
 			}
 		}
-		initLuts(channelNames);
 		channelSelector = new OptionalNamedSelector<String>(CHANNEL,
 				NamedSelector.createValues(channelNames), Collections
 						.singleton(Integer.valueOf(1)));
-		final MouseListener controlListener = new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e)/* => */{
-				if (e != null && e.getButton() != MouseEvent.BUTTON3) {
-					return;
-				}
-				final JPopupMenu popupMenu = createPopupMenu(e);
-				popupMenu.show(e.getComponent(), e.getX(), e.getY());
-			}
-		};
 		final ActionListener actionListener = new ActionListener() {
 
 			@Override
-			public void actionPerformed(final ActionEvent e)/* => */{
+			public void actionPerformed(final ActionEvent e) {
 				try {
-					final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
+					final Entry<Integer, FormatReader> entry = getPlateRowColFieldMap()
 							.entrySet().iterator().next();
 					final FormatReader formatReader = entry.getValue();
 					final ImagePlusReader imagePlusReader = ImagePlusReader
 							.makeImagePlusReader(formatReader);
 					imagePlusReader.setSeries(entry.getKey().intValue());
-					imageScrollPane.getViewport().setSize(
-							sizeX = imagePlusReader.getSizeX(),
-							sizeY = imagePlusReader.getSizeY());
-					imageProcessors = new ImageProcessor[channelSelector
-							.getValueMapping().size()];
-					for (final Integer channel : channelSelector
-							.getActiveValues()) {
-						final int index = FormatTools.getIndex(imagePlusReader,
-								zSelector.getSelections().iterator().next()
-										.intValue() - 1,
-								channel.intValue() - 1, timeSelector
-										.getSelections().iterator().next()
-										.intValue() - 1);
-						imageProcessors[channel.intValue() - 1] = imagePlusReader
-								.openProcessors(index/* channel.intValue() - 1 */)[0];
+					if (imagePanel.getWidth() == 0
+							|| imagePanel.getHeight() == 0) {
+						// imagePanel.setSize(imagePlusReader.getSizeX(),
+						// imagePlusReader.getSizeY());
 					}
-					regenerateImage();
+					imageScrollPane.getViewport().setSize(
+							imagePlusReader.getSizeX(),
+							imagePlusReader.getSizeY());
+					final Set<Integer> channels = channelSelector
+							.getSelections();
+					if (channels.size() == 1) {
+						final int channel = channels.iterator().next()
+								.intValue() - 1;
+						final ImageProcessor[] openProcessors = imagePlusReader
+								.openProcessors(channel);
+						final ImageProcessor ip = /* reader */openProcessors[0];
+						imagePlus = new ImagePlus("", ip);
+						// imagePanel.prepareImage(imagePlus.getBufferedImage(),
+						// null);
+						repaintImage();
+						// imagePanel.set(imagePlus.getBufferedImage());
+						// imagePanel.setImage(imagePlus.getBufferedImage());
+						return;
+					}
+					final ImageStack imageStack = new ImageStack(
+							imagePlusReader.getSizeX(), imagePlusReader
+									.getSizeY());
+					for (int i = 0; i < Math.min(3, imagePlusReader.getSizeC()); ++i) {
+						final ImagePlus image = new ImagePlus(null,
+								imagePlusReader.openProcessors(i)[0]);
+						new ImageConverter(image).convertToGray8();
+						imageStack.addSlice(null, image.getProcessor());
+					}
+					imagePlus = new ImagePlus("", imageStack);
+					new ImageConverter(imagePlus).convertRGBStackToRGB();
+					repaintImage();
+					// imagePanel.set(imagePlus.getBufferedImage());
+					// imagePanel.setImage(imagePlus.getBufferedImage());
 				} catch (final FormatException ex) {
 					imagePlus = new ImagePlus();
 					logger.error("", ex);
@@ -717,57 +579,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 					logger.error("", ex);
 				}
 			}
-
 		};
-		listenersToNotGCd.add(actionListener);
 		channelSelector.addActionListener(actionListener);
-		channelSelector.addControlListener(controlListener);
+		listenersToNotGCd.add(actionListener);
 		controlsHandlerFactory.register(channelSelector,
 				SplitType.PrimarySplit, GENERAL, ControlTypes.Buttons);
 		if (getPlateRowColFieldMap() != null) {
 			actionListener.actionPerformed(null);
 		}
-	}
 
-	/**
-	 * Regenerates the {@link #imagePlus} object of zooming.
-	 */
-	protected void regenerateImage() {
-		imagePlus = generateImagePlus(channelSelector.getSelections(),
-				contrastStrategy);
-		repaintImage();
-	}
-
-	/**
-	 * Regenerates the {@link #imagePlus} object of zooming, based on the
-	 * {@code autoContrast} parameter and the state of the object.
-	 * 
-	 * @param autoContrast
-	 *            The {@link AutoContrast} object to regenerate the image.
-	 */
-	protected void regenerateImage(final AutoContrast autoContrast) {
-		imagePlus = generateImagePlus(channelSelector.getSelections(),
-				autoContrast);
-		repaintImage();
-	}
-
-	/**
-	 * Initialise the {@link LUT}s for each channel.
-	 * 
-	 * @param channelNames
-	 *            The the name of the channels.
-	 */
-	private void initLuts(final List<String> channelNames) {
-		int i = 0;
-		for (final String channel : channelNames) {
-			if (!luts.containsKey(channelNames)) {
-				final LUT lut = (LUT) ColourUtil.LUTS[i++
-						% ColourUtil.LUTS.length].clone();
-				lut.min = Double.NaN;
-				lut.max = Double.NaN;
-				luts.put(channel, lut);
-			}
-		}
 	}
 
 	/**
@@ -825,25 +645,10 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * Repaint the computed image with the current scaling. (Uses the currently
-	 * selected channels.)
+	 * Repaint the computed image with the current scaling.
 	 */
 	protected void repaintImage() {
-		scaleAndSetImage(imagePlus.getBufferedImage());
-		// final Set<Integer> selectedChannels =
-		// channelSelector.getSelections();
-
-		// repaintImage(selectedChannels);
-	}
-
-	/**
-	 * Scales the previously generated image with {@link JAI}.
-	 * 
-	 * @param origImage
-	 *            A {@link RenderedImage}, tipically got from {@link #imagePlus}
-	 *            .
-	 */
-	private void scaleAndSetImage(final RenderedImage origImage) {
+		final BufferedImage origImage = imagePlus.getBufferedImage();
 		final float scale = zoomModel.getValue() / 100.0f;
 		final ParameterBlock pb = new ParameterBlock();
 		pb.addSource(origImage);
@@ -865,46 +670,8 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 						.getHeight()) / 2 : 0);
 		imagePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		imagePanel.setAlignmentY(Component.CENTER_ALIGNMENT);
-	}
-
-	/**
-	 * Generates the {@link ImagePlus} image based on the current settings and
-	 * {@code selectedChannels}.
-	 * 
-	 * @param selectedChannels
-	 *            The selected channels ({@code 1}-based).
-	 * @param autoContrast
-	 *            The {@link AutoContrast} object to use for enhancing the
-	 *            contrast of each channel.
-	 * @return The generated {@link ImagePlus} object.
-	 */
-	private ImagePlus generateImagePlus(final Set<Integer> selectedChannels,
-			final AutoContrast autoContrast) {
-		final ImageStack stack = new ImageStack(sizeX, sizeY);
-		for (final Integer channelInt : selectedChannels) {
-			final int channel = channelInt.intValue() - 1;
-			final String channelName = channelSelector.getValueMapping().get(
-					channelInt);
-			final LUT lut = luts.get(channelName);
-			final ImagePlus imp = new ImagePlus("", imageProcessors[channel]);
-			autoContrast.actionPerformed(new ContrastActionEvent(this, 1, null,
-					0L, 0, imageProcessors[channel].getHistogram(), lut));
-			// if (Double.isNaN(lut.min)) {
-			// lut.min = findMin(imageProcessors[channel].getHistogram());
-			// }
-			// if (Double.isNaN(lut.max)) {
-			// lut.max = findMax(imageProcessors[channel].getHistogram());
-			// }
-			new ImageConverterEnh(imp).convertToRGB(lut);
-			stack.addSlice(null, imp.getProcessor());
-		}
-		final ImagePlus ret = new ImagePlus("", stack);
-		final ImageConverterEnh conv = new ImageConverterEnh(ret);
-		conv.convertStackToRGB(strategy);
-		if (inverse) {
-			conv.invert();
-		}
-		return ret;
+		imagePanel.revalidate();
+		imageScrollPane.revalidate();
 	}
 
 	private static <T> Set<String> asStringSet(final Iterable<T> vals) {
@@ -915,26 +682,15 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		return ret;
 	}
 
-	// private static <T extends Number> Set<String> asStringSetWithUnit(
-	// final Iterable<T> vals, final String unit) {
-	// final Set<String> ret = new LinkedHashSet<String>();
-	// for (final T t : vals) {
-	// ret.add(NumberFormat.getNumberInstance(Locale.getDefault()).format(
-	// t.doubleValue())
-	// + " " + unit);
-	// }
-	// return ret;
-	// }
-
 	private void deregisterPreviousSelectors() {
 		deregister(plateSelector);
 		plateSelector = null;
+		// deregister(rowSelector);
+		// rowSelector = null;
+		// deregister(columnSelector);
+		// columnSelector = null;
 		deregister(fieldSelector);
 		fieldSelector = null;
-		deregister(timeSelector);
-		timeSelector = null;
-		deregister(zSelector);
-		zSelector = null;
 		deregister(channelSelector);
 		channelSelector = null;
 	}
@@ -944,7 +700,7 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	 *            The selector to deregister from
 	 *            {@link #controlsHandlerFactory} .
 	 */
-	private void deregister(final OptionalNamedSelector<String> selector) {
+	private void deregister(final NamedSelector<String> selector) {
 		if (selector != null) {
 			controlsHandlerFactory.deregister(selector);
 		}
@@ -967,76 +723,41 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate. (Row, Column, Field, time,
-	 *         z, id &rArr; reader).
+	 * @return The {@link Map} for the current plate. (Row, Column, Field, id
+	 *         &rArr; reader).
 	 */
-	private Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>> getPlateMap() {
+	private Map<String, Map<Integer, Map<Integer, Map<Integer, FormatReader>>>> getPlateMap() {
 		return joinTable.get(plateSelector.getSelected());
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate and row. (Column, Field,
-	 *         time, z, id &rArr; reader).
+	 * @return The {@link Map} for the current plate and row. (Column, Field, id
+	 *         &rArr; reader).
 	 */
-	private Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>> getPlateRowMap() {
+	private Map<Integer, Map<Integer, Map<Integer, FormatReader>>> getPlateRowMap() {
 		// return getPlateMap().get(rowSelector.getSelected());
 		return getPlateMap().get(wellSel.getSelection().substring(0, 1));
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate, row, column. (Field, time,
-	 *         z, id &rArr; reader).
+	 * @return The {@link Map} for the current plate, row, column. (Field, id
+	 *         &rArr; reader).
 	 */
-	private Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>> getPlateRowColMap() {
+	private Map<Integer, Map<Integer, FormatReader>> getPlateRowColMap() {
+		// return getPlateRowMap().get(
+		// Integer.valueOf(columnSelector.getSelected()));
 		return getPlateRowMap().get(
 				Integer.valueOf(Integer.parseInt(wellSel.getSelection()
 						.substring(1))));
 	}
 
 	/**
-	 * @return The {@link Map} for the current plate, row, column, field. (time,
-	 *         z, id &rArr; reader).
-	 */
-	private Map<Double, Map<Double, Map<Integer, FormatReader>>> getPlateRowColFieldMap() {
-		return getPlateRowColMap().get(
-				Integer.valueOf(fieldSelector.getSelected()));
-	}
-
-	/**
-	 * @return The {@link Map} for the current plate, row, column, field. ( z,
-	 *         id &rArr; reader).
-	 */
-	private Map<Double, Map<Integer, FormatReader>> getPlateRowColFieldTimeMap() {
-		return getPlateRowColFieldMap().get(
-				Double.valueOf(timeSelector.getSelected()));
-	}
-
-	/**
-	 * @return The {@link Map} for the current plate, row, column, field. ( id
+	 * @return The {@link Map} for the current plate, row, column, field. (id
 	 *         &rArr; reader).
 	 */
-	private Map<Integer, FormatReader> getPlateRowColFieldTimeZMap() {
-		final Double val = Double.valueOf(zSelector.getSelected());
-		final Map<Double, Map<Integer, FormatReader>> map = getPlateRowColFieldTimeMap();
-		final Map<Integer, FormatReader> ret = map.get(val);
-		if (ret != null) {
-			return ret;
-		}
-		double minDiff = Double.MAX_VALUE;
-		Map<Integer, FormatReader> possRet = null;
-		for (final Entry<Double, Map<Integer, FormatReader>> entry : map
-				.entrySet()) {
-			final double diff = Math.abs(entry.getKey().doubleValue()
-					- val.doubleValue());
-			if (diff < minDiff && entry.getValue() != null) {
-				minDiff = diff;
-				possRet = entry.getValue();
-			}
-		}
-		if (possRet != null) {
-			return possRet;
-		}
-		return Collections.emptyMap();// TODO replace with empty FormatReader
+	private Map<Integer, FormatReader> getPlateRowColFieldMap() {
+		return getPlateRowColMap().get(
+				Integer.valueOf(fieldSelector.getSelected()));
 	}
 
 	/**
@@ -1058,463 +779,4 @@ public class LociViewerNodeFastView extends NodeView<LociViewerNodeModel> {
 		}
 		return selections;
 	}
-
-	private static int findChannelIndex(@Nullable final MouseEvent event,
-			final OptionalNamedSelector<String> channelSelector) {
-		final Object source = event == null ? null : event.getSource();
-		if (source instanceof AbstractButton) {
-			final AbstractButton button = (AbstractButton) source;
-			final String channelName = button.getText();
-			return findChannelIndexByName(channelSelector, channelName);
-		}
-		if (source instanceof JList) {
-			final JList list = (JList) source;
-			final int index = list.locationToIndex(event.getPoint());
-			if (index == -1) {
-				return 0;
-			}
-			final Object element = list.getModel().getElementAt(index);
-			final String channelName = element.toString();
-			return findChannelIndexByName(channelSelector, channelName);
-		}
-		final Set<Integer> selections = channelSelector.getSelections();
-		return selections.isEmpty() ? 0 : selections.iterator().next()
-				.intValue();
-	}
-
-	/**
-	 * Selects the {@code 0} based index from the {@code channelSelector,
-	 * channelName} parameters. {@code 0} if not found.
-	 * 
-	 * @param channelSelector
-	 *            An {@link OptionalNamedSelector}.
-	 * @param channelName
-	 *            A value from the mapping.
-	 * @return The index of the channel ({@code 0}-based), or {@code 0} if not
-	 *         found.
-	 */
-	private static int findChannelIndexByName(
-			final OptionalNamedSelector<String> channelSelector,
-			final String channelName) {
-		for (final Entry<Integer, String> entry : channelSelector
-				.getValueMapping().entrySet()) {
-			if (channelName.equals(entry.getValue())) {
-				return entry.getKey().intValue();
-			}
-		}
-		return 0;
-	}
-
-	private static XYDataset createHistogram(
-			final ImageProcessor[] imageProcessors,
-			final String... channelNames) {
-		final XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
-		assert imageProcessors.length == channelNames.length;
-		for (int p = 0; p < imageProcessors.length; ++p) {
-			final String channelName = channelNames[p];
-			final ImageProcessor imageProcessor = imageProcessors[p];
-			final XYSeries ret = createHistogram(imageProcessor, channelName);
-			xySeriesCollection.addSeries(ret);
-		}
-		return xySeriesCollection;
-	}
-
-	/**
-	 * @param imageProcessor
-	 *            An {@link ImageProcessor} to compute the histogram.
-	 * @param channelName
-	 *            The name of the channel.
-	 * @return {@link XYSeries} of {@code imageProcessor}'s histogram.
-	 */
-	private static XYSeries createHistogram(
-			final ImageProcessor imageProcessor, final String channelName) {
-		final XYSeries ret = new XYSeries(channelName);
-		// final DefaultXYDataset ret = new DefaultXYDataset();// new
-		// HistogramDataset();
-		// ret.setType(HistogramType.FREQUENCY);
-		final int[] histogram = imageProcessor.getHistogram();
-		final double[] dh = new double[histogram.length];
-		for (int i = dh.length; i-- > 0;) {
-			dh[i] = histogram[i];
-		}
-		int min = 0;
-		for (int i = 0; i < histogram.length; ++i) {
-			if (histogram[i] == 0) {
-				min = i;
-			} else {
-				break;
-			}
-		}
-		int max = histogram.length - 1;
-		for (int i = histogram.length; i-- > 0;) {
-			if (histogram[i] == 0) {
-				max = i;
-			} else {
-				break;
-			}
-		}
-		// final double[][] data = new double[2][max - min + 1];
-		for (int i = max - min; i-- > 0;) {
-			// data[0][i] = min + i;
-			// data[1][i] = histogram[i + min];
-			ret.add(min + i, histogram[i + min]);
-		}
-		return ret;
-	}
-
-	/**
-	 * @param lineChart
-	 *            A {@link JFreeChart} to wrap in a {@link ChartPanel}.
-	 * @param lut
-	 *            The {@link LUT} belonging to the {@code lineChart}.
-	 * @return The {@link ChartPanel} with listener to markers.
-	 */
-	private ChartPanel createChartPanel(final JFreeChart lineChart,
-			final LUT lut) {
-		final ChartPanel chartPanel = new ChartPanel(lineChart);
-		// lut.min = Math.max(lut.min, lineChart.getXYPlot().getDomainAxis()
-		// .getRange().getLowerBound());
-		// lut.max = Math.min(lut.max, lineChart.getXYPlot().getDomainAxis()
-		// .getRange().getUpperBound());
-		chartPanel.getChart().getXYPlot().addDomainMarker(
-				new ValueMarker(lut.min), Layer.FOREGROUND);
-		chartPanel.getChart().getXYPlot().addDomainMarker(
-				new ValueMarker(lut.max), Layer.FOREGROUND);
-		final ValueAxis origDomain = chartPanel.getChart().getXYPlot()
-				.getDomainAxis();
-		final ColouredAxis colouredAxis = new ColouredAxis(
-				(NumberAxis) origDomain, lut);
-		chartPanel.addChartMouseListener(new ChartMouseListener() {
-			private ValueMarker selectedMarker = null;
-
-			@Override
-			public void chartMouseMoved(final ChartMouseEvent event)/* => */{
-				// Do nothing
-			}
-
-			@Override
-			public void chartMouseClicked(final ChartMouseEvent event)/* => */{
-				final ChartEntity entity = event.getEntity();
-				if (entity == null) {
-					return;
-				}
-				final XYPlot xyPlot = lineChart.getXYPlot();
-				final Collection<?> domainMarkers = xyPlot
-						.getDomainMarkers(Layer.FOREGROUND);
-				boolean clickedOnMarker = false;
-				final ValueAxis domainAxis = xyPlot.getDomainAxis();
-				final RectangleEdge domainAxisLocation = Plot
-						.resolveDomainAxisLocation(xyPlot
-								.getDomainAxisLocation(), xyPlot
-								.getOrientation());
-				for (final Object object : domainMarkers) {
-					if (object instanceof ValueMarker) {
-						final ValueMarker marker = (ValueMarker) object;
-						final double valueToJava2D = domainAxis.valueToJava2D(
-								marker.getValue(), chartPanel
-										.getScreenDataArea(),
-								domainAxisLocation);
-						if (Math.abs(event.getTrigger().getX() - valueToJava2D) < 3) {
-							selectedMarker = marker;
-							clickedOnMarker = true;
-							break;
-						}
-					}
-				}
-				if (!clickedOnMarker) {
-					if (selectedMarker != null) {
-						final double value = domainAxis.java2DToValue(event
-								.getTrigger().getX(), chartPanel
-								.getScreenDataArea(), domainAxisLocation);
-						selectedMarker.setValue(value);
-					}
-					final List<Double> vals = new ArrayList<Double>();
-					for (final Object object : domainMarkers) {
-						if (object instanceof ValueMarker) {
-							final ValueMarker marker = (ValueMarker) object;
-							vals.add(Double.valueOf(marker.getValue()));
-						}
-					}
-					Collections.sort(vals);
-					lut.min = vals.get(0).doubleValue();
-					lut.max = vals.get(vals.size() - 1).doubleValue();
-					regenerateImage(AutoContrast.keepLast);
-					selectedMarker = null;
-				}
-			}
-		});
-		chartPanel.getChart().getXYPlot().setDomainAxes(
-				new ValueAxis[] { origDomain, colouredAxis });
-		return chartPanel;
-	}
-
-	/**
-	 * Performs a change in the selected {@link LUT}.
-	 */
-	protected class LUTChangeAction extends AbstractAction {
-		private static final long serialVersionUID = 985037332491541636L;
-		private final LUT lut;
-		private final String channelName;
-
-		/**
-		 * Creates the proper action.
-		 * 
-		 * @param lut
-		 *            The new lut values.
-		 * @param text
-		 *            The text of the {@link Action}.
-		 * @param channelName
-		 *            The channel name it belongs to.
-		 */
-		public LUTChangeAction(final LUT lut, final String text,
-				final String channelName) {
-			super(text);
-			this.lut = lut;
-			this.channelName = channelName;
-		}
-
-		/**
-		 * Changes the {@link LUT} bounds for the defined channel and regenerate
-		 * the the image.
-		 * 
-		 * @param e
-		 *            Not used, may be {@code null}.
-		 */
-		@Override
-		public void actionPerformed(final ActionEvent e)/* => */{
-			final LUT orig = luts.get(channelName);
-			final LUT newLut = (LUT) lut.clone();
-			newLut.min = orig.min;
-			newLut.max = orig.max;
-			luts.put(channelName, newLut);
-			regenerateImage(AutoContrast.keepLast);
-		}
-	}
-
-	/**
-	 * Creates a popup menu to modify the ranges or change the colours.
-	 * 
-	 * @param e
-	 *            The {@link MouseEvent} for the action.
-	 * @return A new popup menu containing the previously mentioned actions.
-	 */
-	private JPopupMenu createPopupMenu(final MouseEvent e) {
-		final JPopupMenu popupMenu = new JPopupMenu("Colours");
-		popupMenu.add(new AbstractAction("modify ranges") {
-			private static final long serialVersionUID = 2203912915467547415L;
-
-			public void actionPerformed(final ActionEvent action)/* => */{
-				final int channelIndex = findChannelIndex(e, channelSelector);
-				final String channelName = channelSelector.getValueMapping()
-						.get(Integer.valueOf(channelIndex));
-				final Entry<Integer, FormatReader> entry = getPlateRowColFieldTimeZMap()
-						.entrySet().iterator().next();
-				final FormatReader formatReader = entry.getValue();
-				final ImagePlusReader imagePlusReader = ImagePlusReader
-						.makeImagePlusReader(formatReader);
-				imagePlusReader.setSeries(entry.getKey().intValue());
-				try {
-					showHistogram(channelIndex, channelName, imagePlusReader);
-				} catch (final FormatException e1) {
-					JOptionPane.showMessageDialog(controlsHandlerFactory
-							.getContainer(SplitType.AdditionalInfo, CHANNEL),
-							"Unable to handle image: " + e1.getMessage());
-				} catch (final IOException e1) {
-					JOptionPane.showMessageDialog(controlsHandlerFactory
-							.getContainer(SplitType.AdditionalInfo, CHANNEL),
-							"Unable to handle image: " + e1.getMessage());
-				}
-			}
-		});
-		final JMenu colours = new JMenu("change colours");
-		popupMenu.add(colours);
-		final int channelIndex = findChannelIndex(e, channelSelector);
-		final String channelName = channelSelector.getValueMapping().get(
-				Integer.valueOf(channelIndex));
-		final ButtonGroup buttonGroup = new ButtonGroup();
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.WHITE,
-				"<html>Black &Rarr; White</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_WHITE, "<html>White &Rarr; Black</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.RED,
-				"<html>Black &Rarr; Red</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_ONLY_RED, "<html>Red &Rarr; Black</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_RED_KEEP_GREEN,
-				"<html>Purple &Rarr; Blue</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_RED_KEEP_BLUE,
-				"<html>Yellow &Rarr; Green</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.BLUE,
-				"<html>Black &Rarr; Blue</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_ONLY_BLUE, "<html>Blue &Rarr; Black</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(ColourUtil.GREEN,
-				"<html>Black &Rarr; Green</html>", channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_ONLY_GREEN, "<html>Green &Rarr; Black</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_RED, "<html>White &Rarr; Cyan</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_BLUE, "<html>White &Rarr; Yellow</html>",
-				channelName));
-		addMenuItem(buttonGroup, colours, new LUTChangeAction(
-				ColourUtil.INV_GREEN, "<html>White &Rarr; Purple</html>",
-				channelName));
-		buttonGroup.clearSelection();
-		findSelected(buttonGroup, luts.get(channelName));
-		return popupMenu;
-	}
-
-	/**
-	 * Finds the matching (similar to {@code lut}) menu entry from {@code
-	 * buttonGroup}, and selects the first.
-	 * 
-	 * @param buttonGroup
-	 *            A {@link ButtonGroup} with the {@link JRadioButtonMenuItem}s.
-	 * @param lut
-	 *            A reference {@link LUT}.
-	 */
-	private void findSelected(final ButtonGroup buttonGroup, final LUT lut) {
-		final int[] refRGBs = new int[256], oRGBs = new int[256];
-		lut.getRGBs(refRGBs);
-		for (final Enumeration<AbstractButton> iterator = buttonGroup
-				.getElements(); iterator.hasMoreElements();) {
-			final AbstractButton b = iterator.nextElement();
-			final LUT lut2 = ((LUTChangeAction) b.getAction()).lut;
-			lut2.getRGBs(oRGBs);
-			if (Arrays.equals(refRGBs, oRGBs)) {
-				buttonGroup.setSelected(b.getModel(), true);
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Adds {@code lutChangeAction} to the {@code buttonGroup} and {@code
-	 * colours} as a {@link JRadioButtonMenuItem}.
-	 * 
-	 * @param buttonGroup
-	 *            A {@link ButtonGroup}.
-	 * @param colours
-	 *            A {@link JMenu}.
-	 * @param lutChangeAction
-	 *            The action to add.
-	 */
-	private void addMenuItem(final ButtonGroup buttonGroup,
-			final JMenu colours, final LUTChangeAction lutChangeAction) {
-		final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(
-				lutChangeAction);
-		colours.add(menuItem);
-		buttonGroup.add(menuItem);
-	}
-
-	/**
-	 * Shows a histogram dialog for the referenced image.
-	 * 
-	 * @param channelIndex
-	 *            The channel index for the histogram ({@code 1}-based).
-	 * @param channelName
-	 *            The name of the channel.
-	 * @param imagePlusReader
-	 *            An {@link ImagePlusReader} of the image.
-	 * @throws FormatException
-	 *             Problem opening the image.
-	 * @throws IOException
-	 *             Problem opening the image.
-	 */
-	private void showHistogram(final int channelIndex,
-			final String channelName, final ImagePlusReader imagePlusReader)
-			throws FormatException, IOException {
-		final XYDataset histogram = createHistogram(
-				new ImageProcessor[] { imagePlusReader
-						.openProcessors(channelIndex - 1)[0] }, channelName);
-		final JFreeChart lineChart = ChartFactory.createXYLineChart(
-				"Histogram", null, null, histogram, PlotOrientation.VERTICAL,
-				true, true, false);
-
-		lineChart.getXYPlot().getDomainAxis().setRange(
-				histogram.getXValue(0, 0),
-				histogram.getXValue(0, histogram.getItemCount(0) - 1));
-		final LogarithmicAxis rangeAxis = new LogarithmicAxis("Frequency");
-		// rangeAxis.setAutoRangeIncludesZero(true);
-		rangeAxis.setAllowNegativesFlag(true);
-		lineChart.getXYPlot().setRangeAxis(rangeAxis);
-		final LUT lut = luts.get(channelName);
-		final double lutMin = lut.min, lutMax = lut.max;
-		final ChartPanel chartPanel = createChartPanel(lineChart, lut);
-		final int selectedOption = JOptionPane.showOptionDialog(
-				controlsHandlerFactory.getContainer(SplitType.AdditionalInfo,
-						CHANNEL), chartPanel, "", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE, null, null, null);
-		switch (selectedOption) {
-		case JOptionPane.OK_OPTION:
-			// Do nothing, we have done the changes previously
-			break;
-		case JOptionPane.CANCEL_OPTION:
-		case JOptionPane.CLOSED_OPTION:
-			lut.min = lutMin;
-			lut.max = lutMax;
-			regenerateImage(AutoContrast.keepLast);
-			break;
-		default:
-			throw new IllegalStateException("Unexpected option: "
-					+ selectedOption);
-		}
-	}
-
-	/**
-	 * Changes the combination strategy of the current image.
-	 */
-	private class ColourCombinationAction extends AbstractAction {
-		private static final long serialVersionUID = -6219194742481791076L;
-		private final ConversionStrategy strategy;
-
-		/**
-		 * @param name
-		 *            The name of the action.
-		 * @param strategy
-		 *            The {@link ConversionStrategy} to select in the action.
-		 */
-		public ColourCombinationAction(final String name,
-				final ConversionStrategy strategy)/* => */{
-			this(name, strategy, null);
-		}
-
-		/**
-		 * @param name
-		 *            The name of the action.
-		 * @param strategy
-		 *            The {@link ConversionStrategy} to select in the action.
-		 * @param icon
-		 *            The icon to use for the selection.
-		 */
-		public ColourCombinationAction(final String name,
-				final ConversionStrategy strategy, final Icon icon) {
-			super(name, icon);
-			this.strategy = strategy;
-		}
-
-		/**
-		 * Sets the strategy to the one declared in the constructor.
-		 * 
-		 * @param e
-		 *            Not used, can be {@code null}.
-		 */
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			if (LociViewerNodeFastView.this.strategy != strategy) {
-				LociViewerNodeFastView.this.strategy = strategy;
-				regenerateImage(AutoContrast.keepLast);
-			}
-		}
-
-	}
-
 }

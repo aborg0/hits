@@ -3,7 +3,6 @@
 	<name>ie.tcd.imm.hits.image</name>
 	<comment></comment>
 	<projects>
-		<project>org.hcdc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -26,4 +25,51 @@
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>lib/bio-formats.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/java/artifacts/bio-formats.jar</location>
+		</link>
+		<link>
+			<name>lib/jai_imageio.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/java/artifacts/jai_imageio.jar</location>
+		</link>
+		<link>
+			<name>lib/loci-common.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/java/artifacts/loci-common.jar</location>
+		</link>
+		<link>
+			<name>lib/loci_plugins.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/java/artifacts/loci_plugins.jar</location>
+		</link>
+		<link>
+			<name>lib/looks-1.2.2.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/External libraries/looks-1.2.2.jar</location>
+		</link>
+		<link>
+			<name>lib/ome-xml.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/java/artifacts/ome-xml.jar</location>
+		</link>
+		<link>
+			<name>lib/skinlf.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/External libraries/skinlf.jar</location>
+		</link>
+		<link>
+			<name>lib/visad-lite.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/workspace/External libraries/visad-lite.jar</location>
+		</link>
+		<link>
+			<name>lib/visad.jar</name>
+			<type>1</type>
+			<location>C:/Users/bakosg.COLLEGE/Downloads/visad.jar</location>
+		</link>
+	</linkedResources>
 </projectDescription>

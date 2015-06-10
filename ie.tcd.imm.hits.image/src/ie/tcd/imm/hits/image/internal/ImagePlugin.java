@@ -3,14 +3,6 @@
  */
 package ie.tcd.imm.hits.image.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -74,24 +66,5 @@ public class ImagePlugin extends Plugin {
 	 */
 	public static ImagePlugin getDefault() {
 		return plugin;
-	}
-
-	/**
-	 * @return A {@link File} with absolute path pointing to the plugin's root
-	 *         folder.
-	 * @throws IOException
-	 *             If the root folder cannot be expressed as a {@link URL}.
-	 */
-	public File getPluginPath() throws IOException {
-		final URL url = FileLocator.find(ImagePlugin.getDefault().getBundle(),
-				new Path(""), null);
-		URI uri;
-		try {
-			uri = url == null ? null : FileLocator.toFileURL(url).toURI();
-		} catch (final URISyntaxException e) {
-			throw new IOException(e);
-		}
-		return new File(uri).getAbsoluteFile();
-
 	}
 }
