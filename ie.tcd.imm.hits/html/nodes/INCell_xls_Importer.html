@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+<head>
+<title>Node description for INCell xls Importer</title>
+<style type="text/css">
+			body {
+	background-color: #fff;
+	font-family: Tahoma, Arial, Helvetica; 
+	font-size: 10pt;
+	padding: 0.1em 0.1em 1.5em 0.1em;
+}
+
+tt, pre {
+	font-family: Courier New, Courier, Arial, Helvetica; 
+	font-size: 14px;
+}
+
+p {
+	text-align: justify;
+	/*padding: 0 10px;*/
+}
+
+
+
+h1{
+	font-size: 28px;
+	text-align: center;
+	border-bottom: thick solid #ffd600;
+}
+
+h2{
+	font-size: 18px;
+	/*padding-left: 5px;*/
+	border-bottom: thin dotted #ffd600;
+}
+
+.deprecated {
+	color: red; font-style: italic;
+}
+
+dl{
+	margin-left: 1px;
+	padding: 0;
+}
+
+dt {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+dd{
+	margin-bottom: 20px; 
+}
+
+table{
+	font-size:100%;
+}
+
+td{
+	padding: 0.5em 0.5em;
+	vertical-align:top;
+}
+
+
+.dt {
+	font-weight: bold;
+}
+
+a{
+	color: #000;
+}
+	
+a:visited{
+	color: #666;
+}
+
+.warn{
+	color: #cf0000;
+}
+		</style>
+</head>
+<body>
+<h1>INCell xls Importer</h1>
+<p>
+<p>With this node you are able to read the well mean values from a <i>IN Cell Analyzer 1000</i>, and convert it to cellHTS2 readable format.</p>
+<p>The experiments has the following structure: It has <b>plate</b>s with some <b>replicate</b>s for each plates. Each plate has 96, or 384 <b>well</b>s. The wells contain the experimental environment. From each well there can be taken some photographs on predefined positions (<b>field</b>s), which contains the <b>cell</b>s.</p> Details <a href="../../help/INCellAnalyzer1000xls.xhtml">here</a>.</p>
+<h2>Dialog Options</h2>
+<dl>
+<dt>Folder of xls files</dt>
+<dd>From this folder will be selected the XLS files.</dd>
+<dt>XLS files</dt>
+<dd>You can select the Excel files belonging to this experiment. They will be used in this (alphabetical) order as the first plate's first replicate, first plate's second replicate, ..., first plate's k replicate; second plate's first replicate, ..., second plate's k replicate; ...; n plate's first replicate, n plate's second replicate, ..., n plate's k replicate.</dd>
+<dt>Well count</dt>
+<dd>Number of wells on each plates.</dd>
+<dt>Plate count</dt>
+<dd>Number of plates in the experiment.</dd>
+<dt>Replicate count</dt>
+<dd>Number of replicates (1, if you have no replicates, 2 if every plate has a pair with the same configuration, ...)</dd>
+<dt>Annotation file</dt>
+<dd>The position of the annotation file. It should contain in the first row the header: Plate	Well	GeneID	GeneSymbol. The other rows are the tab separated values for the plates and wells. Every plate-well pair have to be enumerated in the plate/well order.</dd>
+</dl>
+<h2>Ports</h2>
+<dl>
+<dt>Output Ports</dt>
+<dd>
+<table>
+<tr>
+<td class="dt">0</td>
+<td>Here are the data values (maybe with the annotation information).</td>
+</tr>
+</table>
+</dd>
+</dl>
+</body>
+</html>
