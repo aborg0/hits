@@ -1,0 +1,13 @@
+A	X	Numbers
+a	x	1
+a	x	2
+a	y	3
+a	y	4
+a	z	5
+a	z	6
+b	x	7
+b	x	8
+b	y	9
+b	y	10
+b	z	11
+b	z	12
