@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HiTS extensions for KNIME Workbench
+Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
+Bundle-Version: 0.0.2
+Bundle-ClassPath: importer.jar
+Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
+Bundle-Vendor: TCD
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ org.eclipse.ui,
+ ie.tcd.imm.hits.3rdparty
+Eclipse-LazyStart: true
+Export-Package: ie.tcd.imm.hits.knime.cellhts2.worker,
+ ie.tcd.imm.hits.knime.xls
+
