@@ -17,6 +17,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
 import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.Traversable;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.swing.ImageType;
@@ -89,7 +90,6 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 import org.knime.core.node.tableview.TableView;
-import org.knime.core.util.Pair;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
@@ -294,7 +294,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 					fileNameBuilder.append("-").append(
 							sliderModel.getValueMapping().get(
 									sliderModel.getSelections().iterator()
-											.next()).getSecond().toString()
+											.next()).getRight().toString()
 									.replaceAll("[^\\d\\w]+", "_")).append(" ");
 				}
 				// fileNameBuilder.append(".png");
@@ -900,7 +900,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 									.getValueMapping().get(
 											Integer.valueOf(i + 1));
 							hilitesChange.add(new Pair<Integer, Integer>(
-									(Integer) pair.getSecond(), j));
+									(Integer) pair.getRight(), j));
 							// hilites[i][j] = hilite;
 						}
 					}
@@ -997,7 +997,7 @@ public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 								.get(string.substring(0, string.indexOf('_')))
 								: null;
 				if (pair != null) {
-					hilites[pair.getFirst().intValue() - 1][pair.getSecond()] = true;
+					hilites[pair.getLeft().intValue() - 1][pair.getRight()] = true;
 				}
 			}
 		}

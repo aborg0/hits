@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeView.VolatileModel;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.select.Selectable;
 import ie.tcd.imm.hits.util.select.Selector;
 import ie.tcd.imm.hits.util.swing.colour.ColourComputer;
@@ -39,7 +40,6 @@ import org.knime.core.data.RowKey;
 import org.knime.core.data.property.ColorAttr;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
-import org.knime.core.util.Pair;
 
 /**
  * Shows a heatmap of values.
@@ -201,7 +201,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		plate = plateSlider.getSelections().size() == 1 ? ((Number) plateSlider
 				.getValueMapping().get(
 						plateSlider.getSelections().iterator().next())
-				.getSecond()).intValue() - 1 : -1;
+				.getRight()).intValue() - 1 : -1;
 		final Color[][] colors = new Color[predictedFormat.getWellCount()][size];
 		final ColourModel colourModel = viewModel.getMain().getColourModel();
 		final ModelBuilder modelBuilder = nodeModel.getModelBuilder();
@@ -349,7 +349,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					int j = 0;
 					for (final Integer selected : sliderModel.getSelections()) {
 						findColourValues(format, colors, map.get(sliderModel
-								.getValueMapping().get(selected).getSecond()),
+								.getValueMapping().get(selected).getRight()),
 								colourModel, firstParamSlider, selected, j,
 								secondParamSlider, secondSelection,
 								secondIndex, sliderList, i + 1);
@@ -361,7 +361,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					int j = 0;
 					for (final Integer selected : sliderModel.getSelections()) {
 						findColourValues(format, colors, map.get(sliderModel
-								.getValueMapping().get(selected).getSecond()),
+								.getValueMapping().get(selected).getRight()),
 								colourModel, firstParamSlider, firstSelection,
 								firstIndex, secondParamSlider, selected, j,
 								sliderList, i + 1);
@@ -372,7 +372,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					assert sliderModel.getSelections().size() == 1;
 					final Object obj = map.get(sliderModel.getValueMapping()
 							.get(sliderModel.getSelections().iterator().next())
-							.getSecond());
+							.getRight());
 					if (i < sliderList.size() - 1) {
 						map = (Map<?, ?>) obj;
 					} else {
@@ -401,21 +401,21 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				(String) (paramSlider.getSelections().size() == 1 ? paramSlider
 						.getValueMapping().get(
 								paramSlider.getSelections().iterator().next())
-						.getSecond()
+						.getRight()
 						: firstParamSlider == paramSlider ? firstParamSlider
 								.getValueMapping().get(firstSelection)
-								.getSecond() : secondParamSlider
+								.getRight() : secondParamSlider
 								.getValueMapping().get(secondSelection)
-								.getSecond()), (StatTypes) (statSlider
+								.getRight()), (StatTypes) (statSlider
 						.getSelections().size() == 1 ? statSlider
 						.getValueMapping().get(
 								statSlider.getSelections().iterator().next())
-						.getSecond()
+						.getRight()
 						: firstParamSlider == statSlider ? firstParamSlider
 								.getValueMapping().get(firstSelection)
-								.getSecond() : secondParamSlider
+								.getRight() : secondParamSlider
 								.getValueMapping().get(secondSelection)
-								.getSecond()));
+								.getRight()));
 		final ColourComputer model = model0 == null ? new ComplexModelFactory()
 				.getDefaultModel() : model0;
 		if (array != null) {
@@ -476,7 +476,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 		final List<T> list = posMap.get(Integer.valueOf(slider.getSubId()));
 		for (final Integer selection : slider.getSelections()) {
 			list.add(cls.cast(slider.getValueMapping().get(selection)
-					.getSecond()));
+					.getRight()));
 		}
 	}
 
@@ -546,7 +546,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 									for (final Integer integer : selections) {
 										selectedPlates.add((Number) slider
 												.getValueMapping().get(integer)
-												.getSecond());
+												.getRight());
 									}
 									break;
 								}
@@ -565,7 +565,7 @@ public class Heatmap extends JComponent implements HiLiteListener {
 							int plateFrom0 = -1;
 							for (final Entry<Integer, ? extends Pair<?, ?>> entry : valueMapping
 									.entrySet()) {
-								if (entry.getValue().getSecond().equals(
+								if (entry.getValue().getRight().equals(
 										Integer.valueOf(plate + 1))) {
 									plateFrom0 = entry.getKey() - 1;
 								}
@@ -604,8 +604,8 @@ public class Heatmap extends JComponent implements HiLiteListener {
 				.<Integer, Pair<?, ?>> emptyMap()
 				: mapping).entrySet()) {
 			final Pair<?, ?> pair = entry.getValue();
-			if (pair.getSecond() instanceof Number) {
-				final Number valNum = (Number) pair.getSecond();
+			if (pair.getRight() instanceof Number) {
+				final Number valNum = (Number) pair.getRight();
 				inverseMap.put(Integer.valueOf(valNum.intValue()), entry
 						.getKey());
 			}
@@ -615,9 +615,9 @@ public class Heatmap extends JComponent implements HiLiteListener {
 					.getString());
 			if (pair != null) {
 				assert pair != null;
-				final int plate = (mapping == null ? pair.getSecond().intValue()
-						: ((Number) inverseMap.get(pair.getSecond())).intValue()) - 1;
-				final int pos = pair.getSecond().intValue();
+				final int plate = (mapping == null ? pair.getLeft().intValue()
+						: ((Number) inverseMap.get(pair.getLeft())).intValue()) - 1;
+				final int pos = pair.getRight().intValue();
 				volatileModel.setHilite(plate, pos, hilite);
 			}
 		}

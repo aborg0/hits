@@ -82,7 +82,7 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
     }
     
     ## 2. Plate-by-plate adjustment:
-    allowedFunctions <- c("mean", "median", "shorth", "negatives", "POC", "NPI", "Bscore", "locfit")
+    allowedFunctions <- c("mean", "median", "shorth", "negatives", "POC", "NPI", "Bscore", "loess", "locfit")
     ## overwrite assayData with the new data 
     object <- switch(method,
                      "mean" = perPlateScaling(object, scale, method),
@@ -92,7 +92,8 @@ normalizePlates <- function(object, scale="additive", log = FALSE, method="media
                      "POC" = controlsBasedNormalization(object, method, posControls, negControls),
                      "NPI" = controlsBasedNormalization(object, method, posControls, negControls),
                      "Bscore" = Bscore(object, ...),
-                     "locfit" = spatialNormalization(object, ...),
+                     "loess" = spatialNormalization(object, model="loess", ...), 
+                     "locfit" = spatialNormalization(object, model="locfit", ...),
                      "customA" = customA(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
                      "customB" = customB(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
                      "customC" = customC(object=object, scale=scale, posControls=posControls, negControls=negControls, ...),
@@ -139,12 +140,10 @@ summarizeChannels <- function(object, fun=function(r1, r2, thresh=-Inf)
     
     ## store the summarized data in 'assayData' slot:
     ## 1) remove channel 2:
-	chNames <- assayDataElementNames(object) 
-	assayDataElement(object, chNames[2:nrChans]) <- NULL
+    chNames <- assayDataElementNames(object) 
+    assayDataElement(object, chNames[2:nrChans]) <- NULL
     ## 2) replace the contents of the (single) remaining channel by the new summarized values:
     Data(object) <- xnorm
-	if (regexpr("2\\.[12][^0123]\\..", package.version("cellHTS2")) == 1)
-		channelNames(object) <- "summarized"
     ## 3) State is now considered to be normalized
     if(!state(object)["normalized"])     
         object@processingInfo[["normalized"]] <- "channel summarization"
