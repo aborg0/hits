@@ -2,11 +2,9 @@ package ie.tcd.imm.hits.image.loci.view;
 
 import ie.tcd.imm.hits.common.PublicConstants;
 import ie.tcd.imm.hits.image.loci.LociReaderCell;
-import ie.tcd.imm.hits.image.loci.read.LociReaderNodeModel;
 import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.SerializableTriple;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +15,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -32,7 +29,6 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.collection.CollectionDataValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -55,8 +51,6 @@ public class LociViewerNodeModel extends NodeModel {
 	private Map<String, Map<String, Map<Integer, Map<Integer, Map<Double, Map<Double, Map<Integer, FormatReader>>>>>>> joinTable;
 
 	private Map<RowKey, SerializableTriple<String, String, Integer>> rowsToWells = new HashMap<RowKey, SerializableTriple<String, String, Integer>>();
-	private String zUnit;
-	private String timeUnit;
 
 	/**
 	 * Constructor for the node model.
@@ -101,10 +95,6 @@ public class LociViewerNodeModel extends NodeModel {
 				PublicConstants.LOCI_IMAGE_CONTENT);
 		final int id1Index = inData[1].getDataTableSpec().findColumnIndex(
 				PublicConstants.LOCI_ID);
-		zUnit = inData[0].getDataTableSpec().getColumnSpec(z0Index)
-				.getProperties().getProperty(LociReaderNodeModel.UNIT, "");
-		timeUnit = inData[0].getDataTableSpec().getColumnSpec(time0Index)
-				.getProperties().getProperty(LociReaderNodeModel.UNIT, "");
 		final Map<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>> xmls = new LinkedHashMap<String, Map<String, Map<Integer, Map<Integer, Pair<FormatReader, String>>>>>();
 		for (final DataRow row : inData[1]) {
 			final DataCell plateCell = row.getCell(plate1Index);
@@ -231,46 +221,38 @@ public class LociViewerNodeModel extends NodeModel {
 				other2
 						.put(
 								field,
-								new TreeMap<Double, Map<Double, Map<Integer, FormatReader>>>());
+								new LinkedHashMap<Double, Map<Double, Map<Integer, FormatReader>>>());
 			}
 			final Map<Double, Map<Double, Map<Integer, FormatReader>>> other3 = other2
 					.get(field);
 
-			final CollectionDataValue timeCell = (CollectionDataValue) row
-					.getCell(time0Index);
-			for (final DataCell timeDataCell : timeCell) {
-
-				final Double time = Double.valueOf(((DoubleValue) timeDataCell)
-						.getDoubleValue());
-				if (!other3.containsKey(time)) {
-					other3.put(time,
-							new TreeMap<Double, Map<Integer, FormatReader>>());
-				}
-				final Map<Double, Map<Integer, FormatReader>> other4 = other3
-						.get(time);
-				final CollectionDataValue zCell = (CollectionDataValue) row
-						.getCell(z0Index);
-				for (final DataCell zDataCell : zCell) {
-					final Double z = Double.valueOf(((DoubleValue) zDataCell)
-							.getDoubleValue());
-					if (!other4.containsKey(z)) {
-						other4.put(z,
-								new LinkedHashMap<Integer, FormatReader>());
-					}
-					final Map<Integer, FormatReader> other5 = other4.get(z);
-
-					final DataCell omeIdCell = row.getCell(id0Index);
-					final String omeId = ((StringValue) omeIdCell)
-							.getStringValue();
-					if (!omeId.equals(pair.getRight())) {
-						throw new IllegalStateException("Not matching ids: "
-								+ omeId + " <-> " + pair.getRight());
-					}
-					other5.put(Integer.valueOf(((IntValue) row
-							.getCell(imageId0Index)).getIntValue()), pair
-							.getLeft());
-				}
+			final DataCell timeCell = row.getCell(time0Index);
+			final Double time = Double.valueOf(((DoubleValue) timeCell)
+					.getDoubleValue());
+			if (!other3.containsKey(time)) {
+				other3
+						.put(
+								time,
+								new LinkedHashMap<Double, Map<Integer, FormatReader>>());
 			}
+			final Map<Double, Map<Integer, FormatReader>> other4 = other3
+					.get(time);
+			final DataCell zCell = row.getCell(z0Index);
+			final Double z = Double.valueOf(((DoubleValue) zCell)
+					.getDoubleValue());
+			if (!other4.containsKey(z)) {
+				other4.put(z, new LinkedHashMap<Integer, FormatReader>());
+			}
+			final Map<Integer, FormatReader> other5 = other4.get(z);
+
+			final DataCell omeIdCell = row.getCell(id0Index);
+			final String omeId = ((StringValue) omeIdCell).getStringValue();
+			if (!omeId.equals(pair.getRight())) {
+				throw new IllegalStateException("Not matching ids: " + omeId
+						+ " <-> " + pair.getRight());
+			}
+			other5.put(Integer.valueOf(((IntValue) row.getCell(imageId0Index))
+					.getIntValue()), pair.getLeft());
 		}
 		return new BufferedDataTable[] {};
 	}
@@ -319,9 +301,6 @@ public class LociViewerNodeModel extends NodeModel {
 		// no settings
 	}
 
-	private static final String timeUnitPropertyKey = "time.unit";
-	private static final String zUnitPropertyKey = "z.unit";
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -330,7 +309,6 @@ public class LociViewerNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		zUnit = timeUnit = "";
 		{
 			final File joinTableFile = new File(internDir, JOIN_TABLE_FILE);
 			final FileInputStream fis = new FileInputStream(joinTableFile);
@@ -374,18 +352,6 @@ public class LociViewerNodeModel extends NodeModel {
 								rowsToWells.put(new RowKey(entry.getKey()),
 										entry.getValue());
 							}
-						}
-						try {
-							final Object object = oos.readObject();
-							if (object instanceof Properties) {
-								final Properties properties = (Properties) object;
-								timeUnit = properties.getProperty(
-										timeUnitPropertyKey, "");
-								zUnit = properties.getProperty(
-										zUnitPropertyKey, "");
-							}
-						} catch (final EOFException e) {
-							zUnit = timeUnit = "";
 						}
 					} catch (final ClassNotFoundException e) {
 						throw new IOException(e);
@@ -442,10 +408,6 @@ public class LociViewerNodeModel extends NodeModel {
 										.getValue());
 					}
 					oos.writeObject(toSave);
-					final Properties properties = new Properties();
-					properties.put(timeUnitPropertyKey, timeUnit);
-					properties.put(zUnitPropertyKey, zUnit);
-					oos.writeObject(properties);
 				} finally {
 					oos.close();
 				}
@@ -467,19 +429,5 @@ public class LociViewerNodeModel extends NodeModel {
 	 */
 	public Map<RowKey, SerializableTriple<String, String, Integer>> getRowsToWells() {
 		return rowsToWells;
-	}
-
-	/**
-	 * @return The used time unit.
-	 */
-	String getTimeUnit() {
-		return timeUnit;
-	}
-
-	/**
-	 * @return The used time unit.
-	 */
-	String getZUnit() {
-		return zUnit;
 	}
 }

@@ -1,7 +1,23 @@
 Index: build.xml
 ===================================================================
---- build.xml	(revision 5726)
+--- build.xml	(revision 5663)
 +++ build.xml	(working copy)
+@@ -411,6 +411,7 @@
+ 
+   <!-- Global build targets -->
+ 
++
+   <target name="jars"
+     depends="copy-jars, jar-common, jar-ome-xml,
+       jar-jai, jar-poi-loci, jar-mdbtools,
+@@ -466,7 +467,6 @@
+     <delete dir="${artifact.dir}"/>
+     <delete dir="build"/>
+   </target>
+-
+   <target name="utils"
+     depends="jars, utils-common, utils-formats, utils-loci-plugins"
+     description="compile all extra utilities">
 @@ -511,7 +511,7 @@
      <!-- copy third party JARs into artifacts folder -->
      <!-- necessary for runtime classpath dependencies to function properly -->
@@ -104,9 +120,36 @@ Index: .project
 +	<natures>
 +	</natures>
 +</projectDescription>
+Index: components/common.xml
+===================================================================
+--- components/common.xml	(revision 5663)
++++ components/common.xml	(working copy)
+@@ -62,10 +62,10 @@
+     <propertyregex property="svn.root" input="${release.version}" select="\1">
+       <regexp pattern="Repository Root: (.*)"/>
+     </propertyregex>
+-    <propertyregex property="release.version" override="true"
++    <!--propertyregex property="release.version" override="true"
+       input="${release.version}" select="\1">
+       <regexp pattern="URL: ${svn.root}/(.*)/components/(.*)"/>
+-    </propertyregex>
++    </propertyregex-->
+     <propertyregex property="release.version" override="true"
+       input="${release.version}" regexp="branches/(.*)" replace="stable \1"
+       defaultValue="trunk"/>
+Index: components/ome-xml/build.properties
+===================================================================
+--- components/ome-xml/build.properties	(revision 5674)
++++ components/ome-xml/build.properties	(working copy)
+@@ -18,3 +18,5 @@
+ 
+ component.main-class     = ome.xml.About
+ component.runtime-cp     = ${component.classpath}
++
++bundle.classpath         = 
 Index: components/legacy/jvmlink/build.properties
 ===================================================================
---- components/legacy/jvmlink/build.properties	(revision 5726)
+--- components/legacy/jvmlink/build.properties	(revision 5663)
 +++ components/legacy/jvmlink/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -117,7 +160,7 @@ Index: components/legacy/jvmlink/build.properties
 \ No newline at end of file
 Index: components/legacy/ome-notes/build.properties
 ===================================================================
---- components/legacy/ome-notes/build.properties	(revision 5726)
+--- components/legacy/ome-notes/build.properties	(revision 5663)
 +++ components/legacy/ome-notes/build.properties	(working copy)
 @@ -20,3 +20,7 @@
  
@@ -128,28 +171,9 @@ Index: components/legacy/ome-notes/build.properties
 +	                           edu.wisc.loci.bio-formats,\
 +	                           com.jgoodies.forms
 \ No newline at end of file
-Index: components/ome-xml/build.properties
-===================================================================
---- components/ome-xml/build.properties	(revision 5726)
-+++ components/ome-xml/build.properties	(working copy)
-@@ -8,7 +8,7 @@
- 
- component.name           = ome-xml
- component.jar            = ome-xml.jar
--component.version        = 4.1.0
-+component.version        = 4.1.1
- component.classpath      =
- component.java-version   = 1.4
- component.deprecation    = true
-@@ -18,3 +18,5 @@
- 
- component.main-class     = ome.xml.About
- component.runtime-cp     = ${component.classpath}
-+
-+bundle.classpath         = 
 Index: components/java.xml
 ===================================================================
---- components/java.xml	(revision 5726)
+--- components/java.xml	(revision 5663)
 +++ components/java.xml	(working copy)
 @@ -79,12 +79,14 @@
        bundleVersion="${component.version}.${svn.revision}"
@@ -168,17 +192,8 @@ Index: components/java.xml
    <target name="utils" depends="jar"
 Index: components/ome-io/build.properties
 ===================================================================
---- components/ome-io/build.properties	(revision 5726)
+--- components/ome-io/build.properties	(revision 5674)
 +++ components/ome-io/build.properties	(working copy)
-@@ -8,7 +8,7 @@
- 
- component.name           = ome-io
- component.jar            = ome-io.jar
--component.version        = 4.1.0
-+component.version        = 4.1.1
- component.classpath      = ${artifact.dir}/loci-common.jar:\
-                            ${artifact.dir}/bio-formats.jar:\
-                            ${lib.dir}/omero-client-4.0.3.jar:\
 @@ -22,3 +22,9 @@
  component.main-class     = loci.ome.io.OMEWriter
  component.runtime-cp     = ${component.classpath}:\
@@ -191,17 +206,8 @@ Index: components/ome-io/build.properties
 +	                           edu.wisc.loci.ome-java;resolution:=optional
 Index: components/bio-formats/build.properties
 ===================================================================
---- components/bio-formats/build.properties	(revision 5726)
+--- components/bio-formats/build.properties	(revision 5663)
 +++ components/bio-formats/build.properties	(working copy)
-@@ -8,7 +8,7 @@
- 
- component.name           = bio-formats
- component.jar            = bio-formats.jar
--component.version        = 4.1.0
-+component.version        = 4.1.1
- component.classpath      = ${artifact.dir}/loci-common.jar:\
-                            ${artifact.dir}/ome-xml.jar:\
-                            ${lib.dir}/forms-1.0.4.jar
 @@ -30,3 +30,16 @@
                             ${lib.dir}/bufr-1.1.00.jar:\
                             ${lib.dir}/grib-5.1.03.jar:\
@@ -222,31 +228,21 @@ Index: components/bio-formats/build.properties
 \ No newline at end of file
 Index: components/loci-plugins/build.properties
 ===================================================================
---- components/loci-plugins/build.properties	(revision 5726)
+--- components/loci-plugins/build.properties	(revision 5674)
 +++ components/loci-plugins/build.properties	(working copy)
-@@ -8,7 +8,7 @@
- 
- component.name           = loci_plugins
- component.jar            = loci_plugins.jar
--component.version        = 4.1.0
-+component.version        = 4.1.1
- component.classpath      = ${artifact.dir}/loci-common.jar:\
-                            ${artifact.dir}/bio-formats.jar:\
-                            ${lib.dir}/forms-1.0.4.jar:\
-@@ -25,3 +25,9 @@
+@@ -25,3 +25,8 @@
  component.runtime-cp     = ${component.classpath}:\
                             ${artifact.dir}/ome-io.jar:\
                             ${artifact.dir}/visbio.jar
 +
 +bundle.classpath         = edu.wisc.loci.loci-common,\
 +                           edu.wisc.loci.bio-formats,\
-+                           com.jgoodies.forms
-+#,\
-+#ij.imagej
++                           com.jgoodies.forms,\
++                           ij.imagej
 \ No newline at end of file
 Index: components/forks/jai/build.properties
 ===================================================================
---- components/forks/jai/build.properties	(revision 5726)
+--- components/forks/jai/build.properties	(revision 5663)
 +++ components/forks/jai/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -256,7 +252,7 @@ Index: components/forks/jai/build.properties
 +bundle.classpath         = 
 Index: components/forks/mdbtools/build.properties
 ===================================================================
---- components/forks/mdbtools/build.properties	(revision 5726)
+--- components/forks/mdbtools/build.properties	(revision 5663)
 +++ components/forks/mdbtools/build.properties	(working copy)
 @@ -18,3 +18,5 @@
  
@@ -266,7 +262,7 @@ Index: components/forks/mdbtools/build.properties
 +bundle.classpath         = 
 Index: components/forks/poi/build.properties
 ===================================================================
---- components/forks/poi/build.properties	(revision 5726)
+--- components/forks/poi/build.properties	(revision 5663)
 +++ components/forks/poi/build.properties	(working copy)
 @@ -19,3 +19,5 @@
  
@@ -276,17 +272,8 @@ Index: components/forks/poi/build.properties
 +bundle.classpath         = 
 Index: components/common/build.properties
 ===================================================================
---- components/common/build.properties	(revision 5726)
+--- components/common/build.properties	(revision 5674)
 +++ components/common/build.properties	(working copy)
-@@ -8,7 +8,7 @@
- 
- component.name           = loci-common
- component.jar            = loci-common.jar
--component.version        = 4.1.0
-+component.version        = 4.1.1
- component.classpath      =
- component.java-version   = 1.5
- component.deprecation    = true
 @@ -18,3 +18,5 @@
  
  component.main-class     =

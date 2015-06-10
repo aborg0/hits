@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./default.png" type="Manipulator">
-    <name>LOCI to KNIME images</name>
+    <name>Convert to image</name>
     
     <shortDescription>
         Converts the images from LOCI Plate Reader to KNIME imaging format.
@@ -10,7 +10,9 @@
     <fullDescription>
         <intro>Based on the information from LOCI Plate Reader it converts the images present in that format to KNIME image format.</intro>
         
-        <option name="combine channels">When selected the first (at most) 3 (grey-scale) channels will be combined to RGB images.</option>
+        
+        <!-- option name="short name of first option (like in the dialog)">description of first option</option>
+        <option name="short name of second option (like in the dialog)">description of second option</option-->
     </fullDescription>
     
     <ports>

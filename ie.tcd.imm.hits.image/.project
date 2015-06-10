@@ -3,7 +3,6 @@
 	<name>ie.tcd.imm.hits.image</name>
 	<comment></comment>
 	<projects>
-		<project>org.hcdc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
