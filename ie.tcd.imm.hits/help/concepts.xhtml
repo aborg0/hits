@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml+xml; charset=UTF-8" />
+<title>Concepts</title>
+<style type="text/css">
+em.physPlate,td.physPlate,span.physPlate {
+	background-color: teal
+}
+
+em.replicate,td.replicate,span.replicate {
+	background-color: aqua
+}
+
+em.plate,td.plate,span.plate {
+	background-color: silver
+}
+</style>
+</head>
+<body>
+<h1><a name="basicConcepts">Basic concepts</a></h1>
+<p>This section introduce some of the basic concepts used in HiTS.</p>
+<h2><a name="well">Well</a></h2>
+<p>The fundamental experimental unit, which can contain either raw or processed data. In this model it may
+contain</p>
+<ul>
+	<li><em>sample</em>s,</li>
+	<li><em>pos</em>itive controls,</li>
+	<li><em>neg</em>atitive controls,</li>
+	<li>or any <em>other</em> type</li>
+</ul>
+<p>of experimental results.</p>
+<p>The layout of wells should follow a (8 rows &times; 12 columns) [<em>96</em>]
+or a (16 rows &times; 24 columns) [<em>384</em>] grid, called <em
+	class="physPlate">physical plate</em>.</p>
+<p>For example:</p>
+<table style="border-width: thin; border-style: solid">
+	<thead>
+		<tr>
+			<td>&times;</td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>1</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>2</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>3</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>4</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>5</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>6</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>7</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>8</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>9</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>10</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>11</b></td>
+			<td style="border-bottom-style: solid; border-bottom-width: thin"><b>12</b></td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>A</b></td>
+			<td>A01</td>
+			<td>A02</td>
+			<td>A03</td>
+			<td>A04</td>
+			<td>A05</td>
+			<td>A06</td>
+			<td>A07</td>
+			<td>A08</td>
+			<td>A09</td>
+			<td>A10</td>
+			<td>A11</td>
+			<td>A12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>B</b></td>
+			<td>B01</td>
+			<td>B02</td>
+			<td>B03</td>
+			<td>B04</td>
+			<td>B05</td>
+			<td>B06</td>
+			<td>B07</td>
+			<td>B08</td>
+			<td>B09</td>
+			<td>B10</td>
+			<td>B11</td>
+			<td>B12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>C</b></td>
+			<td>C01</td>
+			<td>C02</td>
+			<td>C03</td>
+			<td>C04</td>
+			<td>C05</td>
+			<td>C06</td>
+			<td>C07</td>
+			<td>C08</td>
+			<td>C09</td>
+			<td>C10</td>
+			<td>C11</td>
+			<td>C12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>D</b></td>
+			<td>D01</td>
+			<td>D02</td>
+			<td>D03</td>
+			<td>D04</td>
+			<td>D05</td>
+			<td>D06</td>
+			<td>D07</td>
+			<td>D08</td>
+			<td>D09</td>
+			<td>D10</td>
+			<td>D11</td>
+			<td>D12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>E</b></td>
+			<td>E01</td>
+			<td>E02</td>
+			<td>E03</td>
+			<td>E04</td>
+			<td>E05</td>
+			<td>E06</td>
+			<td>E07</td>
+			<td>E08</td>
+			<td>E09</td>
+			<td>E10</td>
+			<td>E11</td>
+			<td>E12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>F</b></td>
+			<td>F01</td>
+			<td>F02</td>
+			<td>F03</td>
+			<td>F04</td>
+			<td>F05</td>
+			<td>F06</td>
+			<td>F07</td>
+			<td>F08</td>
+			<td>F09</td>
+			<td>F10</td>
+			<td>F11</td>
+			<td>F12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>G</b></td>
+			<td>G01</td>
+			<td>G02</td>
+			<td>G03</td>
+			<td>G04</td>
+			<td>G05</td>
+			<td>G06</td>
+			<td>G07</td>
+			<td>G08</td>
+			<td>G09</td>
+			<td>G10</td>
+			<td>G11</td>
+			<td>G12</td>
+		</tr>
+		<tr>
+			<td style="border-right-style: solid; border-right-width: thin"><b>H</b></td>
+			<td>H01</td>
+			<td>H02</td>
+			<td>H03</td>
+			<td>H04</td>
+			<td>H05</td>
+			<td>H06</td>
+			<td>H07</td>
+			<td>H08</td>
+			<td>H09</td>
+			<td>H10</td>
+			<td>H11</td>
+			<td>H12</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Plates and replicates</h2>
+<table>
+	<thead>
+		<tr>
+			<td></td>
+			<td>Replicate 1</td>
+			<td class="replicate">Replicate 2</td>
+			<td>Replicate 3</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Plate 1</td>
+			<td>layout 1</td>
+			<td class="replicate">layout 1</td>
+			<td>layout 1</td>
+		</tr>
+		<tr>
+			<td>Plate 2</td>
+			<td>layout 2</td>
+			<td class="replicate">layout 2</td>
+			<td>layout 2</td>
+		</tr>
+		<tr>
+			<td>Plate 3</td>
+			<td>layout 3</td>
+			<td class="replicate">layout 3</td>
+			<td>layout 3</td>
+		</tr>
+		<tr>
+			<td>Plate 4</td>
+			<td>layout 4</td>
+			<td class="replicate">layout 4</td>
+			<td>layout 4</td>
+		</tr>
+		<tr>
+			<td class="plate">Plate 5</td>
+			<td class="plate">layout 5</td>
+			<td class="physPlate">layout 5</td>
+			<td class="plate">layout 5</td>
+		</tr>
+		<tr>
+			<td>Plate 6</td>
+			<td>layout 6</td>
+			<td class="replicate">layout 6</td>
+			<td>layout 6</td>
+		</tr>
+		<tr>
+			<td>Plate 7</td>
+			<td>layout 7</td>
+			<td class="replicate">layout 7</td>
+			<td>layout 7</td>
+		</tr>
+		<tr>
+			<td>Plate 8</td>
+			<td>layout 8</td>
+			<td class="replicate">layout 8</td>
+			<td>layout 8</td>
+		</tr>
+	</tbody>
+</table>
+<h3><span class="plate"><a name="plate">Plate</a></span></h3>
+<p>The plate is an abstract concept in cellHTS2. It represents a
+group of physical plates with the same well layout.</p>
+<h3><span class="replicate"><a name="replicate">Replicate</a></span></h3>
+<p>Also an abstract concept. It represents a group of physical
+plates which may have different layouts, but each group should have the
+same layouts in the same order.</p>
+<h2><a name="parameter">Parameter</a></h2>
+<p>For each well you may have different parameters describing their
+content (on each physical plate). These parameters are handled
+independently through the whole process.</p>
+<h1><a name="mathConcepts">Mathematical concepts</a></h1>
+<p>This section shows some basic concepts and notations used in
+other parts of the program.</p>
+<h2><a name="mathNotation">Mathematical notations</a></h2>
+<p>The <em>pos</em>, <em>neg</em>, <em>sample</em> in superscript
+means selection of the positive or negative controls, or the samples
+from a group of wells.</p>
+<p>The <em>p</em> means a <span class="plate">plate</span> group, <em>r</em>
+means a <span class="replicate">replicate</span> group, <em>w</em> means
+selection by <span class="well">well</span> position.</p>
+<p>When you see one of the aggregating functions having in subscript
+one or two of these notations it will mean that those are fixed for a
+value and only the others are aggregated (selected by that/those
+groups).</p>
+<h2><a name="generalOverview">General overview</a></h2>
+<p><img src="cellHTS2Computation.png"
+	alt="Overview of cellHTS2 computation" /></p>
+<p>The log transform is performed on individual values.</p>
+<p>The normalisation is done by <span class="physPlate">physical
+plate</span>s.</p>
+<p>The variance adjustment can be done by <span class="physPlate">physical
+plate</span>s or by <span class="replicate">replicate</span> groups, or it may
+be omitted.</p>
+<p>Scoring is done by <span class="replicate">replicate</span>
+groups by default, but you can choose per <span class="physPlate">physical
+plate</span>s too for Z scores.</p>
+<p>The summarisation of replicate values are computed by each <span
+	class="plate">plate group</span>s of individual wells.</p>
+<p>When <a href="#log">log</a> transform selected the additive normalisation will be used.</p>
+<h3><a name="log"></a>log</h3>
+<p>Simple 2 based logarithm.</p>
+<h3><a name="additive">additive normalisation</a></h3>
+<p>In case of average like normalisation methods (mean, median, shorth, negatives) the aggregated value is subtracted from each value. Its natural point (no change value to the reference) is <samp>0</samp>.</p>
+<h3><a name="multiplicative">multiplicative normalisation</a></h3>
+<p>In case of average like normalisation methods (mean, median, shorth, negatives) each value is divided by the aggregated value. Its natural point (no change value to the reference) is <samp>1</samp>.</p>
+<h3><a name="POC">percent of controls (% of controls, POC)</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/POC.false.false.noadjustment.png" /></p>
+<h3><a name="NPI">normalised percent inhibition (NPI)</a></h3>
+<p>Normalisation: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/NPI.false.false.noadjustment.png" /></p>
+<p>Scoring: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/NPI.false.false.noadjustment.png" /></p>
+<h3><a name="zscore">Z score</a></h3>
+<p>The robust version is the by plate variance adjustment with additive <a
+	href="#median">median</a> normalisation: <img src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.false.false.byplate.png"/></p>
+<p>When scoring: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/zscore.png" /></p>
+<h3><a name="median"></a>median</h3>
+<p>Additive: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.false.false.noadjustment.png" /></p>
+<p>Multiplicative: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/median.true.false.noadjustment.png" /></p>
+<h3><a name="mean"></a>mean (average, &#x3BC;)</h3>
+<p>Additive: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/mean.false.false.noadjustment.png" /></p>
+<p>Multiplicative: <img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/mean.true.false.noadjustment.png" /></p>
+<h3><a name="mad"></a>median absolute deviation (MAD)</h3>
+<p>1.4826*median(|{sample values}-median({sample values})|)</p>
+<p>The multiplication with the 1.4826 value is necessary to get a <a
+	href="#standardDeviation">standard deviation</a>-like value.</p>
+<h3><a name="standardDeviation"></a>standard deviation (SD,
+&#x3C3;)</h3>
+<table>
+	<tr>
+		<td>&#x221A;</td>
+		<td style="border-top-style: solid; border-top-width: thin">&#x3BC;((values-&#x3BC;(values))<sup>2</sup>)</td>
+	</tr>
+</table>
+<p></p>
+<h3><a name="shorth">shorth</a></h3>
+<p>The shorth is the shortest interval that covers half of the values in x. This function calculates the mean of the x values that lie in the shorth. (From R help for shorth.) For more information see: <a href="http://lshorth.r-forge.r-project.org/TheShorthPlot.pdf">The Shorth Plot</a></p>
+<p><img src="comparisonOfMethods.png" alt="Comparison of different methods on skewed random data"/></p>
+<h3><a name="Bscore">B score</a></h3>
+<p>For further information see: <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/cellHTS2/inst/doc/cellhts2Complete.pdf">cellHTS2 complete manual</a>'s 11.2.3 paragraph (Appendix: Normalization methods implemented
+in cellHTS2 package/Non-controls-based normalization/B score method)</p>
+<h3><a name="loess">loess</a></h3>
+<p>For more information see this wikipedia article: <a href="http://en.wikipedia.org/wiki/Local_regression">Local regression</a> (<a href="http://en.wikipedia.org/w/index.php?title=Local_regression&amp;oldid=251673034">stable</a>)</p>
+<h3><a name="locfit">locfit</a></h3>
+<p>For more information see the description of locfit R package: <a href="http://cran.r-project.org/web/packages/locfit/locfit.pdf">The locfit package</a></p>
+<h3><a name="min">minimum (min)</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/min.png" /></p>
+<h3><a name="max">maximum (max)</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/max.png" /></p>
+<h3><a name="closestToZero">closest to zero</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/closestToZero.png" /></p>
+<h3><a name="furthestFromZero">furthest from zero</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/furthestFromZero.png" /></p>
+<h3><a name="rms">root mean squares</a></h3>
+<p><img
+	src="../bin/ie/tcd/imm/hits/knime/cellhts2/worker/res/rms.png" /> <!--img src="http://hits.googlecode.com/svn/!svn/bc/161/ie.tcd.imm.hits/trunk/ie.tcd.imm.hits/src/ie/tcd/imm/hits/knime/cellhts2/worker/res/rms.png"/--></p>
+<h2>Other mathematical concepts</h2>
+<h3><a name="q1">Quarter 1</a></h3>
+<p>When computing the four quarters this value is between the lowest and the second lowest quarters.</p>
+<h3><a name="q3">Quarter 3</a></h3>
+<p>When computing the four quarters this value is between the second highest and the highest quarters.</p>
+<h3><a name="iqr">IQR, Interquarter Range</a></h3>
+<p>The difference of <a href="#q3">q3</a>, and <a href="#q1">q1</a>.</p>
+<include path="PLUGINS_ROOT/ie.tcd.imm.hits.help.base/help/footer.xhtml/copyright" />
+</body>
+</html>
