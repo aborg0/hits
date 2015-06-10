@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./plateFormat.png" type="Manipulator">
+	<name>Plate Format</name>
+
+	<shortDescription>
+		Converts between 96, 384, 1536 format plates. It is also capable of mixing
+		replicates in.
+    </shortDescription>
+
+	<fullDescription>
+		<intro><p>Converts between the selected plate formats.</p><p>Details can be found <a href="../../help/plateFormat.xhtml">here</a>.</p></intro>
+
+
+		<option name="Input well count">Number of wells on input plates</option>
+		<option name="Output well count">Number of wells on output plates</option>
+		<option name="Layout">
+			Specify the layout of the conversion pattern. You have the following
+			options (samples are from <tt>384</tt>-&gt;<tt>96</tt>):
+			<ul>
+				<li>left to right then up to down 8 pipettes wells are close without
+					replicates: 1 A1-&gt;1 A1; 1 A2-&gt;2 A1; 1 B1-&gt;3 A1</li>
+				<li>left to right then up to down without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;2 A1; 1 I1-&gt;3 A1</li>
+				<li>up to down then left to right without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 I1-&gt;2 A1</li>
+				<li>up to down then left to right 8 pipettes without replicates: 1 A1-&gt;1 A1; 1 A13-&gt;3 A1; 1 B1-&gt;2 A1</li>
+			</ul>
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Data">Some plates</inPort>
+		<outPort index="0" name="Data">Plates</outPort>
+	</ports>
+</knimeNode>

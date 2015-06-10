@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory" id="ie.tcd.imm.hits.knime.interop.BioConverterNodeFactory"/>
+      <node category-path="/HiTS/" factory-class="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory" id="ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeFactory"/>
+   </extension>
+   
+   <extension point="org.eclipse.help.toc">
+      <toc extradir="html" file="tocs/libhandl_nodes.xml"/>
+      <toc file="tocs/toc.xml"/>
+      <toc file="tocs/toc_Interoperability.xml"/>
+   </extension>
+   <extension point="org.eclipse.help.base.luceneSearchParticipants">
+      <binding participantId="org.eclipse.help.base.xhtml"/>
+   </extension>
+   <extension point="org.eclipse.help.contentProducer">
+      <binding producerId="org.eclipse.help.dynamic"/>
+   </extension>
+</plugin>
