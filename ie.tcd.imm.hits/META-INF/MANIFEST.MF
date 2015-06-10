@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Require-Bundle: org.eclipse.core.runtime,org.knime.workbench.core,org.
+ knime.workbench.repository,org.knime.base,org.eclipse.ui,ie.tcd.imm.h
+ its.3rdparty,org.eclipse.help,org.eclipse.help.ui,org.knime.ext.jep,o
+ rg.apache.batik.svggen;bundle-version="1.6.0";resolution:=optional,or
+ g.apache.batik.dom;bundle-version="1.6.0";resolution:=optional,org.kn
+ ime.distmatrix
+Bundle-Vendor: TCD
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: importer.jar
+Bundle-Version: 0.2.0
+Bundle-Name: HiTS extensions for KNIME Workbench
+Bundle-Localization: plugin
+Bundle-ManifestVersion: 2
+Bundle-Activator: ie.tcd.imm.hits.knime.xls.ImporterNodePlugin
+Bundle-SymbolicName: ie.tcd.imm.hits;singleton:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

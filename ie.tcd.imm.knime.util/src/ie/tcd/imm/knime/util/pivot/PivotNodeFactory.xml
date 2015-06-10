@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./pivot.png" type="Manipulator">
+    <!-- All rights reserved. (C) Copyright 2009, Trinity College Dublin -->
+    <name>Pivot</name>
+    
+    <shortDescription>
+        Converts information present in rows to columns.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>Converts information present in rows to columns</intro>
+        
+        <option name="Pivot columns">Values from these columns will become the parts of the columns in the result table (no columns with these names will be present).</option>
+        <option name="Pattern">The format of the new columns (<tt>${}</tt> - values, <tt>${pivot column name}</tt> values of that nominal column).</option>
+        <option name="Behaviour">What to do if there will be missing parts in the result: <ul><li>fillEmpty - put empty cells there</li><li>signalError - stop the conversion with error</li></ul>.</option>
+        <option name="HiLite Strategy">Support HiLite or not.</option>
+        <option name="Values">The values of these columns will add a part to the new columns to the place of <tt>${}</tt>.</option>
+        <option name="Keys">These will remain in the results.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input table">A table with known domains for the keys and pivoting columns.</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="Pivoted table">The table with information transformed to the columns.</outPort>
+        <outPort index="1" name="Reverse pattern">An indicator of the pushed variable</outPort>
+        <!-- possibly more output ports here-->
+    </ports>    
+</knimeNode>
