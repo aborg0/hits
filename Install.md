@@ -27,8 +27,8 @@ You should consider to increase the memory available to KNIME: edit knime.ini an
 
 ## Install ##
 
-You have to add a new update site to your KNIME installation. This should be: `http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/`
-You can set it in the Help/Software Updates.../Find and Install.../_Search for new features to install_ **Next**, **New Remote Site...** and you can set any name you remember for the _Name:_ field, and the `http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/` URL for the _URL:_ field.
+You have to add a new update site to your KNIME installation. This should be: `https://raw.githubusercontent.com/aborg0/hits/master/ie.tcd.imm.hits.update/`
+You can set it in the Help/Software Updates.../Find and Install.../_Search for new features to install_ **Next**, **New Remote Site...** and you can set any name you remember for the _Name:_ field, and the `https://raw.githubusercontent.com/aborg0/hits/master/ie.tcd.imm.hits.update/` URL for the _URL:_ field.
 
 After you have set the update site, you can select it and click on **Finish**. (Here you may be prompted to your proxy user and password.)
 Recommended list of features (after the added labs update site (`http://labs.knime.org/update/2.1`)):
@@ -73,7 +73,7 @@ If you have not set properly the proxy configuration in your KNIME installation,
 
 In the **Details** there is a message like this:
 
-`  Unable to access "http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/".`
+`  Unable to access "https://raw.githubusercontent.com/aborg0/hits/master/ie.tcd.imm.hits.update/".`
 
 `    Error parsing site stream. [Premature end of file.]`
 
