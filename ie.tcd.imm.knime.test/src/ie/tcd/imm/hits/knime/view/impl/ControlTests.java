@@ -17,9 +17,9 @@ import org.fest.swing.fixture.JComboBoxFixture;
 import org.fest.swing.fixture.JListFixture;
 import org.fest.swing.fixture.JSliderFixture;
 import org.fest.swing.fixture.JToggleButtonFixture;
+import org.junit.Assert;
+import org.junit.Test;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  * This class tests the {@link VariableControl} implementations.
@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @GUITest
-@Test
 @SuppressWarnings("deprecation")
 public class ControlTests extends AbstractControlTest {
 	/**
@@ -42,7 +41,7 @@ public class ControlTests extends AbstractControlTest {
 	 */
 	@Test
 	// (enabled = false)
-	// (timeOut = 3000)
+	// (timeout = 3000)
 	@GUITest
 	public void buttons() {
 		final JPanel view1 = (JPanel) controlsHandler.getComponent(slider1,
@@ -81,7 +80,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link ListControl}.
 	 */
-	@Test(timeOut = 1000)
+	@Test(timeout = 1000)
 	@GUITest
 	public void list() {
 		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler
@@ -105,7 +104,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link ComboBoxControl}.
 	 */
-	@Test(timeOut = 2000)
+	@Test(timeout = 2000)
 	@GUITest
 	public void comboBox() {
 		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler
@@ -127,7 +126,7 @@ public class ControlTests extends AbstractControlTest {
 	/**
 	 * Tests {@link SliderControl}.
 	 */
-	@Test(timeOut = 3000)
+	@Test(timeout = 3000)
 	@GUITest
 	public void slider() {
 		final VariableControl<? extends SettingsModel, ?, ?> component0 = controlsHandler

@@ -10,7 +10,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
@@ -24,6 +23,7 @@ import java.util.TreeMap;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -42,13 +42,12 @@ import org.fest.swing.fixture.JMenuItemFixture;
 import org.fest.swing.fixture.JPanelFixture;
 import org.fest.swing.fixture.JPopupMenuFixture;
 import org.fest.swing.fixture.JSliderFixture;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import org.knime.core.util.Pair;
 
 /**
  * This test creates a sample and populates with some components from
@@ -56,7 +55,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@ParametersAreNonnullByDefault
+@CheckReturnValue
 public class MockTest {
 	private JFrame frame;
 	private ControlsHandler<SettingsModel, ?, SliderModel> controlsHandler;
@@ -103,7 +103,7 @@ public class MockTest {
 	/**
 	 * Creates a sample application with the {@link FrameFixture}.
 	 */
-	@BeforeMethod
+	@Before
 	public void createSampleApp() {
 		final Robot robot = BasicRobot.robotWithNewAwtHierarchy();
 		final JPanel mainPanel = new JPanel();
@@ -276,7 +276,7 @@ public class MockTest {
 		newCombobox.requireSelection((String) experimentSlider
 				.getValueMapping().get(
 						experimentSlider.getSelections().iterator().next())
-				.getRight());
+				.getSecond());
 	}
 
 	/**
@@ -307,7 +307,7 @@ public class MockTest {
 	/**
 	 * Cleans the frame.
 	 */
-	@AfterMethod
+	@After
 	public void clean() {
 		window.cleanUp();
 	}

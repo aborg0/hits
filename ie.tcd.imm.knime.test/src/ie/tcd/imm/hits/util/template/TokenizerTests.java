@@ -9,6 +9,7 @@ import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer.SplitToken;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -23,6 +24,33 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 @SuppressWarnings("restriction")
 @DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
 public abstract class TokenizerTests {
+
+	/**
+	 *
+	 * @author Gabor Bakos
+	 */
+	static class Group extends TokenizerTests {
+		/**  */
+		protected static final Pattern GROUP_CLOSE_PATTERN = Pattern.compile("\\}");
+		/**  */
+		protected static final Pattern GROUP_OPEN_PATTERN = Pattern.compile("\\$\\{");
+
+		/**
+		 * 
+		 */
+		public Group() {
+			// TODO Auto-generated constructor stub
+		}
+
+		/* (non-Javadoc)
+		 * @see ie.tcd.imm.hits.util.template.TokenizerTests#create()
+		 */
+		@Override
+		protected Tokenizer create() {
+			return new TokenizerFactory().createGroupingTokenizer(
+					GROUP_OPEN_PATTERN, GROUP_CLOSE_PATTERN);
+		}
+	}
 
 	/**
 	 * @param first

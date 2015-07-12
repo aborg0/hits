@@ -9,7 +9,6 @@ import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.util.Pair;
 import ie.tcd.imm.hits.util.swing.VariableControl;
 
 import java.awt.FlowLayout;
@@ -19,24 +18,26 @@ import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.fest.swing.core.BasicRobot;
 import org.fest.swing.core.Robot;
 import org.fest.swing.fixture.FrameFixture;
+import org.junit.After;
+import org.junit.Before;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.knime.core.util.Pair;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * A common superclass for {@link VariableControl} tests.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@ParametersAreNonnullByDefault
+@CheckReturnValue
 public abstract class AbstractControlTest {
 
 	/** A sample value. Associated with {@link #slider1}. */
@@ -67,7 +68,7 @@ public abstract class AbstractControlTest {
 	 * Creates the frame and the sliders, but does not add anything to it. Also
 	 * creates the {@link SliderModel}s.
 	 */
-	@BeforeMethod
+	@Before
 	public void createWindow() {
 		robot = BasicRobot.robotWithNewAwtHierarchy();
 		frame = new JFrame("Test");
@@ -117,7 +118,7 @@ public abstract class AbstractControlTest {
 	/**
 	 * Clears the {@link JFrame}.
 	 */
-	@AfterMethod
+	@After
 	public void clearFrame() {
 		window.cleanUp();
 	}

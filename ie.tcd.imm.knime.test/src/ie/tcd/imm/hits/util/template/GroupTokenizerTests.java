@@ -10,12 +10,14 @@ import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 
 /**
  * Some tests to test the
@@ -24,21 +26,29 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
-public class GroupTokenizerTests extends TokenizerTests {
-	/**  */
-	private static final Pattern GROUP_CLOSE_PATTERN = Pattern.compile("\\}");
-	/**  */
-	private static final Pattern GROUP_OPEN_PATTERN = Pattern.compile("\\$\\{");
-	/**  */
-	private static final Pattern ABS_PATTERN = Pattern.compile("\\|");
+@ParametersAreNonnullByDefault
+@CheckReturnValue
+@RunWith(Parameterized.class)
+public class GroupTokenizerTests extends TokenizerTests.Group {
+	private final String input;
+	private final List<Token> expected;
+	
+	/**
+	 * @param input
+	 * @param expected
+	 */
+	public GroupTokenizerTests(String input, List<Token> expected) {
+		super();
+		this.input = input;
+		this.expected = expected;
+	}
 
 	/**
 	 * @return Some simple test cases.
 	 */
-	@DataProvider(name = "default")
-	public static Object[][] generateDefaultData() {
-		return new Object[][] {
+	@Parameters
+	public static List<Object[]> generateDefaultData() {
+		return Arrays.asList(new Object[][] {
 				{ "", Collections.<Token> emptyList() },
 				{ "a", Collections.<Token> singletonList(simple("a", 0)) },
 				{ "{", Collections.<Token> singletonList(simple("{", 0)) },
@@ -71,7 +81,7 @@ public class GroupTokenizerTests extends TokenizerTests {
 		// { "${}a${}",
 		// Arrays.asList(group("${", "}", 0), simple("a", 3)),
 		// group("${", "}", 4) },// Gives error in TestNG 5.9.0.2
-		};
+		});
 	}
 
 	/**
@@ -80,8 +90,8 @@ public class GroupTokenizerTests extends TokenizerTests {
 	 * @param expected
 	 * @throws TokenizeException
 	 */
-	@Test(dataProvider = "default")
-	public void defaultTests(final String input, final List<Token> expected)
+	@Test
+	public void defaultTests()
 			throws TokenizeException {
 		Assert.assertEquals(create().parse(input), expected);
 	}
@@ -92,97 +102,15 @@ public class GroupTokenizerTests extends TokenizerTests {
 	 * @param expected
 	 * @throws TokenizeException
 	 */
-	@Test(dataProvider = "default")
-	public void shiftedDefaultTests(final String input,
-			final List<Token> expected) throws TokenizeException {
+	@Test
+	public void shiftedDefaultTests() throws TokenizeException {
 		final TokenizerFactory tokenizerFactory = new TokenizerFactory();
 		Assert.assertEquals(tokenizerFactory.createGroupingTokenizer(
-				GROUP_OPEN_PATTERN, GROUP_CLOSE_PATTERN, 1).parse("x" + input),
+				Group.GROUP_OPEN_PATTERN, GROUP_CLOSE_PATTERN, 1).parse("x" + input),
 				shift(expected, 1));
 		Assert.assertEquals(
 				tokenizerFactory.createGroupingTokenizer(GROUP_OPEN_PATTERN,
 						GROUP_CLOSE_PATTERN, 2).parse("xy" + input), shift(
 						expected, 2));
-	}
-
-	/**
-	 * @return Some data that should throw {@link TokenizeException}.
-	 */
-	@DataProvider(name = "failingTests")
-	public String[][] failingTests() {
-		return new String[][] { { "${" }, { "}" }, { "}${" }, { "${${" },
-				{ "a${" }, { "a}" }, { "a}${" }, { "a${${" }, { "${b" },
-				{ "}b" }, { "}${b" }, { "${${b" }, { "a${b" }, { "a}b" },
-				{ "a}${b" }, { "a${${b" }, { "a${b${c" }, };
-	}
-
-	/**
-	 * 
-	 * @param input
-	 * @throws TokenizeException
-	 */
-	@Test(dataProvider = "failingTests", expectedExceptions = TokenizeException.class)
-	public void simpleThrowsExceptions(final String input)
-			throws TokenizeException {
-		create().parse(input);
-	}
-
-	/**
-	 * @return Some sample data with {@code |} delimiter.
-	 */
-	@DataProvider(name = "absDelimiters")
-	public static Object[][] sameDelimiterData() {
-		return new Object[][] {
-				{ "", Collections.<Token> emptyList() },
-				{ "a", Collections.<Token> singletonList(simple("a", 0)) },
-				{ "{", Collections.<Token> singletonList(simple("{", 0)) },
-				{ "||", Collections.<Token> singletonList(group("|", "|", 0)) },
-				{ "a||", Arrays.asList(simple("a", 0), group("|", "|", 1)) },
-				{ "|a|", Collections.singletonList(group("|", "|", 0, "a")) },
-				{ "||a", Arrays.asList(group("|", "|", 0), simple("a", 2)) },
-				{
-						"||||",
-						Arrays.asList((Token) group("|", "|", 0), group("|",
-								"|", 2)) },
-				{
-						"a||||",
-						Arrays.asList(new Token[] { simple("a", 0),
-								group("|", "|", 1), group("|", "|", 3) }) },
-				// { "|a|||", Arrays.asList((Token) group("|", "|", 0, "a")),
-				// group("|", "|", 3) },
-				{
-						"a||b||",
-						Arrays.asList(simple("a", 0), group("|", "|", 1),
-								simple("b", 3), group("|", "|", 4)) },
-				{
-						"|a|b||",
-						Arrays.asList(group("|", "|", 0, "a"), simple("b", 3),
-								group("|", "|", 4)) },
-				{
-						"a|||b|",
-						Arrays.asList(simple("a", 0), group("|", "|", 1),
-								group("|", "|", 3, "b")) },
-		// { "||a||", Arrays.asList(group("|", "|", 0), simple("a", 2)),
-		// group("|", "|", 3) },
-		};
-	}
-
-	/**
-	 * 
-	 * @param input
-	 * @param tokens
-	 * @throws TokenizeException
-	 */
-	@Test(dataProvider = "absDelimiters")
-	public void sameDelimiterTest(final String input, final List<Token> tokens)
-			throws TokenizeException {
-		Assert.assertEquals(new TokenizerFactory().createGroupingTokenizer(
-				ABS_PATTERN, ABS_PATTERN).parse(input), tokens);
-	}
-
-	@Override
-	protected Tokenizer create() {
-		return new TokenizerFactory().createGroupingTokenizer(
-				GROUP_OPEN_PATTERN, GROUP_CLOSE_PATTERN);
 	}
 }

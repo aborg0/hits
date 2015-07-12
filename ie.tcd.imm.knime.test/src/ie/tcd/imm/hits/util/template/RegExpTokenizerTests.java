@@ -9,20 +9,24 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@ParametersAreNonnullByDefault
+@CheckReturnValue
+@RunWith(Parameterized.class)
 public class RegExpTokenizerTests extends TokenizerTests {
+	private final String input;
+	private final List<Token> expectedTokens;
 
 	/**  */
 	private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_");
@@ -30,9 +34,9 @@ public class RegExpTokenizerTests extends TokenizerTests {
 	/**
 	 * @return Simple test cases for split by {@code _}.
 	 */
-	@DataProvider(name = "simple")
-	public static Object[][] simpleTests() {
-		return new Object[][] {
+	@Parameters
+	public static List<Object[]> simpleTests() {
+		return Arrays.asList(new Object[][] {
 				{ "", Collections.<Token> emptyList() },
 				{ "_", Collections.<Token> emptyList() },
 				{ "__", Collections.<Token> emptyList() },
@@ -67,14 +71,15 @@ public class RegExpTokenizerTests extends TokenizerTests {
 						Arrays.asList(new Token[] { simple("a", 1),
 								simple("b", 4) }) },
 
-		};
+		});
 	}
 
 	/**
 	 * 
 	 */
-	public RegExpTokenizerTests() {
-		// TODO Auto-generated constructor stub
+	public RegExpTokenizerTests(String input, List<Token> expectedTokens) {
+		this.input = input;
+		this.expectedTokens = expectedTokens;
 	}
 
 	@Override
@@ -89,8 +94,8 @@ public class RegExpTokenizerTests extends TokenizerTests {
 	 * @param expectedTokens
 	 * @throws TokenizeException
 	 */
-	@Test(dataProvider = "simple")
-	public void simple(final String input, final List<Token> expectedTokens)
+	@Test
+	public void simple()
 			throws TokenizeException {
 		Assert.assertEquals(create().parse(input), expectedTokens);
 	}
