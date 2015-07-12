@@ -75,9 +75,6 @@
    <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.knime.interop.feature_0.0.1.200908202037.jar" id="ie.tcd.imm.hits.knime.interop.feature" version="0.0.1.200908202037">
       <category name="HiTS"/>
    </feature>
-   <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.image.feature_0.0.1.200909291756.jar" id="ie.tcd.imm.hits.image.feature" version="0.0.1.200909291756">
-      <category name="HiTS experimental"/>
-   </feature>
    <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.3rdparty.feature_0.4.1.200910131532.jar" id="ie.tcd.imm.hits.3rdparty.feature" version="0.4.1.200910131532">
       <category name="HiTS"/>
    </feature>
@@ -85,9 +82,6 @@
       <category name="HiTS"/>
    </feature>
    <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.feature_0.4.1.200910131532.jar" id="ie.tcd.imm.hits.feature" version="0.4.1.200910131532">
-      <category name="HiTS"/>
-   </feature>
-   <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.image.feature_0.0.3.200910131532.jar" id="ie.tcd.imm.hits.image.feature" version="0.0.3.200910131532">
       <category name="HiTS"/>
    </feature>
    <feature url="https://bintray.com/artifact/download/aborg0/HiTS/ie.tcd.imm.hits.knime.interop.feature_0.0.3.200910131532.jar" id="ie.tcd.imm.hits.knime.interop.feature" version="0.0.3.200910131532">
