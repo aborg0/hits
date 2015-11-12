@@ -38,7 +38,7 @@ Recommended list of features (after the added labs update site (`http://labs.kni
 |HiTS 3rd party components feature | 0.5.0.200912041736|
 |HiTS main feature | 0.5.4.201007052109|
 |HiTS experimental features | 0.4.1.200912041736|
-|HiTS imaging feature | 0.1.0.200912041736|
+|~HiTS imaging feature~ | ~0.1.0.200912041736~|
 |HiTS interoperability feature | 0.0.4.200912311558|
 |KNIME utilities | 0.2.2.200912041736|
 
