@@ -32,14 +32,15 @@ You can set it in the Help/Software Updates.../Find and Install.../_Search for n
 
 After you have set the update site, you can select it and click on **Finish**. (Here you may be prompted to your proxy user and password.)
 Recommended list of features (after the added labs update site (`http://labs.knime.org/update/2.1`)):
+
 |**Name**|**Version**|
 |:-------|:----------|
-|HiTS 3rd party components feature|0.5.0.200912041736|
-|HiTS main feature|0.5.4.201007052109|
-|HiTS experimental features|0.4.1.200912041736|
-|HiTS imaging feature|0.1.0.200912041736|
-|HiTS interoperability feature|0.0.4.200912311558|
-|KNIME utilities|0.2.2.200912041736|
+|HiTS 3rd party components feature | 0.5.0.200912041736|
+|HiTS main feature | 0.5.4.201007052109|
+|HiTS experimental features | 0.4.1.200912041736|
+|HiTS imaging feature | 0.1.0.200912041736|
+|HiTS interoperability feature | 0.0.4.200912311558|
+|KNIME utilities | 0.2.2.200912041736|
 
 Accept the license. After every plugins are installed you selected, you will be asked to
 restart your KNIME. Please do that.
