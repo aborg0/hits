@@ -13,7 +13,7 @@ Currently only cellHTS2 2.6.x is supported (the new 2.8.x series is not yet).
   * [High Content Screening Tools](http://tech.knime.org/community/hcs-tools)
 
 # First steps after [install](Install.md) #
-An easy approach to start is downloading the content of [this folder](http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/plate8/), and import [this workflow](http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/sampleCellHTS2/sample1.zip). After that you [should follow the instructions](http://hits.googlecode.com/svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/sampleCellHTS2/readme.txt) to get familiar with this data analysis tool.
+An easy approach to start is downloading the content of [this folder](https://github.com/aborg0/hits/tree/version_0.3.0/ie.tcd.imm.knime.test/testdata/plate8), and import [this workflow](https://github.com/aborg0/hits/raw/version_0.3.0/ie.tcd.imm.knime.test/testdata/workflows/sampleCellHTS2/sample1.zip). After that you [should follow the instructions](https://github.com/aborg0/hits/tree/version_0.3.0/ie.tcd.imm.knime.test/testdata/workflows/sampleCellHTS2) to get familiar with this data analysis tool.
 
 # Acknowledgement #
 
