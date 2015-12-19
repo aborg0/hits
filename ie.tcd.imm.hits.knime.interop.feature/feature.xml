@@ -2,7 +2,7 @@
 <feature
       id="ie.tcd.imm.hits.knime.interop.feature"
       label="HiTS interoperability with other projects"
-      version="0.0.4.qualifier"
+      version="0.0.5.qualifier"
       provider-name="TCD"
       colocation-affinity="ie.tcd.imm.hits.knime.interop.feature">
 
@@ -24,17 +24,19 @@
    </url>
 
    <requires>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.knime.workbench.core"/>
-      <import plugin="org.knime.workbench.repository"/>
-      <import plugin="org.knime.base"/>
-      <import plugin="org.eclipse.help"/>
-      <import plugin="org.eclipse.help.ui"/>
-      <import plugin="org.knime.core" version="2.0.0" match="compatible"/>
-      <import plugin="ie.tcd.imm.hits.common" version="0.0.3" match="compatible"/>
-      <import plugin="ie.tcd.imm.hits.help.base"/>
-      <import plugin="com.google.code.findbugs.annotations"/>
-      <import plugin="com.google.code.findbugs.jsr305"/>
+      <import plugin="org.eclipse.core.runtime" version="3.11.0"/>
+      <import plugin="org.knime.workbench.core" version="3.1.0" match="compatible"/>
+      <import plugin="org.knime.workbench.repository" version="3.1.0" match="compatible"/>
+      <import plugin="org.knime.base" version="3.1.0" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.common" version="0.0.7" match="compatible"/>
+      <import plugin="org.eclipse.help" version="3.6.0"/>
+      <import plugin="org.eclipse.help.ui" version="4.0.100" match="compatible"/>
+      <import plugin="ie.tcd.imm.hits.help.base" version="0.0.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.equinox.security" version="1.2.100" match="compatible"/>
+      <import plugin="org.eclipse.core.net" version="1.2.300" match="compatible"/>
+      <import plugin="org.knime.core" version="3.1.0" match="compatible"/>
+      <import plugin="org.eclipse.jface" version="3.11.0"/>
+      <import plugin="org.knime.ext.jep" version="3.1.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
