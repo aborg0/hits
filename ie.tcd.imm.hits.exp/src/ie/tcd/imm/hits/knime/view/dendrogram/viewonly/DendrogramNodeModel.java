@@ -22,13 +22,6 @@
  */
 package ie.tcd.imm.hits.knime.view.dendrogram.viewonly;
 
-import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
-import ie.tcd.imm.hits.knime.view.ImageExportOption;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
-
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +33,6 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import org.knime.base.data.xml.SvgCell;
 import org.knime.base.node.mine.cluster.hierarchical.ClusterTreeModel;
 import org.knime.base.node.mine.cluster.hierarchical.view.ClusterViewNode;
 import org.knime.base.node.util.DataArray;
@@ -56,7 +48,6 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.container.ContainerTable;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -66,13 +57,14 @@ import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelEnum;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.PortUtil;
-import org.knime.core.node.port.image.ImagePortObject;
-import org.knime.core.node.port.image.ImagePortObjectSpec;
+
+import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
+import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
 
 /**
  * This is the model implementation of Dendrogram. Allows to create dendrogram
@@ -93,12 +85,12 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	/** The selected columns. */
 	private final List<String> selectedColumns = new ArrayList<String>();
 
-	static final String CFGKEY_EXPORT_IMAGE = "export.image";
-	static final ImageExportOption DEFAULT_EXPORT_IMAGE = ImageExportOption.None;
-
-	private SettingsModelEnum<ImageExportOption> exportImage = new SettingsModelEnum<ImageExportOption>(
-			CFGKEY_EXPORT_IMAGE, DEFAULT_EXPORT_IMAGE,
-			ImageExportOption.values());
+//	static final String CFGKEY_EXPORT_IMAGE = "export.image";
+//	static final ImageExportOption DEFAULT_EXPORT_IMAGE = ImageExportOption.None;
+//
+//	private SettingsModelEnum<ImageExportOption> exportImage = new SettingsModelEnum<ImageExportOption>(
+//			CFGKEY_EXPORT_IMAGE, DEFAULT_EXPORT_IMAGE,
+//			ImageExportOption.values());
 
 	private @Nullable
 	DataArray origData;
@@ -111,24 +103,24 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	 */
 	protected DendrogramNodeModel() {
 		super(new PortType[] { ClusterTreeModel.TYPE, BufferedDataTable.TYPE },
-				new PortType[] { ImagePortObject.TYPE });
+				new PortType[] { /*ImagePortObject.TYPE*/ });
 	}
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		switch (exportImage.getEnumValue()) {
-		case None:
-		case Svg:
-			return new PortObjectSpec[] { new ImagePortObjectSpec(SvgCell.TYPE) };
-		case Png:
-			return new PortObjectSpec[] { new ImagePortObjectSpec(
-					PNGImageContent.TYPE) };
-		default:
-			throw new UnsupportedOperationException(
-					"Not supported image export format: "
-							+ exportImage.getEnumValue());
-		}
+//		switch (exportImage.getEnumValue()) {
+//		case None:
+//		case Svg:
+			return new PortObjectSpec[] { /*new ImagePortObjectSpec(SvgCell.TYPE)*/ };
+//		case Png:
+//			return new PortObjectSpec[] { /*new ImagePortObjectSpec(
+//					PNGImageContent.TYPE)*/ };
+//		default:
+//			throw new UnsupportedOperationException(
+//					"Not supported image export format: "
+//							+ exportImage.getEnumValue());
+//		}
 	}
 
 	@Override
@@ -136,61 +128,61 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 			final ExecutionContext exec) throws Exception {
 		selectedColumns.clear();
 		setTreeModel((ClusterTreeModel) data[0]);
-		int rowCount;
+//		long rowCount;
 		origData = new DefaultDataArray((BufferedDataTable) data[1], 1,
-				rowCount = ((BufferedDataTable) data[1]).getRowCount());
+				(int)(/*rowCount =*/ ((BufferedDataTable) data[1]).size()));
 		mapOfKeys.clear();
 		int i = 0;
 		for (final DataRow row : origData/* data[0] */) {
 			mapOfKeys.put(row.getKey().getString(), Integer.valueOf(i++));
 		}
 		fillStats((BufferedDataTable) data[1]);
-		final HeatmapDendrogramDrawingPane view;
-		if (exportImage.getEnumValue() == ImageExportOption.None) {
-			view = null;
-		} else {
-			view = new HeatmapDendrogramDrawingPane();
-			final HeatmapDendrogramPlotterProperties props = new HeatmapDendrogramPlotterProperties();
-			props.getCellWidth().setValue(20);
-			props.getShowValues().getModel().setSelected(false);
-			final HeatmapDendrogramPlotter plotter = new HeatmapDendrogramPlotter(
-					view, props);
-			plotter.setDataProvider(this);
-			plotter.setHiLiteHandler(getInHiLiteHandler(1));
-			plotter.setRootNode(root);
-
-			view.setColourModel(new ColourModel());
-			view.setHeatmapCellHeight(17);
-			view.setShowValues(false);
-			// view.setRootNode(plotter.viewModel());
-			view.setNodeModel(this);
-			// final DendrogramNodeView nodeView = new DendrogramNodeView(this,
-			// plotter);
-			// nodeView.modelChanged();
-			// YODO move to DendrogramNodeView, as SelectData is available only
-			// there.
-			final Dimension newSize = new Dimension(1000, 2 * rowCount);
-			plotter.setSize(view.getPreferredSize());
-			view.setPreferredSize(newSize);
-			plotter.updateSize();
-			view.setCellWidth(20);
-		}
-		switch (exportImage.getEnumValue()) {
-		case None:
-			return new PortObject[] { new ImagePortObject(
-					ImageExportOption.Empty, new ImagePortObjectSpec(
-							SvgCell.TYPE)) };
-		case Png:
-			return new PortObject[] { new ImagePortObject(
-					ImageExportOption.Png.paint(view), new ImagePortObjectSpec(
-							PNGImageContent.TYPE)) };
-		case Svg:
-			return new PortObject[] { new ImagePortObject(
-					ImageExportOption.Svg.paint(view), new ImagePortObjectSpec(
-							SvgCell.TYPE)) };
-		}
-		return new PortObject[] { new ImagePortObject(null,
-				new ImagePortObjectSpec(SvgCell.TYPE)) };
+//		final HeatmapDendrogramDrawingPane view;
+//		if (exportImage.getEnumValue() == ImageExportOption.None) {
+//			view = null;
+//		} else {
+//			view = new HeatmapDendrogramDrawingPane();
+//			final HeatmapDendrogramPlotterProperties props = new HeatmapDendrogramPlotterProperties();
+//			props.getCellWidth().setValue(20);
+//			props.getShowValues().getModel().setSelected(false);
+//			final HeatmapDendrogramPlotter plotter = new HeatmapDendrogramPlotter(
+//					view, props);
+//			plotter.setDataProvider(this);
+//			plotter.setHiLiteHandler(getInHiLiteHandler(1));
+//			plotter.setRootNode(root);
+//
+//			view.setColourModel(new ColourModel());
+//			view.setHeatmapCellHeight(17);
+//			view.setShowValues(false);
+//			// view.setRootNode(plotter.viewModel());
+//			view.setNodeModel(this);
+//			// final DendrogramNodeView nodeView = new DendrogramNodeView(this,
+//			// plotter);
+//			// nodeView.modelChanged();
+//			// YODO move to DendrogramNodeView, as SelectData is available only
+//			// there.
+//			final Dimension newSize = new Dimension(1000, (int) (2 * rowCount));
+//			plotter.setSize(view.getPreferredSize());
+//			view.setPreferredSize(newSize);
+//			plotter.updateSize();
+//			view.setCellWidth(20);
+//		}
+//		switch (exportImage.getEnumValue()) {
+//		case None:
+//			return new PortObject[] { new ImagePortObject(
+//					ImageExportOption.Empty, new ImagePortObjectSpec(
+//							SvgCell.TYPE)) };
+//		case Png:
+//			return new PortObject[] { new ImagePortObject(
+//					ImageExportOption.Png.paint(view), new ImagePortObjectSpec(
+//							PNGImageContent.TYPE)) };
+//		case Svg:
+//			return new PortObject[] { new ImagePortObject(
+//					ImageExportOption.Svg.paint(view), new ImagePortObjectSpec(
+//							SvgCell.TYPE)) };
+//		}
+		return new PortObject[] { /*new ImagePortObject(null,
+				new ImagePortObjectSpec(SvgCell.TYPE))*/ };
 	}
 
 	private void setTreeModel(final ClusterTreeModel data) {
@@ -262,16 +254,16 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			exportImage.loadSettingsFrom(settings);
-		} catch (final InvalidSettingsException e) {
-			exportImage.setStringValue(DEFAULT_EXPORT_IMAGE.getDisplayText());
-		}
+//		try {
+//			exportImage.loadSettingsFrom(settings);
+//		} catch (final InvalidSettingsException e) {
+//			exportImage.setStringValue(DEFAULT_EXPORT_IMAGE.getDisplayText());
+//		}
 	}
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		exportImage.saveSettingsTo(settings);
+//		exportImage.saveSettingsTo(settings);
 	}
 
 	/**
@@ -287,7 +279,7 @@ public class DendrogramNodeModel extends NodeModel implements DataProvider {
 			CanceledExecutionException {
 		final ContainerTable data = DataContainer.readFromZip(new File(
 				nodeInternDir, DendrogramNodeModel.CFG_H_CLUST_DATA));
-		origData = new DefaultDataArray(data, 1, data.getRowCount());
+		origData = new DefaultDataArray(data, 1, (int) data.size());
 		int i = 0;
 		for (final DataRow dataRow : origData) {
 			mapOfKeys.put(dataRow.getKey().getString(), Integer.valueOf(i++));
