@@ -5,22 +5,22 @@
   <artifactId>maven.parent</artifactId>
   <packaging>pom</packaging>
   <version>0.0.1-SNAPSHOT</version>
-  <name>ie.tcd.imm.hits.maven.parent</name>
+  <name>com.mind_era.ie.tcd.imm.hits.maven.parent</name>
   <description>Parent project for the HiTS maven projects.</description>
-  <url>http://code.google.com/p/hits</url>
+  <url>https://github.com/aborg0/hits</url>
   <dependencies>
   </dependencies>
   <issueManagement>
-  	<system>Google code</system>
-  	<url>http://code.google.com/p/hits/issues/list</url>
+  	<system>GitHub</system>
+  	<url>https://github.com/aborg0/hits/issues</url>
   </issueManagement>
   <scm>
-  	<developerConnection>https://hits.googlecode.com/svn/</developerConnection>
-  	<url>http://hits.googlecode.com/svn/</url>
+  	<developerConnection>https://github.com/aborg0/hits.git</developerConnection>
+  	<url>https://github.com/aborg0/hits.git</url>
   </scm>
   <organization>
-  	<name>Trinity College Dublin, Institute of Molecular Medicine</name>
-  	<url>http://www.tcd.ie/IMM</url>
+  	<name>Mind Eratosthenes Kft.</name>
+  	<url>http://mind-era.com</url>
   </organization>
   <build>
     <plugins>
@@ -50,12 +50,4 @@
       <url>http://repository.springsource.com/maven/bundles/external</url>
     </repository> 
   </repositories>
-  <modules>
-    <module>jsr305</module>
-    <module>findbugs-annotations</module>
-    <module>net.rforge.REngine</module>
-    <module>net.rforge.Rserve</module>
-    <module>javax.media.jai_core</module>
-    <module>com.sun.media.jai_codec</module>
-  </modules>
 </project>

@@ -5,16 +5,15 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: bioconverter.jar
 Bundle-Name: BioConverter-Node extension for KNIME Workbench
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.core.runtime,
- org.knime.workbench.core,
- org.knime.workbench.repository,
- org.knime.base,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.11.0,5.0.0)",
+ org.knime.workbench.core;bundle-version="[3.1.0,4.0.0)",
+ org.knime.workbench.repository;bundle-version="[3.1.0,4.0.0)",
+ org.knime.base;bundle-version="[3.1.0,4.0.0)",
  ie.tcd.imm.hits.common;bundle-version="[0.0.4,1.0.0)",
- org.eclipse.help,
- org.eclipse.help.ui,
- ie.tcd.imm.hits.help.base,
- findbugsAnnotations;bundle-version="[2.0.1,3.0.0)"
+ org.eclipse.help;bundle-version="[3.6.0,5.0.0)",
+ org.eclipse.help.ui;bundle-version="[4.0.100,5.0.0)",
+ ie.tcd.imm.hits.help.base
 Bundle-Vendor: TCD
 Bundle-Version: 0.0.4.qualifier
 Bundle-ManifestVersion: 2

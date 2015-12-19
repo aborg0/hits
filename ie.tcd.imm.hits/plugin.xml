@@ -43,9 +43,9 @@
       <!--toc extradir="html" file="tocs/meta_nodes.xml"/-->
       <toc extradir="html" file="tocs/HiTS.xml"/>
     </extension>
-   	<extension point="org.eclipse.help.base.luceneSearchParticipants">
+   	<!--extension point="org.eclipse.help.base.luceneSearchParticipants">
       <binding participantId="org.eclipse.help.base.xhtml"/>
-   	</extension>
+   	</extension-->
    	<extension point="org.eclipse.help.contentProducer">
       <binding producerId="org.eclipse.help.dynamic"/>
    	</extension>
