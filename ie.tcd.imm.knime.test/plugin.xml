@@ -3,8 +3,8 @@
 
 <plugin>
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/labs/distmatrix/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory"/>
-   <node category-path="/labs/distmatrix/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ComputeEntropyNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ComputeEntropyNodeFactory"/>
+      <node category-path="/community/HiTS/distmatrix/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ShuffleTreeNodeFactory"/>
+   <node category-path="/community/HiTS/distmatrix/" factory-class="ie.tcd.imm.hits.knime.shuffle.tree.ComputeEntropyNodeFactory" id="ie.tcd.imm.hits.knime.shuffle.tree.ComputeEntropyNodeFactory"/>
 </extension>
 <extension point="org.eclipse.help.toc">
 <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>

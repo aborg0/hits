@@ -3,7 +3,9 @@
 
 <plugin>
   	<extension point="org.knime.workbench.repository.categories">
-      <category description="Views" icon="icons/HiTS.png" level-id="distmatrix" name="View" path="/community/HiTS/"/>
+      <!--category description="HiTS" icon="icons/HiTS.png" level-id="HiTS" name="HiTS" path="/community/"/-->
+      <!--category description="Views" icon="icons/HiTS.png" level-id="view" name="view" path="/community/HiTS/"/-->
+      <category description="Distance matrix" icon="icons/HiTS.png" level-id="distmatrix" name="Distance matrix" path="/community/HiTS/"/>
     </extension>
    	<extension point="org.knime.workbench.repository.nodes">
       <node category-path="/community/HiTS/view/" factory-class="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
