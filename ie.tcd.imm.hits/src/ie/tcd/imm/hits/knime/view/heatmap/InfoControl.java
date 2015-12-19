@@ -4,7 +4,7 @@
 package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.PossibleStatistics;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.StatTypes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

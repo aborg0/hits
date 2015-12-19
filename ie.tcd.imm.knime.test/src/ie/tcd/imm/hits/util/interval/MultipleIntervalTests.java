@@ -3,8 +3,6 @@
  */
 package ie.tcd.imm.hits.util.interval;
 
-import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
@@ -15,6 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import ie.tcd.imm.hits.util.interval.Interval.DefaultInterval;
 
 /**
  *

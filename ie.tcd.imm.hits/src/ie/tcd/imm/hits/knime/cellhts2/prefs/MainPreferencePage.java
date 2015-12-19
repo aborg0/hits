@@ -3,10 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs;
 
-import ie.tcd.imm.hits.common.PossibleStatistics;
-import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
-import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
-
 import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -16,6 +12,10 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
+
+import ie.tcd.imm.hits.common.PossibleStatistics;
+import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
+import ie.tcd.imm.hits.knime.internal.Activator;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -38,7 +38,7 @@ public class MainPreferencePage extends FieldEditorPreferencePage implements
 	 */
 	public MainPreferencePage() {
 		super(GRID);
-		setPreferenceStore(ImporterNodePlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(Activator.getInstance().getPreferenceStore());
 		setDescription("You can adjust the HiTS related node to your needs.");
 	}
 

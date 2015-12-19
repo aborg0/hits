@@ -10,8 +10,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * <code>NodeDialog</code> for the "SimpleConfigurator" Node. This node reads
  * the specified CellHTS 2 configuration files for using them as input for
@@ -25,7 +23,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@DefaultAnnotation(Nonnull.class)
+@Nonnull
 public class SimpleConfiguratorNodeDialog extends DefaultNodeSettingsPane {
 
 	/**

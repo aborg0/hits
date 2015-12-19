@@ -5,7 +5,7 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 
 import ie.tcd.imm.hits.common.Format;
 import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
+import ie.tcd.imm.hits.knime.view.StatTypes;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
 import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
 import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
@@ -348,6 +348,7 @@ public class ControlPanel extends JPanel {
 						@Override
 						public int compare(final Object o1, final Object o2) {
 							if (o1 instanceof Comparable<?>) {
+								@SuppressWarnings("rawtypes")
 								final Comparable c1 = (Comparable<?>) o1;
 								if (o2 instanceof Comparable<?>) {
 									final Comparable<?> c2 = (Comparable<?>) o2;
@@ -436,9 +437,9 @@ public class ControlPanel extends JPanel {
 	private static class ParamaterSelection extends JPanel {
 		private static final long serialVersionUID = 5247512869526999773L;
 
-		private final JComboBox typeCombobox = new JComboBox(StatTypes.values());
+		private final JComboBox<StatTypes> typeCombobox = new JComboBox<>(StatTypes.values());
 
-		private final JComboBox valueCombobox = new JComboBox();
+		private final JComboBox<String> valueCombobox = new JComboBox<>();
 
 		private final EnumMap<StatTypes, Collection<String>> possibleValues = new EnumMap<StatTypes, Collection<String>>(
 				StatTypes.class);

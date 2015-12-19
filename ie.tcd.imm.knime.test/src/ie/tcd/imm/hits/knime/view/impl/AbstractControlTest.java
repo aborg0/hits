@@ -3,21 +3,12 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
-import ie.tcd.imm.hits.knime.view.ControlsHandler;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.util.swing.VariableControl;
-
 import java.awt.FlowLayout;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -29,6 +20,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.util.Pair;
+
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.swing.VariableControl;
 
 
 /**

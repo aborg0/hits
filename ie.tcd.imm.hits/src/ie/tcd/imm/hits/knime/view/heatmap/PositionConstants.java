@@ -6,14 +6,13 @@ package ie.tcd.imm.hits.knime.view.heatmap;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-
 /**
  * These constants are for the arrangement of possible position to the
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 enum PositionConstants {
 	/** The default for "hidden" parts. */
 	control,

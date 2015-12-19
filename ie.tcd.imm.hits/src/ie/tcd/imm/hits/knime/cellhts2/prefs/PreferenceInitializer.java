@@ -3,12 +3,12 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.prefs;
 
-import ie.tcd.imm.hits.common.PossibleStatistics;
-import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
-import ie.tcd.imm.hits.knime.xls.ImporterNodePlugin;
-
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
+
+import ie.tcd.imm.hits.common.PossibleStatistics;
+import ie.tcd.imm.hits.knime.cellhts2.prefs.ui.ColumnSelectionFieldEditor;
+import ie.tcd.imm.hits.knime.internal.Activator;
 
 /**
  * Class used to initialize default preference values.
@@ -24,7 +24,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 * initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
-		final IPreferenceStore store = ImporterNodePlugin.getDefault()
+		final IPreferenceStore store = Activator.getInstance()
 				.getPreferenceStore();
 		store
 				.setDefault(

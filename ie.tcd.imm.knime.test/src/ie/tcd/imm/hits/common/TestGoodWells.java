@@ -6,12 +6,12 @@ package ie.tcd.imm.hits.common;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import org.junit.Assert;
 
 /**
  * Test the good wells against {@link Format}. 

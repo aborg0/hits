@@ -3,12 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,14 +25,19 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.view.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.WellViewModel.Places;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.ColourModel;
 
 /**
  * This is responsible for the visual representation of the {@link Heatmap}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 @NotThreadSafe
 @XmlRootElement(name = "viewmodel")
 public class ViewModel implements ActionListener {

@@ -3,16 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
-import ie.tcd.imm.hits.knime.view.ControlsHandler;
-import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -22,7 +12,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -48,6 +37,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.util.Pair;
+
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.knime.view.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.SliderFactory;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.util.swing.VariableControl;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 /**
  * This test creates a sample and populates with some components from

@@ -15,11 +15,18 @@
       <!--node category-path="/community/assorted/manipulation/matrix/" factory-class="ie.tcd.imm.knime.util.product.DirectProductNodeFactory" id="ie.tcd.imm.knime.util.product.DirectProductNodeFactory"/-->
       <node category-path="/community/assorted/manipulation/row/" factory-class="ie.tcd.imm.knime.util.merge.MergeNodeFactory" id="ie.tcd.imm.knime.util.merge.MergeNodeFactory"/>
       <node category-path="/community/assorted/manipulation/column/" factory-class="ie.tcd.imm.knime.util.power.SubsetsNodeFactory" id="ie.tcd.imm.knime.util.power.SubsetsNodeFactory"/>
+      <!--node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.ranking.RankNodeFactory" id="ie.tcd.imm.hits.knime.ranking.RankNodeFactory"/-->
+	  <node category-path="/community/HiTS/view/" factory-class="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
    </extension>
    <extension point="org.eclipse.help.toc">
+	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
       <toc extradir="html" file="tocs/row_nodes.xml"/>
       <toc extradir="html" file="tocs/manipulation_nodes.xml"/>
       <toc extradir="html" file="tocs/column_nodes.xml"/>
       <toc extradir="html" file="tocs/matrix_nodes.xml"/>
+   </extension>
+   <extension point="org.eclipse.help.base.searchParticipant">
+      <binding participantId="org.eclipse.help.base.xhtml"/>
    </extension>
 </plugin>

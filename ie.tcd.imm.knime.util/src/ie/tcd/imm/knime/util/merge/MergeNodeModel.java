@@ -110,10 +110,10 @@ public class MergeNodeModel extends NodeModel {
 				.createDataContainer(inputTable.getDataTableSpec());
 		if (sortInMemory.getBooleanValue()) {
 			final DefaultDataArray dataArray = new DefaultDataArray(
-					new WrappedTable(inputTable), 1, inputTable.getRowCount(),
+					new WrappedTable(inputTable), 1, (int)inputTable.size(),
 					exec);
 			for (final List<Integer> rowIndices : generateBlocks(patternToKeys,
-					inputTable.getRowCount())) {
+					inputTable.size())) {
 				for (final Integer rowInteger : rowIndices) {
 					container.addRowToTable(dataArray.getRow(rowInteger
 							.intValue()));
@@ -136,7 +136,7 @@ public class MergeNodeModel extends NodeModel {
 	 */
 	private Iterable<List<Integer>> generateBlocks(
 			final Map<Map<Integer, DataCell>, List<Pair<RowKey, Integer>>> patternToKeys,
-			final int rowCount) {
+			final long rowCount) {
 		return new Iterable<List<Integer>>() {
 
 			@Override

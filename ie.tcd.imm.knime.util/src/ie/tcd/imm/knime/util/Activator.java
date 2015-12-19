@@ -13,6 +13,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 public class Activator extends Plugin {
 
+	//TODO I think this is no longer necessary.
 	/** Plugin identifier */
 	public static final String PLUGIN_ID = "ie.tcd.imm.knime.util";
 

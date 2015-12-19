@@ -3,15 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
-import ie.tcd.imm.hits.knime.view.ControlsHandler;
-import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
-import ie.tcd.imm.hits.util.swing.SelectionType;
-import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -32,14 +23,22 @@ import javax.swing.event.ChangeEvent;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.util.Pair;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ShapeModel;
+import ie.tcd.imm.hits.util.swing.SelectionType;
+import ie.tcd.imm.hits.util.swing.VariableControl;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 /**
  * This factory helps to handle the controls for {@link SliderModel}s.
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 @NotThreadSafe
 public class ControlsHandlerKNIMEFactory
 		extends

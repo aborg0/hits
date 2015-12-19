@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.junit.Assert;

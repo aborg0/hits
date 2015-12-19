@@ -3,11 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.plate.format;
 
-import ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeModel.PlateFormatCellFactory;
-
 import java.util.AbstractCollection;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,6 +12,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import ie.tcd.imm.hits.knime.plate.format.PlateFormatNodeModel.PlateFormatCellFactory;
 
 /**
  *

@@ -1,7 +1,5 @@
 package ie.tcd.imm.hits.knime.shuffle.tree;
 
-import ie.tcd.imm.hits.knime.util.leaf.ordering.LeafOrderingNodeModel;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +26,8 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.distmatrix.type.DistanceVectorDataValue;
+
+import ie.tcd.imm.hits.knime.util.leaf.ordering.LeafOrderingNodeModel;
 
 /**
  * This is the model implementation of ShuffleTree. Randomly change the order of

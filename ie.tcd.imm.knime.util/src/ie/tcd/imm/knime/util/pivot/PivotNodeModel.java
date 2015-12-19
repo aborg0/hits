@@ -173,7 +173,7 @@ public class PivotNodeModel extends TransformingNodeModel {
 			}
 			++i;
 			exec.checkCanceled();
-			exec.setProgress(origRow++ * 1.0 / table.getRowCount());
+			exec.setProgress(origRow++ * 1.0 / table.size());
 		}
 		createNewRow(container, vals, keyIndices, valueIndices,
 				connectByPivotValues, keyValues, newRowCount, null, mapping);

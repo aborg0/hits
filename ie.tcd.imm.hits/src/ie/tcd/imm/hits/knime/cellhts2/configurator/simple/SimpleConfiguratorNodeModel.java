@@ -3,9 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.cellhts2.configurator.simple;
 
-import ie.tcd.imm.hits.common.PublicConstants;
-import ie.tcd.imm.hits.util.file.OpenStream;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,8 +33,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import ie.tcd.imm.hits.common.PublicConstants;
+import ie.tcd.imm.hits.util.file.OpenStream;
 
 /**
  * This is the model implementation of SimpleConfigurator. This node reads the
@@ -47,7 +45,7 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@DefaultAnnotation(Nonnull.class)
+@Nonnull
 public class SimpleConfiguratorNodeModel extends NodeModel {
 
 	// the logger instance
@@ -134,7 +132,7 @@ public class SimpleConfiguratorNodeModel extends NodeModel {
 				descConfContainer.getTable() };
 	}
 
-	@SuppressWarnings("NP")
+	@SuppressFBWarnings("NP")
 	private void readPlateConf(final BufferedDataContainer plateConfContainer)
 			throws FileNotFoundException, IOException {
 		final InputStream stream;

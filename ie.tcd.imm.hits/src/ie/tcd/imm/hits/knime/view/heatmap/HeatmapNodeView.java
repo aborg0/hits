@@ -3,28 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.heatmap;
 
-import ie.tcd.imm.hits.common.Format;
-import ie.tcd.imm.hits.knime.util.ModelBuilder;
-import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
-import ie.tcd.imm.hits.knime.view.ControlsHandler;
-import ie.tcd.imm.hits.knime.view.ExportImages;
-import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
-import ie.tcd.imm.hits.knime.view.heatmap.HeatmapNodeModel.StatTypes;
-import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
-import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
-import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
-import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
-import ie.tcd.imm.hits.util.Traversable;
-import ie.tcd.imm.hits.util.select.Selectable;
-import ie.tcd.imm.hits.util.swing.ImageType;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
-import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
-import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -52,8 +30,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.annotation.CheckReturnValue;
@@ -91,7 +69,27 @@ import org.knime.core.node.property.hilite.KeyEvent;
 import org.knime.core.node.tableview.TableView;
 import org.knime.core.util.Pair;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.common.Format;
+import ie.tcd.imm.hits.knime.util.ModelBuilder;
+import ie.tcd.imm.hits.knime.util.SimpleModelBuilder;
+import ie.tcd.imm.hits.knime.view.ControlsHandler;
+import ie.tcd.imm.hits.knime.view.ExportImages;
+import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.knime.view.StatTypes;
+import ie.tcd.imm.hits.knime.view.heatmap.ControlPanel.ArrangementModel;
+import ie.tcd.imm.hits.knime.view.heatmap.SliderModel.Type;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.OverviewModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.ParameterModel;
+import ie.tcd.imm.hits.knime.view.heatmap.ViewModel.Shape;
+import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory;
+import ie.tcd.imm.hits.knime.view.impl.ControlsHandlerKNIMEFactory.ArrangementEvent;
+import ie.tcd.imm.hits.util.Traversable;
+import ie.tcd.imm.hits.util.select.Selectable;
+import ie.tcd.imm.hits.util.swing.ImageType;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector;
+import ie.tcd.imm.hits.util.swing.colour.ColourSelector.RangeType;
+import ie.tcd.imm.hits.util.swing.colour.ComplexModel;
 
 /**
  * <code>NodeView</code> for the "Heatmap" Node. Shows the heatmap of the
@@ -99,7 +97,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 @NotThreadSafe
 public class HeatmapNodeView extends NodeView<HeatmapNodeModel> {
 	/**

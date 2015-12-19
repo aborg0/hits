@@ -98,6 +98,7 @@ public class ColumnSelectionFieldEditor<EnumType extends Enum<EnumType> & Displa
 	 *            Some values of the selected enum.
 	 * @return The {@link #STRING_SEPARATOR} separated names of {@code values}.
 	 */
+	@SafeVarargs
 	public static <EnumType extends Enum<EnumType>> String createList(
 			final EnumType... values) {
 		final StringBuilder sb = new StringBuilder();

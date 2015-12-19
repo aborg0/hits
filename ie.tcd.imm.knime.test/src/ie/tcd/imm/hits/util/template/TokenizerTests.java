@@ -3,10 +3,6 @@
  */
 package ie.tcd.imm.hits.util.template;
 
-import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
-import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer.GroupToken;
-import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer.SplitToken;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,7 +10,9 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.util.template.AbstractToken.EmptyToken;
+import ie.tcd.imm.hits.util.template.impl.GroupingTokenizer.GroupToken;
+import ie.tcd.imm.hits.util.template.impl.RegExpTokenizer.SplitToken;
 
 /**
  * A base class for the tests of {@link Tokenizer} implementations.
@@ -22,7 +20,8 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @SuppressWarnings("restriction")
-@DefaultAnnotation( { Nonnull.class, CheckReturnValue.class })
+@Nonnull
+@CheckReturnValue
 public abstract class TokenizerTests {
 
 	/**

@@ -131,7 +131,7 @@ public class UnpivotNodeModel extends TransformingNodeModel {
 				container.addRowToTable(row);
 			}
 			exec.checkCanceled();
-			exec.setProgress(origRow++ * 1.0 / table.getRowCount());
+			exec.setProgress(origRow++ * 1.0 / table.size());
 		}
 		// once we are done, we close the container and return its table
 		if (mapping != null) {

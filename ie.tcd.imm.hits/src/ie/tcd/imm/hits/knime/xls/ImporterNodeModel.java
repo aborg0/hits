@@ -3,9 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.xls;
 
-import ie.tcd.imm.hits.common.PublicConstants;
-import ie.tcd.imm.hits.util.file.OpenStream;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,7 +50,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.common.PublicConstants;
+import ie.tcd.imm.hits.util.file.OpenStream;
 
 /**
  * This is the model implementation of Importer. Reads the data from xls files
@@ -61,7 +59,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@DefaultAnnotation(Nonnull.class)
+@Nonnull
 public class ImporterNodeModel extends NodeModel {
 
 	// the logger instance
@@ -165,7 +163,7 @@ public class ImporterNodeModel extends NodeModel {
 					final HSSFRow row = perWellSheet.getRow(1);
 					final int specColNum = 4;
 					int columns = specColNum;
-					for (short i = row.getLastCellNum(); i-- > Math.max(row
+					for (int i = row.getLastCellNum(); i-- > Math.max(row
 							.getFirstCellNum(), 1)
 							&& row.getCell(i) != null;) {
 						++columns;
@@ -208,13 +206,13 @@ public class ImporterNodeModel extends NodeModel {
 						values[1] = new IntCell(1 + j / replicateCount);// plate
 						values[2] = new IntCell(1 + j % replicateCount);// replicate
 						final HSSFRow currentRow = perWellSheet.getRow(i);
-						final String wellName = currentRow.getCell((short) 0)
+						final String wellName = currentRow.getCell(0)
 								.getRichStringCellValue().getString().replace(
 										" - ", "");
 						values[3] = new StringCell(wellName);
 						for (int c = specColNum; c < columns; ++c) {
 							final HSSFCell cell = currentRow
-									.getCell((short) (c - 2));
+									.getCell(c - 2);
 							values[c] = new DoubleCell(cell
 									.getNumericCellValue());
 						}
@@ -413,8 +411,8 @@ public class ImporterNodeModel extends NodeModel {
 		final List<String> header = new ArrayList<String>();
 		for (int i = row.getLastCellNum(); i-- > Math.max(
 				row.getFirstCellNum(), 1)
-				&& row.getCell((short) i) != null;) {
-			header.add(0, row.getCell((short) i).getRichStringCellValue()
+				&& row.getCell(i) != null;) {
+			header.add(0, row.getCell(i).getRichStringCellValue()
 					.getString());
 		}
 		final boolean addAnnotations = !annotationFileNameModel

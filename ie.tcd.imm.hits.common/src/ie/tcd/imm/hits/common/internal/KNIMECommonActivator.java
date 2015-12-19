@@ -3,7 +3,7 @@
  */
 package ie.tcd.imm.hits.common.internal;
 
-import org.osgi.framework.BundleActivator;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -13,7 +13,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * 
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
-public class KNIMECommonActivator implements BundleActivator {
+public class KNIMECommonActivator extends AbstractUIPlugin {
 	/** Plugin name */
 	public static final String PLUGIN_ID = "ie.tcd.imm.hits.common";
 
@@ -30,12 +30,8 @@ public class KNIMECommonActivator implements BundleActivator {
 	}
 
 	@Override
-	public void start(final BundleContext context) throws Exception {
-		// Do nothing
-	}
-
-	@Override
 	public void stop(final BundleContext context) throws Exception {
+		super.stop(context);
 		instance = null;
 	}
 

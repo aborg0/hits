@@ -3,8 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.xls;
 
-import ie.tcd.imm.hits.knime.util.DialogComponentMultiFileChooser;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFileChooser;
@@ -17,7 +15,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ie.tcd.imm.hits.knime.util.DialogComponentMultiFileChooser;
 
 /**
  * <code>NodeDialog</code> for the "Importer" Node. Reads the data from xls
@@ -31,7 +29,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
  * @author <a href="mailto:bakosg@tcd.ie">Gabor Bakos</a>
  */
 @NotThreadSafe
-@DefaultAnnotation(Nonnull.class)
+@Nonnull
 public class ImporterNodeDialog extends DefaultNodeSettingsPane {
 
 	/** Default directory for the xls files. */

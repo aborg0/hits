@@ -3,11 +3,6 @@
  */
 package ie.tcd.imm.hits.knime.view.impl;
 
-import ie.tcd.imm.hits.knime.view.SplitType;
-import ie.tcd.imm.hits.util.swing.SelectionType;
-import ie.tcd.imm.hits.util.swing.VariableControl;
-import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
-
 import java.util.Collections;
 
 import javax.swing.JPanel;
@@ -20,6 +15,11 @@ import org.fest.swing.fixture.JToggleButtonFixture;
 import org.junit.Assert;
 import org.junit.Test;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+
+import ie.tcd.imm.hits.knime.view.SplitType;
+import ie.tcd.imm.hits.util.swing.SelectionType;
+import ie.tcd.imm.hits.util.swing.VariableControl;
+import ie.tcd.imm.hits.util.swing.VariableControl.ControlTypes;
 
 /**
  * This class tests the {@link VariableControl} implementations.

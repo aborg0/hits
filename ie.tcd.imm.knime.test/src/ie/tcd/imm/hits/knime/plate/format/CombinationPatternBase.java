@@ -3,8 +3,8 @@
  */
 package ie.tcd.imm.hits.knime.plate.format;
 
-import junit.framework.Assert;
 import ie.tcd.imm.hits.common.Format;
+import org.junit.Assert;
 
 /**
  * Base class for combination patterns.
