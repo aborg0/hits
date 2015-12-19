@@ -16,3 +16,5 @@ Documentation
 Downloads
 =========
 As code.google.com will/has been shut down, there is a mirror for the files on bintray: https://bintray.com/aborg0/HiTS/hits/view#files
+
+In case you want to try a temporary version which works with KNIME 3.1, you can find the features on this [link](https://drive.google.com/folderview?id=0B4uWhAEragZ8eXl0aFlCdDlkbkU&usp=sharing). (This can be anytime removed and will not be compatible with future releases, so do not use it for production purposes. Feedback is welcome though.)
