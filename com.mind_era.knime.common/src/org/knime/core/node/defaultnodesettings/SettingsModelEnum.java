@@ -3,8 +3,8 @@
  */
 package org.knime.core.node.defaultnodesettings;
 
-import ie.tcd.imm.hits.util.Displayable;
-import ie.tcd.imm.hits.util.Displayable.Util;
+import com.mind_era.knime.common.util.Displayable;
+import com.mind_era.knime.common.util.Displayable.Util;
 
 /**
  * A {@link SettingsModel} to store ({@link Displayable}) enums.

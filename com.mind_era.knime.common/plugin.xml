@@ -4,11 +4,11 @@
 <plugin>
    	<extension point="org.eclipse.equinox.preferences.preferences"/>
    	<extension point="org.eclipse.ui.preferencePages">
-      <page category="org.knime.workbench.ui.preferences" class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferencePage" id="ie.tcd.imm.hits.knime.view" name="Default colour codes">
+      <page category="org.knime.workbench.ui.preferences" class="com.mind_era.knime.common.view.prefs.ColourPreferencePage" id="ie.tcd.imm.hits.knime.view" name="Default colour codes">
       </page>
    	</extension>
    	<extension point="org.eclipse.core.runtime.preferences">
-      <initializer class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceInitializer"/>
+      <initializer class="com.mind_era.knime.common.view.prefs.ColourPreferenceInitializer"/>
    	</extension>
    	<!--extension point="org.eclipse.help.toc">
       <toc file="HiTSToc.xml" primary="true"/>

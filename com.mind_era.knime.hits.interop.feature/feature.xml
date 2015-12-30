@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="ie.tcd.imm.hits.knime.interop.feature"
+      id="com.mind_era.knime.hits.interop.feature"
       label="HiTS interoperability with other projects"
       version="0.0.5.qualifier"
       provider-name="TCD"
@@ -19,7 +19,6 @@
    </license>
 
    <url>
-      <update label="HiTS official update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
       <discovery label="HiTS update site" url="http://hits.googlecode.com/svn/trunk/ie.tcd.imm.hits.update/"/>
    </url>
 

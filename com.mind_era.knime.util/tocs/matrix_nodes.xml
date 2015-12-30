@@ -2,5 +2,5 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Matrix" link_to="..\org.knime.base\tocs\matrix.xml#matrix">
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.util\html\nodes\Direct_Product.html" label="Direct Product"/>
+<topic href="PLUGINS_ROOT/com.mind_era.knime.util\html\nodes\Direct_Product.html" label="Direct Product"/>
 </toc>

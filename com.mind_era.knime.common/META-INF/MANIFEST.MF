@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Common Plug-in for KNIME development
 Bundle-SymbolicName: com.mind_era.knime.common;singleton:=true
 Bundle-Version: 0.0.7.qualifier
-Bundle-Activator: ie.tcd.imm.hits.common.internal.KNIMECommonActivator
+Bundle-Activator: com.mind_era.knime.common.internal.KNIMECommonActivator
 Bundle-Vendor: TCD
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
@@ -13,16 +13,16 @@ Require-Bundle: org.eclipse.equinox.security;bundle-version="[1.2.100,2.0.0)",
  org.eclipse.jface;bundle-version="[3.11.0,5.0.0)",
  org.eclipse.ui.workbench,
  org.knime.ext.jep;bundle-version="3.1.0"
-Export-Package: ie.tcd.imm.hits.common;version="0.0.4";uses:="ie.tcd.imm.hits.util",
- ie.tcd.imm.hits.knime.util;version="0.0.4";
-  uses:="ie.tcd.imm.hits.common,
-   org.knime.core.node.defaultnodesettings,
-   org.knime.core.data,
-   org.knime.core.node,
-   org.knime.core.node.property.hilite,
-   javax.swing",
- ie.tcd.imm.hits.knime.view,
- ie.tcd.imm.hits.knime.view.heatmap;
+Export-Package: com.mind_era.knime.common;version="0.0.4";uses:="ie.tcd.imm.hits.util",
+ com.mind_era.knime.common.util;version="0.0.4";uses:="javax.swing.filechooser,ie.tcd.imm.hits.util.swing.colour,org.nfunk.jep",
+ com.mind_era.knime.common.util.file;version="0.0.4";x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
+ com.mind_era.knime.common.util.interval,
+ com.mind_era.knime.common.util.select;version="0.0.4";x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
+ com.mind_era.knime.common.util.swing,
+ com.mind_era.knime.common.util.swing.colour,
+ com.mind_era.knime.common.util.template;version="0.0.4";uses:="org.knime.core.util",
+ com.mind_era.knime.common.view,
+ com.mind_era.knime.common.view.heatmap;
   x-friends:="com.mind_era.knime.hits,
    com.mind_era.knime.util,
    com.mind_era.knime.hits.test";
@@ -31,19 +31,12 @@ Export-Package: ie.tcd.imm.hits.common;version="0.0.4";uses:="ie.tcd.imm.hits.ut
    ie.tcd.imm.hits.util.swing.colour,
    ie.tcd.imm.hits.util,
    javax.swing",
- ie.tcd.imm.hits.knime.view.impl;x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
- ie.tcd.imm.hits.knime.view.prefs;
+ com.mind_era.knime.common.view.impl;x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
+ com.mind_era.knime.common.view.prefs;
   uses:="org.eclipse.ui,
    org.eclipse.jface.resource,
    org.eclipse.jface.preference,
    org.eclipse.core.runtime.preferences",
- ie.tcd.imm.hits.util;version="0.0.4";uses:="javax.swing.filechooser,ie.tcd.imm.hits.util.swing.colour,org.nfunk.jep",
- ie.tcd.imm.hits.util.file;version="0.0.4";x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
- ie.tcd.imm.hits.util.interval,
- ie.tcd.imm.hits.util.select;version="0.0.4";x-friends:="com.mind_era.knime.hits,com.mind_era.knime.util,com.mind_era.knime.hits.test",
- ie.tcd.imm.hits.util.swing,
- ie.tcd.imm.hits.util.swing.colour,
- ie.tcd.imm.hits.util.template;version="0.0.4";uses:="org.knime.core.util",
  org.knime.core.node.defaultnodesettings;version="0.0.4";uses:="javax.swing"
 Bundle-ClassPath: lib/patricia-trie-0.6.jar,
  .

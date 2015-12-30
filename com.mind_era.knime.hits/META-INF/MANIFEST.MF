@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-Vendor: TCD
 Bundle-Version: 0.6.0.qualifier
 Bundle-ManifestVersion: 2
-Bundle-Activator: ie.tcd.imm.hits.knime.internal.Activator
+Bundle-Activator: com.mind_era.knime.hits.internal.Activator
 Bundle-SymbolicName: com.mind_era.knime.hits;singleton:=true
-Export-Package: ie.tcd.imm.hits.knime.view.impl;x-friends:="com.mind_era.knime.hits.test"
+Export-Package: com.mind_era.knime.hits.view.impl;x-friends:="com.mind_era.knime.hits.test"
 

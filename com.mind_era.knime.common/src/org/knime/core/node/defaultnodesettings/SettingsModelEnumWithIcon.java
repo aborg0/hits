@@ -3,10 +3,10 @@
  */
 package org.knime.core.node.defaultnodesettings;
 
-import ie.tcd.imm.hits.util.Displayable;
-
 import org.knime.core.node.util.DefaultStringIconOption;
 import org.knime.core.node.util.StringIconOption;
+
+import com.mind_era.knime.common.util.Displayable;
 
 /**
  * A {@link SettingsModel} to store ({@link Displayable} and {@link HasIcon})

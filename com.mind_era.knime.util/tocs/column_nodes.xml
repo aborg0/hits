@@ -2,5 +2,5 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Column" link_to="..\org.knime.base\tocs\column.xml#column">
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.util\html\nodes\Subsets.html" label="Subsets"/>
+<topic href="PLUGINS_ROOT/com.mind_era.knime.util\html\nodes\Subsets.html" label="Subsets"/>
 </toc>

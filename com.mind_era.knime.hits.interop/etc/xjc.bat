@@ -1,1 +1,1 @@
-xjc -p ie.tcd.imm.hits.knime.interop.config ../src/ie/tcd/imm/hits/knime/interop/interop.xsd -d ../gensrc
+xjc -p com.mind_era.knime.hits.interop.config ../src/ie/tcd/imm/hits/knime/interop/interop.xsd -d ../gensrc

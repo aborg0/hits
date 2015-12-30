@@ -14,11 +14,11 @@ Bundle-Vendor: TCD
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 0.3.0.qualifier
 Bundle-Name: Useful KNIME Nodes Plug-in
-Bundle-Activator: ie.tcd.imm.knime.util.Activator
+Bundle-Activator: com.mind_era.knime.util.internal.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.mind_era.knime.util;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: ie.tcd.imm.hits.knime.util;version="0.6.0",
- ie.tcd.imm.hits.knime.util.leaf.ordering;version="0.4.0";x-friends:="com.mind_era.knime.hits.test",
- ie.tcd.imm.hits.knime.view;version="0.6.0"
+Export-Package: com.mind_era.knime.util.leaf.ordering;version="0.4.0";x-friends:="com.mind_era.knime.hits.test",
+ com.mind_era.knime.util;version="0.6.0",
+ com.mind_era.knime.util.view;version="0.6.0"
 

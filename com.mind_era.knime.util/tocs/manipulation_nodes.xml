@@ -2,6 +2,6 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Data Manipulation" link_to="..\org.knime.base\tocs\manipulation.xml#manipulation">
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.util\html\nodes\Pivot.html" label="Pivot"/>
-<topic href="PLUGINS_ROOT/ie.tcd.imm.knime.util\html\nodes\Unpivot.html" label="Unpivot"/>
+<topic href="PLUGINS_ROOT/com.mind_era.knime.util\html\nodes\Pivot.html" label="Pivot"/>
+<topic href="PLUGINS_ROOT/com.mind_era.knime.util\html\nodes\Unpivot.html" label="Unpivot"/>
 </toc>
