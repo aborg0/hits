@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>BioConverter</title>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+        <meta name="author" content="Gabor Bakos"/>
+        <meta name="date" content="17 August 2009"/>
+		<link rel="stylesheet" type="text/css" href="PLUGINS_ROOT/ie.tcd.imm.hits/help/basic.css"/>
+    </head>
+    <body>
+        <h1>BioConverter node</h1>
+        <div class="section">
+        	<h2>Overview</h2>
+            <div class="section">
+                <p>The purpose of this node to convert between different kind of data formats in connection with high throughput/content experiments. (For example barcodes, plate numbers, row, column information.)</p>
+                <p>Sample workflow can be found <a href="http://code.google.com/p/hits/source/browse/#svn/ie.tcd.imm.knime.test/trunk/testdata/workflows/conversions">here</a>.</p>
+				<p>The <a href="../html/nodes/BioConverter.html">node description</a> shows the overview of the functionality, while this page gives more detailed examples.</p>
+            </div>
+        </div>
+        <div class="section">
+        	<h2>Input data</h2>
+            <div class="section">
+            	<h3>First data inport</h3>
+            	<p>It is really flexible, you can have as many columns as you want with any kind of content.</p>
+            </div>
+        </div>
+        <div class="section">
+        	<h2>Output data</h2>
+            <div class="section">
+            	<h3>First data outport</h3>
+            	<p>It really depends on the settings. It might contain new columns, nothing from the old ones.</p>
+            </div>
+        </div>
+        <div class="section">
+        	<h2>Options</h2>
+        	<p>This section describes the different options available.</p>
+        	<p>The options grouped to different tabs: <img src="bioConverter_optionsHeader.png"/></p>
+        	<p>Each non-<a href="#general">General</a> tab is divided to two groups the first one is to describe the input column, while the second one is to describe the output. Each group has an option to use a <a href="#templates">predefined template</a>, or use a <a href="#custom">custom</a>, modifiable one.</p>
+        	<p>The input group has 3 options: </p>
+        	<ul>
+        		<li><a href="#templateSelection">template selection</a></li>
+        		<li><a href="#columnSelection">column name selection</a></li>
+        		<li><a href="#inputContentFormat">input content format pattern</a></li>
+        	</ul>
+        	<p>The output group has 5 options: </p>
+        	<ul>
+        		<li><a href="#templateSelection">template selection</a></li>
+        		<li><a href="#columnSelection">column name field</a></li>
+        		<li><a href="#outputContentFormat">output content format pattern</a></li>
+        		<li><a href="#outputContentType">output content type</a></li>
+        		<li><a href="#outputContentPosition">output content position</a></li>
+        	</ul>
+        	<div class="section">
+        		<h3>Common options</h3>
+        		<div class="section">
+        			<h4><a name="templateSelection"/>Template selection</h4>
+        			<p>Here you can select the template to apply only the <a href="#custom">custom</a> template make the associated fields modifiable.</p>
+        		</div>
+        		<div class="section">
+        			<h4><a name="columnSelection"/>Column name</h4>
+        			<p>Just select (input) or write (output) a column name.</p>
+        		</div>
+        		<div class="section">
+        			<h4><a name="inputContentFormat"/>Input column content format</h4>
+        			<p>It should be a <a href="http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html#sum">regular expression</a>. The first (capturing) group will be the result for each row. If it is not available empty text will be used instead.</p>
+        		</div>
+        		<div class="section">
+        			<h4><a name="outputContentFormat"/>Output content format</h4>
+        			<p>Everything outside of <code>${</code>...<code>}</code> blocks will be copied to the result.</p>
+        			<p>Inside <code>${</code>...<code>}</code> blocks you can use:</p>
+        			<ul>
+        				<li><em>optional</em>: a leading <code>0</code> followed by a number (<em>n</em>) - to the result (if it is a natural number) <code>0</code>s will be added to have at least <em>n</em> digits (the result might have more characters!).</li>
+        				<li><em>optional</em>: one of the following functions:
+        					<ul>
+        						<li><code>toUpperLetter(</code>positive integer number<code>)</code> - for numbers between <code>1</code> and <code>26</code> (inclusive) it generates the letter with that position in English alphabet (uppercase).</li>
+        						<li><code>toLowerLetter(</code>positive integer number<code>)</code> - for numbers between <code>1</code> and <code>26</code> (inclusive) it generates the letter with that position in English alphabet (lowercase).</li>
+        						<li><code>toNumber(</code>a letter<code>)</code> - for a letter it converts to the position in the English alphabet (<code>A</code>, or <code>a</code> are represented by <code>1</code>).</li>
+        						<li><code>inc(</code>integer number<code>)</code> - increases its argument by <code>1</code></li>
+        						<li><code>dec(</code>integer number<code>)</code> - decreases its argument by <code>1</code></li>
+        						<li><code>convertToFileName(</code>text<code>)</code> - replaces all (possibly) invalid characters with <code>_</code>.</li>
+        					</ul>
+        				</li>
+        				<li>one of the following identifiers:
+        					<ul>
+        						<li><code>Experiment</code></li>
+        						<li><code>Plate</code></li>
+        						<li><code>Replicate</code></li>
+        						<li><code>Well Row</code></li>
+        						<li><code>Well Column</code></li>
+        					</ul>
+        				</li>
+        				<li>natural numbers</li>
+        				<li>texts quoted by <code>"</code> signs.</li>
+        			</ul>
+        			<p>Note: If a part produced error, then the definition of that group will be printed instead (although other parts will not be affected).</p>
+        			<p>You can combine these as you can, so this is a perfectly correct (although long, and meaningless) example: 
+        				<ul>
+        					<li><code>26 is: ${toUpperLetter(26)}=${toUpperLetter(toNumber("Z"))} plate: ${toUpperLetter(dec(Plate))} well: ${toUpperLetter(Well Row)} - ${02inc(inc(Well Column))}.</code></li>
+        				</ul>
+        				, while these are <em>not</em>: 
+        				<ul>
+        					<li><code>${</code></li>
+        					<li><code>${toNumber(04Plate)}</code> - wrong position of leading 0 annotation</li>
+        					<li><code>${toUpperLetter}</code> - no argument/wrong variable name</li>
+        					<li><code>a ${toUpperLetter(Well Row)</code> - not closed <code>${</code></li>
+        					<li><code>${03inc(Column)}</code> - wrong identifier, should be <code>Well Column</code></li>
+        				</ul>
+        			</p>
+        		</div>
+        		<div class="section">
+        			<h4><a name="outputContentType"/>Output content type</h4>
+        			<p>One of:</p>
+        			<ul>
+        				<li><code>Integer</code></li>
+        				<li><code>Real</code></li>
+        				<li><code>String</code></li>
+        				<li><code>Do not generate</code></li>
+        			</ul>
+        		</div>
+        		<div class="section">
+        			<h4><a name="outputContentPosition"/>Output content position</h4>
+        			<p>The position based of the result column in the output table. For negative values it is counted from the end, for positive values it is counted from the beginning, <code>0</code> should be used with <code>Do not generate</code> output type.</p>
+        		</div>
+        	</div>
+        	<div class="section">
+        		<h3>Tabs</h3>
+	        	<div class="section">
+	        		<h4><a name="general"/>General</h4>
+	        		<p><img src="bioConverter_optionsGeneral.png"/></p>
+	        		<p>You can select the input and output format. Changing the selection on this page changes every other page's selection.</p>
+	        		<div class="section">
+	        			<h5><a name="addUnmatched"/>Add unmatched selections</h5>
+	        			<p>If checked it will not remove those columns that are not specified in the input columns.</p>
+	        		</div>
+	        		<div class="section">
+	        			<h5><a name="keepOriginal"/>Keep original columns</h5>
+	        			<p>If checked it will not just add the new columns, but also keep the input columns (those that are not replaced with a new content).</p>
+	        		</div>
+	        		<div class="section">
+	        			<h5><a name="tryGenerate"/>Try generate missing column values</h5>
+	        			<p>If checked it will generate some kind of result instead of missing values. (Currently does not work really well.)</p>
+	        		</div>
+	        	</div>
+	        	<div class="section">
+	        		<h4><a name="experiment"/>Experiment</h4>
+	        		<p><img src="bioConverter_optionsExperiment.png"/></p>
+	        		<p>This can be either <code>barcode</code>, or the <code>Experiment</code> column, or anything else that might describes the experiment. The purpose of this to find something that identifies the experiment. It is not always necessary to have, although it might be useful if you compare different experiments.</p>
+	        		<p>The default <a href="#HCDC">HCDC</a> pattern is anything before the <code>barcode</code>'s last two (<code>_</code> separated) numbers. In <a href="cellHTS2Input">cellHTS2Input</a> this is not present.</p>
+	        	</div>
+	        	<div class="section">
+	        		<h4><a name="plate"/>Plate</h4>
+	        		<p><img src="bioConverter_optionsPlate.png"/></p>
+	        		<p>This is usually a number (starting from <code>1</code>), although for <a href="#HCDC">HCDC</a> it is the usually the <code>barcode</code>'s part.</p>
+	        	</div>
+	        	<div class="section">
+	        		<h4><a name="replicate"/>Replicate</h4>
+	        		<p>If you have replicates this column should be handled properly. This is usually a number starting from <code>1</code></p>
+	        	</div>
+	        	<div class="section">
+	        		<h4><a name="row"/>Well Row</h4>
+	        		<p>This describes the vertical position of the well on the plate. This and the <a href="#col">Well Column</a> together might be the <a href="PLUGINS_ROOT/ie.tcd.imm.hits/help/contepts.xhtml#well">well</a> column, although these can be handled separately.</p>
+	        	</div>
+	        	<div class="section">
+	        		<h4><a name="column"/>Well Column</h4>
+	        		<p>This describes the horizontal position of the well on the plate.</p>
+	        	</div>
+        	</div>
+        </div>
+        <div class="section">
+        	<h2><a name="templates"/>Templates</h2>
+        	<p>The following templates are defined:</p>
+        	<ul>
+        		<li><a href="#cellHTS2Input"><code>cellHTS2Input</code></a></li>
+        		<li><a href="#cellHTS2Output"><code>cellHTS2Output</code></a></li>
+        		<li><a href="#HCDC"><code>HCDC</code></a></li>
+        		<li><a href="#custom"><code>custom</code></a></li>
+        	</ul>
+        	<div class="section">
+        		<h3><a name="cellHTS2Input"/>cellHTS2Input</h3>
+        		<p>This is for <a href="PLUGINS_ROOT/ie.tcd.imm.hits/help/cellHTS2.xhtml#input1">the input</a> like the cellHTS2 node in <a href="http://code.google.com/p/hits">HiTS</a>. It contains no experiment information.</p>
+        	</div>
+        	<div class="section">
+        		<h3><a name="cellHTS2Output"/>cellHTS2Output</h3>
+        		<p>This is for <a href="PLUGINS_ROOT/ie.tcd.imm.hits/help/cellHTS2.xhtml#output1">the output</a> like the cellHTS2 node in <a href="http://code.google.com/p/hits">HiTS</a>. It contains experiment information, and it has a slightly different well format to the <a href="#cellHTS2Input">cellHTS2Input</a> format.</p>
+        	</div>
+        	<div class="section">
+        		<h3><a name="HCDC"/>HCDC</h3>
+        		<p>This format is the common <code>barcode</code>, <code>col</code> (a letter), <code>row</code> column-group. You can check the <a href="http://hcdc.ethz.ch/index.php?option=com_content&amp;view=article&amp;id=5&amp;Itemid=7#2">details</a> on the <a href="http://hcdc.ethz.ch">HCDC homepage</a>.</p>
+        	</div>
+        	<div class="section">
+        		<h3><a name="custom"/>custom</h3>
+        		<p>You can adjust/set the generating parameters to your needs.</p>
+        	</div>
+        </div>
+		<include path="PLUGINS_ROOT/ie.tcd.imm.hits.common/help/footer.xhtml/copyright" />
+    </body>
+</html>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+	targetNamespace="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	elementFormDefault="unqualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://hits.googlecode.com/svn/ie.tcd.imm.hits.interop/trunk/ie.tcd.imm.hits.interop"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
+	<element name="root">
+		<complexType>
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:javadoc>
+Represents the root of the configuration graph.
+					</jxb:javadoc>
+				</xsi:appinfo>
+			</xsi:annotation>
+			<sequence maxOccurs="1" minOccurs="1">
+				<element ref="tns:defaults"></element>
+				<element ref="tns:profiles"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="defaults">
+		<complexType>
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:class name="Defaults">
+						<jxb:javadoc>
+Represents the default values for the fields.
+						</jxb:javadoc>
+					</jxb:class>
+				</xsi:appinfo>
+			</xsi:annotation>
+			<sequence maxOccurs="unbounded">
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:property name="defaults">
+						<jxb:javadoc>
+The contained default values.
+						</jxb:javadoc>
+					</jxb:property>
+				</xsi:appinfo>
+			</xsi:annotation>
+				<element ref="tns:default"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="profiles">
+		<complexType>
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:class name="Profiles">
+						<jxb:javadoc>
+Represents a list of declared profiles.
+						</jxb:javadoc>
+					</jxb:class>
+				</xsi:appinfo>
+			</xsi:annotation>
+			<sequence maxOccurs="unbounded">
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:property name="profiles">
+						<jxb:javadoc>
+The contained profiles.
+						</jxb:javadoc>
+					</jxb:property>
+				</xsi:appinfo>
+			</xsi:annotation>
+				<element ref="tns:profile">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="default">
+		<complexType>
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:class name="Default">
+						<jxb:javadoc>
+The default value for a field.
+						</jxb:javadoc>
+					</jxb:class>
+				</xsi:appinfo>
+			</xsi:annotation>
+			<simpleContent>
+				<extension base="string">
+					<attribute ref="tns:column" use="required"></attribute>
+					<attribute ref="tns:input" use="required"></attribute>
+					<attribute ref="tns:dialog" use="required"></attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+
+	<element name="profile">
+		<complexType>
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:class name="Profile">
+						<jxb:javadoc>
+A profile for a given input type (might extend another).
+						</jxb:javadoc>
+					</jxb:class>
+				</xsi:appinfo>
+			</xsi:annotation>
+			<sequence maxOccurs="unbounded" minOccurs="0">
+				<element ref="tns:value"></element>
+			</sequence>
+			<attribute ref="tns:name" use="required"></attribute>
+			<attribute ref="tns:modifiable" use="required"></attribute>
+			<attribute ref="tns:extends" use="optional"></attribute>
+			<attribute ref="tns:input" use="required"></attribute>
+		</complexType>
+	</element>
+
+	<attribute name="column">
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
+Represents the column name.
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
+		<simpleType>
+			<annotation>
+				<appinfo>
+					<jxb:javaType
+						name="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType"
+						parseMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.valueOf"
+						printMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.ColumnType.nameOf" />
+				</appinfo>
+			</annotation>
+			<restriction base="string">
+				<enumeration value="Experiment"></enumeration>
+				<enumeration value="Plate"></enumeration>
+				<enumeration value="Replicate"></enumeration>
+				<enumeration value="WellRow"></enumeration>
+				<enumeration value="WellColumn"></enumeration>
+			</restriction>
+		</simpleType>
+	</attribute>
+
+	<attribute name="input" type="boolean">
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
+Tells whether if it belongs to the inputs' group, or to the outputs'.
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
+	</attribute>
+
+	<attribute name="dialog">
+			<xsi:annotation>
+				<xsi:appinfo>
+					<jxb:property>
+						<jxb:javadoc>
+<![CDATA[Describes the dialog's type. For the inputs these are the allowed options:<ul><li>group</li><li>name</li><li>format</li></ul>. For the outputs: <ul><li>group</li><li>name</li><li>format</li><li>type</li><li>position</li></ul>.]]>
+						</jxb:javadoc>
+					</jxb:property>
+				</xsi:appinfo>
+			</xsi:annotation>
+		<simpleType>
+			<annotation>
+				<appinfo>
+					<jxb:javaType
+						name="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType"
+						parseMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType.valueOf"
+						printMethod="ie.tcd.imm.hits.knime.interop.BioConverterNodeDialog.DialogType.nameOf" />
+				</appinfo>
+			</annotation>
+			<restriction base="string">
+				<enumeration value="group"></enumeration>
+				<enumeration value="name"></enumeration>
+				<enumeration value="format"></enumeration>
+				<enumeration value="type"></enumeration>
+				<enumeration value="position"></enumeration>
+			</restriction>
+		</simpleType>
+	</attribute>
+
+
+
+	<element name="value">
+		<complexType>
+			<simpleContent>
+				<extension base="string">
+					<attribute ref="tns:column"></attribute>
+					<attribute ref="tns:dialog"></attribute>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+
+	<attribute name="name" type="string">
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
+The name of the profile.
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
+	</attribute>
+
+	<attribute name="modifiable" type="boolean">
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
+States whether the fields are modifiable or not.
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
+	</attribute>
+
+	<attribute name="extends" type="string">
+		<xsi:annotation>
+			<xsi:appinfo>
+				<jxb:property>
+					<jxb:javadoc>
+Describes a template/profile inheritance.
+					</jxb:javadoc>
+				</jxb:property>
+			</xsi:appinfo>
+		</xsi:annotation>
+	</attribute>
+</schema>
