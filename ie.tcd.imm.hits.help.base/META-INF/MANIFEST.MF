@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common base help for HiTS
-Bundle-SymbolicName: ie.tcd.imm.hits.help.base;singleton:=true
+Bundle-SymbolicName: com.mind_era.knime.hits.help.base;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: TCD
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
