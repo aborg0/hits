@@ -2,11 +2,9 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="HiTS" link_to="..\ie.tcd.imm.hits\tocs\HiTS.xml#HiTS">
-<topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\CellHTS2.html" label="CellHTS2"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\INCell_xls_Importer.html" label="INCell xls Importer"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Plate_Heatmap.html" label="Plate Heatmap"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Rank.html" label="Rank"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Scores_to_p-values.html" label="Scores to p-values"/>
 <topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\Simple_Configurator_for_cellHTS2.html" label="Simple Configurator for cellHTS2"/>
-<topic href="PLUGINS_ROOT/ie.tcd.imm.hits\html\nodes\biomaRt_Annotator.html" label="biomaRt Annotator"/>
 </toc>

@@ -28,63 +28,6 @@
 		<topic label="Read plate configuration" href="help/simplePlateConfig.xhtml">
 			<anchor id="PlateConfig"/>
 		</topic>
-		<topic label="Analyse data" href="help/cellHTS2.xhtml">
-			<anchor id="cellHTS2"/>
-			<topic label="Input format" href="help/cellHTS2.xhtml#input">
-				<anchor id="cellHTS2Input"/>
-				<topic label="First dataport" href="help/cellHTS2.xhtml#input1">
-					<anchor id="cellHTS2Input1"/>
-				</topic>
-				<topic label="Second dataport" href="help/cellHTS2.xhtml#input2">
-					<anchor id="cellHTS2Input2"/>
-				</topic>
-				<topic label="Third dataport" href="help/cellHTS2.xhtml#input3">
-					<anchor id="cellHTS2Input3"/>
-				</topic>
-				<topic label="Fourth dataport" href="help/cellHTS2.xhtml#input4">
-					<anchor id="cellHTS2Input4"/>
-				</topic>
-			</topic>
-			<topic label="Output format" href="help/cellHTS2.xhtml#output">
-				<anchor id="cellHTS2Output"/>
-				<topic label="First dataport" href="help/cellHTS2.xhtml#output1">
-					<anchor id="cellHTS2Output1"/>
-				</topic>
-				<topic label="Second dataport" href="help/cellHTS2.xhtml#output2">
-					<anchor id="cellHTS2Output2"/>
-				</topic>
-				<topic label="Third dataport" href="help/cellHTS2.xhtml#output3">
-					<anchor id="cellHTS2Output3"/>
-				</topic>
-				<topic label="Fourth dataport" href="help/cellHTS2.xhtml#output4">
-					<anchor id="cellHTS2Output4"/>
-				</topic>
-				<topic label="Fifth dataport" href="help/cellHTS2.xhtml#output5">
-					<anchor id="cellHTS2Output5"/>
-				</topic>
-				<topic label="HTML overview" href="help/cellHTS2.xhtml#htmlOverview">
-					<anchor id="cellHTS2HTMLOverview"/>
-				</topic>
-				<topic label="topTable.txt" href="help/cellHTS2.xhtml#topTable">
-					<anchor id="cellHTS2TopTable"/>
-				</topic>
-			</topic>
-			<topic label="View of results" href="help/cellHTS2.xhtml#view">
-				<anchor id="cellHTS2View"/>
-			</topic>
-			<topic label="Dataflow" href="help/cellHTS2.xhtml#dataflow">
-				<anchor id="cellHTS2dataflow"/>
-			</topic>
-			<topic label="Configuration" href="help/cellHTS2.xhtml#params">
-				<anchor id="cellHTS2params"/>
-			</topic>
-			<topic label="Tips" href="help/cellHTS2.xhtml#tips">
-				<anchor id="cellHTS2tips"/>
-			</topic>
-			<topic label="Appendix" href="help/cellHTS2.xhtml#formulae">
-				<anchor id="cellHTS2formulae"/>
-			</topic>
-		</topic>
 		<topic label="Visualise data" href="help/visualise.xhtml">
 			<anchor id="visualise"/>
 			<topic href="help/heatmap.xhtml" label="Plate Heatmap">
@@ -94,12 +37,6 @@
 				<anchor id="simpleHeatmap"/>
 			</topic>
 			<anchor id="dendrogramManipulation"/>
-		</topic>
-		<topic label="Add ranking" href="help/rank.xhtml">
-			<anchor id="rank"/>
-		</topic>
-		<topic href="html/nodes/Scores_to_p-values.html" label="Scores to p-values">
-			<anchor id="scoresToPValues"/>
 		</topic>
 		<anchor id="postBasicFeatures"/>
 		<anchor id="Images"/>
