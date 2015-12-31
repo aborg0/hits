@@ -4,7 +4,7 @@
 <plugin>
    	<extension point="org.eclipse.equinox.preferences.preferences"/>
    	<extension point="org.eclipse.ui.preferencePages">
-      <page category="org.knime.workbench.ui.preferences" class="com.mind_era.knime.common.view.prefs.ColourPreferencePage" id="ie.tcd.imm.hits.knime.view" name="Default colour codes">
+      <page category="org.knime.workbench.ui.preferences" class="com.mind_era.knime.common.view.prefs.ColourPreferencePage" id="com.mind_era.knime.common.view" name="Default colour codes">
       </page>
    	</extension>
    	<extension point="org.eclipse.core.runtime.preferences">

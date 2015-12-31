@@ -8,9 +8,9 @@
    	</extension>
 
    	<extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.xls.ImporterNodeFactory" id="ie.tcd.imm.knime.xls.ImporterNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="ie.tcd.imm.knime.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory" id="ie.tcd.imm.knime.view.heatmap.HeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.xls.ImporterNodeFactory" id="com.mind_era.knime.hits.xls.ImporterNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory" id="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory"/>
     </extension>
 	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">
@@ -21,13 +21,12 @@
 	</extension>
    	<extension point="org.eclipse.equinox.preferences.preferences"/>
    	<extension point="org.eclipse.ui.preferencePages">
-      <page category="org.knime.workbench.ui.preferences" class="com.mind_era.knime.hits.cellhts2.prefs.MainPreferencePage" id="ie.tcd.imm.knime.cellhts2.prefs.MainPreferencePage" name="HiTS Preferences">
+      <page category="org.knime.workbench.ui.preferences" class="com.mind_era.knime.hits.cellhts2.prefs.MainPreferencePage" id="com.mind_era.knime.hits.cellhts2.prefs.MainPreferencePage" name="HiTS Preferences">
       	<!--keywordReference id="ie.tcd.imm.hits.help.pref.columnSelection"/-->
       </page>
    	</extension>
    	<extension point="org.eclipse.core.runtime.preferences">
       <initializer class="com.mind_era.knime.hits.cellhts2.prefs.PreferenceInitializer"/>
-      <initializer class="ie.tcd.imm.hits.knime.view.prefs.ColourPreferenceInitializer"/>
    	</extension>
    	<extension point="org.eclipse.help.toc">
       <toc file="HiTSToc.xml" primary="true"/>

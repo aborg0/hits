@@ -11,18 +11,18 @@
       <category description="Distance matrix" icon="icons/HiTS.png" level-id="distmatrix" name="Column" path="/community/assorted/"/>
    	</extension>
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/community/assorted/manipulation/" factory-class="com.mind_era.knime.util.pivot.PivotNodeFactory" id="ie.tcd.imm.knime.util.pivot.PivotNodeFactory"/>
-      <node category-path="/community/assorted/manipulation/" factory-class="com.mind_era.knime.util.unpivot.UnpivotNodeFactory" id="ie.tcd.imm.knime.util.unpivot.UnpivotNodeFactory"/>
+      <node category-path="/community/assorted/manipulation/" factory-class="com.mind_era.knime.util.pivot.PivotNodeFactory" id="com.mind_era.knime.util.pivot.PivotNodeFactory"/>
+      <node category-path="/community/assorted/manipulation/" factory-class="com.mind_era.knime.util.unpivot.UnpivotNodeFactory" id="com.mind_era.knime.util.unpivot.UnpivotNodeFactory"/>
       <!--node category-path="/community/assorted/manipulation/matrix/" factory-class="ie.tcd.imm.knime.util.product.DirectProductNodeFactory" id="ie.tcd.imm.knime.util.product.DirectProductNodeFactory"/-->
-      <node category-path="/community/assorted/manipulation/row/" factory-class="com.mind_era.knime.util.merge.MergeNodeFactory" id="ie.tcd.imm.knime.util.merge.MergeNodeFactory"/>
-      <node category-path="/community/assorted/manipulation/column/" factory-class="com.mind_era.knime.util.power.SubsetsNodeFactory" id="ie.tcd.imm.knime.util.power.SubsetsNodeFactory"/>
+      <node category-path="/community/assorted/manipulation/row/" factory-class="com.mind_era.knime.util.merge.MergeNodeFactory" id="com.mind_era.knime.util.merge.MergeNodeFactory"/>
+      <node category-path="/community/assorted/manipulation/column/" factory-class="com.mind_era.knime.util.power.SubsetsNodeFactory" id="com.mind_era.knime.util.power.SubsetsNodeFactory"/>
       <!--node category-path="/community/HiTS/" factory-class="com.mind_era.knime.util.ranking.RankNodeFactory" id="com.mind_era.knime.util.ranking.RankNodeFactory"/-->
-	  <node category-path="/community/HiTS/view/" factory-class="com.mind_era.knime.util.view.heatmap.simple.SimpleHeatmapNodeFactory" id="ie.tcd.imm.hits.knime.view.heatmap.simple.SimpleHeatmapNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.util.stat.p.ScoreToPValueNodeFactory" id="ie.tcd.imm.hits.knime.stat.p.ScoreToPValueNodeFactory"/>
-      <node category-path="/community/HiTS/view/" factory-class="com.mind_era.knime.util.view.dendrogram.viewonly.DendrogramNodeFactory" id="ie.tcd.imm.hits.knime.view.dendrogram.viewonly.DendrogramNodeFactory"/>
-   	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.sortby.SortByClusterNodeFactory" id="ie.tcd.imm.hits.knime.util.sortby.SortByClusterNodeFactory"/>
-   	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.leaf.ordering.LeafOrderingNodeFactory" id="ie.tcd.imm.hits.knime.util.leaf.ordering.LeafOrderingNodeFactory"/>
-	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.leaf.ordering.ReverseOrderNodeFactory" id="ie.tcd.imm.hits.knime.util.leaf.ordering.ReverseOrderNodeFactory"/>
+	  <node category-path="/community/HiTS/view/" factory-class="com.mind_era.knime.util.view.heatmap.simple.SimpleHeatmapNodeFactory" id="com.mind_era.knime.utilview.heatmap.simple.SimpleHeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.util.stat.p.ScoreToPValueNodeFactory" id="com.mind_era.knime.util.stat.p.ScoreToPValueNodeFactory"/>
+      <node category-path="/community/HiTS/view/" factory-class="com.mind_era.knime.util.view.dendrogram.viewonly.DendrogramNodeFactory" id="com.mind_era.knime.util.view.dendrogram.viewonly.DendrogramNodeFactory"/>
+   	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.sortby.SortByClusterNodeFactory" id="com.mind_era.knime.util.sortby.SortByClusterNodeFactory"/>
+   	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.leaf.ordering.LeafOrderingNodeFactory" id="com.mind_era.knime.util.leaf.ordering.LeafOrderingNodeFactory"/>
+	  <node category-path="/community/assorted/distmatrix/" factory-class="com.mind_era.knime.util.leaf.ordering.ReverseOrderNodeFactory" id="com.mind_era.knime.util.leaf.ordering.ReverseOrderNodeFactory"/>
    </extension>
    <extension point="org.eclipse.help.toc">
 	  <toc extradir="html" file="tocs/distmatrix_nodes.xml"/>
