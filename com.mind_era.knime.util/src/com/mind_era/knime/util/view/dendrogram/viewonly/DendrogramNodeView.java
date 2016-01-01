@@ -26,6 +26,8 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -42,7 +44,7 @@ import org.knime.base.node.viz.plotter.dendrogram.DendrogramPlotter;
 import org.knime.base.node.viz.plotter.node.DefaultVisualizationNodeView;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.IntCell;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.node.NodeModel;
 
 import com.mind_era.knime.common.util.swing.ImageType;
@@ -129,7 +131,7 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 						.getDataTableSpec();
 				final List<String> origCols = new ArrayList<String>();
 				for (final DataColumnSpec spec : origSpec) {
-					if (spec.getType().isASuperTypeOf(IntCell.TYPE)) {
+					if (spec.getType().isCompatible(DoubleValue.class)) {
 						origCols.add(spec.getName());
 					}
 				}
@@ -141,17 +143,25 @@ public class DendrogramNodeView extends DefaultVisualizationNodeView {
 					selectedColumns.addAll(nodeModel.getSelectedColumns());
 					break;
 				case BothButFirstBefore:
+				{
 					visibleColumns.addAll(origCols);
 					visibleColumns.removeAll(nodeModel.getSelectedColumns());
-					visibleColumns.addAll(0, nodeModel.getSelectedColumns());
-					selectedColumns.addAll(nodeModel.getSelectedColumns());
+					final List<String> visible = nodeModel.getSelectedColumns().stream().filter(c -> origCols.contains(c))
+							.collect(Collectors.toList());
+					visibleColumns.addAll(0, visible);
+					selectedColumns.addAll(visible);
 					break;
+				}
 				case BothButSecondBefore:
+				{
 					visibleColumns.addAll(origCols);
 					visibleColumns.removeAll(nodeModel.getSelectedColumns());
-					visibleColumns.addAll(nodeModel.getSelectedColumns());
-					selectedColumns.addAll(nodeModel.getSelectedColumns());
+					final List<String> visible = nodeModel.getSelectedColumns().stream().filter(c -> origCols.contains(c))
+							.collect(Collectors.toList());
+					visibleColumns.addAll(visible);
+					selectedColumns.addAll(visible);
 					break;
+				}
 				case OnlyFirst:
 					visibleColumns.addAll(nodeModel.getSelectedColumns());
 					if (!origCols.containsAll(visibleColumns)) {
