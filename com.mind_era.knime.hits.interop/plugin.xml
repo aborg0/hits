@@ -3,8 +3,8 @@
 
 <plugin>
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.interop.BioConverterNodeFactory" id="com.mind_era.knime.hits.interop.BioConverterNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.plate.format.PlateFormatNodeFactory" id="com.mind_era.knime.hits.plate.format.PlateFormatNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.interop.BioConverterNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.plate.format.PlateFormatNodeFactory"/>
    </extension>
    
    <extension point="org.eclipse.help.toc">

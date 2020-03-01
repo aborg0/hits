@@ -8,9 +8,9 @@
    	</extension>
 
    	<extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.xls.ImporterNodeFactory" id="com.mind_era.knime.hits.xls.ImporterNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory" id="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
-      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory" id="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.xls.ImporterNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.cellhts2.configurator.simple.SimpleConfiguratorNodeFactory"/>
+      <node category-path="/community/HiTS/" factory-class="com.mind_era.knime.hits.view.heatmap.HeatmapNodeFactory"/>
     </extension>
 	<!--extension point="org.knime.workbench.repository.metanode">
 		<PersistedMetaNode after="" category-path="/" description="Reorganise the columns of a table using a clustering algorithm." expert-flag="true" icon="icons/HiTS.png" id="ie.tcd.imm.hits.ClusterColumns" name="Cluster Columns" workflowDir="metaworkflows/Cluster Columns">

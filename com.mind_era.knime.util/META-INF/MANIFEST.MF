@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.11.0,5.0.0)",
- org.knime.core;bundle-version="[3.1.0,4.0.0)",
- org.knime.base;bundle-version="[3.1.0,4.0.0)",
+ org.knime.core;bundle-version="[4.1.0,5.0.0)",
+ org.knime.base;bundle-version="[4.1.0,5.0.0)",
  org.eclipse.help;bundle-version="[3.6.0,5.0.0)",
  org.eclipse.help.ui;bundle-version="[4.0.100,5.0.0)",
  com.mind_era.knime.common;bundle-version="[0.0.7,1.0.0)",
- org.knime.distmatrix;bundle-version="[3.1.0,4.0.0)",
- org.knime.ext.jep;bundle-version="[3.1.0,4.0.0)",
+ org.knime.distmatrix;bundle-version="[4.1.0,5.0.0)",
+ org.knime.ext.jep;bundle-version="[4.1.0,5.0.0)",
  org.apache.commons.math3;bundle-version="[3.4.1,4.0.0)",
  org.apache.batik.dom.svg;bundle-version="[1.6.0,2.0.0)",
- org.knime.ext.svg;bundle-version="[3.1.0,4.0.0)"
+ org.knime.ext.svg;bundle-version="[4.1.0,5.0.0)"
 Bundle-Vendor: TCD
 Bundle-ActivationPolicy: lazy
 Bundle-Version: 0.3.0.qualifier
@@ -21,4 +21,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.mind_era.knime.util.leaf.ordering;version="0.4.0";x-friends:="com.mind_era.knime.hits.test",
  com.mind_era.knime.util;version="0.6.0",
  com.mind_era.knime.util.view;version="0.6.0"
+Automatic-Module-Name: com.mind_era.knime.util
 
